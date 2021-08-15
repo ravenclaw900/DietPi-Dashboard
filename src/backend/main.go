@@ -1,20 +1,29 @@
 package main
 
 import (
+	"embed"
 	"fmt"
+	"log"
 	"net/http"
-
-	"github.com/gorilla/mux"
 )
 
+//go:embed public
+var dir embed.FS
+
 func main() {
-	r := mux.NewRouter()
+	http.HandleFunc("/", serveFile)
 
-	r.HandleFunc("/", handler).Methods("GET")
+	log.Println("Starting server on port 8080...")
 
-	http.ListenAndServe(":8080", r)
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello World!")
+func serveFile(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Request to %s\n", r.URL.Path)
+	data, err := dir.ReadFile("public/index.html")
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Printf("Error, couldn't load HTML file: %s\n", err)
+	}
+	fmt.Fprint(w, string(data))
 }
