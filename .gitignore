@@ -1,3 +1,4 @@
 node_modules/
 build/
 .vscode/
+src/backend/public
