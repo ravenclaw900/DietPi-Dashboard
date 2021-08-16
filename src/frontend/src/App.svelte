@@ -2,24 +2,21 @@
     import { Router, Route, Link } from "svelte-routing";
     import Home from "./pages/Home.svelte";
     import Test from "./pages/Test.svelte";
-    export let url = ""; //This property is necessary declare to avoid ignore the Router
+    export let url = "";
 </script>
   
-<style>
-main {
-    text-align: center;
-    padding: 1em;
-    max-width: 240px;
-    margin: 0 auto;
-}
+<style global>
+  @tailwind base;
+  @tailwind components;
+  @tailwind utilities;
 </style>
   
 <main>
-    <Router url="{url}">
-        <nav>
+    <Router url="{url}">        
+        <div class="float-left bg-blue-400 h-full">
             <Link to="/">Home</Link>
             <Link to="test">Test</Link>
-        </nav>
+        </div>
         <div>
             <Route path="test" component="{Test}" /> 
             <!--for now the router just support case sensitive,
