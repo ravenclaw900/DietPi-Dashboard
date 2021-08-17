@@ -1,4 +1,4 @@
-package systemdata
+package lib
 
 import (
 	"github.com/shirou/gopsutil/cpu"
