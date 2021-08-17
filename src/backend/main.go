@@ -7,9 +7,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/ravenclaw900/DietPi-Dashboard/data"
-
 	"github.com/gorilla/websocket"
+	"github.com/ravenclaw900/DietPi-Dashboard/systemdata"
 )
 
 //go:embed public
@@ -56,7 +55,7 @@ func serveHTML(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println(data.CPU())
+	log.Println(systemdata.CPU())
 
 }
 
