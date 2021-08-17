@@ -6,10 +6,19 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+
+	"github.com/ravenclaw900/DietPi-Dashboard/data"
+
+	"github.com/gorilla/websocket"
 )
 
 //go:embed public
 var dir embed.FS
+
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+}
 
 func main() {
 	http.HandleFunc("/", serveHTML)
@@ -38,6 +47,17 @@ func serveHTML(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error, couldn't load HTML file: %s\n", err)
 	}
 	fmt.Fprint(w, string(data))
+
+	log.Println("Setting up websocket connection")
+
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Printf("Couldn't establish websocket connection: %s\n", err)
+		return
+	}
+
+	log.Println(data.CPU())
+
 }
 
 func serveFavicon(w http.ResponseWriter, r *http.Request) {
