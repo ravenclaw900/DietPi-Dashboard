@@ -1,11 +1,25 @@
-default:
-	mkdir -p build/
+default: yarn publiccopy fmt 
 
+	cd src/backend; go build -o dietpi-dashboard
+
+	$(MAKE) publicdelete
+
+	mv src/backend/dietpi-dashboard .
+
+yarn:
 	cd src/frontend; yarn build
 
+fmt:
+	cd src/backend; go fmt
+
+publiccopy:
 	cp -r src/frontend/public src/backend
 
-	cd src/backend; go fmt
+publicdelete:
+	rm -r src/backend/public
+
+build: yarn publiccopy fmt
+	mkdir -p build/
 
 	cd src/backend; CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o dietpi-dashboard-amd64
 	cd src/backend; upx dietpi-dashboard-amd64
@@ -16,6 +30,6 @@ default:
 	cd src/backend; CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o dietpi-dashboard-arm64
 	cd src/backend; upx dietpi-dashboard-arm64
 
-	rm -r src/backend/public
+	$(MAKE) publicdelete
 
 	mv src/backend/dietpi-dashboard-* build
