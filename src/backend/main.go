@@ -15,14 +15,15 @@ import (
 var dir embed.FS
 
 var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
+	EnableCompression: true,
 }
 
 func main() {
 	http.HandleFunc("/", serveHTML)
 
 	http.HandleFunc("/favicon.png", serveFavicon)
+
+	http.HandleFunc("/ws", serveWebsockets)
 
 	dirFS, err := fs.Sub(dir, "public")
 
@@ -47,16 +48,7 @@ func serveHTML(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Fprint(w, string(data))
 
-	log.Println("Setting up websocket connection")
-
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Printf("Couldn't establish websocket connection: %s\n", err)
-		return
-	}
-
 	log.Println(lib.CPU())
-
 }
 
 func serveFavicon(w http.ResponseWriter, r *http.Request) {
@@ -67,4 +59,26 @@ func serveFavicon(w http.ResponseWriter, r *http.Request) {
 		log.Println("Error, couldn't load favicon.png")
 	}
 	fmt.Fprint(w, string(data))
+}
+
+func serveWebsockets(w http.ResponseWriter, r *http.Request) {
+	c, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Print("upgrade:", err)
+		return
+	}
+	defer c.Close()
+	for {
+		mt, message, err := c.ReadMessage()
+		if err != nil {
+			log.Println("read:", err)
+			break
+		}
+		log.Printf("recv: %s", message)
+		err = c.WriteMessage(mt, message)
+		if err != nil {
+			log.Println("write:", err)
+			break
+		}
+	}
 }
