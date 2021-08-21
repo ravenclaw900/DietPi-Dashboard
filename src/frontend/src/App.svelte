@@ -4,32 +4,29 @@
     import Test from "./pages/Test.svelte";
     export let url = "";
 
-    /**
     var socket;
     const socketMessageListener = (e) => {
-        console.log(e.data);
-    };
+        console.log(e.data)
+    }
     const socketOpenListener = (e) => {
-        console.log('Connected');
-        socket.send(JSON.stringify({ message: "hello, server" }))
-    };
+        console.log('Connected')
+    }
     const socketErrorListener = (e) => {
-        console.error(e);
+        console.error(e)
     }
     const socketCloseListener = (e) => {
         if (socket) {
             console.log('Disconnected.');
         }
-        socket = new WebSocket("ws://localhost:8080/ws");
-        socket.onopen = socketOpenListener;
-        socket.onmessage = socketMessageListener;
-        socket.onclose = socketCloseListener;
-        socket.onerror = socketErrorListener;
+        socket = new WebSocket(`ws://${window.location.hostname}:8080/ws`)
+        socket.onopen = socketOpenListener
+        socket.onmessage = socketMessageListener
+        socket.onclose = socketCloseListener
+        socket.onerror = socketErrorListener
     };
     window.addEventListener('load', (event) => {
-        socketCloseListener();
+        socketCloseListener()
     });
-    */
 </script>
   
 <style global>

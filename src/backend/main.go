@@ -7,23 +7,18 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gorilla/websocket"
 	"github.com/ravenclaw900/DietPi-Dashboard/lib"
 )
 
 //go:embed public
 var dir embed.FS
 
-var upgrader = websocket.Upgrader{
-	EnableCompression: true,
-}
-
 func main() {
 	http.HandleFunc("/", serveHTML)
 
 	http.HandleFunc("/favicon.png", serveFavicon)
 
-	http.HandleFunc("/ws", serveWebsockets)
+	http.HandleFunc("/ws", lib.ServeWebsockets)
 
 	dirFS, err := fs.Sub(dir, "public")
 
@@ -47,8 +42,6 @@ func serveHTML(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error, couldn't load HTML file: %s\n", err)
 	}
 	fmt.Fprint(w, string(data))
-
-	log.Println(lib.CPU())
 }
 
 func serveFavicon(w http.ResponseWriter, r *http.Request) {
@@ -59,26 +52,4 @@ func serveFavicon(w http.ResponseWriter, r *http.Request) {
 		log.Println("Error, couldn't load favicon.png")
 	}
 	fmt.Fprint(w, string(data))
-}
-
-func serveWebsockets(w http.ResponseWriter, r *http.Request) {
-	c, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Print("upgrade:", err)
-		return
-	}
-	defer c.Close()
-	for {
-		mt, message, err := c.ReadMessage()
-		if err != nil {
-			log.Println("read:", err)
-			break
-		}
-		log.Printf("recv: %s", message)
-		err = c.WriteMessage(mt, message)
-		if err != nil {
-			log.Println("write:", err)
-			break
-		}
-	}
 }
