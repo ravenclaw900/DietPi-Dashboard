@@ -1,9 +1,36 @@
 <script>
     import { Router, Route } from "svelte-routing";
+    import { onMount } from 'svelte';
     import Home from "./pages/Home.svelte";
     import Test from "./pages/Test.svelte";
     import NavbarLink from "./components/NavbarLink.svelte"
-    export let url = "";
+    let url = "";
+
+    let socket
+    let data = {}
+    let shown = false
+    const socketMessageListener = (e) => {
+        data = JSON.parse(e.data)
+    };
+    const socketOpenListener = (e) => {
+        console.log('Connected')
+        shown = true
+    };
+    const socketErrorListener = (e) => {
+        console.error(e)
+    }
+    const socketCloseListener = (e) => {
+        if (socket) {
+            console.log('Disconnected.');
+        }
+        socket = new WebSocket(`ws://${window.location.hostname}:8080/ws`)
+        socket.onopen = socketOpenListener
+        socket.onmessage = socketMessageListener
+        socket.onclose = socketCloseListener
+        socket.onerror = socketErrorListener
+    };
+    
+    onMount(socketCloseListener);
 </script>
   
 <style global>
@@ -21,10 +48,14 @@
         </div>
         <div class="w-5/6 flex flex-col flex-grow min-h-full">
             <header class="bg-lime-400 h-12">Test</header>
-            <div class="bg-gray-100 flex-grow p-6">
-                <Route path="test" component="{Test}" /> 
-                <Route path="/" component="{Home}" />
-            </div>
+                <div class="bg-gray-100 flex-grow p-6">
+                    {#if shown}
+                        <Route path="test" component="{Test}" />
+                        <Route path="/"><Home {socket} {data}/></Route>
+                    {:else}
+                        <h3>Connecting to API...</h3>
+                    {/if}
+                </div>
             <footer class="border-t bg-gray-200 border-gray-300 h-16 flex flex-col justify-center items-center">
                 DietPi-Dashboard created by ravenclaw900
                 <a href="https://github.com/ravenclaw900/DietPi-Dashboard" target="_blank"><img src="/assets/github.svg" class="h-7 hover:opacity-75" alt="GitHub mark"></a>

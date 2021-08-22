@@ -11,7 +11,9 @@ import (
 var upgrader = websocket.Upgrader{}
 
 type system struct {
-	CPU float64 `json:"cpu"`
+	CPU  float64 `json:"cpu"`
+	RAM  MemData `json:"ram"`
+	Swap MemData `json:"swap"`
 }
 
 type request struct {
@@ -31,8 +33,6 @@ func ServeWebsockets(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println("Couldn't get data from frontend:", err)
 			break
-		} else {
-			log.Println("Got data from frontend")
 		}
 		var req request
 		err = json.Unmarshal(jsonreq, &req)
@@ -41,7 +41,7 @@ func ServeWebsockets(w http.ResponseWriter, r *http.Request) {
 		}
 		switch req.Page {
 		case "/":
-			stats := system{CPU()}
+			stats := system{CPU(), RAM(), Swap()}
 			statsjson, err := json.Marshal(stats)
 			if err != nil {
 				log.Println("Couldn't marshal JSON from system stats:", err)
@@ -49,8 +49,6 @@ func ServeWebsockets(w http.ResponseWriter, r *http.Request) {
 			err = c.WriteMessage(websocket.TextMessage, statsjson)
 			if err != nil {
 				log.Println("Couldn't send message to frontend:", err)
-			} else {
-				log.Println("Sent data to frontend")
 			}
 		}
 	}
