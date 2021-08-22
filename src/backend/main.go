@@ -28,6 +28,8 @@ func main() {
 
 	http.Handle("/build/", http.FileServer(http.FS(dirFS)))
 
+	http.Handle("/assets/", http.FileServer(http.FS(dirFS)))
+
 	log.Println("Starting server on port 8080...")
 
 	log.Fatal(http.ListenAndServe(":8080", nil))

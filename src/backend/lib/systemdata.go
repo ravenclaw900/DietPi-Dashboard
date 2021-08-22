@@ -1,16 +1,18 @@
 package lib
 
 import (
+	"math"
+
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/mem"
 )
 
-func CPU() int {
-	percent, err := cpu.Percent(0, false)
+func CPU() float64 {
+	percent, err := cpu.Percent(1000000000, false)
 	if err != nil {
 		return 0
 	}
-	return int(percent[0])
+	return math.Round(percent[0]*100) / 100
 }
 
 func RAM() int {
