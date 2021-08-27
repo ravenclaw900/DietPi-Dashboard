@@ -7,10 +7,10 @@
     let url = "";
 
     let socket
-    let data = {}
+    let socketData = {}
     let shown = false
     const socketMessageListener = (e) => {
-        data = JSON.parse(e.data)
+        socketData = JSON.parse(e.data)
     };
     const socketOpenListener = (e) => {
         console.log('Connected')
@@ -47,11 +47,13 @@
             <NavbarLink to="test" class="text-gray-400 no-underline hover:bg-gray-800 flex items-center pl-2 h-10 text-xl font-sans">Test</NavbarLink>
         </div>
         <div class="w-5/6 flex flex-col flex-grow min-h-full">
-            <header class="bg-lime-400 h-12">Test</header>
+            <header class="bg-lime-400 h-12 flex justify-center items-center">
+                <a href="https://dietpi.com" target="_blank"><img src="/assets/dietpi.png" alt="DietPi logo" class="h-10"></a>
+            </header>
                 <div class="bg-gray-100 flex-grow p-6">
                     {#if shown}
                         <Route path="test" component="{Test}" />
-                        <Route path="/"><Home {socket} {data}/></Route>
+                        <Route path="/"><Home {socket} {socketData}/></Route>
                     {:else}
                         <h3>Connecting to API...</h3>
                     {/if}

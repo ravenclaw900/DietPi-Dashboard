@@ -1,8 +1,11 @@
 <script>
-    export let socket
-    export let data
+    import Card from "../components/Card.svelte"
+    import Chart from "chart.js/auto"
+    import { onMount } from "svelte"
 
-    console.log(socket)
+    export let socket
+    export let socketData
+    let canvas
 
     let json = {page: window.location.pathname}
     setInterval(() => {
@@ -33,30 +36,106 @@
 
     let ramData, swapData
 
-    $: data.ram && (
-        ramData = unitCalc(data.ram.used, data.ram.total),
-        swapData = unitCalc(data.swap.used, data.swap.total)
+    $: socketData.ram && (
+        ramData = unitCalc(socketData.ram.used, socketData.ram.total),
+        swapData = unitCalc(socketData.swap.used, socketData.swap.total)
     )
+
+    const chartData = {
+        labels: [],
+        datasets: [
+            {
+                label: 'CPU',
+                backgroundColor: '#10B981',
+                borderColor: '#10B981',
+                data: [],
+                yAxisID: "cpuScale"
+            },
+            {
+                label: 'RAM',
+                backgroundColor: '#EF4444',
+                borderColor: '#EF4444',
+                data: [],
+                yAxisID: "memScale"
+            },
+            {
+                label: 'Swap',
+                backgroundColor: '#3B82F6',
+                borderColor: '#3B82F6',
+                data: [],
+                yAxisID: "memScale"
+            }
+    ]
+    };
+
+    const config = {
+        type: 'line',
+        data: chartData,
+        options: {
+            scales: {
+                cpuScale: {
+                    position: "right",
+                    type: "linear",
+                    ticks: {
+                        callback: (value) => {
+                            return value + "%"
+                        }
+                    }
+                },
+                memScale: {
+                    position: "left",
+                    type: "linear",
+                    ticks: {
+                        callback: (value) => {
+                            return value + "MiB"
+                        }
+                    }
+                }
+            },
+            responsive: true, 
+            maintainAspectRatio: false
+        }
+    };
+
+    onMount(() => {
+        let chart = new Chart(
+            canvas.getContext("2d"),
+            config
+        );
+
+        setInterval(() => {
+            let currenttime = new Date()
+            chartData.labels.push(`${currenttime.getHours()}:${currenttime.getMinutes()}:${currenttime.getSeconds()}`);
+            chartData.datasets[0].data.push(socketData.cpu)
+            chartData.datasets[1].data.push(socketData.ram.used / 1048576)
+            chartData.datasets[2].data.push(socketData.swap.used / 1048576)
+            chart.update()
+        }, 2000);
+    })
 </script>
 
-<main class="flex flex-wrap">
-    {#if ramData != undefined}
-        <div class="bg-white p-2 rounded border-t-4 border-gray-300 w-max font-sans shadow">
-            <h2 class="border-b-2 border-gray-200 h-auto pb-2 mb-2">
-                System Stats
-            </h2>
-            CPU:<span class="float-right">{data.cpu}/100%</span>
-            <div class="bg-gray-200 w-80 h-3 my-1">
-                <div class="bg-green-500 h-3" style="width:{data.cpu}%"></div>
+<main class="flex gap-5 flex-wrap min-h-full flex-grow">
+        <Card header="System Diagnostics">
+            <div style="min-height: 90%; height:30vh; width:40vw">
+                <canvas bind:this={canvas}/>
             </div>
-            RAM:<span class="float-right">{ramData[0]}/{ramData[1]}{ramData[2]}</span>
-            <div class="bg-gray-200 w-80 h-3 my-1">
-                <div class="bg-red-500 h-3" style="width:{data.ram.percent}%"></div>
-            </div>
-            Swap:<span class="float-right">{swapData[0]}/{swapData[1]}{swapData[2]}</span>
-            <div class="bg-gray-200 w-80 h-3 my-1">
-                <div class="bg-blue-500 h-3" style="width:{data.swap.percent}%"></div>
-            </div>
-        </div>
-    {/if}
+        </Card>
+        {#if ramData != undefined}
+            <Card header="System Stats">
+                CPU:<span class="float-right">{socketData.cpu}/100%</span>
+                <div class="bg-gray-200 w-full h-3 my-1">
+                    <div class="bg-green-500 h-3" style="width:{socketData.cpu}%"></div>
+                </div>
+                RAM:<span class="float-right">{ramData[0]}/{ramData[1]}{ramData[2]}</span>
+                <div class="bg-gray-200 w-full h-3 my-1">
+                    <div class="bg-red-500 h-3" style="width:{socketData.ram.percent}%"></div>
+                </div>
+                Swap:<span class="float-right">{swapData[0]}/{swapData[1]}{swapData[2]}</span>
+                <div class="bg-gray-200 w-full h-3 my-1">
+                    <div class="bg-blue-500 h-3" style="width:{socketData.swap.percent}%"></div>
+                </div>
+            </Card>
+        {:else}
+            <h3>Getting data...</h3>
+        {/if}
 </main>
