@@ -40,7 +40,6 @@ func ServeWebsockets(w http.ResponseWriter, r *http.Request) {
 			log.Println("Couldn't get data from frontend:", err)
 			break
 		}
-		log.Println(req.Page)
 		switch req.Page {
 		case "/":
 			stats := system{CPU(), RAM(), Swap()}

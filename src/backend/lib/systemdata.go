@@ -1,7 +1,6 @@
 package lib
 
 import (
-	"log"
 	"math"
 
 	"github.com/shirou/gopsutil/cpu"
@@ -49,7 +48,6 @@ func Swap() MemData {
 func Processes() []ProcessData {
 	var processCPU []ProcessData
 	processes, err := process.Processes()
-	log.Println("Got processes")
 	if err != nil {
 		return []ProcessData{}
 	}
@@ -66,9 +64,7 @@ func Processes() []ProcessData {
 		if err != nil {
 			continue
 		}
-		log.Println("Got process data")
 		processCPU = append(processCPU, ProcessData{element.Pid, name, math.Round(cpu*10) / 10, ram.VMS / 1048576})
 	}
-	log.Println("Done")
 	return processCPU
 }

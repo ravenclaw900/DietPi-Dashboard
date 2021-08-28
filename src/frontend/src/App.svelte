@@ -4,6 +4,9 @@
     import Home from "./pages/Home.svelte";
     import Process from "./pages/Process.svelte";
     import NavbarLink from "./components/NavbarLink.svelte"
+    import Fa from 'svelte-fa'
+    import { faGithub } from '@fortawesome/free-brands-svg-icons'
+    import { faTachometerAlt, faMicrochip } from "@fortawesome/free-solid-svg-icons"
     let url = "";
 
     let socket
@@ -52,8 +55,8 @@
     <Router url="{url}">
         <div class="bg-gray-900 w-1/6 flex-grow">
             <div class="h-12 bg-lime-500 text-2xl flex items-center justify-center">DietPi Dashboard</div>
-            <NavbarLink to="/">Home</NavbarLink>
-            <NavbarLink to="process">Processes</NavbarLink>
+            <NavbarLink icon={faTachometerAlt} to="/">Statistics</NavbarLink>
+            <NavbarLink icon={faMicrochip} to="process">Processes</NavbarLink>
         </div>
         <div class="w-5/6 flex flex-col flex-grow min-h-full">
             <header class="bg-lime-400 h-12 flex justify-center items-center">
@@ -69,7 +72,7 @@
                 </div>
             <footer class="border-t bg-gray-200 border-gray-300 h-16 flex flex-col justify-center items-center">
                 DietPi-Dashboard created by ravenclaw900
-                <a href="https://github.com/ravenclaw900/DietPi-Dashboard" target="_blank"><img src="/assets/github.svg" class="h-7 hover:opacity-75" alt="GitHub mark"></a>
+                <a href="https://github.com/ravenclaw900/DietPi-Dashboard" target="_blank"><Fa icon={faGithub} class="hover:opacity-75" size="2x" /></a>
             </footer>
         </div>
     </Router>
