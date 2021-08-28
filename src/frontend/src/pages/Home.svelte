@@ -3,14 +3,8 @@
     import Chart from "chart.js/auto"
     import { onMount } from "svelte"
 
-    export let socket
     export let socketData
     let canvas
-
-    let json = {page: window.location.pathname}
-    setInterval(() => {
-        socket.send(JSON.stringify(json))
-    }, 1000);
 
     function unitCalc(used, total) {
         let unitTotal, unitUsed, unit

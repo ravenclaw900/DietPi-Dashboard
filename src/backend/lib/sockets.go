@@ -1,19 +1,24 @@
 package lib
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/websocket"
 )
 
-var upgrader = websocket.Upgrader{}
+var upgrader = websocket.Upgrader{
+	ReadBufferSize: -1,
+}
 
 type system struct {
 	CPU  float64 `json:"cpu"`
 	RAM  MemData `json:"ram"`
 	Swap MemData `json:"swap"`
+}
+
+type processlist struct {
+	Processes []ProcessData `json:"processes"`
 }
 
 type request struct {
@@ -29,24 +34,23 @@ func ServeWebsockets(w http.ResponseWriter, r *http.Request) {
 	}
 	defer c.Close()
 	for {
-		_, jsonreq, err := c.ReadMessage()
+		var req request
+		err := c.ReadJSON(&req)
 		if err != nil {
 			log.Println("Couldn't get data from frontend:", err)
 			break
 		}
-		var req request
-		err = json.Unmarshal(jsonreq, &req)
-		if err != nil {
-			log.Println("Couldn't parse JSON from frontend:", err)
-		}
+		log.Println(req.Page)
 		switch req.Page {
 		case "/":
 			stats := system{CPU(), RAM(), Swap()}
-			statsjson, err := json.Marshal(stats)
+			err := c.WriteJSON(stats)
 			if err != nil {
-				log.Println("Couldn't marshal JSON from system stats:", err)
+				log.Println("Couldn't send message to frontend:", err)
 			}
-			err = c.WriteMessage(websocket.TextMessage, statsjson)
+		case "/process":
+			processes := processlist{Processes()}
+			err := c.WriteJSON(processes)
 			if err != nil {
 				log.Println("Couldn't send message to frontend:", err)
 			}
