@@ -3,10 +3,11 @@
     import { onMount } from 'svelte';
     import Home from "./pages/Home.svelte";
     import Process from "./pages/Process.svelte";
+    import Software from "./pages/Software.svelte";
     import NavbarLink from "./components/NavbarLink.svelte"
     import Fa from 'svelte-fa'
     import { faGithub } from '@fortawesome/free-brands-svg-icons'
-    import { faTachometerAlt, faMicrochip } from "@fortawesome/free-solid-svg-icons"
+    import { faTachometerAlt, faMicrochip, faDatabase } from "@fortawesome/free-solid-svg-icons"
     let url = "";
 
     let socket
@@ -56,6 +57,7 @@
             <div class="h-12 bg-lime-500 text-2xl flex items-center justify-center">DietPi Dashboard</div>
             <span on:click={pollServer}><NavbarLink icon={faTachometerAlt} to="/">Statistics</NavbarLink></span>
             <span on:click={pollServer}><NavbarLink icon={faMicrochip} to="process">Processes</NavbarLink></span>
+            <span on:click={pollServer}><NavbarLink icon={faDatabase} to="software">Software</NavbarLink></span>
         </div>
         <div class="w-5/6 flex flex-col flex-grow min-h-full">
             <header class="bg-lime-400 h-12 flex justify-center items-center">
@@ -65,6 +67,7 @@
                     {#if shown}
                         <Route path="process"><Process {socketData} /></Route>
                         <Route path="/"><Home {socketData}/></Route>
+                        <Route path="software"><Software {socketData} {socket} /></Route>
                     {:else}
                         <h3>Connecting to API...</h3>
                     {/if}

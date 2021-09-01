@@ -3,6 +3,8 @@ package lib
 import (
 	"log"
 	"net/http"
+	"os/exec"
+	"strconv"
 
 	"github.com/gorilla/websocket"
 )
@@ -19,11 +21,18 @@ type processlist struct {
 	Processes []ProcessData `json:"processes"`
 }
 
-type request struct {
-	Page string `json:"page"`
+type softwarelist struct {
+	Software []DPSoftwareData `json:"software"`
+	Response string           `json:"response,omitempty"`
 }
 
-func readSocket(c *websocket.Conn, m chan<- request, n chan<- int) {
+type request struct {
+	Page string      `json:"page"`
+	Do   string      `json:"do"`
+	Args interface{} `json:"args"`
+}
+
+func readSocket(c *websocket.Conn, m chan<- request, n chan<- struct{}) {
 	var req request
 	firstmessage := true
 	for {
@@ -34,10 +43,12 @@ func readSocket(c *websocket.Conn, m chan<- request, n chan<- int) {
 			close(n)
 			break
 		}
-		if !firstmessage {
-			n <- 0
-		} else {
-			firstmessage = false
+		if req.Do == "" {
+			if !firstmessage {
+				n <- struct{}{}
+			} else {
+				firstmessage = false
+			}
 		}
 		m <- req
 	}
@@ -51,7 +62,7 @@ func ServeWebsockets(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	m := make(chan request)
-	n := make(chan int)
+	n := make(chan struct{})
 	go readSocket(c, m, n)
 	defer c.Close()
 	for i := range m {
@@ -73,8 +84,7 @@ func ServeWebsockets(w http.ResponseWriter, r *http.Request) {
 		case "/process":
 		process:
 			for {
-				processes := processlist{Processes()}
-				err := c.WriteJSON(processes)
+				err := c.WriteJSON(processlist{Processes()})
 				if err != nil {
 					log.Println("Couldn't send message to frontend:", err)
 				}
@@ -82,6 +92,32 @@ func ServeWebsockets(w http.ResponseWriter, r *http.Request) {
 				case <-n:
 					break process
 				default:
+				}
+			}
+		case "/software":
+			err := c.WriteJSON(softwarelist{DPSoftware(), ""})
+			if err != nil {
+				log.Println("Couldn't send message to frontend:", err)
+			}
+		software:
+			for {
+				select {
+				case data := <-m:
+					argArr := []string{"/boot/dietpi/dietpi-software", data.Do}
+					for _, element := range data.Args.([]interface{}) {
+						argArr = append(argArr, strconv.Itoa(int(element.(float64))))
+					}
+					cmd := &exec.Cmd{
+						Path: "/boot/dietpi/dietpi-software",
+						Args: argArr,
+					}
+					out, _ := cmd.Output()
+					err := c.WriteJSON(softwarelist{DPSoftware(), string(out)})
+					if err != nil {
+						log.Println("Couldn't send message to frontend:", err)
+					}
+				case <-n:
+					break software
 				}
 			}
 		}
