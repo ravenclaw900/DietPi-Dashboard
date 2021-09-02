@@ -54,13 +54,13 @@
 <main class="min-h-screen -m-2 flex">
     <Router url="{url}">
         <div class="bg-gray-900 w-1/6 flex-grow">
-            <div class="h-12 bg-lime-500 text-2xl flex items-center justify-center">DietPi Dashboard</div>
+            <div class="h-12 bg-dplime-dark text-2xl flex items-center justify-center">DietPi Dashboard</div>
             <span on:click={pollServer}><NavbarLink icon={faTachometerAlt} to="/">Statistics</NavbarLink></span>
             <span on:click={pollServer}><NavbarLink icon={faMicrochip} to="process">Processes</NavbarLink></span>
             <span on:click={pollServer}><NavbarLink icon={faDatabase} to="software">Software</NavbarLink></span>
         </div>
         <div class="w-5/6 flex flex-col flex-grow min-h-full">
-            <header class="bg-lime-400 h-12 flex justify-center items-center">
+            <header class="bg-dplime h-12 flex justify-center items-center">
                 <a href="https://dietpi.com" target="_blank"><img src="/assets/dietpi.png" alt="DietPi logo" class="h-10"></a>
             </header>
                 <div class="bg-gray-100 flex-grow p-6">

@@ -69,7 +69,7 @@
 <main>
     {#if socketData.software != undefined}
     <table class="border border-gray-300 w-full">
-        <tr class="bg-lime-400">
+        <tr class="bg-dplime">
             <th>ID</th>
             <th>Installed</th>
             <th>Name</th>

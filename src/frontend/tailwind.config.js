@@ -7,7 +7,10 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        lime: colors.lime
+        dplime: {
+          DEFAULT: "#9ccc00",
+          dark: "#7B952F"
+        }
       }
     },
   },

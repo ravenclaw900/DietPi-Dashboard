@@ -158,7 +158,7 @@
 <main>
     {#if socketData.processes != undefined}
         <table class="border border-gray-300 w-full">
-            <tr class="bg-lime-400">
+            <tr class="bg-dplime">
                 <th>PID<span on:click={setPid}><Fa icon={pidIcon} class="float-right cursor-pointer" /></span></th>
                 <th>Name<span on:click={setName}><Fa icon={nameIcon} class="float-right cursor-pointer" /></span></th>
                 <th>CPU Usage<span on:click={setCPU}><Fa icon={cpuIcon} class="float-right cursor-pointer" /></span></th>
