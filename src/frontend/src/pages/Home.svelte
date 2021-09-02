@@ -2,6 +2,23 @@
     import Card from "../components/Card.svelte"
     import Chart from "chart.js/auto"
     import { onMount } from "svelte"
+	import { tweened } from 'svelte/motion';
+    import { cubicOut } from 'svelte/easing';
+
+	const cpuAnimate = tweened(0, {
+		duration: 200,
+		easing: cubicOut
+	});
+
+    const ramAnimate = tweened(0, {
+		duration: 200,
+		easing: cubicOut
+	});
+
+    const swapAnimate = tweened(0, {
+		duration: 200,
+		easing: cubicOut
+	});
 
     export let socketData
     let canvas
@@ -29,6 +46,12 @@
     }
 
     let ramData, swapData
+
+    $: socketData.cpu != undefined && (
+        cpuAnimate.set(socketData.cpu),
+        ramAnimate.set(socketData.ram.percent),
+        swapAnimate.set(socketData.swap.percent)
+    )
 
     $: socketData.ram && (
         ramData = unitCalc(socketData.ram.used, socketData.ram.total),
@@ -118,15 +141,15 @@
             <Card header="System Stats">
                 CPU:<span class="float-right">{socketData.cpu}/100%</span>
                 <div class="bg-gray-200 w-full h-3 my-1">
-                    <div class="bg-green-500 h-3" style="width:{socketData.cpu}%"></div>
+                    <div class="bg-green-500 h-3" style="width:{$cpuAnimate}%"></div>
                 </div>
                 RAM:<span class="float-right">{ramData[0]}/{ramData[1]}{ramData[2]}</span>
                 <div class="bg-gray-200 w-full h-3 my-1">
-                    <div class="bg-red-500 h-3" style="width:{socketData.ram.percent}%"></div>
+                    <div class="bg-red-500 h-3" style="width:{$ramAnimate}%"></div>
                 </div>
                 Swap:<span class="float-right">{swapData[0]}/{swapData[1]}{swapData[2]}</span>
                 <div class="bg-gray-200 w-full h-3 my-1">
-                    <div class="bg-blue-500 h-3" style="width:{socketData.swap.percent}%"></div>
+                    <div class="bg-blue-500 h-3" style="width:{$swapAnimate}%"></div>
                 </div>
             </Card>
         {:else}
