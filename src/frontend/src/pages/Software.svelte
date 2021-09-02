@@ -68,8 +68,8 @@
 
 <main>
     {#if socketData.software != undefined}
-    <table class="border bg-gray-200 border-gray-300 w-full">
-        <tr>
+    <table class="border border-gray-300 w-full">
+        <tr class="bg-lime-400">
             <th>ID</th>
             <th>Installed</th>
             <th>Name</th>
@@ -79,7 +79,7 @@
         </tr>
         {#each socketData.software as software}
             {#if software.id != -1}
-                <tr class="mt-32 border-t-2 border-gray-300 border-opacity-50">
+                <tr class="mt-32 even:bg-white odd:bg-gray-200 border-t-2 border-gray-300 border-opacity-50">
                     <td class="p-2">{software.id}</td>
                     <td class="p-2"><input type="checkbox" on:click={installTemp[software.id] = !installTemp[software.id]} bind:checked={installTemp[software.id]} disabled={running}></td>
                     <td class="p-2">{software.name}</td>

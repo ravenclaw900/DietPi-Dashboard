@@ -157,15 +157,15 @@
 
 <main>
     {#if socketData.processes != undefined}
-        <table class="border bg-gray-200 border-gray-300 w-full">
-            <tr>
+        <table class="border border-gray-300 w-full">
+            <tr class="bg-lime-400">
                 <th>PID<span on:click={setPid}><Fa icon={pidIcon} class="float-right cursor-pointer" /></span></th>
                 <th>Name<span on:click={setName}><Fa icon={nameIcon} class="float-right cursor-pointer" /></span></th>
                 <th>CPU Usage<span on:click={setCPU}><Fa icon={cpuIcon} class="float-right cursor-pointer" /></span></th>
                 <th>RAM Usage<span on:click={setRAM}><Fa icon={ramIcon} class="float-right cursor-pointer" /></span></th>
             </tr>
             {#each socketData.processes as process}
-                <tr class="mt-32 border-t-2 border-gray-300 border-opacity-50">
+                <tr class="mt-32 even:bg-white odd:bg-gray-200 border-t-2 border-gray-300 border-opacity-50">
                     <td class="p-2">{process.pid}</td>
                     <td class="p-2">{process.name}</td>
                     <td class="p-2">{process.cpu}%</td>
