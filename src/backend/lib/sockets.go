@@ -33,9 +33,10 @@ type request struct {
 }
 
 func readSocket(c *websocket.Conn, m chan<- request, n chan<- struct{}) {
-	var req request
 	firstmessage := true
+	var req request
 	for {
+		req = request{}
 		err := c.ReadJSON(&req)
 		if err != nil {
 			log.Println("Couldn't get data from frontend:", err)

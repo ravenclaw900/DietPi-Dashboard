@@ -107,7 +107,7 @@
         </button>
     </div>
     {#if socketData.response != undefined}
-        <textarea class="w-full bg-gray-200 h-24 rounded" value={socketData.response} disabled></textarea>
+        <textarea class="w-full bg-gray-200 h-72 rounded" value={socketData.response} disabled></textarea>
     {/if}
 {:else}
     <h3>Getting data...</h3>
