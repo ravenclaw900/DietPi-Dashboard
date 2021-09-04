@@ -14,6 +14,8 @@
         faDatabase,
         faTerminal,
     } from "@fortawesome/free-solid-svg-icons";
+    import { version } from "./version.js";
+
     let url = "";
 
     let socket;
@@ -101,7 +103,13 @@
             <footer
                 class="border-t bg-gray-200 border-gray-300 h-16 flex flex-col justify-center items-center"
             >
-                DietPi-Dashboard created by ravenclaw900
+                <div>
+                    DietPi-Dashboard <a
+                        class="text-blue-500"
+                        href="https://github.com/ravenclaw900/DietPi-Dashboard/releases/tag/v{version}"
+                        target="_blank">v{version}</a
+                    > created by ravenclaw900
+                </div>
                 <a
                     href="https://github.com/ravenclaw900/DietPi-Dashboard"
                     target="_blank"

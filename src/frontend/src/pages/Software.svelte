@@ -126,7 +126,7 @@
                 class="rounded border {uninstall == true
                     ? 'bg-red-500 border-red-600 hover:bg-red-700'
                     : 'bg-green-500 border-green-600 hover:bg-green-700'} p-2 disabled:opacity-50"
-                disabled={installArray.length == 0}
+                disabled={installArray.length == 0 || running}
             >
                 {#if running}
                     <Fa icon={faCircleNotch} class="animate-spin" />

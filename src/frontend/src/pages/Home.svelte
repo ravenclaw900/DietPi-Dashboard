@@ -2,22 +2,21 @@
     import Card from "../components/Card.svelte";
     import Chart from "chart.js/auto";
     import { onMount } from "svelte";
-    import { tweened } from "svelte/motion";
-    import { cubicOut } from "svelte/easing";
+    import { spring } from "svelte/motion";
 
-    const cpuAnimate = tweened(0, {
-        duration: 200,
-        easing: cubicOut,
+    const cpuAnimate = spring(0, {
+        stiffness: 0.1,
+        damping: 0.5,
     });
 
-    const ramAnimate = tweened(0, {
-        duration: 200,
-        easing: cubicOut,
+    const ramAnimate = spring(0, {
+        stiffness: 0.1,
+        damping: 0.5,
     });
 
-    const swapAnimate = tweened(0, {
-        duration: 200,
-        easing: cubicOut,
+    const swapAnimate = spring(0, {
+        stiffness: 0.1,
+        damping: 0.5,
     });
 
     export let socketData;
@@ -122,7 +121,8 @@
             );
             chartData.datasets[0].data.push(socketData.cpu);
             chartData.datasets[1].data.push(socketData.ram.used / 1048576);
-            chartData.datasets[2].data.push(socketData.swap.used / 1048576);
+            socketData.swap.total !== 0 &&
+                chartData.datasets[2].data.push(socketData.swap.used / 1048576);
             chart.update();
         }, 2000);
     });
