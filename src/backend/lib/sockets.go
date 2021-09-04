@@ -5,11 +5,7 @@ import (
 	"net/http"
 	"os/exec"
 	"strconv"
-
-	"github.com/gorilla/websocket"
 )
-
-var upgrader = websocket.Upgrader{}
 
 type system struct {
 	CPU  float64 `json:"cpu"`
@@ -32,29 +28,6 @@ type request struct {
 	Args interface{} `json:"args"`
 }
 
-func readSocket(c *websocket.Conn, m chan<- request, n chan<- struct{}) {
-	firstmessage := true
-	var req request
-	for {
-		req = request{}
-		err := c.ReadJSON(&req)
-		if err != nil {
-			log.Println("Couldn't get data from frontend:", err)
-			close(m)
-			close(n)
-			break
-		}
-		if req.Do == "" {
-			if !firstmessage {
-				n <- struct{}{}
-			} else {
-				firstmessage = false
-			}
-		}
-		m <- req
-	}
-}
-
 func ServeWebsockets(w http.ResponseWriter, r *http.Request) {
 	log.Println("Request to /ws (websockets)")
 	c, err := upgrader.Upgrade(w, r, nil)
@@ -64,7 +37,28 @@ func ServeWebsockets(w http.ResponseWriter, r *http.Request) {
 	}
 	m := make(chan request)
 	n := make(chan struct{})
-	go readSocket(c, m, n)
+	go func() {
+		firstmessage := true
+		var req request
+		for {
+			req = request{}
+			err := c.ReadJSON(&req)
+			if err != nil {
+				log.Println("Couldn't get data from frontend:", err)
+				close(m)
+				close(n)
+				break
+			}
+			if req.Do == "" {
+				if !firstmessage {
+					n <- struct{}{}
+				} else {
+					firstmessage = false
+				}
+			}
+			m <- req
+		}
+	}()
 	defer c.Close()
 	for i := range m {
 		switch i.Page {

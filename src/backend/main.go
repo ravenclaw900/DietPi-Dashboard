@@ -20,6 +20,8 @@ func main() {
 
 	http.HandleFunc("/ws", lib.ServeWebsockets)
 
+	http.HandleFunc("/ws/term", lib.ServeTerminal)
+
 	dirFS, err := fs.Sub(dir, "public")
 
 	if err != nil {

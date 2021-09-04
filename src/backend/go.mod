@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/StackExchange/wmi v1.2.1 // indirect
+	github.com/creack/pty v1.1.15
 	github.com/gorilla/websocket v1.4.2
 	github.com/shirou/gopsutil v3.21.7+incompatible
 	github.com/stretchr/testify v1.7.0 // indirect
