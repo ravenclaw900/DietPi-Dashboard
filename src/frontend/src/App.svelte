@@ -31,7 +31,7 @@
     };
     const socketCloseListener = () => {
         if (socket) {
-            console.log("Disconnected.");
+            console.log("Disconnected");
         }
         socket = new WebSocket(`ws://${window.location.hostname}:8080/ws`);
         socket.onopen = socketOpenListener;
@@ -74,11 +74,7 @@
                     >Software</NavbarLink
                 ></span
             >
-            <span on:click={pollServer}
-                ><NavbarLink icon={faTerminal} to="terminal"
-                    >Terminal</NavbarLink
-                ></span
-            >
+            <NavbarLink icon={faTerminal} to="terminal">Terminal</NavbarLink>
         </div>
         <div class="w-5/6 flex flex-col flex-grow min-h-full">
             <header class="bg-dplime h-12 flex justify-center items-center">
@@ -124,6 +120,7 @@
     @tailwind base;
     @tailwind components;
     @tailwind utilities;
+
     /**
  * Copyright (c) 2014 The xterm.js authors. All rights reserved.
  * Copyright (c) 2012-2013, Christopher Jeffrey (MIT License)

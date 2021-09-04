@@ -3,6 +3,8 @@
     import { AttachAddon } from "xterm-addon-attach";
     import { FitAddon } from "xterm-addon-fit";
 
+    import { onDestroy } from "svelte";
+
     let termDiv;
 
     const socket = new WebSocket(
@@ -32,8 +34,8 @@
         fitAddon.fit();
         sendSize({ cols: terminal.cols, rows: terminal.rows });
     };
+
+    onDestroy(() => socket.close());
 </script>
 
-<main class="h-full">
-    <div bind:this={termDiv} class="h-full" />
-</main>
+<div bind:this={termDiv} class="h-full" />
