@@ -19,12 +19,21 @@
         damping: 0.5,
     });
 
+    const diskAnimate = spring(0, {
+        stiffness: 0.1,
+        damping: 0.5,
+    });
+
     export let socketData;
     let canvas;
 
     function unitCalc(used, total) {
         let unitTotal, unitUsed, unit;
-        if (total > 1073742000) {
+        if (total > 1099512000000) {
+            unitTotal = Math.round((total / 1099512000000) * 100) / 100;
+            unitUsed = Math.round((used / 1099512000000) * 100) / 100;
+            unit = "GiB";
+        } else if (total > 1073742000) {
             unitTotal = Math.round((total / 1073742000) * 100) / 100;
             unitUsed = Math.round((used / 1073742000) * 100) / 100;
             unit = "GiB";
@@ -44,17 +53,6 @@
         return [unitUsed, unitTotal, unit];
     }
 
-    let ramData, swapData;
-
-    $: socketData.cpu != undefined &&
-        (cpuAnimate.set(socketData.cpu),
-        ramAnimate.set(socketData.ram.percent),
-        swapAnimate.set(socketData.swap.percent));
-
-    $: socketData.ram &&
-        ((ramData = unitCalc(socketData.ram.used, socketData.ram.total)),
-        (swapData = unitCalc(socketData.swap.used, socketData.swap.total)));
-
     const chartData = {
         labels: [],
         datasets: [
@@ -70,14 +68,35 @@
                 backgroundColor: "#EF4444",
                 borderColor: "#EF4444",
                 data: [],
-                yAxisID: "memScale",
+                yAxisID: "usageScale",
             },
             {
                 label: "Swap",
                 backgroundColor: "#3B82F6",
                 borderColor: "#3B82F6",
                 data: [],
-                yAxisID: "memScale",
+                yAxisID: "usageScale",
+            },
+            {
+                label: "Disk",
+                backgroundColor: "#F59E0B",
+                borderColor: "#F59E0B",
+                data: [],
+                yAxisID: "usageScale",
+            },
+            {
+                label: "Network (sent)",
+                backgroundColor: "#8B5CF6",
+                borderColor: "#8B5CF6",
+                data: [],
+                yAxisID: "usageScale",
+            },
+            {
+                label: "Network (recieved)",
+                backgroundColor: "#EC4899",
+                borderColor: "#EC4899",
+                data: [],
+                yAxisID: "usageScale",
             },
         ],
     };
@@ -96,7 +115,7 @@
                         },
                     },
                 },
-                memScale: {
+                usageScale: {
                     position: "left",
                     type: "linear",
                     ticks: {
@@ -111,6 +130,20 @@
         },
     };
 
+    let ramData, swapData, diskData;
+
+    $: socketData.cpu != undefined &&
+        (cpuAnimate.set(socketData.cpu),
+        ramAnimate.set(socketData.ram.percent),
+        swapAnimate.set(socketData.swap.percent),
+        diskAnimate.set(socketData.disk.percent));
+
+    $: socketData.ram &&
+        ((ramData = unitCalc(socketData.ram.used, socketData.ram.total)),
+        (swapData = unitCalc(socketData.swap.used, socketData.swap.total)),
+        (chartData.datasets[2].hidden = socketData.swap.total == 0),
+        (diskData = unitCalc(socketData.disk.used, socketData.disk.total)));
+
     onMount(() => {
         let chart = new Chart(canvas.getContext("2d"), config);
 
@@ -121,8 +154,12 @@
             );
             chartData.datasets[0].data.push(socketData.cpu);
             chartData.datasets[1].data.push(socketData.ram.used / 1048576);
-            socketData.swap.total !== 0 &&
-                chartData.datasets[2].data.push(socketData.swap.used / 1048576);
+            chartData.datasets[2].data.push(socketData.swap.used / 1048576);
+            chartData.datasets[3].data.push(socketData.disk.used / 1048576);
+            chartData.datasets[4].data.push(socketData.network.sent / 1048576);
+            chartData.datasets[5].data.push(
+                socketData.network.recieved / 1048576
+            );
             chart.update();
         }, 2000);
     });
@@ -151,6 +188,12 @@
             >
             <div class="bg-gray-200 w-full h-3 my-1">
                 <div class="bg-blue-500 h-3" style="width:{$swapAnimate}%" />
+            </div>
+            Disk:<span class="float-right"
+                >{diskData[0]}/{diskData[1]}{diskData[2]}</span
+            >
+            <div class="bg-gray-200 w-full h-3 my-1">
+                <div class="bg-yellow-500 h-3" style="width:{$diskAnimate}%" />
             </div>
         </Card>
     {:else}

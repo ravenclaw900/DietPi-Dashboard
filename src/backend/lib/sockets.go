@@ -8,9 +8,11 @@ import (
 )
 
 type system struct {
-	CPU  float64 `json:"cpu"`
-	RAM  MemData `json:"ram"`
-	Swap MemData `json:"swap"`
+	CPU     float64   `json:"cpu"`
+	RAM     UsageData `json:"ram"`
+	Swap    UsageData `json:"swap"`
+	Disk    UsageData `json:"disk"`
+	Network NetData   `json:"network"`
 }
 
 type processlist struct {
@@ -65,7 +67,7 @@ func ServeWebsockets(w http.ResponseWriter, r *http.Request) {
 		case "/":
 		main:
 			for {
-				stats := system{CPU(), RAM(), Swap()}
+				stats := system{CPU(), RAM(), Swap(), Disk(), Network()}
 				err := c.WriteJSON(stats)
 				if err != nil {
 					log.Println("Couldn't send message to frontend:", err)

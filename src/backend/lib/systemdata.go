@@ -7,14 +7,21 @@ import (
 	"strings"
 
 	"github.com/shirou/gopsutil/cpu"
+	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
+	"github.com/shirou/gopsutil/net"
 	"github.com/shirou/gopsutil/process"
 )
 
-type MemData struct {
+type UsageData struct {
 	Percent float64 `json:"percent"`
 	Total   uint64  `json:"total"`
 	Used    uint64  `json:"used"`
+}
+
+type NetData struct {
+	Sent     uint64 `json:"sent"`
+	Recieved uint64 `json:"recieved"`
 }
 
 type ProcessData struct {
@@ -41,20 +48,20 @@ func CPU() float64 {
 	return math.Round(percent[0]*100) / 100
 }
 
-func RAM() MemData {
+func RAM() UsageData {
 	stats, err := mem.VirtualMemory()
 	if err != nil {
-		return MemData{0, 0, 0}
+		return UsageData{0, 0, 0}
 	}
-	return MemData{math.Round(stats.UsedPercent*100) / 100, stats.Total, stats.Used}
+	return UsageData{math.Round(stats.UsedPercent*100) / 100, stats.Total, stats.Used}
 }
 
-func Swap() MemData {
+func Swap() UsageData {
 	stats, err := mem.SwapMemory()
 	if err != nil {
-		return MemData{0, 0, 0}
+		return UsageData{0, 0, 0}
 	}
-	return MemData{math.Round(stats.UsedPercent*100) / 100, stats.Total, stats.Used}
+	return UsageData{math.Round(stats.UsedPercent*100) / 100, stats.Total, stats.Used}
 }
 
 func Processes() []ProcessData {
@@ -117,4 +124,20 @@ software:
 		software[index] = DPSoftwareData{id, installed, name, desc, depends, docs}
 	}
 	return software[:len(software)-5]
+}
+
+func Disk() UsageData {
+	stats, err := disk.Usage("/")
+	if err != nil {
+		return UsageData{0, 0, 0}
+	}
+	return UsageData{math.Round(stats.UsedPercent*100) / 100, stats.Total, stats.Used}
+}
+
+func Network() NetData {
+	stats, err := net.IOCounters(false)
+	if err != nil {
+		return NetData{0, 0}
+	}
+	return NetData{stats[0].BytesSent, stats[0].BytesRecv}
 }
