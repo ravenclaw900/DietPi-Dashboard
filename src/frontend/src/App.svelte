@@ -14,6 +14,7 @@
         faDatabase,
         faTerminal,
         faUser,
+        faBars,
     } from "@fortawesome/free-solid-svg-icons";
     import { version } from "./version.js";
     import Management from "./pages/Management.svelte";
@@ -23,6 +24,8 @@
     let socket;
     let socketData = {};
     let shown = false;
+    let menu = true;
+    console.log(window.matchMedia("(max-width: 768)"));
     const socketMessageListener = (e) => {
         socketData = JSON.parse(e.data);
     };
@@ -54,11 +57,14 @@
     });
 </script>
 
-<main class="min-h-screen -m-2 flex">
+<main class="min-h-screen -m-2 flex overflow-x-hidden">
     <Router {url}>
-        <div class="bg-gray-900 w-1/6 flex-grow">
+        <div
+            class="bg-gray-900 flex-grow{menu ? '' : ' shrink'}"
+            id="sidebarMenu"
+        >
             <div
-                class="h-12 bg-dplime-dark text-2xl flex items-center justify-center"
+                class="hidden lg:flex h-12 bg-dplime-dark text-2xl items-center justify-center"
             >
                 DietPi Dashboard
             </div>
@@ -85,8 +91,18 @@
             >
         </div>
         <div class="w-5/6 flex flex-col flex-grow min-h-full">
-            <header class="bg-dplime h-12 flex justify-center items-center">
-                <a href="https://dietpi.com" target="_blank"
+            <header class="bg-dplime h-12 grid grid-cols-3 items-center">
+                <span on:click={() => (menu = !menu)}
+                    ><Fa
+                        icon={faBars}
+                        class="hover:bg-gray-500 hover:bg-opacity-50 active:bg-opacity-75 ml-1 p-1"
+                        size="3x"
+                    /></span
+                >
+                <a
+                    href="https://dietpi.com"
+                    class="justify-self-center"
+                    target="_blank"
                     ><img
                         src="/assets/dietpi.png"
                         alt="DietPi logo"
@@ -137,6 +153,19 @@
     @tailwind base;
     @tailwind components;
     @tailwind utilities;
+
+    #sidebarMenu {
+        min-width: 10rem;
+        max-width: 16.666667%;
+        width: 16.666667%;
+        transition: width 2s, max-width 2s, min-width 2s;
+    }
+
+    #sidebarMenu.shrink {
+        width: 0px;
+        max-width: 0px;
+        min-width: 0px;
+    }
 
     /**
  * Copyright (c) 2014 The xterm.js authors. All rights reserved.

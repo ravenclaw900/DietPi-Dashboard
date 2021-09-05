@@ -165,9 +165,9 @@
     });
 </script>
 
-<main class="flex gap-5 flex-wrap min-h-full flex-grow">
+<main class="flex gap-5 flex-wrap min-h-full flex-col md:flex-row flex-grow">
     <Card header="System Diagnostics">
-        <div style="min-height: 90%; height:30vh; width:40vw">
+        <div id="chartWrapper">
             <canvas bind:this={canvas} />
         </div>
     </Card>
@@ -200,3 +200,14 @@
         <h3>Getting data...</h3>
     {/if}
 </main>
+
+<style>
+    #chartWrapper {
+        max-width: 100%;
+        min-width: 0;
+        width: 85vw;
+        max-height: 95%;
+        min-height: 0;
+        height: 70vh;
+    }
+</style>
