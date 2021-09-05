@@ -161,7 +161,7 @@
 
 <main>
     {#if socketData.processes != undefined}
-        <table class="border border-gray-300 w-full">
+        <table class="border border-gray-300 w-full table-fixed break-words">
             <tr class="bg-dplime">
                 <th
                     >PID<span on:click={setPid}

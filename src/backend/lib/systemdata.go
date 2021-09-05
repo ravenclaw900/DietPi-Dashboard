@@ -1,13 +1,16 @@
 package lib
 
 import (
+	"fmt"
 	"math"
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
+	"github.com/shirou/gopsutil/host"
 	"github.com/shirou/gopsutil/mem"
 	"github.com/shirou/gopsutil/net"
 	"github.com/shirou/gopsutil/process"
@@ -40,8 +43,18 @@ type DPSoftwareData struct {
 	Docs         string `json:"docs"`
 }
 
+type HostData struct {
+	Hostname  string `json:"hostname"`
+	Uptime    uint64 `json:"uptime"`
+	Platform  string `json:"platform"`
+	Kernel    string `json:"kernel"`
+	Arch      string `json:"arch"`
+	Interface string `json:"interface"`
+	IP        string `json:"ip"`
+}
+
 func CPU() float64 {
-	percent, err := cpu.Percent(1000000000, false)
+	percent, err := cpu.Percent(time.Second, false)
 	if err != nil {
 		return 0
 	}
@@ -51,7 +64,7 @@ func CPU() float64 {
 func RAM() UsageData {
 	stats, err := mem.VirtualMemory()
 	if err != nil {
-		return UsageData{0, 0, 0}
+		return UsageData{}
 	}
 	return UsageData{math.Round(stats.UsedPercent*100) / 100, stats.Total, stats.Used}
 }
@@ -59,7 +72,7 @@ func RAM() UsageData {
 func Swap() UsageData {
 	stats, err := mem.SwapMemory()
 	if err != nil {
-		return UsageData{0, 0, 0}
+		return UsageData{}
 	}
 	return UsageData{math.Round(stats.UsedPercent*100) / 100, stats.Total, stats.Used}
 }
@@ -129,7 +142,7 @@ software:
 func Disk() UsageData {
 	stats, err := disk.Usage("/")
 	if err != nil {
-		return UsageData{0, 0, 0}
+		return UsageData{}
 	}
 	return UsageData{math.Round(stats.UsedPercent*100) / 100, stats.Total, stats.Used}
 }
@@ -137,7 +150,19 @@ func Disk() UsageData {
 func Network() NetData {
 	stats, err := net.IOCounters(false)
 	if err != nil {
-		return NetData{0, 0}
+		return NetData{}
 	}
 	return NetData{stats[0].BytesSent, stats[0].BytesRecv}
+}
+
+func Host() HostData {
+	info, err := host.Info()
+	if err != nil {
+		return HostData{}
+	}
+	interfaces, err := net.Interfaces()
+	if err != nil {
+		return HostData{}
+	}
+	return HostData{info.Hostname, info.Uptime, fmt.Sprintf("%s %s", info.Platform, info.PlatformVersion), info.KernelVersion, info.KernelArch, interfaces[1].Name, interfaces[1].Addrs[0].Addr}
 }

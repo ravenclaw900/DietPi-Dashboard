@@ -13,8 +13,10 @@
         faMicrochip,
         faDatabase,
         faTerminal,
+        faUser,
     } from "@fortawesome/free-solid-svg-icons";
     import { version } from "./version.js";
+    import Management from "./pages/Management.svelte";
 
     let url = "";
 
@@ -27,6 +29,7 @@
     const socketOpenListener = () => {
         console.log("Connected");
         shown = true;
+        pollServer();
     };
     const socketErrorListener = (e) => {
         console.error(e);
@@ -45,8 +48,6 @@
     function pollServer() {
         socket.send(JSON.stringify({ page: window.location.pathname }));
     }
-
-    $: shown && pollServer();
 
     onMount(() => {
         socketCloseListener();
@@ -77,6 +78,11 @@
                 ></span
             >
             <NavbarLink icon={faTerminal} to="terminal">Terminal</NavbarLink>
+            <span on:click={pollServer}
+                ><NavbarLink icon={faUser} to="management"
+                    >Management</NavbarLink
+                ></span
+            >
         </div>
         <div class="w-5/6 flex flex-col flex-grow min-h-full">
             <header class="bg-dplime h-12 flex justify-center items-center">
@@ -96,6 +102,9 @@
                         ><Software {socketData} {socket} /></Route
                     >
                     <Route path="terminal"><Terminal /></Route>
+                    <Route path="management"
+                        ><Management {socket} {socketData} /></Route
+                    >
                 {:else}
                     <h3>Connecting to API...</h3>
                 {/if}

@@ -68,7 +68,6 @@ func ServeTerminal(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 	waiter.Wait()
-	log.Println("closing terminal connection")
 	_, err = cmd.Process.Wait()
 	if err != nil {
 		log.Println("Couldn't gracefully stop shell, killing:", err)

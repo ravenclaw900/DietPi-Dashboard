@@ -117,6 +117,20 @@ func ServeWebsockets(w http.ResponseWriter, r *http.Request) {
 					break software
 				}
 			}
+		case "/management":
+			err := c.WriteJSON(Host())
+			if err != nil {
+				log.Println("Couldn't send message to frontend:", err)
+			}
+		management:
+			for {
+				select {
+				case data := <-m:
+					exec.Command(data.Do, "-h", "now").Start()
+				case <-n:
+					break management
+				}
+			}
 		}
 	}
 }
