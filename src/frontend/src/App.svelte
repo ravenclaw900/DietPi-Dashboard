@@ -16,7 +16,6 @@
         faUser,
         faBars,
     } from "@fortawesome/free-solid-svg-icons";
-    import { version } from "./version.js";
     import Management from "./pages/Management.svelte";
 
     let url = "";
@@ -25,7 +24,6 @@
     let socketData = {};
     let shown = false;
     let menu = true;
-    console.log(window.matchMedia("(max-width: 768)"));
     const socketMessageListener = (e) => {
         socketData = JSON.parse(e.data);
     };
@@ -131,8 +129,8 @@
                 <div>
                     DietPi-Dashboard <a
                         class="text-blue-500"
-                        href="https://github.com/ravenclaw900/DietPi-Dashboard/releases/tag/v{version}"
-                        target="_blank">v{version}</a
+                        href="https://github.com/ravenclaw900/DietPi-Dashboard/releases/tag/v{'ROLLUP.package_version'}"
+                        target="_blank">v{"ROLLUP.package_version"}</a
                     > created by ravenclaw900
                 </div>
                 <a

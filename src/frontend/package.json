@@ -4,7 +4,7 @@
   "private": true,
   "license": "GPL-3.0",
   "scripts": {
-    "build": "genversion -dse src/version.js && rollup -c",
+    "build": "rollup -c",
     "dev": "rollup -c -w",
     "start": "sirv public --no-clear -s",
     "check": "svelte-check --tsconfig ./tsconfig.json"
@@ -15,10 +15,10 @@
     "@fullhuman/postcss-purgecss": "^4.0.3",
     "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-node-resolve": "^11.0.0",
+    "@rollup/plugin-replace": "^3.0.0",
     "@rollup/plugin-typescript": "^8.0.0",
     "@tsconfig/svelte": "^2.0.0",
     "autoprefixer": "^10.3.1",
-    "genversion": "^3.0.1",
     "postcss": "^8.3.6",
     "postcss-load-config": "^3.1.0",
     "rollup": "^2.3.4",
