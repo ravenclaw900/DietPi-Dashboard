@@ -64,7 +64,7 @@
             id="sidebarMenu"
         >
             <div
-                class="hidden lg:flex h-12 bg-dplime-dark text-2xl items-center justify-center"
+                class="hidden lg:flex whitespace-nowrap h-12 bg-dplime-dark text-2xl items-center justify-center"
             >
                 DietPi Dashboard
             </div>
@@ -158,7 +158,7 @@
         min-width: 10rem;
         max-width: 16.666667%;
         width: 16.666667%;
-        transition: width 2s, max-width 2s, min-width 2s;
+        transition: width 1.5s, max-width 1.5s, min-width 1.5s;
     }
 
     #sidebarMenu.shrink {
