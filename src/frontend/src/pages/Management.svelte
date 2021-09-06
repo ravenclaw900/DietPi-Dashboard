@@ -59,13 +59,15 @@
         <Card header="Management">
             <div class="flex gap-x-5">
                 <button
-                    on:click={() => sendData("shutdown")}
+                    on:click={() => sendData("poweroff")}
                     class="bg-red-500 border border-red-700 rounded-sm hover:bg-red-700 text-white text-md flex-grow p-2"
-                    >Shutdown System</button>
+                    >Shutdown System</button
+                >
                 <button
                     on:click={() => sendData("reboot")}
                     class="bg-yellow-500 border border-yellow-600 rounded-sm hover:bg-yellow-600 text-white text-md flex-grow p-2"
-                    >Restart System</button>
+                    >Restart System</button
+                >
             </div>
         </Card>
     {:else}

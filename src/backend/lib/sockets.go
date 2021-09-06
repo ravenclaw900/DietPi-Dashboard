@@ -126,7 +126,7 @@ func ServeWebsockets(w http.ResponseWriter, r *http.Request) {
 			for {
 				select {
 				case data := <-m:
-					exec.Command(data.Do, "-h", "now").Start()
+					exec.Command(data.Do).Start()
 				case <-n:
 					break management
 				}
