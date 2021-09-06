@@ -61,7 +61,6 @@ func ServeTerminal(w http.ResponseWriter, r *http.Request) {
 			readLength, err := tty.Read(buffer)
 			if err != nil {
 				log.Println("Couldn't get data from TTY:", err)
-				waiter.Done()
 				break
 			}
 			c.WriteMessage(websocket.BinaryMessage, buffer[:readLength])

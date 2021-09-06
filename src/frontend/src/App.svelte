@@ -92,7 +92,7 @@
         </div>
         <div class="w-5/6 flex flex-col flex-grow min-h-full">
             <header class="bg-dplime h-12 grid grid-cols-3 items-center">
-                <span on:click={() => (menu = !menu)}
+                <span on:click={() => (menu = !menu)} class="justify-self-start"
                     ><Fa
                         icon={faBars}
                         class="hover:bg-gray-500 hover:bg-opacity-50 active:bg-opacity-75 ml-1 p-1"
