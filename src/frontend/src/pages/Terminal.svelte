@@ -35,7 +35,7 @@
         sendSize({ cols: terminal.cols, rows: terminal.rows });
     };
 
-    onDestroy(() => socket.close());
+    onDestroy(() => socket.close(1000));
 </script>
 
 <div bind:this={termDiv} class="h-full" />
