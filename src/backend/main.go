@@ -34,7 +34,7 @@ func main() {
 
 	log.Println("Starting server on port 8080...")
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":8080", lib.GzipMiddleware(http.DefaultServeMux)))
 }
 
 func serveHTML(w http.ResponseWriter, r *http.Request) {
@@ -45,6 +45,7 @@ func serveHTML(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Printf("Error, couldn't load HTML file: %s\n", err)
 	}
+	w.Header().Set("Content-Type", "text/html")
 	fmt.Fprint(w, string(data))
 }
 
