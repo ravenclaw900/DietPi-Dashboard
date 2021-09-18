@@ -7,8 +7,9 @@ A web dashboard for DietPi
 ### Prereq:
 
 ```sh
-dietpi-software install 9 16 17 188 # Install Node.js (webpage), Build-Essential (make), Git (git clone), and Go (binary), respectively
+dietpi-software install 9 16 17 # Install Node.js (webpage), Build-Essential (make and gcc), and Git (git clone), respectively
 npm install -g yarn # Install Yarn package manager, for node dependencies
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh # Install Rust (backend)
 ```
 Now log out and log back in to register GOPATH
 
