@@ -11,7 +11,6 @@ dietpi-software install 9 16 17 # Install Node.js (webpage), Build-Essential (ma
 npm install -g yarn # Install Yarn package manager, for node dependencies
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh # Install Rust (backend)
 ```
-Now log out and log back in to register GOPATH
 
 ### Compiling:
 
