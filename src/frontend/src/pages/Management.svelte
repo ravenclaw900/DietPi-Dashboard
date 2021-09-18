@@ -12,7 +12,7 @@
         ((uptime = new Date(socketData.uptime * 1000)), (uptimeSet = true));
 
     function sendData(data) {
-        socket.send(JSON.stringify({ do: data }));
+        socket.send(JSON.stringify({ cmd: data }));
         window.location.reload();
     }
 
@@ -35,10 +35,6 @@
                     <td class="p-1">{uptime.toISOString().substr(11, 8)}</td>
                 </tr>
                 <tr class="even:bg-white odd:bg-gray-200">
-                    <td class="p-1 font-semibold">Base OS:</td>
-                    <td class="p-1">{socketData.platform}</td>
-                </tr>
-                <tr class="even:bg-white odd:bg-gray-200">
                     <td class="p-1 font-semibold">Kernel:</td>
                     <td class="p-1">{socketData.kernel}</td>
                 </tr>
@@ -47,12 +43,8 @@
                     <td class="p-1">{socketData.arch}</td>
                 </tr>
                 <tr class="even:bg-white odd:bg-gray-200">
-                    <td class="p-1 font-semibold">Network Interface:</td>
-                    <td class="p-1">{socketData.interface}</td>
-                </tr>
-                <tr class="even:bg-white odd:bg-gray-200">
-                    <td class="p-1 font-semibold">IP Address:</td>
-                    <td class="p-1">{socketData.ip}</td>
+                    <td class="p-1 font-semibold">Version:</td>
+                    <td class="p-1">{socketData.version}</td>
                 </tr>
             </table>
         </Card>

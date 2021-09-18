@@ -4,3 +4,4 @@ build/
 src/backend/public
 dietpi-dashboard
 .DS_Store
+target/

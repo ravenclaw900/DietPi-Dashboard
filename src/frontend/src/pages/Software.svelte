@@ -62,8 +62,10 @@
     function sendSoftware() {
         socket.send(
             JSON.stringify({
-                do: uninstall == true ? "uninstall" : "install",
-                args: installArray,
+                cmd: uninstall == true ? "uninstall" : "install",
+                args: installArray.map((val) => {
+                    return val.toString();
+                }),
             })
         );
         running = true;
@@ -134,7 +136,7 @@
                 {uninstall == true ? "Uni" : "I"}nstall{nameList}
             </button>
         </div>
-        {#if socketData.response != undefined}
+        {#if socketData.response != ""}
             <textarea
                 class="w-full bg-gray-200 h-72 rounded"
                 value={socketData.response}
