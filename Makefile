@@ -26,6 +26,14 @@ publicdelete:
 fmt:
 	rustfmt --edition 2018 src/backend/src/*
 
+rustdev: fmt publiccopy
+	cd src/backend; cargo build --target $(TARGET)
+	mv src/backend/target/$(TARGET)/debug/dietpi_dashboard ./dietpi-dashboard
+
+	$(MAKE) publicdelete
+
+dev: yarn rustdev
+
 rustbuild: fmt publiccopy
 	mkdir -p build/
 
