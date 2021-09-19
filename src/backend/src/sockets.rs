@@ -46,8 +46,7 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                     ))
                     .await;
                 thread::sleep(time::Duration::from_millis(500));
-                let quit = quit_recv.try_recv();
-                match quit {
+                match quit_recv.try_recv() {
                     Err(_) => {}
                     Ok(_) => break,
                 }
@@ -62,8 +61,22 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                     ))
                     .await;
                 thread::sleep(time::Duration::from_millis(1000));
-                let quit = quit_recv.try_recv();
-                match quit {
+                match data_recv.try_recv() {
+                    Err(_) => {}
+                    Ok(data) => {
+                        let process =
+                            psutil::process::Process::new(data.args[0].parse::<u32>().unwrap())
+                                .unwrap();
+                        match data.cmd.as_str() {
+                            "terminate" => process.terminate().unwrap(),
+                            "kill" => process.kill().unwrap(),
+                            "suspend" => process.suspend().unwrap(),
+                            "resume" => process.resume().unwrap(),
+                            _ => (),
+                        }
+                    }
+                }
+                match quit_recv.try_recv() {
                     Err(_) => {}
                     Ok(_) => break,
                 }
@@ -79,8 +92,7 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                     ))
                     .await;
                 loop {
-                    let data = data_recv.try_recv();
-                    match data {
+                    match data_recv.try_recv() {
                         Err(_) => {}
                         Ok(data) => {
                             let mut cmd = Command::new("/boot/dietpi/dietpi-software");
@@ -103,8 +115,7 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                                 .await;
                         }
                     }
-                    let quit = quit_recv.try_recv();
-                    match quit {
+                    match quit_recv.try_recv() {
                         Err(_) => {}
                         Ok(_) => break,
                     }
@@ -117,15 +128,13 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                     ))
                     .await;
                 loop {
-                    let data = data_recv.try_recv();
-                    match data {
+                    match data_recv.try_recv() {
                         Err(_) => {}
                         Ok(data) => {
                             Command::new(data.cmd).spawn().unwrap();
                         }
                     }
-                    let quit = quit_recv.try_recv();
-                    match quit {
+                    match quit_recv.try_recv() {
                         Err(_) => {}
                         Ok(_) => break,
                     }

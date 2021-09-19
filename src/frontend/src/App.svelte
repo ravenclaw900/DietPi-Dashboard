@@ -110,7 +110,9 @@
             </header>
             <div class="bg-gray-100 flex-grow p-6">
                 {#if shown}
-                    <Route path="process"><Process {socketData} /></Route>
+                    <Route path="process"
+                        ><Process {socketData} {socket} /></Route
+                    >
                     <Route path="/"><Home {socketData} /></Route>
                     <Route path="software"
                         ><Software {socketData} {socket} /></Route

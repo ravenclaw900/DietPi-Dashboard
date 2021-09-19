@@ -36,6 +36,7 @@ pub struct ProcessData {
     pub name: String,
     pub cpu: f32,
     pub ram: u64,
+    pub status: String,
 }
 
 #[derive(serde::Serialize)]

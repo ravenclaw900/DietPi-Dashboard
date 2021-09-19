@@ -83,11 +83,22 @@ pub fn processes() -> Vec<types::ProcessData> {
             Ok(unwrapped_name) => name = unwrapped_name,
             Err(_) => continue,
         }
+        let status: String;
+        match unwrapped.status().unwrap() {
+            // The proceses that are running show up as sleeping, for some reason
+            process::Status::Sleeping => status = "running".to_string(),
+            process::Status::Idle => status = "idle".to_string(),
+            process::Status::Stopped => status = "stopped".to_string(),
+            process::Status::Zombie => status = "zombie".to_string(),
+            process::Status::Dead => status = "dead".to_string(),
+            _ => status = String::new(),
+        }
         process_list.push(types::ProcessData {
             pid: unwrapped.pid(),
             name: name,
             cpu: (unwrapped.cpu_percent().unwrap() * 100.0).round() / 100.0,
             ram: unwrapped.memory_info().unwrap().vms() / 1048576,
+            status: status,
         })
     }
     process_list
