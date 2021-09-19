@@ -23,3 +23,25 @@ cd ../.. # Change directories
 make # Compile binary for your platform
 ./dietpi-dashboard # Run binary
 ```
+
+## Compiling for all targets (release)
+### Prereq:
+
+Normal compilation prereq (see above)
+```sh
+apt install gcc-aarch64-linux-gnu linux-libc-dev-arm64-cross gcc-arm-linux-gnueabihf libc6-dev-armhf-cross gcc-x86-64-linux-gnu libc6-dev-amd64-cross # Install cross-compiling toolchains
+mkdir /opt/rpi ; git clone https://github.com/raspberrypi/tools /opt/rpi # Install Raspberry Pi cross-compiling toolchain
+```
+You also need to install UPX, however to compress the ARMv6/7 binaries you need to [compile it yourself](https://github.com/upx/upx/blob/devel/README.SRC)
+
+### Compiling:
+
+```sh
+rm -rf DietPi-Dashboard # Remove possibly pre-download repository
+git clone https://github.com/ravenclaw900/DietPi-Dashboard # Download source code
+cd DietPi-Dashboard/src/frontend # Change directories
+yarn # Install dependencies
+cd ../.. # Change directories
+make build # Compile binaries for all platforms
+```
+Binaries will then be avalible in the `build` directory.
