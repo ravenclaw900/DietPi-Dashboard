@@ -61,6 +61,10 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                     ))
                     .await;
                 thread::sleep(time::Duration::from_millis(1000));
+                match quit_recv.try_recv() {
+                    Err(_) => {}
+                    Ok(_) => break,
+                }
                 match data_recv.try_recv() {
                     Err(_) => {}
                     Ok(data) => {
@@ -75,10 +79,6 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                             _ => (),
                         }
                     }
-                }
-                match quit_recv.try_recv() {
-                    Err(_) => {}
-                    Ok(_) => break,
                 }
             },
             "/software" => {
