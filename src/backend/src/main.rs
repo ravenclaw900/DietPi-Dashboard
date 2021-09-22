@@ -66,7 +66,18 @@ async fn main() {
 
     let socket_routes = terminal_route.or(socket_route);
 
-    let routes = socket_routes.or(page_routes);
+    let routes = socket_routes
+        .or(page_routes)
+        .with(warp::log::custom(|info| {
+            log::info!("Request to {}", info.path());
+            log::debug!(
+                "by {}, using {} {:?}, with response of HTTP code {:?}",
+                info.remote_addr().unwrap().ip(),
+                info.user_agent().unwrap(),
+                info.version(),
+                info.status()
+            );
+        }));
 
     warp::serve(routes).run(([0, 0, 0, 0], 8080)).await;
 }
