@@ -1,3 +1,4 @@
+#![warn(clippy::pedantic)]
 use simple_logger::SimpleLogger;
 use warp::Filter;
 
@@ -14,7 +15,7 @@ async fn main() {
         .init()
         .unwrap();
 
-    const DIR: include_dir::Dir = include_dir::include_dir!("src/public");
+    const DIR: include_dir::Dir = include_dir::include_dir!("public");
 
     let build_route = warp::path("build")
         .and(warp::path::param())

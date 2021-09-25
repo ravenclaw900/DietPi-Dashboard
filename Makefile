@@ -6,7 +6,7 @@ default: yarn fmt publiccopy
 
 	mv src/backend/target/debug/dietpi_dashboard ./dietpi-dashboard
 
-rust: fmt publiccopy
+rust: fmt publiccopy 
 
 	cd src/backend; cargo build
 	
@@ -18,15 +18,16 @@ yarn:
 	cd src/frontend; yarn build
 
 publiccopy:
-	cp -r src/frontend/public src/backend/src
+	cp -r src/frontend/public src/backend
 
 publicdelete:
-	rm -r src/backend/src/public
+	rm -r src/backend/public
 
 fmt:
-	rustfmt --edition 2018 src/backend/src/*
+	cd src/backend; cargo fmt
+	cd src/backend; cargo clippy
 
-rustdev: fmt publiccopy
+rustdev: publiccopy fmt
 	cd src/backend; cargo build --target $(TARGET)
 	mv src/backend/target/$(TARGET)/debug/dietpi_dashboard ./dietpi-dashboard
 
@@ -34,7 +35,7 @@ rustdev: fmt publiccopy
 
 dev: yarn rustdev
 
-rustbuild: fmt publiccopy
+rustbuild: publiccopy fmt
 	mkdir -p build/
 
 	cd src/backend; cargo build --release --target x86_64-unknown-linux-gnu
