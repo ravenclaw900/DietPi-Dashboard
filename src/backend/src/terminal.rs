@@ -77,4 +77,6 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
 
     // Process should be safe to kill after exiting
     cmd.write().await.deref_mut().kill().unwrap();
+
+    log::info!("Closed terminal");
 }

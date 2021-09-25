@@ -25,24 +25,36 @@
 <main class="flex gap-5 flex-wrap min-h-full flex-grow flex-col">
     {#if socketData.hostname != undefined}
         <Card header="System Information">
-            <table class="border border-gray-100 h-full w-full">
-                <tr class="even:bg-white odd:bg-gray-200">
+            <table
+                class="border border-gray-100 dark:border-gray-900 h-full w-full dark:text-white"
+            >
+                <tr
+                    class="even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800"
+                >
                     <td class="p-1 font-semibold">Hostname:</td>
                     <td class="p-1">{socketData.hostname}</td>
                 </tr>
-                <tr class="even:bg-white odd:bg-gray-200">
+                <tr
+                    class="even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800"
+                >
                     <td class="p-1 font-semibold">Uptime</td>
                     <td class="p-1">{uptime.toISOString().substr(11, 8)}</td>
                 </tr>
-                <tr class="even:bg-white odd:bg-gray-200">
+                <tr
+                    class="even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800"
+                >
                     <td class="p-1 font-semibold">Kernel:</td>
                     <td class="p-1">{socketData.kernel}</td>
                 </tr>
-                <tr class="even:bg-white odd:bg-gray-200">
+                <tr
+                    class="even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800"
+                >
                     <td class="p-1 font-semibold">Architecture:</td>
                     <td class="p-1">{socketData.arch}</td>
                 </tr>
-                <tr class="even:bg-white odd:bg-gray-200">
+                <tr
+                    class="even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800"
+                >
                     <td class="p-1 font-semibold">Version:</td>
                     <td class="p-1">{socketData.version}</td>
                 </tr>
@@ -63,6 +75,6 @@
             </div>
         </Card>
     {:else}
-        <h3>Getting data...</h3>
+        <h3 class="dark:text-white">Getting data...</h3>
     {/if}
 </main>

@@ -108,7 +108,7 @@
                     /></a
                 >
             </header>
-            <div class="bg-gray-100 flex-grow p-6">
+            <div class="dark:bg-gray-800 bg-gray-100 flex-grow p-6">
                 {#if shown}
                     <Route path="process"
                         ><Process {socketData} {socket} /></Route
@@ -122,15 +122,15 @@
                         ><Management {socket} {socketData} /></Route
                     >
                 {:else}
-                    <h3>Connecting to API...</h3>
+                    <h3 class="dark:text-white">Connecting to API...</h3>
                 {/if}
             </div>
             <footer
-                class="border-t bg-gray-200 border-gray-300 h-16 flex flex-col justify-center items-center"
+                class="border-t bg-gray-200 dark:bg-gray-700 dark:border-gray-500 border-gray-300 h-16 flex flex-col justify-center items-center"
             >
                 <div>
                     DietPi-Dashboard <a
-                        class="text-blue-500"
+                        class="text-blue-500 dark:text-blue-600"
                         href="https://github.com/ravenclaw900/DietPi-Dashboard/releases/tag/v{'ROLLUP.package_version'}"
                         target="_blank">v{"ROLLUP.package_version"}</a
                     > created by ravenclaw900
@@ -140,7 +140,7 @@
                     target="_blank"
                     ><Fa
                         icon={faGithub}
-                        class="hover:opacity-75"
+                        class="hover:opacity-75 dark:hover:opacity-60"
                         size="2x"
                     /></a
                 >

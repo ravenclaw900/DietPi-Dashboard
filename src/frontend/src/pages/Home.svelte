@@ -114,6 +114,14 @@
                             return value + "%";
                         },
                     },
+                    grid: {
+                        color:
+                            window.matchMedia &&
+                            window.matchMedia("(prefers-color-scheme: dark)")
+                                .matches
+                                ? "#4B5563"
+                                : "#D1D5DB",
+                    },
                 },
                 usageScale: {
                     position: "left",
@@ -122,6 +130,24 @@
                         callback: (value) => {
                             return value + "MiB";
                         },
+                    },
+                    grid: {
+                        color:
+                            window.matchMedia &&
+                            window.matchMedia("(prefers-color-scheme: dark)")
+                                .matches
+                                ? "#4B5563"
+                                : "#D1D5DB",
+                    },
+                },
+                x: {
+                    grid: {
+                        color:
+                            window.matchMedia &&
+                            window.matchMedia("(prefers-color-scheme: dark)")
+                                .matches
+                                ? "#4B5563"
+                                : "#D1D5DB",
                     },
                 },
             },
@@ -174,30 +200,30 @@
     {#if ramData != undefined}
         <Card header="System Stats">
             CPU:<span class="float-right">{socketData.cpu}/100%</span>
-            <div class="bg-gray-200 w-full h-3 my-1">
+            <div class="bg-gray-200 dark:bg-gray-800 w-full h-3 my-1">
                 <div class="bg-green-500 h-3" style="width:{$cpuAnimate}%" />
             </div>
             RAM:<span class="float-right"
                 >{ramData[0]}/{ramData[1]}{ramData[2]}</span
             >
-            <div class="bg-gray-200 w-full h-3 my-1">
+            <div class="bg-gray-200 dark:bg-gray-800 w-full h-3 my-1">
                 <div class="bg-red-500 h-3" style="width:{$ramAnimate}%" />
             </div>
             Swap:<span class="float-right"
                 >{swapData[0]}/{swapData[1]}{swapData[2]}</span
             >
-            <div class="bg-gray-200 w-full h-3 my-1">
+            <div class="bg-gray-200 dark:bg-gray-800 w-full h-3 my-1">
                 <div class="bg-blue-500 h-3" style="width:{$swapAnimate}%" />
             </div>
             Disk:<span class="float-right"
                 >{diskData[0]}/{diskData[1]}{diskData[2]}</span
             >
-            <div class="bg-gray-200 w-full h-3 my-1">
+            <div class="bg-gray-200 dark:bg-gray-800 w-full h-3 my-1">
                 <div class="bg-yellow-500 h-3" style="width:{$diskAnimate}%" />
             </div>
         </Card>
     {:else}
-        <h3>Getting data...</h3>
+        <h3 class="dark:text-white">Getting data...</h3>
     {/if}
 </main>
 

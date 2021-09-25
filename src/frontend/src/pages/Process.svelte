@@ -217,7 +217,7 @@
 <main>
     {#if socketData.processes != undefined}
         <table
-            class="border border-gray-300 w-full table-fixed break-words overflow-x-scroll"
+            class="border border-gray-300 dark:border-gray-700 w-full table-fixed break-words overflow-x-scroll"
         >
             <tr class="bg-dplime">
                 <th
@@ -264,7 +264,7 @@
             </tr>
             {#each socketData.processes as process}
                 <tr
-                    class="mt-32 even:bg-white odd:bg-gray-200 border-t-2 border-gray-300 border-opacity-50"
+                    class="mt-32 even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800 dark:text-white dark:border-gray-600 border-t-2 border-gray-300 border-opacity-50"
                 >
                     <td class="p-2">{process.pid}</td>
                     <td class="p-2">{process.name}</td>
@@ -325,6 +325,6 @@
             {/each}
         </table>
     {:else}
-        <h3>Getting data...</h3>
+        <h3 class="dark:text-white">Getting data...</h3>
     {/if}
 </main>
