@@ -1,6 +1,7 @@
 use lazy_static::lazy_static;
 use psutil::{cpu, disk, host, memory, network, process};
 use std::fs;
+use std::ops::DerefMut;
 use std::sync::Mutex;
 use std::{process::Command, thread, time};
 
@@ -11,6 +12,22 @@ lazy_static! {
         Mutex::new(cpu::CpuPercentCollector::new().unwrap());
     static ref NETCOLLECTOR: Mutex<network::NetIoCountersCollector> =
         Mutex::new(network::NetIoCountersCollector::default());
+    static ref BYTES_SENT: Mutex<u64> = Mutex::new(
+        NETCOLLECTOR
+            .lock()
+            .unwrap()
+            .net_io_counters()
+            .unwrap()
+            .bytes_sent()
+    );
+    static ref BYTES_RECV: Mutex<u64> = Mutex::new(
+        NETCOLLECTOR
+            .lock()
+            .unwrap()
+            .net_io_counters()
+            .unwrap()
+            .bytes_recv()
+    );
 }
 
 pub fn cpu() -> f32 {
@@ -50,11 +67,20 @@ pub fn disk() -> types::UsageData {
 
 pub fn network() -> types::NetData {
     let network = NETCOLLECTOR.lock().unwrap().net_io_counters().unwrap();
+    let recv = network.bytes_recv();
+    let sent = network.bytes_sent();
+    let mut prev_recv = BYTES_RECV.lock().unwrap();
+    let mut prev_sent = BYTES_SENT.lock().unwrap();
 
-    return types::NetData {
-        recieved: network.bytes_recv(),
-        sent: network.bytes_sent(),
+    let data = types::NetData {
+        recieved: recv - *prev_recv,
+        sent: sent - *prev_sent,
     };
+
+    *prev_sent.deref_mut() = sent;
+    *prev_recv.deref_mut() = recv;
+
+    data
 }
 
 pub fn processes() -> Vec<types::ProcessData> {
