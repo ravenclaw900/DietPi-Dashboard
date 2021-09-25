@@ -44,14 +44,15 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
             }
             lock.deref().pty().write_all(data.as_bytes()).unwrap();
         }
-        stop_thread_write.swap(true, Ordering::Relaxed);
+        stop_thread_write.store(true, Ordering::Relaxed);
         // Stop reader
         cmd_write
             .read()
             .await
             .deref()
             .pty()
-            .write_all("exit".as_bytes());
+            .write_all("exit".as_bytes())
+            .unwrap();
     });
 
     let pty_reader = tokio::spawn(async move {
@@ -67,12 +68,12 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
             }
             socket_send.send(Message::binary(data)).await.unwrap();
         }
-        stop_thread_read.swap(true, Ordering::Relaxed);
+        stop_thread_read.store(true, Ordering::Relaxed);
         // Writer won't exit until page is changed/closed
     });
 
     // Wait for threads to exit
-    tokio::join!(pty_writer, pty_reader);
+    tokio::try_join!(pty_writer, pty_reader).unwrap();
 
     // Process should be safe to kill after exiting
     cmd.write().await.deref_mut().kill().unwrap();

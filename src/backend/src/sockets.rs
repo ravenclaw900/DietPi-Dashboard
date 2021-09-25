@@ -1,6 +1,10 @@
 use futures::stream::SplitSink;
 use futures::{SinkExt, StreamExt};
 use std::process::Command;
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc,
+};
 use std::{thread, time};
 use tokio::sync::broadcast::{self, Receiver};
 use warp::ws::Message;
@@ -9,7 +13,7 @@ use crate::{systemdata, types};
 
 async fn main_handler(
     socket_send: &mut SplitSink<warp::ws::WebSocket, warp::ws::Message>,
-    quit_recv: &mut Receiver<bool>,
+    quit: &Arc<AtomicBool>,
 ) {
     loop {
         let _send = socket_send
@@ -25,16 +29,16 @@ async fn main_handler(
             ))
             .await;
         thread::sleep(time::Duration::from_millis(500));
-        match quit_recv.try_recv() {
-            Err(_) => {}
-            Ok(_) => break,
+        if quit.load(Ordering::Relaxed) {
+            quit.store(false, Ordering::Relaxed);
+            break;
         }
     }
 }
 
 async fn process_handler(
     socket_send: &mut SplitSink<warp::ws::WebSocket, warp::ws::Message>,
-    quit_recv: &mut Receiver<bool>,
+    quit: &Arc<AtomicBool>,
     data_recv: &mut Receiver<types::Request>,
 ) {
     loop {
@@ -47,9 +51,9 @@ async fn process_handler(
             ))
             .await;
         thread::sleep(time::Duration::from_millis(1000));
-        match quit_recv.try_recv() {
-            Err(_) => {}
-            Ok(_) => break,
+        if quit.load(Ordering::Relaxed) {
+            quit.store(false, Ordering::Relaxed);
+            break;
         }
         match data_recv.try_recv() {
             Err(_) => {}
@@ -70,7 +74,7 @@ async fn process_handler(
 
 async fn software_handler(
     socket_send: &mut SplitSink<warp::ws::WebSocket, warp::ws::Message>,
-    quit_recv: &mut Receiver<bool>,
+    quit: &Arc<AtomicBool>,
     data_recv: &mut Receiver<types::Request>,
 ) {
     let _send = socket_send
@@ -105,16 +109,16 @@ async fn software_handler(
                     .await;
             }
         }
-        match quit_recv.try_recv() {
-            Err(_) => {}
-            Ok(_) => break,
+        if quit.load(Ordering::Relaxed) {
+            quit.store(false, Ordering::Relaxed);
+            break;
         }
     }
 }
 
 async fn management_handler(
     socket_send: &mut SplitSink<warp::ws::WebSocket, warp::ws::Message>,
-    quit_recv: &mut Receiver<bool>,
+    quit: &Arc<AtomicBool>,
     data_recv: &mut Receiver<types::Request>,
 ) {
     let _send = socket_send
@@ -129,9 +133,9 @@ async fn management_handler(
                 Command::new(data.cmd).spawn().unwrap();
             }
         }
-        match quit_recv.try_recv() {
-            Err(_) => {}
-            Ok(_) => break,
+        if quit.load(Ordering::Relaxed) {
+            quit.store(false, Ordering::Relaxed);
+            break;
         }
     }
 }
@@ -139,7 +143,8 @@ async fn management_handler(
 pub async fn socket_handler(socket: warp::ws::WebSocket) {
     let (mut socket_send, mut socket_recv) = socket.split();
     let (data_send, mut data_recv) = broadcast::channel(1);
-    let (quit_send, mut quit_recv) = broadcast::channel(1);
+    let quit = Arc::new(AtomicBool::new(false));
+    let quit_clone = Arc::clone(&quit);
     tokio::task::spawn(async move {
         let mut first_message = true;
         let mut req: types::Request;
@@ -154,22 +159,22 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                 if first_message {
                     first_message = false;
                 } else {
-                    quit_send.send(true).unwrap();
+                    quit.swap(true, Ordering::Relaxed);
                 }
             }
         }
     });
     while let Ok(message) = data_recv.recv().await {
         match message.page.as_str() {
-            "/" => main_handler(&mut socket_send, &mut quit_recv).await,
+            "/" => main_handler(&mut socket_send, &quit_clone).await,
             "/process" => {
-                process_handler(&mut socket_send, &mut quit_recv, &mut data_recv).await;
+                process_handler(&mut socket_send, &quit_clone, &mut data_recv).await;
             }
             "/software" => {
-                software_handler(&mut socket_send, &mut quit_recv, &mut data_recv).await;
+                software_handler(&mut socket_send, &quit_clone, &mut data_recv).await;
             }
             "/management" => {
-                management_handler(&mut socket_send, &mut quit_recv, &mut data_recv).await;
+                management_handler(&mut socket_send, &quit_clone, &mut data_recv).await;
             }
             _ => {}
         }
