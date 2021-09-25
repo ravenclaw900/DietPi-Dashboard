@@ -1,7 +1,6 @@
 use lazy_static::lazy_static;
 use psutil::{cpu, disk, host, memory, network, process};
 use std::fs;
-use std::ops::DerefMut;
 use std::sync::Mutex;
 use std::{process::Command, thread, time};
 
@@ -73,12 +72,12 @@ pub fn network() -> types::NetData {
     let mut prev_sent = BYTES_SENT.lock().unwrap();
 
     let data = types::NetData {
-        recieved: recv - *prev_recv,
-        sent: sent - *prev_sent,
+        recieved: recv.saturating_sub(*prev_recv),
+        sent: sent.saturating_sub(*prev_sent),
     };
 
-    *prev_sent.deref_mut() = sent;
-    *prev_recv.deref_mut() = recv;
+    *prev_sent = sent;
+    *prev_recv = recv;
 
     data
 }
