@@ -159,12 +159,15 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
             }
         }
     });
-    loop {
-        let message = data_recv.recv().await.unwrap();
+    while let Ok(message) = data_recv.recv().await {
         match message.page.as_str() {
             "/" => main_handler(&mut socket_send, &mut quit_recv).await,
-            "/process" => process_handler(&mut socket_send, &mut quit_recv, &mut data_recv).await,
-            "/software" => software_handler(&mut socket_send, &mut quit_recv, &mut data_recv).await,
+            "/process" => {
+                process_handler(&mut socket_send, &mut quit_recv, &mut data_recv).await;
+            }
+            "/software" => {
+                software_handler(&mut socket_send, &mut quit_recv, &mut data_recv).await;
+            }
             "/management" => {
                 management_handler(&mut socket_send, &mut quit_recv, &mut data_recv).await;
             }
