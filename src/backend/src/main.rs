@@ -7,6 +7,7 @@ mod systemdata;
 mod terminal;
 mod types;
 
+#[allow(clippy::semicolon_if_nothing_returned)] // Needed to avoid https://github.com/rust-lang/rust-clippy/issues/7438
 #[tokio::main]
 async fn main() {
     const DIR: include_dir::Dir = include_dir::include_dir!("public");
@@ -26,7 +27,7 @@ async fn main() {
                     .contents_utf8()
                     .unwrap(),
                 "content-type",
-                format!("text/{}", path.rsplit(".").next().unwrap()),
+                format!("text/{}", path.rsplit('.').next().unwrap()),
             )
         });
 
@@ -44,17 +45,17 @@ async fn main() {
             warp::reply::with_header(
                 DIR.get_file(format!("assets/{}", path)).unwrap().contents(),
                 "content-type",
-                format!("image/png"),
+                "image/png",
             )
         });
 
     let terminal_route = warp::path!("ws" / "term")
         .and(warp::ws())
-        .map(|ws: warp::ws::Ws| ws.on_upgrade(|socket| terminal::terminal_handler(socket)));
+        .map(|ws: warp::ws::Ws| ws.on_upgrade(terminal::term_handler));
 
     let socket_route = warp::path("ws")
         .and(warp::ws())
-        .map(|ws: warp::ws::Ws| ws.on_upgrade(|socket| sockets::socket_handler(socket)));
+        .map(|ws: warp::ws::Ws| ws.on_upgrade(sockets::socket_handler));
 
     let main_route = warp::any()
         .map(|| warp::reply::html(DIR.get_file("index.html").unwrap().contents_utf8().unwrap()));

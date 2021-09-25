@@ -95,11 +95,11 @@ pub fn processes() -> Vec<types::ProcessData> {
         }
         process_list.push(types::ProcessData {
             pid: unwrapped.pid(),
-            name: name,
+            name,
             cpu: (unwrapped.cpu_percent().unwrap() * 100.0).round() / 100.0,
-            ram: unwrapped.memory_info().unwrap().vms() / 1048576,
-            status: status,
-        })
+            ram: unwrapped.memory_info().unwrap().vms() / 1_048_576,
+            status,
+        });
     }
     process_list
 }
@@ -131,7 +131,7 @@ pub fn dpsoftware() -> Vec<types::DPSoftwareData> {
                         .trim_start_matches("\u{001b}[32m")
                         .trim_start_matches("ID ")
                         .parse::<i32>()
-                        .unwrap()
+                        .unwrap();
                 }
                 1 => installed = el1.trim().trim_start_matches('=').parse::<i8>().unwrap() > 0,
                 2 => {
@@ -169,15 +169,15 @@ pub fn dpsoftware() -> Vec<types::DPSoftwareData> {
             }
         }
         software_list.push(types::DPSoftwareData {
-            id: id,
+            id,
             dependencies: depends,
-            docs: docs,
-            name: name,
+            docs,
+            name,
             description: desc,
-            installed: installed,
-        })
+            installed,
+        });
     }
-    return software_list;
+    software_list
 }
 
 pub fn host() -> types::HostData {
@@ -187,7 +187,7 @@ pub fn host() -> types::HostData {
     let dp_version: Vec<&str> = dp_file.split(&['=', '\n'][..]).collect();
     types::HostData {
         hostname: info.hostname().to_string(),
-        uptime: uptime,
+        uptime,
         arch: info.architecture().as_str().to_string(),
         kernel: info.release().to_string(),
         version: format!("{}.{}.{}", dp_version[1], dp_version[3], dp_version[5]),
