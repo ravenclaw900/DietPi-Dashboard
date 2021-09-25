@@ -9,13 +9,13 @@ mod types;
 
 #[tokio::main]
 async fn main() {
+    const DIR: include_dir::Dir = include_dir::include_dir!("public");
+
     SimpleLogger::new()
         .with_level(log::LevelFilter::Info)
         .env()
         .init()
         .unwrap();
-
-    const DIR: include_dir::Dir = include_dir::include_dir!("public");
 
     let build_route = warp::path("build")
         .and(warp::path::param())

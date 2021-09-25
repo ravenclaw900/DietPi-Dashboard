@@ -21,10 +21,10 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
             req = serde_json::from_str(data.to_str().unwrap()).unwrap();
             data_send.send(req.clone()).unwrap();
             if req.cmd == "" {
-                if !first_message {
-                    quit_send.send(true).unwrap();
-                } else {
+                if first_message {
                     first_message = false;
+                } else {
+                    quit_send.send(true).unwrap();
                 }
             }
         }
