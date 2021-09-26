@@ -121,6 +121,7 @@
                     <Route path="management"
                         ><Management {socket} {socketData} /></Route
                     >
+                    <Route path=""><h3>Page not found</h3></Route>
                 {:else}
                     <h3 class="dark:text-white">Connecting to API...</h3>
                 {/if}
