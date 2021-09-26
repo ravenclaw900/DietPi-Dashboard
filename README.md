@@ -10,9 +10,8 @@ A web dashboard for DietPi
 dietpi-software install 9 16 17 # Install Node.js (webpage), Build-Essential (make and gcc), and Git (git clone), respectively
 npm install -g yarn # Install Yarn package manager, for node dependencies
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh # Install Rust (backend)
+source ~/.cargo/env # Update PATH
 ```
-
-Now log out and log back in for PATH to update.
 
 ### Compiling:
 
