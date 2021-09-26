@@ -40,7 +40,7 @@ rustbuild: publiccopy fmt
 
 	cd src/backend; cargo build --release --target x86_64-unknown-linux-gnu
 	x86_64-linux-gnu-strip src/backend/target/x86_64-unknown-linux-gnu/release/dietpi_dashboard
-	upx --lzma src/backend/target/x86_64-unknown-linux-gnu/release/dietpi_dashboard
+	upx-ucl --lzma src/backend/target/x86_64-unknown-linux-gnu/release/dietpi_dashboard
 	mv src/backend/target/x86_64-unknown-linux-gnu/release/dietpi_dashboard build/dietpi-dashboard-amd64
 
 	cd src/backend; cargo build --release --target arm-unknown-linux-gnueabihf
@@ -55,7 +55,7 @@ rustbuild: publiccopy fmt
 
 	cd src/backend; cargo build --release --target aarch64-unknown-linux-gnu
 	aarch64-linux-gnu-strip src/backend/target/aarch64-unknown-linux-gnu/release/dietpi_dashboard
-	upx --lzma src/backend/target/aarch64-unknown-linux-gnu/release/dietpi_dashboard
+	upx-ucl --lzma src/backend/target/aarch64-unknown-linux-gnu/release/dietpi_dashboard
 	mv src/backend/target/aarch64-unknown-linux-gnu/release/dietpi_dashboard build/dietpi-dashboard-armv8
 
 	$(MAKE) publicdelete
