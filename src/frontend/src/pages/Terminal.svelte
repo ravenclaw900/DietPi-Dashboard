@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import { Terminal } from "xterm";
     import { AttachAddon } from "xterm-addon-attach";
     import { FitAddon } from "xterm-addon-fit";

@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import Card from "../components/Card.svelte";
 
     export let socket;

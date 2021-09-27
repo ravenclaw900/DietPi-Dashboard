@@ -17,11 +17,35 @@
         faBars,
     } from "@fortawesome/free-solid-svg-icons";
     import Management from "./pages/Management.svelte";
+    import FileBrowser from "./pages/FileBrowser.svelte";
+
+    interface socketData {
+        software?: software[];
+        response?: string;
+        processes?: processes[];
+    }
+
+    interface software {
+        id: number;
+        installed: boolean;
+        name: string;
+        description: string;
+        dependencies: string;
+        docs: string;
+    }
+
+    interface processes {
+        pid: number;
+        name: string;
+        cpu: number;
+        ram: number;
+        status: string;
+    }
 
     let url = "";
 
     let socket;
-    let socketData = {};
+    let socketData: socketData = {};
     let shown = false;
     let menu = window.innerWidth > 768;
     const socketMessageListener = (e) => {
@@ -120,6 +144,9 @@
                     <Route path="terminal"><Terminal /></Route>
                     <Route path="management"
                         ><Management {socket} {socketData} /></Route
+                    >
+                    <Route path="browser"
+                        ><FileBrowser {socket} {socketData} /></Route
                     >
                     <Route path=""><h3>Page not found</h3></Route>
                 {:else}

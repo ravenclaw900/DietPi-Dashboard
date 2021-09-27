@@ -1,6 +1,6 @@
-<script>
+<script lang="ts">
     import Card from "../components/Card.svelte";
-    import Chart from "chart.js/auto";
+    import Chart, { ChartConfiguration } from "chart.js/auto";
     import { onMount } from "svelte";
     import { spring } from "svelte/motion";
 
@@ -62,6 +62,7 @@
                 borderColor: "#10B981",
                 data: [],
                 yAxisID: "cpuScale",
+                hidden: false,
             },
             {
                 label: "RAM",
@@ -69,6 +70,7 @@
                 borderColor: "#EF4444",
                 data: [],
                 yAxisID: "usageScale",
+                hidden: false,
             },
             {
                 label: "Swap",
@@ -76,6 +78,7 @@
                 borderColor: "#3B82F6",
                 data: [],
                 yAxisID: "usageScale",
+                hidden: false,
             },
             {
                 label: "Disk",
@@ -83,6 +86,7 @@
                 borderColor: "#F59E0B",
                 data: [],
                 yAxisID: "usageScale",
+                hidden: false,
             },
             {
                 label: "Network (sent)",
@@ -90,6 +94,7 @@
                 borderColor: "#8B5CF6",
                 data: [],
                 yAxisID: "usageScale",
+                hidden: false,
             },
             {
                 label: "Network (recieved)",
@@ -97,11 +102,12 @@
                 borderColor: "#EC4899",
                 data: [],
                 yAxisID: "usageScale",
+                hidden: false,
             },
         ],
     };
 
-    const config = {
+    const config: ChartConfiguration = {
         type: "line",
         data: chartData,
         options: {
