@@ -23,7 +23,7 @@
     let socket;
     let socketData = {};
     let shown = false;
-    let menu = true;
+    let menu = window.innerWidth > 768;
     const socketMessageListener = (e) => {
         socketData = JSON.parse(e.data);
     };
