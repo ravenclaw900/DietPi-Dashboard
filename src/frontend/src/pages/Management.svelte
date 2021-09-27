@@ -5,24 +5,38 @@
     export let socketData;
 
     let uptime;
-    let uptimeSet = false;
+    let dialog = false;
+    let msg = "";
 
-    $: socketData.uptime != undefined &&
-        !uptimeSet &&
-        ((uptime = new Date(socketData.uptime * 1000)), (uptimeSet = true));
+    $: socketData.uptime &&
+        ((uptime = new Date(socketData.uptime * 1000)), (dialog = false));
 
     function sendData(data) {
         socket.send(JSON.stringify({ cmd: data }));
-        window.location.reload();
+        // Give backend an extra second to loop again
+        setTimeout(() => {
+            dialog = true;
+        }, 1000);
+        if (data == "reboot") {
+            msg = "Waiting for device to finish...";
+        } else if (data == "poweroff") {
+            msg = "You can close this page";
+        }
     }
-
-    setInterval(() => {
-        uptime.setSeconds(uptime.getSeconds() + 1);
-        uptime = uptime;
-    }, 1000);
 </script>
 
 <main class="flex gap-5 flex-wrap min-h-full flex-grow flex-col">
+    <div
+        class="fixed {dialog
+            ? ''
+            : 'hidden '}inset-0 bg-gray-600 bg-opacity-50 h-screen w-screen flex items-center justify-center"
+    >
+        <div
+            class="bg-white dark:bg-black dark:text-white w-1/2 h-1/3 rounded-md flex items-center justify-center text-xl"
+        >
+            {msg}
+        </div>
+    </div>
     {#if socketData.hostname != undefined}
         <Card header="System Information">
             <table

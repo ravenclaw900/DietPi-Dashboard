@@ -50,7 +50,7 @@ async fn process_handler(
                 .unwrap(),
             ))
             .await;
-        thread::sleep(time::Duration::from_millis(1000));
+        thread::sleep(time::Duration::from_secs(1));
         if quit.load(Ordering::Relaxed) {
             quit.store(false, Ordering::Relaxed);
             break;
@@ -121,12 +121,13 @@ async fn management_handler(
     quit: &Arc<AtomicBool>,
     data_recv: &mut Receiver<types::Request>,
 ) {
-    let _send = socket_send
-        .send(Message::text(
-            serde_json::to_string(&systemdata::host()).unwrap(),
-        ))
-        .await;
     loop {
+        let _send = socket_send
+            .send(Message::text(
+                serde_json::to_string(&systemdata::host()).unwrap(),
+            ))
+            .await;
+        thread::sleep(time::Duration::from_secs(1));
         match data_recv.try_recv() {
             Err(_) => {}
             Ok(data) => {
