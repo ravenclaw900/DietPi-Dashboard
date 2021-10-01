@@ -155,7 +155,7 @@ pub fn dpsoftware() -> Vec<types::DPSoftwareData> {
                         .trim()
                         .trim_start_matches("\u{001b}[32m")
                         .trim_start_matches("ID ")
-                        .parse::<i32>()
+                        .parse::<i16>()
                         .unwrap();
                 }
                 1 => installed = el1.trim().trim_start_matches('=').parse::<i8>().unwrap() > 0,

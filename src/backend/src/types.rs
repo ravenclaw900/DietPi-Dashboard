@@ -46,7 +46,7 @@ pub struct ProcessList {
 
 #[derive(serde::Serialize)]
 pub struct DPSoftwareData {
-    pub id: i32,
+    pub id: i16,
     pub installed: bool,
     pub name: String,
     pub description: String,
