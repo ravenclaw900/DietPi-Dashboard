@@ -7,7 +7,6 @@ mod systemdata;
 mod terminal;
 mod types;
 
-#[allow(clippy::semicolon_if_nothing_returned)] // Needed to avoid https://github.com/rust-lang/rust-clippy/issues/7438
 #[tokio::main]
 async fn main() {
     const DIR: include_dir::Dir = include_dir::include_dir!("public");
