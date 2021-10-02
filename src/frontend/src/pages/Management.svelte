@@ -72,6 +72,15 @@
                     <td class="p-1 font-semibold">Version:</td>
                     <td class="p-1">{socketData.version}</td>
                 </tr>
+                <tr
+                    class="even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800"
+                >
+                    <td class="p-1 font-semibold">Installed Packages:</td>
+                    <td class="p-1"
+                        >{socketData.packages}
+                        {#if socketData.upgrades !== 0}({socketData.upgrades} upgradable){/if}
+                    </td>
+                </tr>
             </table>
         </Card>
         <Card header="Management">

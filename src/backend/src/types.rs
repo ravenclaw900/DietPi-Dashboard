@@ -67,4 +67,6 @@ pub struct HostData {
     pub arch: String,
     pub kernel: String,
     pub version: String,
+    pub packages: usize,
+    pub upgrades: u32,
 }

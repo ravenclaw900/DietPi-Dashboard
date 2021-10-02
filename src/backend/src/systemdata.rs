@@ -1,6 +1,7 @@
 use lazy_static::lazy_static;
 use psutil::{cpu, disk, host, memory, network, process};
 use std::fs;
+use std::str::from_utf8;
 use std::sync::Mutex;
 use std::{process::Command, thread, time};
 
@@ -135,7 +136,7 @@ pub fn dpsoftware() -> Vec<types::DPSoftwareData> {
         .output()
         .unwrap()
         .stdout;
-    let out_list = std::str::from_utf8(out.as_slice())
+    let out_list = from_utf8(out.as_slice())
         .unwrap()
         .split('\n')
         .collect::<Vec<&str>>();
@@ -210,11 +211,28 @@ pub fn host() -> types::HostData {
     let uptime = host::uptime().unwrap().as_secs();
     let dp_file = fs::read_to_string(&std::path::Path::new("/boot/dietpi/.version")).unwrap();
     let dp_version: Vec<&str> = dp_file.split(&['=', '\n'][..]).collect();
+    let installed_pkgs = from_utf8(
+        &Command::new("dpkg")
+            .args(["--get-selections"])
+            .output()
+            .unwrap()
+            .stdout,
+    )
+    .unwrap()
+    .lines()
+    .count();
+    let upgradable_pkgs = fs::read_to_string("/run/dietpi/.apt_updates")
+        .unwrap_or_else(|_| 0.to_string())
+        .trim_end_matches('\n')
+        .parse::<u32>()
+        .unwrap();
     types::HostData {
         hostname: info.hostname().to_string(),
         uptime,
         arch: info.architecture().as_str().to_string(),
         kernel: info.release().to_string(),
         version: format!("{}.{}.{}", dp_version[1], dp_version[3], dp_version[5]),
+        packages: installed_pkgs,
+        upgrades: upgradable_pkgs,
     }
 }
