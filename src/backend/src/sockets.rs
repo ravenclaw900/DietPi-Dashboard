@@ -87,17 +87,13 @@ async fn software_handler(
         ))
         .await;
     loop {
-        println!("started software loop");
         if quit.load(Ordering::Relaxed) {
-            println!("quitting");
             quit.store(false, Ordering::Relaxed);
             break;
         }
-        println!("not quitting");
         match data_recv.try_recv() {
             Err(_) => {}
             Ok(data) => {
-                println!("got data");
                 // We don't just want to run dietpi-software without args
                 if data.args.is_empty() {
                     continue;
@@ -122,7 +118,6 @@ async fn software_handler(
             }
         }
     }
-    println!();
 }
 
 async fn management_handler(
