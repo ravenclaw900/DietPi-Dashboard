@@ -3,7 +3,7 @@ use pty_process::Command;
 use std::io::{Read, Write};
 use std::ops::{Deref, DerefMut};
 use std::sync::{
-    atomic::{AtomicBool, Ordering},
+    atomic::{AtomicBool, Ordering::Relaxed},
     Arc,
 };
 use tokio::sync::RwLock;
@@ -32,7 +32,7 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
     let pty_writer = tokio::spawn(async move {
         while let Some(Ok(data)) = socket_recv.next().await {
             let lock = cmd_write.read().await;
-            if stop_thread_write.load(Ordering::Relaxed) {
+            if stop_thread_write.load(Relaxed) {
                 break;
             }
             if data.is_text() && data.to_str().unwrap().get(..4) == Some("size") {
@@ -44,7 +44,7 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
             }
             lock.deref().pty().write_all(data.as_bytes()).unwrap();
         }
-        stop_thread_write.store(true, Ordering::Relaxed);
+        stop_thread_write.store(true, Relaxed);
         // Stop reader
         cmd_write
             .read()
@@ -63,12 +63,12 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
                 Ok(_) => {}
                 Err(_) => break,
             };
-            if stop_thread_read.load(Ordering::Relaxed) {
+            if stop_thread_read.load(Relaxed) {
                 break;
             }
             socket_send.send(Message::binary(data)).await.unwrap();
         }
-        stop_thread_read.store(true, Ordering::Relaxed);
+        stop_thread_read.store(true, Relaxed);
         // Writer won't exit until page is changed/closed
     });
 

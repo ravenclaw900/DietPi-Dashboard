@@ -2,7 +2,7 @@ use futures::stream::SplitSink;
 use futures::{SinkExt, StreamExt};
 use std::process::Command;
 use std::sync::{
-    atomic::{AtomicBool, Ordering},
+    atomic::{AtomicBool, Ordering::Relaxed},
     Arc,
 };
 use std::{thread, time};
@@ -29,8 +29,8 @@ async fn main_handler(
             ))
             .await;
         thread::sleep(time::Duration::from_millis(500));
-        if quit.load(Ordering::Relaxed) {
-            quit.store(false, Ordering::Relaxed);
+        if quit.load(Relaxed) {
+            quit.store(false, Relaxed);
             break;
         }
     }
@@ -51,8 +51,8 @@ async fn process_handler(
             ))
             .await;
         thread::sleep(time::Duration::from_secs(1));
-        if quit.load(Ordering::Relaxed) {
-            quit.store(false, Ordering::Relaxed);
+        if quit.load(Relaxed) {
+            quit.store(false, Relaxed);
             break;
         }
         match data_recv.try_recv() {
@@ -87,8 +87,8 @@ async fn software_handler(
         ))
         .await;
     loop {
-        if quit.load(Ordering::Relaxed) {
-            quit.store(false, Ordering::Relaxed);
+        if quit.load(Relaxed) {
+            quit.store(false, Relaxed);
             break;
         }
         match data_recv.try_recv() {
@@ -132,8 +132,8 @@ async fn management_handler(
             ))
             .await;
         thread::sleep(time::Duration::from_secs(1));
-        if quit.load(Ordering::Relaxed) {
-            quit.store(false, Ordering::Relaxed);
+        if quit.load(Relaxed) {
+            quit.store(false, Relaxed);
             break;
         }
         match data_recv.try_recv() {
@@ -164,7 +164,7 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                 if first_message {
                     first_message = false;
                 } else {
-                    quit.swap(true, Ordering::Relaxed);
+                    quit.swap(true, Relaxed);
                 }
             }
         }
