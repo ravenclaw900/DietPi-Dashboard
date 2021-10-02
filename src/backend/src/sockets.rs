@@ -87,9 +87,21 @@ async fn software_handler(
         ))
         .await;
     loop {
+        println!("started software loop");
+        if quit.load(Ordering::Relaxed) {
+            println!("quitting");
+            quit.store(false, Ordering::Relaxed);
+            break;
+        }
+        println!("not quitting");
         match data_recv.try_recv() {
             Err(_) => {}
             Ok(data) => {
+                println!("got data");
+                // We don't just want to run dietpi-software without args
+                if data.args.is_empty() {
+                    continue;
+                }
                 let mut cmd = Command::new("/boot/dietpi/dietpi-software");
                 let mut arg_list = vec![data.cmd.as_str()];
                 for element in &data.args {
@@ -109,11 +121,8 @@ async fn software_handler(
                     .await;
             }
         }
-        if quit.load(Ordering::Relaxed) {
-            quit.store(false, Ordering::Relaxed);
-            break;
-        }
     }
+    println!();
 }
 
 async fn management_handler(
@@ -128,15 +137,15 @@ async fn management_handler(
             ))
             .await;
         thread::sleep(time::Duration::from_secs(1));
+        if quit.load(Ordering::Relaxed) {
+            quit.store(false, Ordering::Relaxed);
+            break;
+        }
         match data_recv.try_recv() {
             Err(_) => {}
             Ok(data) => {
                 Command::new(data.cmd).spawn().unwrap();
             }
-        }
-        if quit.load(Ordering::Relaxed) {
-            quit.store(false, Ordering::Relaxed);
-            break;
         }
     }
 }

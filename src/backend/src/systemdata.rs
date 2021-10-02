@@ -141,7 +141,10 @@ pub fn dpsoftware() -> Vec<types::DPSoftwareData> {
         .split('\n')
         .collect::<Vec<&str>>();
     let mut software_list = Vec::new();
-    software_list.reserve(out_list.len() - 9);
+    software_list.reserve(match out_list.len().checked_sub(9) {
+        Some(num) => num,
+        None => return software_list,
+    });
     'software: for element in out_list.iter().skip(4).take(out_list.len() - 5) {
         let mut id = 0;
         let mut installed = false;
