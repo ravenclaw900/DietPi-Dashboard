@@ -189,18 +189,28 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
             if data.is_close() {
                 break;
             }
+            dbg!(&data);
             req = serde_json::from_str(data.to_str().unwrap()).unwrap();
             data_send.send(req.clone()).unwrap();
+            println!("sent data {:?}", req);
             if req.cmd.is_empty() {
                 if first_message {
                     first_message = false;
                 } else {
                     quit.swap(true, Relaxed);
+                    println!("sent quit");
                 }
             }
         }
     });
+    // Send global message (shown on all pages)
+    let _send = socket_send
+        .send(Message::text(
+            serde_json::to_string(&systemdata::global()).unwrap(),
+        ))
+        .await;
     while let Ok(message) = data_recv.recv().await {
+        println!("got msg, {}", message.page);
         match message.page.as_str() {
             "/" => main_handler(&mut socket_send, &quit_clone).await,
             "/process" => {

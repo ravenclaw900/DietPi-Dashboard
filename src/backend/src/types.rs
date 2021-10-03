@@ -71,7 +71,7 @@ pub struct HostData {
     pub upgrades: u32,
 }
 
-#[derive(serde::Serialize, Debug)]
+#[derive(serde::Serialize)]
 pub struct ServiceData {
     pub name: String,
     pub log: String,
@@ -82,4 +82,9 @@ pub struct ServiceData {
 #[derive(serde::Serialize)]
 pub struct ServiceList {
     pub services: Vec<ServiceData>,
+}
+
+#[derive(serde::Serialize)]
+pub struct GlobalData {
+    pub update: String,
 }

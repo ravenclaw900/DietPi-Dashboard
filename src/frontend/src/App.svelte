@@ -25,7 +25,8 @@
         software?: software[];
         response?: string;
         processes?: processes[];
-        services: services[];
+        services?: services[];
+        update?: string;
     }
 
     interface software {
@@ -58,8 +59,13 @@
     let socketData: socketData = {};
     let shown = false;
     let menu = window.innerWidth > 768;
+    let update = "";
+
     const socketMessageListener = (e) => {
         socketData = JSON.parse(e.data);
+        if (socketData.update != undefined) {
+            update = socketData.update;
+        }
     };
     const socketOpenListener = () => {
         console.log("Connected");
@@ -82,6 +88,7 @@
 
     function pollServer() {
         socket.send(JSON.stringify({ page: window.location.pathname }));
+        //update = "";
     }
 
     onMount(() => {
@@ -145,6 +152,11 @@
                         class="h-10"
                     /></a
                 >
+                {#if update != undefined}
+                    <span class="text-red-500 justify-self-center"
+                        >DietPi update avalible: {update}</span
+                    >
+                {/if}
             </header>
             <div class="dark:bg-gray-800 bg-gray-100 flex-grow p-6">
                 {#if shown}
