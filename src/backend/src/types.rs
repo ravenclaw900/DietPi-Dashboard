@@ -60,7 +60,7 @@ pub struct DPSoftwareList {
     pub response: String,
 }
 
-#[derive(serde::Serialize, Debug)]
+#[derive(serde::Serialize)]
 pub struct HostData {
     pub hostname: String,
     pub uptime: u64,
@@ -69,4 +69,17 @@ pub struct HostData {
     pub version: String,
     pub packages: usize,
     pub upgrades: u32,
+}
+
+#[derive(serde::Serialize, Debug)]
+pub struct ServiceData {
+    pub name: String,
+    pub log: String,
+    pub status: String,
+    pub start: String,
+}
+
+#[derive(serde::Serialize)]
+pub struct ServiceList {
+    pub services: Vec<ServiceData>,
 }

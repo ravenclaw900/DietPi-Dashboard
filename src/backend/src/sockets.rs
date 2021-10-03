@@ -145,6 +145,37 @@ async fn management_handler(
     }
 }
 
+async fn service_handler(
+    socket_send: &mut SplitSink<warp::ws::WebSocket, warp::ws::Message>,
+    quit: &Arc<AtomicBool>,
+    data_recv: &mut Receiver<types::Request>,
+) {
+    loop {
+        let _send = socket_send
+            .send(Message::text(
+                serde_json::to_string(&types::ServiceList {
+                    services: systemdata::services(),
+                })
+                .unwrap(),
+            ))
+            .await;
+        if quit.load(Relaxed) {
+            quit.store(false, Relaxed);
+            break;
+        }
+        match data_recv.try_recv() {
+            Err(_) => {}
+            Ok(data) => {
+                Command::new("systemctl")
+                    .args([data.cmd, (&*data.args[0]).to_string()])
+                    .spawn()
+                    .unwrap();
+            }
+        }
+        thread::sleep(time::Duration::from_secs(2));
+    }
+}
+
 pub async fn socket_handler(socket: warp::ws::WebSocket) {
     let (mut socket_send, mut socket_recv) = socket.split();
     let (data_send, mut data_recv) = broadcast::channel(1);
@@ -180,6 +211,9 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
             }
             "/management" => {
                 management_handler(&mut socket_send, &quit_clone, &mut data_recv).await;
+            }
+            "/service" => {
+                service_handler(&mut socket_send, &quit_clone, &mut data_recv).await;
             }
             _ => {}
         }

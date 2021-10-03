@@ -15,14 +15,17 @@
         faTerminal,
         faUser,
         faBars,
+        faList,
     } from "@fortawesome/free-solid-svg-icons";
     import Management from "./pages/Management.svelte";
     import FileBrowser from "./pages/FileBrowser.svelte";
+    import Service from "./pages/Service.svelte";
 
     interface socketData {
         software?: software[];
         response?: string;
         processes?: processes[];
+        services: services[];
     }
 
     interface software {
@@ -40,6 +43,13 @@
         cpu: number;
         ram: number;
         status: string;
+    }
+
+    interface services {
+        name: string;
+        status: string;
+        log: string;
+        start: string;
     }
 
     let url = "";
@@ -101,6 +111,10 @@
                 ></span
             >
             <span on:click={pollServer}
+                ><NavbarLink icon={faList} to="service">Services</NavbarLink
+                ></span
+            >
+            <span on:click={pollServer}
                 ><NavbarLink icon={faDatabase} to="software"
                     >Software</NavbarLink
                 ></span
@@ -147,6 +161,9 @@
                     >
                     <Route path="browser"
                         ><FileBrowser {socket} {socketData} /></Route
+                    >
+                    <Route path="service"
+                        ><Service {socket} {socketData} /></Route
                     >
                     <Route path=""><h3>Page not found</h3></Route>
                 {:else}

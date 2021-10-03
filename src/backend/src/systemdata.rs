@@ -132,14 +132,11 @@ pub fn processes() -> Vec<types::ProcessData> {
 
 pub fn dpsoftware() -> Vec<types::DPSoftwareData> {
     let out = Command::new("/boot/dietpi/dietpi-software")
-        .args(["list"])
+        .arg("list")
         .output()
         .unwrap()
         .stdout;
-    let out_list = from_utf8(out.as_slice())
-        .unwrap()
-        .split('\n')
-        .collect::<Vec<&str>>();
+    let out_list = from_utf8(&out).unwrap().split('\n').collect::<Vec<&str>>();
     let mut software_list = Vec::new();
     software_list.reserve(match out_list.len().checked_sub(9) {
         Some(num) => num,
@@ -216,7 +213,7 @@ pub fn host() -> types::HostData {
     let dp_version: Vec<&str> = dp_file.split(&['=', '\n'][..]).collect();
     let installed_pkgs = from_utf8(
         &Command::new("dpkg")
-            .args(["--get-selections"])
+            .arg("--get-selections")
             .output()
             .unwrap()
             .stdout,
@@ -238,4 +235,58 @@ pub fn host() -> types::HostData {
         packages: installed_pkgs,
         upgrades: upgradable_pkgs,
     }
+}
+
+pub fn services() -> Vec<types::ServiceData> {
+    let services = &Command::new("/boot/dietpi/dietpi-services")
+        .arg("status")
+        .output()
+        .unwrap()
+        .stdout;
+    let services_str = from_utf8(services).unwrap();
+    let mut services_list = Vec::new();
+    for element in services_str
+        .replace("[FAILED] DietPi-Services | \u{25cf} ", "dpdashboardtemp")
+        .replace("[ INFO ] DietPi-Services | ", "dpdashboardtemp")
+        .replace("[  OK  ] DietPi-Services | ", "dpdashboardtemp")
+        .split("dpdashboardtemp")
+        .skip(1)
+    {
+        let mut name = String::new();
+        let mut log = String::new();
+        let mut status = String::new();
+        let mut start = String::new();
+        if element.contains(".service") {
+            for (index, el1) in element.split('\n').enumerate() {
+                status = "failed".to_string();
+                match index {
+                    0 => name = el1.split_once(".service").unwrap().0.to_string(),
+                    9.. => log.push_str(format!("{}<br>", el1).as_str()),
+                    _ => (),
+                }
+            }
+        } else {
+            let (el1, el2) = element.split_once(':').unwrap();
+            name = el1.trim().to_string();
+            match el2.split_once(" since ") {
+                Some(statusdate) => {
+                    match statusdate.0.trim() {
+                        "active (running)" => status = "running".to_string(),
+                        "active (exited)" => status = "exited".to_string(),
+                        "inactive (dead)" => status = "dead".to_string(),
+                        _ => status = "unknown".to_string(),
+                    }
+                    start = statusdate.1.trim().to_string();
+                }
+                None => status = "dead".to_string(),
+            }
+        }
+        services_list.push(types::ServiceData {
+            name,
+            log,
+            status,
+            start,
+        });
+    }
+    services_list
 }
