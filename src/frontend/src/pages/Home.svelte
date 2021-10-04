@@ -1,6 +1,7 @@
 <script lang="ts">
     import Card from "../components/Card.svelte";
-    import Chart, { ChartConfiguration } from "chart.js/auto";
+    import Chart from "chart.js/auto";
+    import type { ChartConfiguration } from "chart.js";
     import { onMount } from "svelte";
     import { spring } from "svelte/motion";
 
