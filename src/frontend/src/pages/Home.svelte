@@ -3,26 +3,22 @@
     import Chart from "chart.js/auto";
     import type { ChartConfiguration } from "chart.js";
     import { onMount } from "svelte";
-    import { spring } from "svelte/motion";
+    import { tweened } from "svelte/motion";
 
-    const cpuAnimate = spring(0, {
-        stiffness: 0.1,
-        damping: 0.5,
+    const cpuAnimate = tweened(0, {
+        duration: 200,
     });
 
-    const ramAnimate = spring(0, {
-        stiffness: 0.1,
-        damping: 0.5,
+    const ramAnimate = tweened(0, {
+        duration: 200,
     });
 
-    const swapAnimate = spring(0, {
-        stiffness: 0.1,
-        damping: 0.5,
+    const swapAnimate = tweened(0, {
+        duration: 200,
     });
 
-    const diskAnimate = spring(0, {
-        stiffness: 0.1,
-        damping: 0.5,
+    const diskAnimate = tweened(0, {
+        duration: 200,
     });
 
     export let socketData;
