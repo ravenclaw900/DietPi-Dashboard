@@ -152,7 +152,7 @@
                         class="h-10"
                     /></a
                 >
-                {#if update != undefined}
+                {#if update != ""}
                     <span class="text-red-500 justify-self-center"
                         >DietPi update avalible: {update}</span
                     >
