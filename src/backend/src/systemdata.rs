@@ -294,6 +294,5 @@ pub fn services() -> Vec<types::ServiceData> {
 pub fn global() -> types::GlobalData {
     let update =
         fs::read_to_string("/run/dietpi/.update_available").unwrap_or_else(|_| String::new());
-    dbg!(&update);
     types::GlobalData { update }
 }
