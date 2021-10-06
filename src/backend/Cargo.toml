@@ -19,5 +19,6 @@ serde_json = "1.0.67"
 pty-process = "0.1.0"
 
 [profile.release]
-lto = true
-panic = 'abort'
+lto = "fat"
+panic = "abort"
+codegen-units = 1
