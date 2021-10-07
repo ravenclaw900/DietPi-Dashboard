@@ -226,7 +226,7 @@ pub fn host() -> types::HostData {
         .trim_end_matches('\n')
         .parse::<u32>()
         .unwrap();
-    let arch = info.architecture().as_str();
+    let mut arch = info.architecture().as_str();
     if arch == "unknown" {
         arch = "armv6/other";
     } else if arch == "arm" {
