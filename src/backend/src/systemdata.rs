@@ -1,6 +1,7 @@
 use lazy_static::lazy_static;
 use psutil::{cpu, disk, host, memory, network, process};
 use std::fs;
+use std::str::from_utf8;
 use std::sync::Mutex;
 use std::{process::Command, thread, time};
 
@@ -131,16 +132,16 @@ pub fn processes() -> Vec<types::ProcessData> {
 
 pub fn dpsoftware() -> Vec<types::DPSoftwareData> {
     let out = Command::new("/boot/dietpi/dietpi-software")
-        .args(["list"])
+        .arg("list")
         .output()
         .unwrap()
         .stdout;
-    let out_list = std::str::from_utf8(out.as_slice())
-        .unwrap()
-        .split('\n')
-        .collect::<Vec<&str>>();
+    let out_list = from_utf8(&out).unwrap().split('\n').collect::<Vec<&str>>();
     let mut software_list = Vec::new();
-    software_list.reserve(out_list.len() - 9);
+    software_list.reserve(match out_list.len().checked_sub(9) {
+        Some(num) => num,
+        None => return software_list,
+    });
     'software: for element in out_list.iter().skip(4).take(out_list.len() - 5) {
         let mut id = 0;
         let mut installed = false;
@@ -155,7 +156,7 @@ pub fn dpsoftware() -> Vec<types::DPSoftwareData> {
                         .trim()
                         .trim_start_matches("\u{001b}[32m")
                         .trim_start_matches("ID ")
-                        .parse::<i32>()
+                        .parse::<i16>()
                         .unwrap();
                 }
                 1 => installed = el1.trim().trim_start_matches('=').parse::<i8>().unwrap() > 0,
@@ -210,11 +211,94 @@ pub fn host() -> types::HostData {
     let uptime = host::uptime().unwrap().as_secs();
     let dp_file = fs::read_to_string(&std::path::Path::new("/boot/dietpi/.version")).unwrap();
     let dp_version: Vec<&str> = dp_file.split(&['=', '\n'][..]).collect();
+    let installed_pkgs = from_utf8(
+        &Command::new("dpkg")
+            .arg("--get-selections")
+            .output()
+            .unwrap()
+            .stdout,
+    )
+    .unwrap()
+    .lines()
+    .count();
+    let upgradable_pkgs = fs::read_to_string("/run/dietpi/.apt_updates")
+        .unwrap_or_else(|_| 0.to_string())
+        .trim_end_matches('\n')
+        .parse::<u32>()
+        .unwrap();
+    let arch = info.architecture().as_str();
+    if arch == "unknown" {
+        arch = "armv6/other";
+    } else if arch == "arm" {
+        arch = "armv7";
+    }
     types::HostData {
         hostname: info.hostname().to_string(),
         uptime,
-        arch: info.architecture().as_str().to_string(),
+        arch: arch.to_string(),
         kernel: info.release().to_string(),
         version: format!("{}.{}.{}", dp_version[1], dp_version[3], dp_version[5]),
+        packages: installed_pkgs,
+        upgrades: upgradable_pkgs,
     }
+}
+
+pub fn services() -> Vec<types::ServiceData> {
+    let services = &Command::new("/boot/dietpi/dietpi-services")
+        .arg("status")
+        .output()
+        .unwrap()
+        .stdout;
+    let services_str = from_utf8(services).unwrap();
+    let mut services_list = Vec::new();
+    for element in services_str
+        .replace("[FAILED] DietPi-Services | \u{25cf} ", "dpdashboardtemp")
+        .replace("[ INFO ] DietPi-Services | ", "dpdashboardtemp")
+        .replace("[  OK  ] DietPi-Services | ", "dpdashboardtemp")
+        .split("dpdashboardtemp")
+        .skip(1)
+    {
+        let mut name = String::new();
+        let mut log = String::new();
+        let mut status = String::new();
+        let mut start = String::new();
+        if element.contains(".service") {
+            for (index, el1) in element.split('\n').enumerate() {
+                status = "failed".to_string();
+                match index {
+                    0 => name = el1.split_once(".service").unwrap().0.to_string(),
+                    9.. => log.push_str(format!("{}<br>", el1).as_str()),
+                    _ => (),
+                }
+            }
+        } else {
+            let (el1, el2) = element.split_once(':').unwrap();
+            name = el1.trim().to_string();
+            match el2.split_once(" since ") {
+                Some(statusdate) => {
+                    match statusdate.0.trim() {
+                        "active (running)" => status = "running".to_string(),
+                        "active (exited)" => status = "exited".to_string(),
+                        "inactive (dead)" => status = "dead".to_string(),
+                        _ => status = "unknown".to_string(),
+                    }
+                    start = statusdate.1.trim().to_string();
+                }
+                None => status = "dead".to_string(),
+            }
+        }
+        services_list.push(types::ServiceData {
+            name,
+            log,
+            status,
+            start,
+        });
+    }
+    services_list
+}
+
+pub fn global() -> types::GlobalData {
+    let update =
+        fs::read_to_string("/run/dietpi/.update_available").unwrap_or_else(|_| String::new());
+    types::GlobalData { update }
 }

@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import Fa from "svelte-fa";
     import {
         faSort,
@@ -10,8 +10,21 @@
         faPlay,
     } from "@fortawesome/free-solid-svg-icons";
 
-    export let socketData;
+    export let socketData: processData;
     export let socket;
+
+    interface processData {
+        processes?: processes[];
+    }
+
+    interface processes {
+        pid: number;
+        name: string;
+        cpu: number;
+        ram: number;
+        status: string;
+    }
+
     let pidSort = true;
     let pidIcon = faSortUp;
     let nameSort = false;

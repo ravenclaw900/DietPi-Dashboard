@@ -1,9 +1,23 @@
-<script>
+<script lang="ts">
     import Fa from "svelte-fa";
     import { faCircleNotch } from "@fortawesome/free-solid-svg-icons";
 
-    export let socketData;
+    export let socketData: softwareData;
     export let socket;
+
+    interface softwareData {
+        software?: software[];
+        response?: string;
+    }
+
+    interface software {
+        id: number;
+        installed: boolean;
+        name: string;
+        description: string;
+        dependencies: string;
+        docs: string;
+    }
 
     let installTemp = [];
     let installArray = [];
@@ -98,8 +112,9 @@
                         <td class="p-2"
                             ><input
                                 type="checkbox"
-                                on:click={(installTemp[software.id] =
-                                    !installTemp[software.id])}
+                                on:click={() =>
+                                    (installTemp[software.id] =
+                                        !installTemp[software.id])}
                                 bind:checked={installTemp[software.id]}
                                 disabled={running}
                             /></td

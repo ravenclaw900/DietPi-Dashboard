@@ -46,7 +46,7 @@ pub struct ProcessList {
 
 #[derive(serde::Serialize)]
 pub struct DPSoftwareData {
-    pub id: i32,
+    pub id: i16,
     pub installed: bool,
     pub name: String,
     pub description: String,
@@ -60,11 +60,31 @@ pub struct DPSoftwareList {
     pub response: String,
 }
 
-#[derive(serde::Serialize, Debug)]
+#[derive(serde::Serialize)]
 pub struct HostData {
     pub hostname: String,
     pub uptime: u64,
     pub arch: String,
     pub kernel: String,
     pub version: String,
+    pub packages: usize,
+    pub upgrades: u32,
+}
+
+#[derive(serde::Serialize)]
+pub struct ServiceData {
+    pub name: String,
+    pub log: String,
+    pub status: String,
+    pub start: String,
+}
+
+#[derive(serde::Serialize)]
+pub struct ServiceList {
+    pub services: Vec<ServiceData>,
+}
+
+#[derive(serde::Serialize)]
+pub struct GlobalData {
+    pub update: String,
 }

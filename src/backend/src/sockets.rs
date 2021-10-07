@@ -2,7 +2,7 @@ use futures::stream::SplitSink;
 use futures::{SinkExt, StreamExt};
 use std::process::Command;
 use std::sync::{
-    atomic::{AtomicBool, Ordering},
+    atomic::{AtomicBool, Ordering::Relaxed},
     Arc,
 };
 use std::{thread, time};
@@ -29,8 +29,8 @@ async fn main_handler(
             ))
             .await;
         thread::sleep(time::Duration::from_millis(500));
-        if quit.load(Ordering::Relaxed) {
-            quit.store(false, Ordering::Relaxed);
+        if quit.load(Relaxed) {
+            quit.store(false, Relaxed);
             break;
         }
     }
@@ -50,9 +50,9 @@ async fn process_handler(
                 .unwrap(),
             ))
             .await;
-        thread::sleep(time::Duration::from_millis(1000));
-        if quit.load(Ordering::Relaxed) {
-            quit.store(false, Ordering::Relaxed);
+        thread::sleep(time::Duration::from_secs(1));
+        if quit.load(Relaxed) {
+            quit.store(false, Relaxed);
             break;
         }
         match data_recv.try_recv() {
@@ -87,9 +87,17 @@ async fn software_handler(
         ))
         .await;
     loop {
+        if quit.load(Relaxed) {
+            quit.store(false, Relaxed);
+            break;
+        }
         match data_recv.try_recv() {
             Err(_) => {}
             Ok(data) => {
+                // We don't just want to run dietpi-software without args
+                if data.args.is_empty() {
+                    continue;
+                }
                 let mut cmd = Command::new("/boot/dietpi/dietpi-software");
                 let mut arg_list = vec![data.cmd.as_str()];
                 for element in &data.args {
@@ -109,10 +117,6 @@ async fn software_handler(
                     .await;
             }
         }
-        if quit.load(Ordering::Relaxed) {
-            quit.store(false, Ordering::Relaxed);
-            break;
-        }
     }
 }
 
@@ -121,22 +125,54 @@ async fn management_handler(
     quit: &Arc<AtomicBool>,
     data_recv: &mut Receiver<types::Request>,
 ) {
-    let _send = socket_send
-        .send(Message::text(
-            serde_json::to_string(&systemdata::host()).unwrap(),
-        ))
-        .await;
     loop {
+        let _send = socket_send
+            .send(Message::text(
+                serde_json::to_string(&systemdata::host()).unwrap(),
+            ))
+            .await;
+        thread::sleep(time::Duration::from_secs(1));
+        if quit.load(Relaxed) {
+            quit.store(false, Relaxed);
+            break;
+        }
         match data_recv.try_recv() {
             Err(_) => {}
             Ok(data) => {
                 Command::new(data.cmd).spawn().unwrap();
             }
         }
-        if quit.load(Ordering::Relaxed) {
-            quit.store(false, Ordering::Relaxed);
+    }
+}
+
+async fn service_handler(
+    socket_send: &mut SplitSink<warp::ws::WebSocket, warp::ws::Message>,
+    quit: &Arc<AtomicBool>,
+    data_recv: &mut Receiver<types::Request>,
+) {
+    loop {
+        let _send = socket_send
+            .send(Message::text(
+                serde_json::to_string(&types::ServiceList {
+                    services: systemdata::services(),
+                })
+                .unwrap(),
+            ))
+            .await;
+        if quit.load(Relaxed) {
+            quit.store(false, Relaxed);
             break;
         }
+        match data_recv.try_recv() {
+            Err(_) => {}
+            Ok(data) => {
+                Command::new("systemctl")
+                    .args([data.cmd, (&*data.args[0]).to_string()])
+                    .spawn()
+                    .unwrap();
+            }
+        }
+        thread::sleep(time::Duration::from_secs(2));
     }
 }
 
@@ -159,11 +195,17 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                 if first_message {
                     first_message = false;
                 } else {
-                    quit.swap(true, Ordering::Relaxed);
+                    quit.swap(true, Relaxed);
                 }
             }
         }
     });
+    // Send global message (shown on all pages)
+    let _send = socket_send
+        .send(Message::text(
+            serde_json::to_string(&systemdata::global()).unwrap(),
+        ))
+        .await;
     while let Ok(message) = data_recv.recv().await {
         match message.page.as_str() {
             "/" => main_handler(&mut socket_send, &quit_clone).await,
@@ -175,6 +217,9 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
             }
             "/management" => {
                 management_handler(&mut socket_send, &quit_clone, &mut data_recv).await;
+            }
+            "/service" => {
+                service_handler(&mut socket_send, &quit_clone, &mut data_recv).await;
             }
             _ => {}
         }

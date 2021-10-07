@@ -15,17 +15,57 @@
         faTerminal,
         faUser,
         faBars,
+        faList,
     } from "@fortawesome/free-solid-svg-icons";
     import Management from "./pages/Management.svelte";
+    import FileBrowser from "./pages/FileBrowser.svelte";
+    import Service from "./pages/Service.svelte";
+
+    interface socketData {
+        software?: software[];
+        response?: string;
+        processes?: processes[];
+        services?: services[];
+        update?: string;
+    }
+
+    interface software {
+        id: number;
+        installed: boolean;
+        name: string;
+        description: string;
+        dependencies: string;
+        docs: string;
+    }
+
+    interface processes {
+        pid: number;
+        name: string;
+        cpu: number;
+        ram: number;
+        status: string;
+    }
+
+    interface services {
+        name: string;
+        status: string;
+        log: string;
+        start: string;
+    }
 
     let url = "";
 
     let socket;
-    let socketData = {};
+    let socketData: socketData = {};
     let shown = false;
-    let menu = true;
+    let menu = window.innerWidth > 768;
+    let update = "";
+
     const socketMessageListener = (e) => {
         socketData = JSON.parse(e.data);
+        if (socketData.update != undefined) {
+            update = socketData.update;
+        }
     };
     const socketOpenListener = () => {
         console.log("Connected");
@@ -48,6 +88,7 @@
 
     function pollServer() {
         socket.send(JSON.stringify({ page: window.location.pathname }));
+        //update = "";
     }
 
     onMount(() => {
@@ -74,6 +115,10 @@
             <span on:click={pollServer}
                 ><NavbarLink icon={faMicrochip} to="process"
                     >Processes</NavbarLink
+                ></span
+            >
+            <span on:click={pollServer}
+                ><NavbarLink icon={faList} to="service">Services</NavbarLink
                 ></span
             >
             <span on:click={pollServer}
@@ -107,6 +152,11 @@
                         class="h-10"
                     /></a
                 >
+                {#if update != ""}
+                    <span class="text-red-500 justify-self-center"
+                        >DietPi update avalible: {update}</span
+                    >
+                {/if}
             </header>
             <div class="dark:bg-gray-800 bg-gray-100 flex-grow p-6">
                 {#if shown}
@@ -120,6 +170,12 @@
                     <Route path="terminal"><Terminal /></Route>
                     <Route path="management"
                         ><Management {socket} {socketData} /></Route
+                    >
+                    <Route path="browser"
+                        ><FileBrowser {socket} {socketData} /></Route
+                    >
+                    <Route path="service"
+                        ><Service {socket} {socketData} /></Route
                     >
                     <Route path=""><h3>Page not found</h3></Route>
                 {:else}
