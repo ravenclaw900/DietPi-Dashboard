@@ -107,11 +107,8 @@ async fn software_handler(
                 log::info!("{}ing software with ID(s) {:?}", data.cmd, data.args);
                 let out =
                     std::string::String::from_utf8(cmd.args(arg_list).output().unwrap().stdout)
-                        .unwrap();
-                dbg!(SerJson::serialize_json(&types::DPSoftwareList {
-                    software: systemdata::dpsoftware(),
-                    response: out,
-                }));
+                        .unwrap()
+                        .replace("", "");
                 let _send = socket_send
                     .send(Message::text(SerJson::serialize_json(
                         &types::DPSoftwareList {
