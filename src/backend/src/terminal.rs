@@ -20,7 +20,7 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
     let (mut socket_send, mut socket_recv) = socket.split();
 
     let cmd = Arc::new(RwLock::new(
-        std::process::Command::new("/bin/bash")
+        std::process::Command::new(std::env::var_os("SHELL").unwrap())
             .spawn_pty(None)
             .unwrap(),
     ));
