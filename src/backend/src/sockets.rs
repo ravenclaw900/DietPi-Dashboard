@@ -1,5 +1,6 @@
 use futures::stream::SplitSink;
 use futures::{SinkExt, StreamExt};
+use nanoserde::{DeJson, SerJson};
 use std::process::Command;
 use std::sync::{
     atomic::{AtomicBool, Ordering::Relaxed},
@@ -17,16 +18,13 @@ async fn main_handler(
 ) {
     loop {
         let _send = socket_send
-            .send(Message::text(
-                serde_json::to_string(&types::SysData {
-                    cpu: systemdata::cpu().await,
-                    ram: systemdata::ram().await,
-                    swap: systemdata::swap().await,
-                    disk: systemdata::disk().await,
-                    network: systemdata::network().await,
-                })
-                .unwrap(),
-            ))
+            .send(Message::text(SerJson::serialize_json(&types::SysData {
+                cpu: systemdata::cpu().await,
+                ram: systemdata::ram().await,
+                swap: systemdata::swap().await,
+                disk: systemdata::disk().await,
+                network: systemdata::network().await,
+            })))
             .await;
         if quit.load(Relaxed) {
             quit.store(false, Relaxed);
@@ -42,12 +40,11 @@ async fn process_handler(
 ) {
     loop {
         let _send = socket_send
-            .send(Message::text(
-                serde_json::to_string(&types::ProcessList {
+            .send(Message::text(SerJson::serialize_json(
+                &types::ProcessList {
                     processes: systemdata::processes().await,
-                })
-                .unwrap(),
-            ))
+                },
+            )))
             .await;
         thread::sleep(time::Duration::from_secs(1));
         if quit.load(Relaxed) {
@@ -78,13 +75,12 @@ async fn software_handler(
     data_recv: &mut Receiver<types::Request>,
 ) {
     let _send = socket_send
-        .send(Message::text(
-            serde_json::to_string(&types::DPSoftwareList {
+        .send(Message::text(SerJson::serialize_json(
+            &types::DPSoftwareList {
                 software: systemdata::dpsoftware(),
                 response: String::new(),
-            })
-            .unwrap(),
-        ))
+            },
+        )))
         .await;
     loop {
         if quit.load(Relaxed) {
@@ -107,13 +103,12 @@ async fn software_handler(
                     std::string::String::from_utf8(cmd.args(arg_list).output().unwrap().stdout)
                         .unwrap();
                 let _send = socket_send
-                    .send(Message::text(
-                        serde_json::to_string(&types::DPSoftwareList {
+                    .send(Message::text(SerJson::serialize_json(
+                        &types::DPSoftwareList {
                             software: systemdata::dpsoftware(),
                             response: out,
-                        })
-                        .unwrap(),
-                    ))
+                        },
+                    )))
                     .await;
             }
         }
@@ -127,9 +122,9 @@ async fn management_handler(
 ) {
     loop {
         let _send = socket_send
-            .send(Message::text(
-                serde_json::to_string(&systemdata::host().await).unwrap(),
-            ))
+            .send(Message::text(SerJson::serialize_json(
+                &systemdata::host().await,
+            )))
             .await;
         thread::sleep(time::Duration::from_secs(1));
         if quit.load(Relaxed) {
@@ -152,12 +147,11 @@ async fn service_handler(
 ) {
     loop {
         let _send = socket_send
-            .send(Message::text(
-                serde_json::to_string(&types::ServiceList {
+            .send(Message::text(SerJson::serialize_json(
+                &types::ServiceList {
                     services: systemdata::services(),
-                })
-                .unwrap(),
-            ))
+                },
+            )))
             .await;
         if quit.load(Relaxed) {
             quit.store(false, Relaxed);
@@ -189,7 +183,7 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
             if data.is_close() {
                 break;
             }
-            req = serde_json::from_str(data.to_str().unwrap()).unwrap();
+            req = DeJson::deserialize_json(data.to_str().unwrap()).unwrap();
             data_send.send(req.clone()).unwrap();
             if req.cmd.is_empty() {
                 if first_message {
@@ -203,7 +197,7 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
     // Send global message (shown on all pages)
     let _send = socket_send
         .send(Message::text(
-            serde_json::to_string(&systemdata::global()).unwrap(),
+            SerJson::serialize_json(&systemdata::global()),
         ))
         .await;
     while let Ok(message) = data_recv.recv().await {

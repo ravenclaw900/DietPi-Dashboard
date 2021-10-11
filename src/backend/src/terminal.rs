@@ -1,4 +1,5 @@
 use futures::{SinkExt, StreamExt};
+use nanoserde::DeJson;
 use pty_process::Command;
 use std::io::{Read, Write};
 use std::ops::{Deref, DerefMut};
@@ -9,7 +10,7 @@ use std::sync::{
 use tokio::sync::RwLock;
 use warp::ws::Message;
 
-#[derive(serde::Deserialize)]
+#[derive(DeJson)]
 struct TTYSize {
     cols: u16,
     rows: u16,
@@ -36,7 +37,7 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
                 break;
             }
             if data.is_text() && data.to_str().unwrap().get(..4) == Some("size") {
-                let json: TTYSize = serde_json::from_str(&data.to_str().unwrap()[4..]).unwrap();
+                let json: TTYSize = DeJson::deserialize_json(&data.to_str().unwrap()[4..]).unwrap();
                 lock.deref()
                     .resize_pty(&pty_process::Size::new(json.rows, json.cols))
                     .unwrap();

@@ -1,4 +1,6 @@
-#[derive(serde::Serialize)]
+use nanoserde::{DeJson, SerJson};
+
+#[derive(SerJson)]
 pub struct SysData {
     pub cpu: f32,
     pub ram: UsageData,
@@ -7,30 +9,30 @@ pub struct SysData {
     pub network: NetData,
 }
 
-#[derive(serde::Serialize)]
+#[derive(SerJson)]
 pub struct UsageData {
     pub used: u64,
     pub total: u64,
     pub percent: f32,
 }
 
-#[derive(serde::Serialize)]
+#[derive(SerJson)]
 pub struct NetData {
     pub sent: u64,
     pub recieved: u64,
 }
 
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone, DeJson)]
 pub struct Request {
-    #[serde(default)]
+    #[nserde(default)]
     pub page: String,
-    #[serde(default)]
+    #[nserde(default)]
     pub cmd: String,
-    #[serde(default)]
+    #[nserde(default)]
     pub args: Vec<String>,
 }
 
-#[derive(serde::Serialize)]
+#[derive(SerJson)]
 pub struct ProcessData {
     pub pid: i32,
     pub name: String,
@@ -39,12 +41,12 @@ pub struct ProcessData {
     pub status: String,
 }
 
-#[derive(serde::Serialize)]
+#[derive(SerJson)]
 pub struct ProcessList {
     pub processes: Vec<ProcessData>,
 }
 
-#[derive(serde::Serialize)]
+#[derive(SerJson)]
 pub struct DPSoftwareData {
     pub id: i16,
     pub installed: bool,
@@ -54,13 +56,13 @@ pub struct DPSoftwareData {
     pub docs: String,
 }
 
-#[derive(serde::Serialize)]
+#[derive(SerJson)]
 pub struct DPSoftwareList {
     pub software: Vec<DPSoftwareData>,
     pub response: String,
 }
 
-#[derive(serde::Serialize)]
+#[derive(SerJson)]
 pub struct HostData {
     pub hostname: String,
     pub uptime: u64,
@@ -73,7 +75,7 @@ pub struct HostData {
     pub ip: String,
 }
 
-#[derive(serde::Serialize)]
+#[derive(SerJson)]
 pub struct ServiceData {
     pub name: String,
     pub log: String,
@@ -81,12 +83,12 @@ pub struct ServiceData {
     pub start: String,
 }
 
-#[derive(serde::Serialize)]
+#[derive(SerJson)]
 pub struct ServiceList {
     pub services: Vec<ServiceData>,
 }
 
-#[derive(serde::Serialize)]
+#[derive(SerJson)]
 pub struct GlobalData {
     pub update: String,
 }
