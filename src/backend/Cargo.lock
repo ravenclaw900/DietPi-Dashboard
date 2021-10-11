@@ -459,8 +459,7 @@ dependencies = [
 [[package]]
 name = "heim"
 version = "0.0.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4da6d047f03312960babf4d2032a6551bd14b4293b9cba61c17e33e1ef4b652d"
+source = "git+https://github.com/ravenclaw900/heim?branch=patched#1e9c4371808bb4bea3a13e162ca6d204587d8319"
 dependencies = [
  "heim-common",
  "heim-cpu",
@@ -477,8 +476,7 @@ dependencies = [
 [[package]]
 name = "heim-common"
 version = "0.0.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6f5a8c66797cb950fdbf6ea1d750f5ffe687e4cb13713fe1f3214d693ffd72a4"
+source = "git+https://github.com/ravenclaw900/heim?branch=patched#1e9c4371808bb4bea3a13e162ca6d204587d8319"
 dependencies = [
  "cfg-if 0.1.10",
  "core-foundation",
@@ -496,8 +494,7 @@ dependencies = [
 [[package]]
 name = "heim-cpu"
 version = "0.0.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cc191b97ede884083df6d4c0ac47246b86782a0d253d001d7b4610f6ec9cb21f"
+source = "git+https://github.com/ravenclaw900/heim?branch=patched#1e9c4371808bb4bea3a13e162ca6d204587d8319"
 dependencies = [
  "cfg-if 0.1.10",
  "heim-common",
@@ -511,8 +508,7 @@ dependencies = [
 [[package]]
 name = "heim-disk"
 version = "0.0.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "876034f2b6a4360668fded6bb1d787a76acd5d896998a035466c301f0bc98299"
+source = "git+https://github.com/ravenclaw900/heim?branch=patched#1e9c4371808bb4bea3a13e162ca6d204587d8319"
 dependencies = [
  "bitflags",
  "cfg-if 0.1.10",
@@ -528,8 +524,7 @@ dependencies = [
 [[package]]
 name = "heim-host"
 version = "0.0.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5e323e5563d38acfba5400a5b6fea252d40fb03c0318844f9c37501d2eda9564"
+source = "git+https://github.com/ravenclaw900/heim?branch=patched#1e9c4371808bb4bea3a13e162ca6d204587d8319"
 dependencies = [
  "cfg-if 0.1.10",
  "heim-common",
@@ -544,8 +539,7 @@ dependencies = [
 [[package]]
 name = "heim-memory"
 version = "0.0.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "679781f53236883fe4f26c29c7973cf30fdd1812de7fd15f673dd84027bfe4a3"
+source = "git+https://github.com/ravenclaw900/heim?branch=patched#1e9c4371808bb4bea3a13e162ca6d204587d8319"
 dependencies = [
  "cfg-if 0.1.10",
  "heim-common",
@@ -559,8 +553,7 @@ dependencies = [
 [[package]]
 name = "heim-net"
 version = "0.0.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "03cfb3cdf09eee9abe0f01360e3270a45829851c9266dd99ee511b4c621840ea"
+source = "git+https://github.com/ravenclaw900/heim?branch=patched#1e9c4371808bb4bea3a13e162ca6d204587d8319"
 dependencies = [
  "bitflags",
  "cfg-if 0.1.10",
@@ -575,8 +568,7 @@ dependencies = [
 [[package]]
 name = "heim-process"
 version = "0.0.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "58bc17fe0cb77010de2a2d82f98af1e6be6bcd28ea1f5b10e57658630f6ce77c"
+source = "git+https://github.com/ravenclaw900/heim?branch=patched#1e9c4371808bb4bea3a13e162ca6d204587d8319"
 dependencies = [
  "cfg-if 0.1.10",
  "darwin-libproc",
@@ -597,8 +589,7 @@ dependencies = [
 [[package]]
 name = "heim-runtime"
 version = "0.0.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1504955d04ec7cf8df8bbe541a8636f619450af6f618a6a6111dfecc79743ee5"
+source = "git+https://github.com/ravenclaw900/heim?branch=patched#1e9c4371808bb4bea3a13e162ca6d204587d8319"
 dependencies = [
  "cfg-if 0.1.10",
  "futures-channel",
@@ -610,8 +601,7 @@ dependencies = [
 [[package]]
 name = "heim-sensors"
 version = "0.0.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "397b856317d361806d1428cabb261188d71d02faaf01463f12637b56ce0c7961"
+source = "git+https://github.com/ravenclaw900/heim?branch=patched#1e9c4371808bb4bea3a13e162ca6d204587d8319"
 dependencies = [
  "cfg-if 0.1.10",
  "heim-common",
@@ -621,8 +611,7 @@ dependencies = [
 [[package]]
 name = "heim-virt"
 version = "0.0.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "79e1d9cb9d87a4f8bc8721ae86c00eb2a232853bca969e63ff8f62660493c477"
+source = "git+https://github.com/ravenclaw900/heim?branch=patched#1e9c4371808bb4bea3a13e162ca6d204587d8319"
 dependencies = [
  "cfg-if 0.1.10",
  "heim-common",
