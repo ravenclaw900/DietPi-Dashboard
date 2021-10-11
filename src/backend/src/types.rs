@@ -32,7 +32,7 @@ pub struct Request {
 
 #[derive(serde::Serialize)]
 pub struct ProcessData {
-    pub pid: u32,
+    pub pid: i32,
     pub name: String,
     pub cpu: f32,
     pub ram: u64,
@@ -69,6 +69,8 @@ pub struct HostData {
     pub version: String,
     pub packages: usize,
     pub upgrades: u32,
+    pub nic: String,
+    pub ip: String,
 }
 
 #[derive(serde::Serialize)]

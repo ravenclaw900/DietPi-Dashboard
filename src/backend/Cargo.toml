@@ -11,12 +11,12 @@ tokio = { version = "1", features = ["full"] }
 simple_logger = "1.13.0"
 log = "0.4.14"
 include_dir = "0.6.2"
-psutil = "3.2.1"
 lazy_static = "1.4.0"
 futures = "0.3.17"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1.0.67"
 pty-process = "0.1.0"
+heim = "0.0.11"
 
 [profile.release]
 lto = "fat"

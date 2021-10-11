@@ -1,116 +1,129 @@
+use futures::StreamExt;
+use heim::{
+    cpu, disk, host, memory, net, process,
+    units::{
+        information::{byte, mebibyte},
+        ratio::percent,
+        time::second,
+    },
+};
 use lazy_static::lazy_static;
-use psutil::{cpu, disk, host, memory, network, process};
+use std::collections::HashMap;
 use std::fs;
+use std::process::Command;
 use std::str::from_utf8;
-use std::sync::Mutex;
-use std::{process::Command, thread, time};
+use std::sync::atomic::{AtomicU64, Ordering::Relaxed};
+use std::{thread, time};
 
 use crate::types;
 
+// Use u64::MAX to originally set traffic
 lazy_static! {
-    static ref CPUCOLLECTOR: Mutex<cpu::CpuPercentCollector> =
-        Mutex::new(cpu::CpuPercentCollector::new().unwrap());
-    static ref NETCOLLECTOR: Mutex<network::NetIoCountersCollector> =
-        Mutex::new(network::NetIoCountersCollector::default());
-    static ref BYTES_SENT: Mutex<u64> = Mutex::new(
-        NETCOLLECTOR
-            .lock()
-            .unwrap()
-            .net_io_counters()
-            .unwrap()
-            .bytes_sent()
-    );
-    static ref BYTES_RECV: Mutex<u64> = Mutex::new(
-        NETCOLLECTOR
-            .lock()
-            .unwrap()
-            .net_io_counters()
-            .unwrap()
-            .bytes_recv()
-    );
+    static ref BYTES_SENT: AtomicU64 = AtomicU64::new(u64::MAX);
+    static ref BYTES_RECV: AtomicU64 = AtomicU64::new(u64::MAX);
 }
 
-pub fn cpu() -> f32 {
-    thread::sleep(time::Duration::from_millis(500));
-    (CPUCOLLECTOR.lock().unwrap().cpu_percent().unwrap() * 100.0).round() / 100.0
+#[allow(clippy::cast_possible_truncation)]
+fn round_percent(unrounded: f64) -> f32 {
+    ((unrounded * 100.0).round() / 100.0) as f32
 }
 
-pub fn ram() -> types::UsageData {
-    let ram = memory::virtual_memory().unwrap();
+pub async fn cpu() -> f32 {
+    let times1 = cpu::time().await.unwrap();
+    let used1 = times1.system() + times1.user();
+    thread::sleep(time::Duration::from_secs(1));
+    let times2 = cpu::time().await.unwrap();
+    let used2 = times2.system() + times2.user();
+
+    round_percent(
+        ((used2 - used1) / ((used2 + times2.idle()) - (used1 + times1.idle()))).get::<percent>(),
+    )
+}
+
+#[allow(clippy::cast_precision_loss)]
+pub async fn ram() -> types::UsageData {
+    let ram = memory::memory().await.unwrap();
+    let ram_used = (ram.total() - ram.available()).get::<byte>();
+    let ram_total = ram.total().get::<byte>();
 
     types::UsageData {
-        used: ram.used(),
-        total: ram.total(),
-        percent: ram.percent(),
+        used: ram_used,
+        total: ram_total,
+        percent: round_percent((ram_used as f64 / ram_total as f64) * 100.0),
     }
 }
 
-pub fn swap() -> types::UsageData {
-    let swap = memory::swap_memory().unwrap();
+#[allow(clippy::cast_precision_loss)]
+pub async fn swap() -> types::UsageData {
+    let swap = memory::swap().await.unwrap();
+    let swap_used = swap.used().get::<byte>();
+    let swap_total = swap.total().get::<byte>();
 
     types::UsageData {
-        used: swap.used(),
-        total: swap.total(),
-        percent: swap.percent(),
+        used: swap_used,
+        total: swap_total,
+        percent: if swap_total == 0 {
+            0.0
+        } else {
+            round_percent((swap_used as f64 / swap_total as f64) * 100.0)
+        },
     }
 }
 
-pub fn disk() -> types::UsageData {
-    let disk = disk::disk_usage("/").unwrap();
+pub async fn disk() -> types::UsageData {
+    let disk = disk::usage("/").await.unwrap();
 
     types::UsageData {
-        used: disk.used(),
-        total: disk.total(),
-        percent: disk.percent(),
+        used: disk.used().get::<byte>(),
+        total: disk.total().get::<byte>(),
+        percent: round_percent(disk.ratio().get::<percent>().into()),
     }
 }
 
-pub fn network() -> types::NetData {
-    let network = NETCOLLECTOR.lock().unwrap().net_io_counters().unwrap();
-    let recv = network.bytes_recv();
-    let sent = network.bytes_sent();
-    let mut prev_recv = BYTES_RECV.lock().unwrap();
-    let mut prev_sent = BYTES_SENT.lock().unwrap();
+pub async fn network() -> types::NetData {
+    // Get data from all interfaces
+    let (sent, recv) = net::io_counters()
+        .fold((0_u64, 0_u64), |accumulated, val| async move {
+            let unwrapped = val.unwrap();
+            (
+                accumulated.0 + unwrapped.bytes_sent().get::<byte>(),
+                accumulated.1 + unwrapped.bytes_recv().get::<byte>(),
+            )
+        })
+        .await;
 
     let data = types::NetData {
-        recieved: recv.saturating_sub(*prev_recv),
-        sent: sent.saturating_sub(*prev_sent),
+        recieved: recv.saturating_sub(BYTES_RECV.load(Relaxed)),
+        sent: sent.saturating_sub(BYTES_SENT.load(Relaxed)),
     };
 
-    *prev_sent = sent;
-    *prev_recv = recv;
+    BYTES_SENT.store(sent, Relaxed);
+    BYTES_RECV.store(recv, Relaxed);
 
     data
 }
 
-pub fn processes() -> Vec<types::ProcessData> {
-    let mut processes = process::processes().unwrap();
+pub async fn processes() -> Vec<types::ProcessData> {
+    let processes = process::processes()
+        .map(Result::unwrap)
+        .collect::<Vec<process::Process>>()
+        .await;
     let mut process_list = Vec::new();
+    let mut cpu_list: HashMap<i32, process::CpuUsage> = HashMap::new();
     process_list.reserve(processes.len());
-    for element in &mut processes {
-        match element.as_mut() {
-            Ok(unwrapped_el) => match unwrapped_el.cpu_percent() {
-                Ok(_) => (),
-                Err(_) => continue,
-            },
-            Err(_) => continue,
-        }
+    for element in &processes {
+        cpu_list.insert(element.pid(), element.cpu_usage().await.unwrap());
     }
     thread::sleep(time::Duration::from_millis(500));
     for element in processes {
-        let mut unwrapped;
-        match element {
-            Ok(unwrapped_el) => unwrapped = unwrapped_el,
-            Err(_) => continue,
-        }
         // Name could fail if the process terminates, if so skip the process
         let name;
-        match unwrapped.name() {
+        match element.name().await {
             Ok(unwrapped_name) => name = unwrapped_name,
             Err(_) => continue,
         }
         let status: String;
-        match unwrapped.status().unwrap() {
+        match element.status().await.unwrap() {
             // The proceses that are running show up as sleeping, for some reason
             process::Status::Sleeping => status = "running".to_string(),
             process::Status::Idle => status = "idle".to_string(),
@@ -119,11 +132,16 @@ pub fn processes() -> Vec<types::ProcessData> {
             process::Status::Dead => status = "dead".to_string(),
             _ => status = String::new(),
         }
+        let pid = element.pid();
         process_list.push(types::ProcessData {
-            pid: unwrapped.pid(),
+            pid,
             name,
-            cpu: (unwrapped.cpu_percent().unwrap() * 100.0).round() / 100.0,
-            ram: unwrapped.memory_info().unwrap().vms() / 1_048_576,
+            cpu: round_percent(
+                (element.cpu_usage().await.unwrap() - cpu_list.remove(&pid).unwrap())
+                    .get::<percent>()
+                    .into(),
+            ),
+            ram: element.memory().await.unwrap().vms().get::<mebibyte>(),
             status,
         });
     }
@@ -206,9 +224,10 @@ pub fn dpsoftware() -> Vec<types::DPSoftwareData> {
     software_list
 }
 
-pub fn host() -> types::HostData {
-    let info = host::info();
-    let uptime = host::uptime().unwrap().as_secs();
+#[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
+pub async fn host() -> types::HostData {
+    let info = host::platform().await.unwrap();
+    let uptime = host::uptime().await.unwrap().get::<second>().round() as u64;
     let dp_file = fs::read_to_string(&std::path::Path::new("/boot/dietpi/.version")).unwrap();
     let dp_version: Vec<&str> = dp_file.split(&['=', '\n'][..]).collect();
     let installed_pkgs = from_utf8(
@@ -232,6 +251,14 @@ pub fn host() -> types::HostData {
     } else if arch == "arm" {
         arch = "armv7";
     }
+    // Skip loopback MAC, loopback IP, and interface MAC
+    let nic = net::nic().skip(3).next().await.unwrap().unwrap();
+
+    let mut ip = String::new();
+    match nic.address() {
+        net::Address::Inet(addr) | net::Address::Inet6(addr) => ip = addr.ip().to_string(),
+        _ => (),
+    }
     types::HostData {
         hostname: info.hostname().to_string(),
         uptime,
@@ -240,6 +267,8 @@ pub fn host() -> types::HostData {
         version: format!("{}.{}.{}", dp_version[1], dp_version[3], dp_version[5]),
         packages: installed_pkgs,
         upgrades: upgradable_pkgs,
+        nic: nic.name().to_string(),
+        ip,
     }
 }
 

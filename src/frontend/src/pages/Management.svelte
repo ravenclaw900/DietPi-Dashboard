@@ -51,7 +51,19 @@
                 <tr
                     class="even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800"
                 >
-                    <td class="p-1 font-semibold">Uptime</td>
+                    <td class="p-1 font-semibold">Network Interface:</td>
+                    <td class="p-1">{socketData.nic}</td>
+                </tr>
+                <tr
+                    class="even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800"
+                >
+                    <td class="p-1 font-semibold">IP Address:</td>
+                    <td class="p-1">{socketData.ip}</td>
+                </tr>
+                <tr
+                    class="even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800"
+                >
+                    <td class="p-1 font-semibold">Uptime:</td>
                     <td class="p-1">{uptime.toISOString().substr(11, 8)}</td>
                 </tr>
                 <tr

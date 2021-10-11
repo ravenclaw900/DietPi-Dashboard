@@ -19,16 +19,15 @@ async fn main_handler(
         let _send = socket_send
             .send(Message::text(
                 serde_json::to_string(&types::SysData {
-                    cpu: systemdata::cpu(),
-                    ram: systemdata::ram(),
-                    swap: systemdata::swap(),
-                    disk: systemdata::disk(),
-                    network: systemdata::network(),
+                    cpu: systemdata::cpu().await,
+                    ram: systemdata::ram().await,
+                    swap: systemdata::swap().await,
+                    disk: systemdata::disk().await,
+                    network: systemdata::network().await,
                 })
                 .unwrap(),
             ))
             .await;
-        thread::sleep(time::Duration::from_millis(500));
         if quit.load(Relaxed) {
             quit.store(false, Relaxed);
             break;
@@ -45,7 +44,7 @@ async fn process_handler(
         let _send = socket_send
             .send(Message::text(
                 serde_json::to_string(&types::ProcessList {
-                    processes: systemdata::processes(),
+                    processes: systemdata::processes().await,
                 })
                 .unwrap(),
             ))
@@ -58,13 +57,14 @@ async fn process_handler(
         match data_recv.try_recv() {
             Err(_) => {}
             Ok(data) => {
-                let process =
-                    psutil::process::Process::new(data.args[0].parse::<u32>().unwrap()).unwrap();
+                let process = heim::process::get(data.args[0].parse::<i32>().unwrap())
+                    .await
+                    .unwrap();
                 match data.cmd.as_str() {
-                    "terminate" => process.terminate().unwrap(),
-                    "kill" => process.kill().unwrap(),
-                    "suspend" => process.suspend().unwrap(),
-                    "resume" => process.resume().unwrap(),
+                    "terminate" => process.terminate().await.unwrap(),
+                    "kill" => process.kill().await.unwrap(),
+                    "suspend" => process.suspend().await.unwrap(),
+                    "resume" => process.resume().await.unwrap(),
                     _ => (),
                 }
             }
@@ -128,7 +128,7 @@ async fn management_handler(
     loop {
         let _send = socket_send
             .send(Message::text(
-                serde_json::to_string(&systemdata::host()).unwrap(),
+                serde_json::to_string(&systemdata::host().await).unwrap(),
             ))
             .await;
         thread::sleep(time::Duration::from_secs(1));

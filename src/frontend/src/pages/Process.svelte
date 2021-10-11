@@ -285,7 +285,7 @@
                     <td class="p-2">{process.cpu}%</td>
                     <td class="p-2">{process.ram}MiB</td>
                     <td class="p-2 space-x-2">
-                        {#if process.name != "dietpi-dashboar"}
+                        {#if process.name != "dietpi-dashboard"}
                             <span
                                 on:click={() =>
                                     sendSignal("terminate", process.pid)}
