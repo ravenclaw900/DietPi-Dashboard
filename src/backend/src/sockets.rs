@@ -57,6 +57,11 @@ async fn process_handler(
                 let process = heim::process::get(data.args[0].parse::<i32>().unwrap())
                     .await
                     .unwrap();
+                log::info!(
+                    "{}ing process {}",
+                    data.cmd.trim_end_matches('e'),
+                    process.pid()
+                );
                 match data.cmd.as_str() {
                     "terminate" => process.terminate().await.unwrap(),
                     "kill" => process.kill().await.unwrap(),
@@ -99,9 +104,14 @@ async fn software_handler(
                 for element in &data.args {
                     arg_list.push(element.as_str());
                 }
+                log::info!("{}ing software with ID(s) {:?}", data.cmd, data.args);
                 let out =
                     std::string::String::from_utf8(cmd.args(arg_list).output().unwrap().stdout)
                         .unwrap();
+                dbg!(SerJson::serialize_json(&types::DPSoftwareList {
+                    software: systemdata::dpsoftware(),
+                    response: out,
+                }));
                 let _send = socket_send
                     .send(Message::text(SerJson::serialize_json(
                         &types::DPSoftwareList {
