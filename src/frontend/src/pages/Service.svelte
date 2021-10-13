@@ -33,7 +33,7 @@
             <tr class="bg-dplime">
                 <th>Name</th>
                 <th>Status</th>
-                <th>Log</th>
+                <th>Error Log</th>
                 <th>Start Time</th>
                 <th>Actions</th>
             </tr>
