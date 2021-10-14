@@ -3,8 +3,31 @@ A web dashboard for DietPi
 
 [![CodeFactor](https://www.codefactor.io/repository/github/ravenclaw900/dietpi-dashboard/badge/main)](https://www.codefactor.io/repository/github/ravenclaw900/dietpi-dashboard/overview/main)
 
-## Compiliation
-### Prereq:
+## Installation
+To install, use one of the [precompiled releases](#downloading) or [compile it yourself](#Compilation)
+
+### Downloading
+```sh
+# Get architecture
+dpdashboardarch=
+if (( $G_HW_ARCH == 10 )); then
+    dpdashboardarch='amd64'
+elif (( $G_HW_ARCH == 3 )); then
+    dpdashboardarch='armv8'
+elif (( $G_HW_ARCH == 2 )); then
+    dpdashboardarch='armv7'
+else
+    dpdashboardarch='armv6'
+fi
+curl -L $(curl -sS 'https://api.github.com/repos/ravenclaw900/dietpi-dashboard/releases/latest' | mawk -F\" "/\"browser_download_url\": \".*dietpi-dashboard-$dpdashboardarch\"/{print \$4}")  -o dietpi-dashboard # Download latest binary for current architecture
+unset dpdashboardarch # Remove architecture variable
+chmod +x dietpi-dashboard # Make binary exectuable
+./dietpi-dashboard # Run binary
+
+```
+
+### Compiliation
+#### Prereq:
 
 ```sh
 dietpi-software install 9 16 17 # Install Node.js (webpage), Build-Essential (make and gcc), and Git (git clone), respectively
@@ -13,7 +36,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh # Install Rust (b
 source ~/.cargo/env # Update PATH
 ```
 
-### Compiling:
+#### Compiling:
 
 ```sh
 rm -rf DietPi-Dashboard # Remove possibly pre-download repository
@@ -25,8 +48,8 @@ make # Compile binary for your platform
 ./dietpi-dashboard # Run binary
 ```
 
-## Compiling for all targets (release)
-### Prereq:
+### Compiling for all targets (release)
+#### Prereq:
 
 Normal compilation prereq (see above)
 ```sh
@@ -36,7 +59,7 @@ mkdir /opt/rpi ; git clone https://github.com/raspberrypi/tools /opt/rpi # Insta
 ```
 You also need to install UPX, however to compress the ARMv6/7 binaries you need to [compile it yourself](https://github.com/upx/upx/blob/devel/README.SRC)
 
-### Compiling:
+#### Compiling:
 
 ```sh
 rm -rf DietPi-Dashboard # Remove possibly pre-download repository
