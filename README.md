@@ -56,8 +56,9 @@ Normal compilation prereq (see above)
 rustup target add aarch64-unknown-linux-gnu arm-unknown-linux-gnueabihf armv7-unknown-linux-gnueabihf x86_64-unknown-linux-gnu # Add Rust standard libraries
 apt install gcc-aarch64-linux-gnu libc-dev-arm64-cross gcc-arm-linux-gnueabihf libc6-dev-armhf-cross gcc-x86-64-linux-gnu libc6-dev-amd64-cross # Install cross-compiling toolchains
 mkdir /opt/rpi ; git clone https://github.com/raspberrypi/tools /opt/rpi # Install Raspberry Pi cross-compiling toolchain
+apt install upx # Install UPX (for compressing binaries)
 ```
-You also need to install UPX, however to compress the ARMv6/7 binaries you need to [compile it yourself](https://github.com/upx/upx/blob/devel/README.SRC)
+You also need to  [compile](https://github.com/upx/upx/blob/devel/README.SRC) UPX, to compress the ARMv6/7 binaries.
 
 #### Compiling:
 
