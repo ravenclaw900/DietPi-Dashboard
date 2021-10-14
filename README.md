@@ -26,7 +26,7 @@ chmod +x dietpi-dashboard # Make binary exectuable
 
 ```
 
-### Compilation
+### Compiling
 #### Prereq:
 
 ```sh
@@ -39,7 +39,7 @@ source ~/.cargo/env # Update PATH
 #### Compiling:
 
 ```sh
-rm -rf DietPi-Dashboard # Remove possibly pre-download repository
+rm -rf DietPi-Dashboard # Remove possibly pre-downloaded repository
 git clone https://github.com/ravenclaw900/DietPi-Dashboard # Download source code
 cd DietPi-Dashboard/src/frontend # Change directories
 yarn # Install dependencies
@@ -63,7 +63,7 @@ You also need to  [compile](https://github.com/upx/upx/blob/devel/README.SRC) UP
 #### Compiling:
 
 ```sh
-rm -rf DietPi-Dashboard # Remove possibly pre-download repository
+rm -rf DietPi-Dashboard # Remove possibly pre-downloaded repository
 git clone https://github.com/ravenclaw900/DietPi-Dashboard # Download source code
 cd DietPi-Dashboard/src/frontend # Change directories
 yarn # Install dependencies
