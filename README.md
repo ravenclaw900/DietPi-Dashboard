@@ -4,7 +4,7 @@ A web dashboard for DietPi
 [![CodeFactor](https://www.codefactor.io/repository/github/ravenclaw900/dietpi-dashboard/badge/main)](https://www.codefactor.io/repository/github/ravenclaw900/dietpi-dashboard/overview/main)
 
 ## Installation
-To install, use one of the [precompiled releases](#downloading) or [compile it yourself](#compilation)
+To install, use one of the [precompiled releases](#downloading) or [compile it yourself](#compiling)
 
 ### Downloading
 ```sh
