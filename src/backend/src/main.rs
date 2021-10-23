@@ -9,26 +9,13 @@ mod types;
 
 #[tokio::main(flavor = "multi_thread", worker_threads = 4)]
 async fn main() {
-    const DIR: include_dir::Dir = include_dir::include_dir!("public");
+    const DIR: include_dir::Dir = include_dir::include_dir!("dist");
 
     SimpleLogger::new()
         .with_level(log::LevelFilter::Info)
         .env()
         .init()
         .unwrap();
-
-    let build_route = warp::path("build")
-        .and(warp::path::param())
-        .map(|path: String| {
-            warp::reply::with_header(
-                DIR.get_file(format!("build/{}", path))
-                    .unwrap()
-                    .contents_utf8()
-                    .unwrap(),
-                "content-type",
-                format!("text/{}", path.rsplit('.').next().unwrap()),
-            )
-        });
 
     let favicon_route = warp::path("favicon.png").map(|| {
         warp::reply::with_header(
@@ -44,7 +31,14 @@ async fn main() {
             warp::reply::with_header(
                 DIR.get_file(format!("assets/{}", path)).unwrap().contents(),
                 "content-type",
-                "image/png",
+                format!(
+                    "text/{}",
+                    if path.rsplit('.').next().unwrap() == "js" {
+                        "javascript"
+                    } else {
+                        path.rsplit('.').next().unwrap()
+                    }
+                ),
             )
         });
 
@@ -59,8 +53,7 @@ async fn main() {
     let main_route = warp::any()
         .map(|| warp::reply::html(DIR.get_file("index.html").unwrap().contents_utf8().unwrap()));
 
-    let page_routes = build_route
-        .or(favicon_route)
+    let page_routes = favicon_route
         .or(assets_route)
         .or(main_route)
         .with(warp::compression::gzip());

@@ -292,8 +292,7 @@
                                 title="Terminate"
                                 ><Fa
                                     icon={faBan}
-                                    class="hover:bg-gray-500 hover:bg-opacity-50 active:bg-opacity-75 rounded-sm"
-                                    style="padding: 0.125rem"
+                                    class="hover:(bg-gray-500 bg-opacity-50) active:bg-opacity-75 rounded-sm p-0.5"
                                     size="lg"
                                 /></span
                             >
@@ -302,8 +301,7 @@
                                 title="Kill"
                                 ><Fa
                                     icon={faSkull}
-                                    class="hover:bg-gray-500 hover:bg-opacity-50 active:bg-opacity-75 rounded-sm"
-                                    style="padding: 0.125rem"
+                                    class="hover:(bg-gray-500 bg-opacity-50) active:bg-opacity-75 rounded-sm p-0.5"
                                     size="lg"
                                 /></span
                             >
@@ -314,8 +312,7 @@
                                     title="Suspend"
                                     ><Fa
                                         icon={faPause}
-                                        class="hover:bg-gray-500 hover:bg-opacity-50 active:bg-opacity-75 rounded-sm"
-                                        style="padding: 0.125rem"
+                                        class="hover:(bg-gray-500 bg-opacity-50) active:bg-opacity-75 rounded-sm p-0.5"
                                         size="lg"
                                     /></span
                                 >
@@ -326,8 +323,7 @@
                                     title="Resume"
                                     ><Fa
                                         icon={faPlay}
-                                        class="hover:bg-gray-500 hover:bg-opacity-50 active:bg-opacity-75 p-0.5 rounded-sm"
-                                        style="padding: 0.125rem"
+                                        class="hover:(bg-gray-500 bg-opacity-50) active:bg-opacity-75 rounded-sm p-0.5"
                                         size="lg"
                                     /></span
                                 >

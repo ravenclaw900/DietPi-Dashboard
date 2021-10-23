@@ -21,6 +21,8 @@
     import FileBrowser from "./pages/FileBrowser.svelte";
     import Service from "./pages/Service.svelte";
 
+    import logo from "./assets/dietpi.png";
+
     interface socketData {
         software?: software[];
         response?: string;
@@ -96,7 +98,7 @@
     });
 </script>
 
-<main class="min-h-screen -m-2 flex overflow-x-hidden">
+<main class="min-h-screen flex overflow-x-hidden">
     <Router {url}>
         <div
             class="bg-gray-900 flex-grow{menu ? '' : ' shrink'}"
@@ -138,7 +140,7 @@
                 <span on:click={() => (menu = !menu)} class="justify-self-start"
                     ><Fa
                         icon={faBars}
-                        class="hover:bg-gray-500 hover:bg-opacity-50 active:bg-opacity-75 ml-1 p-1"
+                        class="hover:(bg-gray-500 bg-opacity-50) active:bg-opacity-75 ml-1 p-1"
                         size="3x"
                     /></span
                 >
@@ -146,11 +148,7 @@
                     href="https://dietpi.com"
                     class="justify-self-center"
                     target="_blank"
-                    ><img
-                        src="/assets/dietpi.png"
-                        alt="DietPi logo"
-                        class="h-10"
-                    /></a
+                    ><img src={logo} alt="DietPi logo" class="h-10" /></a
                 >
                 {#if update != ""}
                     <span class="text-red-500 justify-self-center"
@@ -188,8 +186,8 @@
                 <div>
                     DietPi-Dashboard <a
                         class="text-blue-500 dark:text-blue-600"
-                        href="https://github.com/ravenclaw900/DietPi-Dashboard/releases/tag/v{'ROLLUP.package_version'}"
-                        target="_blank">v{"ROLLUP.package_version"}</a
+                        href="https://github.com/ravenclaw900/DietPi-Dashboard/releases/tag/v{'__PACKAGE_VERSION__'}"
+                        target="_blank">v{"__PACKAGE_VERSION__"}</a
                     > created by ravenclaw900
                 </div>
                 <a
@@ -207,10 +205,6 @@
 </main>
 
 <style global>
-    @tailwind base;
-    @tailwind components;
-    @tailwind utilities;
-
     #sidebarMenu {
         min-width: 10rem;
         max-width: 16.666667%;

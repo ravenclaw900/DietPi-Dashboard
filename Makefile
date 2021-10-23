@@ -9,7 +9,7 @@ default: yarn publiccopy fmt
 rust: publiccopy fmt 
 
 	cd src/backend; cargo build
-	
+
 	$(MAKE) publicdelete
 
 	mv src/backend/target/debug/dietpi_dashboard ./dietpi-dashboard
@@ -18,10 +18,10 @@ yarn:
 	cd src/frontend; yarn build
 
 publiccopy:
-	cp -r src/frontend/public src/backend
+	cp -r src/frontend/dist src/backend
 
 publicdelete:
-	rm -r src/backend/public
+	rm -r src/backend/dist
 
 fmt:
 	cd src/backend; cargo fmt

@@ -60,8 +60,7 @@
                                 title="Start"
                                 ><Fa
                                     icon={faPlay}
-                                    class="hover:bg-gray-500 hover:bg-opacity-50 active:bg-opacity-75 rounded-sm"
-                                    style="padding: 0.125rem"
+                                    class="hover:(bg-gray-500 bg-opacity-50) active:bg-opacity-75 rounded-sm p-0.5"
                                     size="lg"
                                 /></span
                             >
@@ -72,8 +71,7 @@
                                 title="Stop"
                                 ><Fa
                                     icon={faSquare}
-                                    class="hover:bg-gray-500 hover:bg-opacity-50 active:bg-opacity-75 p-0.5 rounded-sm"
-                                    style="padding: 0.125rem"
+                                    class="hover:(bg-gray-500 bg-opacity-50) active:bg-opacity-75 p-0.5 rounded-sm p-0.5"
                                     size="lg"
                                 /></span
                             ><span
@@ -82,8 +80,7 @@
                                 title="Restart"
                                 ><Fa
                                     icon={faRedoAlt}
-                                    class="hover:bg-gray-500 hover:bg-opacity-50 active:bg-opacity-75 p-0.5 rounded-sm"
-                                    style="padding: 0.125rem"
+                                    class="hover:(bg-gray-500 bg-opacity-50) active:bg-opacity-75 p-0.5 rounded-sm p-0.5"
                                     size="lg"
                                 /></span
                             >
