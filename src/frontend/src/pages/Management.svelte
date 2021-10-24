@@ -32,7 +32,7 @@
             : 'hidden '}inset-0 bg-gray-600 bg-opacity-50 h-screen w-screen flex items-center justify-center"
     >
         <div
-            class="bg-white dark:bg-black dark:text-white w-1/2 h-1/3 rounded-md flex items-center justify-center text-xl"
+            class="bg-white dark:bg-black  w-1/2 h-1/3 rounded-md flex items-center justify-center text-xl"
         >
             {msg}
         </div>
@@ -40,7 +40,7 @@
     {#if socketData.hostname != undefined}
         <Card header="System Information">
             <table
-                class="border border-gray-100 dark:border-gray-900 h-full w-full dark:text-white"
+                class="border border-gray-100 dark:border-gray-900 h-full w-full"
             >
                 <tr
                     class="even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800"
@@ -110,6 +110,6 @@
             </div>
         </Card>
     {:else}
-        <h3 class="dark:text-white">Getting data...</h3>
+        <h3>Getting data...</h3>
     {/if}
 </main>

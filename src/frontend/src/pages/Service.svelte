@@ -39,7 +39,7 @@
             </tr>
             {#each socketData.services as service}
                 <tr
-                    class="mt-32 even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800 dark:text-white dark:border-gray-600 border-t-2 border-gray-300 border-opacity-50"
+                    class="mt-32 even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800  dark:border-gray-600 border-t-2 border-gray-300 border-opacity-50"
                 >
                     <td class="p-2">{service.name}</td>
                     <td class="p-2">{service.status}</td>
@@ -60,7 +60,7 @@
                                 title="Start"
                                 ><Fa
                                     icon={faPlay}
-                                    class="hover:(bg-gray-500 bg-opacity-50) active:bg-opacity-75 rounded-sm p-0.5"
+                                    class="btn rounded-sm p-0.5"
                                     size="lg"
                                 /></span
                             >
@@ -71,7 +71,7 @@
                                 title="Stop"
                                 ><Fa
                                     icon={faSquare}
-                                    class="hover:(bg-gray-500 bg-opacity-50) active:bg-opacity-75 p-0.5 rounded-sm p-0.5"
+                                    class="btn p-0.5 rounded-sm p-0.5"
                                     size="lg"
                                 /></span
                             ><span
@@ -80,7 +80,7 @@
                                 title="Restart"
                                 ><Fa
                                     icon={faRedoAlt}
-                                    class="hover:(bg-gray-500 bg-opacity-50) active:bg-opacity-75 p-0.5 rounded-sm p-0.5"
+                                    class="btn p-0.5 rounded-sm p-0.5"
                                     size="lg"
                                 /></span
                             >
@@ -90,6 +90,6 @@
             {/each}
         </table>
     {:else}
-        <h3 class="dark:text-white">Getting data...</h3>
+        <h3>Getting data...</h3>
     {/if}
 </main>

@@ -12,4 +12,7 @@ export default defineConfig({
             },
         },
     },
+    shortcuts: {
+        "btn": "hover:bg-gray-500/50 active:bg-opacity-75"
+    },
 })

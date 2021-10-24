@@ -2,7 +2,6 @@ use futures::{SinkExt, StreamExt};
 use nanoserde::DeJson;
 use pty_process::Command;
 use std::io::{Read, Write};
-use std::ops::{Deref, DerefMut};
 use std::sync::{
     atomic::{AtomicBool, Ordering::Relaxed},
     Arc,
@@ -38,19 +37,16 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
             }
             if data.is_text() && data.to_str().unwrap().get(..4) == Some("size") {
                 let json: TTYSize = DeJson::deserialize_json(&data.to_str().unwrap()[4..]).unwrap();
-                lock.deref()
+                (*lock)
                     .resize_pty(&pty_process::Size::new(json.rows, json.cols))
                     .unwrap();
                 continue;
             }
-            lock.deref().pty().write_all(data.as_bytes()).unwrap();
+            (*lock).pty().write_all(data.as_bytes()).unwrap();
         }
         stop_thread_write.store(true, Relaxed);
         // Stop reader
-        cmd_write
-            .read()
-            .await
-            .deref()
+        (*cmd_write.read().await)
             .pty()
             .write_all("exit".as_bytes())
             .unwrap();
@@ -60,7 +56,7 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
         loop {
             let mut data = [0; 1024];
             let lock = cmd_read.read().await;
-            match lock.deref().pty().read(&mut data) {
+            match (*lock).pty().read(&mut data) {
                 Ok(_) => {}
                 Err(_) => break,
             };
@@ -77,7 +73,7 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
     tokio::try_join!(pty_writer, pty_reader).unwrap();
 
     // Process should be safe to kill after exiting
-    cmd.write().await.deref_mut().kill().unwrap();
+    (*cmd.write().await).kill().unwrap();
 
     log::info!("Closed terminal");
 }

@@ -106,7 +106,7 @@
             {#each socketData.software as software}
                 {#if software.id != -1}
                     <tr
-                        class="mt-32 even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800 dark:text-white dark:border-gray-600 border-t-2 border-gray-300 border-opacity-50"
+                        class="mt-32 even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800  dark:border-gray-600 border-t-2 border-gray-300 border-opacity-50"
                     >
                         <td class="p-2">{software.id}</td>
                         <td class="p-2"
@@ -161,6 +161,6 @@
             />
         {/if}
     {:else}
-        <h3 class="dark:text-white">Getting data...</h3>
+        <h3>Getting data...</h3>
     {/if}
 </main>

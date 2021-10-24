@@ -1,7 +1,7 @@
 node_modules/
 build/
 .vscode/
-src/backend/public
+dist
 dietpi-dashboard
 .DS_Store
 target/

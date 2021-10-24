@@ -1,4 +1,5 @@
 #![warn(clippy::pedantic)]
+#![warn(clippy::cognitive_complexity)]
 use simple_logger::SimpleLogger;
 use warp::Filter;
 

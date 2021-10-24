@@ -10,6 +10,7 @@ use heim::{
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 use std::fs;
+use std::io::Read;
 use std::process::Command;
 use std::str::from_utf8;
 use std::sync::atomic::{AtomicU64, Ordering::Relaxed};
@@ -330,4 +331,80 @@ pub fn global() -> types::GlobalData {
     let update =
         fs::read_to_string("/run/dietpi/.update_available").unwrap_or_else(|_| String::new());
     types::GlobalData { update }
+}
+
+pub fn browser_dir(path: &std::path::Path) -> Vec<types::BrowserDirData> {
+    let dir = fs::read_dir(path).unwrap();
+    let mut file_list = Vec::new();
+    for file in dir {
+        let file = file.unwrap();
+        // Resolve all symlinks
+        let path = fs::canonicalize(file.path()).unwrap();
+        let metadata = fs::metadata(&path).unwrap();
+        let maintype;
+        let subtype;
+        let prettytype;
+        if metadata.is_dir() {
+            maintype = "dir".to_string();
+            subtype = String::new();
+            prettytype = "Directory".to_string();
+        } else {
+            let buf;
+            if let Ok(val) = fs::read(path) {
+                buf = val
+            } else {
+                log::error!("Could not read directory");
+                return vec![types::BrowserDirData {
+                    path: "/".to_string(),
+                    name: "ERROR".to_string(),
+                    maintype: "dir".to_string(),
+                    subtype: String::new(),
+                    prettytype: "Could not read directory".to_string(),
+                    size: 0,
+                }];
+            }
+            if let Some(infertype) = infer::get(&buf) {
+                subtype = infertype.mime_type().split_once('/').unwrap().1.to_string();
+                maintype = {
+                    if infer::is_app(&buf) {
+                        "application"
+                    } else if infer::is_archive(&buf) {
+                        "archive"
+                    } else if infer::is_audio(&buf) {
+                        "audio"
+                    } else if infer::is_image(&buf) {
+                        "image"
+                    } else if infer::is_video(&buf) {
+                        "video"
+                    } else {
+                        "unknown"
+                    }
+                }
+                .to_string();
+                prettytype = format!(
+                    "{} {}{} File",
+                    subtype.to_uppercase(),
+                    maintype.chars().next().unwrap().to_uppercase(),
+                    &maintype[1..]
+                );
+            } else if from_utf8(&buf).is_err() {
+                maintype = "unknown".to_string();
+                subtype = "unknown".to_string();
+                prettytype = "Binary file".to_string();
+            } else {
+                maintype = "text".to_string();
+                subtype = "plain".to_string();
+                prettytype = "Plain Text File".to_string();
+            }
+        }
+        file_list.push(types::BrowserDirData {
+            path: file.path().into_os_string().into_string().unwrap(),
+            name: file.file_name().into_string().unwrap(),
+            maintype,
+            subtype,
+            prettytype,
+            size: metadata.len(),
+        });
+    }
+    file_list
 }

@@ -5,6 +5,8 @@
 
     import { onDestroy } from "svelte";
 
+    import "xterm/css/xterm.css";
+
     let termDiv;
 
     const socket = new WebSocket(

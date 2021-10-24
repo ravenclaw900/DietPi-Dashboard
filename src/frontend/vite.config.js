@@ -5,7 +5,7 @@ import windi from 'vite-plugin-windicss'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [svelte(), windi(), replaceCodePlugin({
+  plugins: [svelte(), windi({}), replaceCodePlugin({
     replacements: [
       {
         from: /__PACKAGE_VERSION__/g,

@@ -92,3 +92,25 @@ pub struct ServiceList {
 pub struct GlobalData {
     pub update: String,
 }
+
+#[derive(SerJson, Debug)]
+pub struct BrowserDirData {
+    pub path: String,
+    pub name: String,
+    pub subtype: String,
+    pub maintype: String,
+    pub prettytype: String,
+    pub size: u64,
+}
+
+#[derive(SerJson)]
+pub struct BrowserFileData {
+    pub data: String,
+    pub currentpath: String,
+}
+
+#[derive(SerJson)]
+pub struct BrowserList {
+    pub contents: Vec<BrowserDirData>,
+    pub currentpath: String,
+}

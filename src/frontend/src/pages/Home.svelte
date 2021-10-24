@@ -29,7 +29,7 @@
         if (total > 1099512000000) {
             unitTotal = Math.round((total / 1099512000000) * 100) / 100;
             unitUsed = Math.round((used / 1099512000000) * 100) / 100;
-            unit = "GiB";
+            unit = "TiB";
         } else if (total > 1073742000) {
             unitTotal = Math.round((total / 1073742000) * 100) / 100;
             unitUsed = Math.round((used / 1073742000) * 100) / 100;
@@ -226,7 +226,7 @@
             </div>
         </Card>
     {:else}
-        <h3 class="dark:text-white">Getting data...</h3>
+        <h3>Getting data...</h3>
     {/if}
 </main>
 

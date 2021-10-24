@@ -177,6 +177,101 @@ async fn service_handler(
     }
 }
 
+async fn browser_refresh(
+    socket_send: &mut SplitSink<warp::ws::WebSocket, warp::ws::Message>,
+    path: &str,
+) {
+    let dir_path = path.rsplit_once('/').unwrap().0;
+    let _send = socket_send
+        .send(Message::text(SerJson::serialize_json(
+            &types::BrowserList {
+                contents: systemdata::browser_dir(std::path::Path::new(dir_path)),
+                currentpath: dir_path.to_string(),
+            },
+        )))
+        .await;
+}
+
+async fn browser_handler(
+    socket_send: &mut SplitSink<warp::ws::WebSocket, warp::ws::Message>,
+    quit: &Arc<AtomicBool>,
+    data_recv: &mut Receiver<types::Request>,
+) {
+    // Get initial listing of $HOME
+    let _send = socket_send
+        .send(Message::text(SerJson::serialize_json(
+            &types::BrowserList {
+                contents: systemdata::browser_dir(std::path::Path::new(
+                    &std::env::var_os("HOME").unwrap(),
+                )),
+                currentpath: std::env::var("HOME").unwrap(),
+            },
+        )))
+        .await;
+    loop {
+        if quit.load(Relaxed) {
+            quit.store(false, Relaxed);
+            break;
+        }
+        match data_recv.try_recv() {
+            Err(_) => {}
+            Ok(data) => match data.cmd.as_str() {
+                "cd" => {
+                    let _send = socket_send
+                        .send(Message::text(SerJson::serialize_json(
+                            &types::BrowserList {
+                                contents: systemdata::browser_dir(std::path::Path::new(
+                                    &data.args[0],
+                                )),
+                                currentpath: data.args[0].clone(),
+                            },
+                        )))
+                        .await;
+                }
+                "open" => {
+                    let _send = socket_send
+                        .send(Message::text(SerJson::serialize_json(
+                            &types::BrowserFileData {
+                                data: std::fs::read_to_string(std::path::Path::new(&data.args[0]))
+                                    .unwrap(),
+                                currentpath: data.args[0].clone(),
+                            },
+                        )))
+                        .await;
+                }
+                "save" => {
+                    std::fs::write(std::path::Path::new(&data.args[0]), &data.args[1]).unwrap();
+                }
+                "copy" => {
+                    std::fs::copy(&data.args[0], format!("{} {}", &data.args[0], 2)).unwrap();
+                    browser_refresh(socket_send, &data.args[0]).await;
+                }
+                "rm" => {
+                    std::fs::remove_file(&data.args[0]).unwrap();
+                    browser_refresh(socket_send, &data.args[0]).await;
+                }
+                "rmdir" => {
+                    std::fs::remove_dir_all(&data.args[0]).unwrap();
+                    browser_refresh(socket_send, &data.args[0]).await;
+                }
+                "mkdir" => {
+                    std::fs::create_dir(&data.args[0]).unwrap();
+                    browser_refresh(socket_send, &data.args[0]).await;
+                }
+                "mkfile" => {
+                    std::fs::write(&data.args[0], "").unwrap();
+                    browser_refresh(socket_send, &data.args[0]).await;
+                }
+                "rename" => {
+                    std::fs::rename(&data.args[0], &data.args[1]).unwrap();
+                    browser_refresh(socket_send, &data.args[0]).await;
+                }
+                _ => {}
+            },
+        }
+    }
+}
+
 pub async fn socket_handler(socket: warp::ws::WebSocket) {
     let (mut socket_send, mut socket_recv) = socket.split();
     let (data_send, mut data_recv) = broadcast::channel(1);
@@ -221,6 +316,9 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
             }
             "/service" => {
                 service_handler(&mut socket_send, &quit_clone, &mut data_recv).await;
+            }
+            "/browser" => {
+                browser_handler(&mut socket_send, &quit_clone, &mut data_recv).await;
             }
             _ => {}
         }
