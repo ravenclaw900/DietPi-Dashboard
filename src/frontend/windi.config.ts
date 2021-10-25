@@ -6,8 +6,8 @@ export default defineConfig({
         extend: {
             colors: {
                 dplime: {
-                    DEFAULT: "#9ccc00",
-                    dark: "#7B952F"
+                    DEFAULT: "#c5ff00",
+                    dark: "9ccc00"
                 }
             },
         },
