@@ -350,7 +350,7 @@ pub fn browser_dir(path: &std::path::Path) -> Vec<types::BrowserDirData> {
         } else {
             let buf;
             if let Ok(val) = fs::read(path) {
-                buf = val
+                buf = val;
             } else {
                 log::error!("Could not read directory");
                 return vec![types::BrowserDirData {
