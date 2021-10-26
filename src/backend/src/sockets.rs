@@ -6,7 +6,7 @@ use std::sync::Arc;
 use std::{thread, time};
 use tokio::sync::{
     mpsc::{self, Receiver},
-    Mutex, MutexGuard,
+    Mutex,
 };
 use warp::ws::Message;
 
@@ -30,11 +30,11 @@ async fn main_handler(
                 .await;
         }
     });
-    match data_recv.recv().await.unwrap() {
-        None => {
+    match data_recv.recv().await {
+        Some(None) | None => {
             handle.abort();
         }
-        Some(_) => {}
+        Some(Some(_)) => {}
     }
 }
 
@@ -56,12 +56,12 @@ async fn process_handler(
         }
     });
     loop {
-        match data_recv.recv().await.unwrap() {
-            None => {
+        match data_recv.recv().await {
+            Some(None) | None => {
                 handle.abort();
                 break;
             }
-            Some(data) => {
+            Some(Some(data)) => {
                 let process = heim::process::get(data.args[0].parse::<i32>().unwrap())
                     .await
                     .unwrap();
@@ -96,11 +96,11 @@ async fn software_handler(
         )))
         .await;
     loop {
-        match data_recv.recv().await.unwrap() {
-            None => {
+        match data_recv.recv().await {
+            Some(None) | None => {
                 break;
             }
-            Some(data) => {
+            Some(Some(data)) => {
                 // We don't just want to run dietpi-software without args
                 if data.args.is_empty() {
                     continue;
@@ -144,12 +144,12 @@ async fn management_handler(
         }
     });
     loop {
-        match data_recv.recv().await.unwrap() {
-            None => {
+        match data_recv.recv().await {
+            Some(None) | None => {
                 handle.abort();
                 break;
             }
-            Some(data) => {
+            Some(Some(data)) => {
                 Command::new(data.cmd).spawn().unwrap();
             }
         }
@@ -174,12 +174,12 @@ async fn service_handler(
         }
     });
     loop {
-        match data_recv.recv().await.unwrap() {
-            None => {
+        match data_recv.recv().await {
+            Some(None) | None => {
                 handle.abort();
                 break;
             }
-            Some(data) => {
+            Some(Some(data)) => {
                 Command::new("systemctl")
                     .args([data.cmd, (&*data.args[0]).to_string()])
                     .spawn()
@@ -221,11 +221,11 @@ async fn browser_handler(
         )))
         .await;
     loop {
-        match data_recv.recv().await.unwrap() {
-            None => {
+        match data_recv.recv().await {
+            Some(None) | None => {
                 break;
             }
-            Some(data) => match data.cmd.as_str() {
+            Some(Some(data)) => match data.cmd.as_str() {
                 "cd" => {
                     let _send = (*socket_send)
                         .send(Message::text(SerJson::serialize_json(
