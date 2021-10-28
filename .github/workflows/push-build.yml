@@ -54,15 +54,15 @@ jobs:
         with:
           name: dietpi-dashboard-amd64
           path: $GITHUB_WORKSPACE/src/backend/target/release/dietpi_dashboard
-     - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v2
         with:
           name: dietpi-dashboard-armv6
           path: $GITHUB_WORKSPACE/src/backend/target/arm-unknown-linux-gnueabihf/release/dietpi_dashboard
-     - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v2
         with:
           name: dietpi-dashboard-armv7
           path: $GITHUB_WORKSPACE/src/backend/target/armv7-unknown-linux-gnueabihf/release/dietpi_dashboard
-     - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v2
         with:
           name: dietpi-dashboard-armv8
           path: $GITHUB_WORKSPACE/src/backend/target/aarch64-unknown-linux-gnu/release/dietpi_dashboard
