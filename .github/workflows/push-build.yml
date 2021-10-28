@@ -19,6 +19,11 @@ jobs:
         with:
           profile: minimal
           toolchain: stable
+      - name: Install other Rust targets
+        run: |
+          rustup target add arm-unknown-linux-gnueabihf
+          rustup target add arm-unknown-linux-gnueabihf
+          rustup target add aarch64-unknown-linux-gnu
       - name: Install Yarn Dependencies
         working-directory: src/frontend
         run: yarn install
@@ -33,17 +38,17 @@ jobs:
           args: --release --manifest-path src/backend/Cargo.toml
       - uses: actions-rs/cargo@v1
         with:
-          use_cross: true
+          use-cross: true
           command: build
           args: --release --target arm-unknown-linux-gnueabihf --manifest-path src/backend/Cargo.toml
       - uses: actions-rs/cargo@v1
         with:
-          use_cross: true
+          use-cross: true
           command: build
           args: --release --target armv7-unknown-linux-gnueabihf --manifest-path src/backend/Cargo.toml
       - uses: actions-rs/cargo@v1
         with:
-          use_cross: true
+          use-cross: true
           command: build
           args: --release --target aarch64-unknown-linux-gnu --manifest-path src/backend/Cargo.toml
       - uses: Swatinem/rust-cache@v1
