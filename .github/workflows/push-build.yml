@@ -6,21 +6,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
-      - name: Change to frontend folder
-        run: cd $GITHUB_WORKSPACE/src/frontend
       - name: Setup Node.js environment
         uses: actions/setup-node@v2.4.1
         with:
           node-version: '16'
           cache: 'yarn'
-          cache-dependency-path: yarn.lock
+          cache-dependency-path: '$GITHUB_WORKSPACE/src/frontend/yarn.lock'
       - name: Install Yarn
         run: npm install -g yarn
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
+      - name: Change to frontend folder
+        run: cd $GITHUB_WORKSPACE/src/frontend
       - name: Install Yarn Dependencies
         run: yarn install
       - name: Build Frontend
