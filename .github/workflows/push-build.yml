@@ -36,12 +36,12 @@ jobs:
           use_cross: true
           command: build
           args: --release --target armv-unknown-linux-gnueabihf --manifest-path src/backend/Cargo.toml
-      - uses: actions-rs/cargo
+      - uses: actions-rs/cargo@v1
         with:
           use_cross: true
           command: build
           args: --release --target armv7-unknown-linux-gnueabihf --manifest-path src/backend/Cargo.toml
-      - uses: actions-rs/cargo
+      - uses: actions-rs/cargo@v1
         with:
           use_cross: true
           command: build
