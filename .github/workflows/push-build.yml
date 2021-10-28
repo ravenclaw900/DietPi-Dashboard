@@ -19,6 +19,7 @@ jobs:
         with:
           profile: minimal
           toolchain: stable
+          override: true
       - name: Install other Rust targets
         run: |
           rustup target add arm-unknown-linux-gnueabihf
