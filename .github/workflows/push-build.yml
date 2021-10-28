@@ -18,6 +18,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
+          toolchain: stable
       - name: Change to frontend folder
         run: cd $GITHUB_WORKSPACE/src/frontend
       - name: Install Yarn Dependencies
