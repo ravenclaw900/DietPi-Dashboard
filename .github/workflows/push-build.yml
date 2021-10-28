@@ -12,8 +12,8 @@ jobs:
           node-version: '16'
           cache: 'yarn'
           cache-dependency-path: '**/yarn.lock'
-      - name: Install Yarn
-        run: npm install -g yarn
+      #- name: Install Yarn
+        #run: npm install -g yarn
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
@@ -34,7 +34,7 @@ jobs:
         working-directory: src/frontend
         run: yarn build
       - name: Copy "dist" folder
-        run: cp -r $GITHUB_WORKSPACE/src/frontend/dist $GITHUB_WORKSPACE/src/backend
+        run: cp -r src/frontend/dist src/backend
       - name: Build amd64
         working-directory: src/backend
         run: cargo build --release
@@ -49,21 +49,21 @@ jobs:
         run: cross build --release --target aarch64-unknown-linux-gnu
       - uses: Swatinem/rust-cache@v1
         with:
-          working-directory: $GITHUB_WORKSPACE/src/backend
+          working-directory: src/backend
       - uses: actions/upload-artifact@v2
         with:
           name: dietpi-dashboard-amd64
-          path: $GITHUB_WORKSPACE/src/backend/target/release/dietpi_dashboard
+          path: src/backend/target/release/dietpi_dashboard
       - uses: actions/upload-artifact@v2
         with:
           name: dietpi-dashboard-armv6
-          path: $GITHUB_WORKSPACE/src/backend/target/arm-unknown-linux-gnueabihf/release/dietpi_dashboard
+          path: src/backend/target/arm-unknown-linux-gnueabihf/release/dietpi_dashboard
       - uses: actions/upload-artifact@v2
         with:
           name: dietpi-dashboard-armv7
-          path: $GITHUB_WORKSPACE/src/backend/target/armv7-unknown-linux-gnueabihf/release/dietpi_dashboard
+          path: src/backend/target/armv7-unknown-linux-gnueabihf/release/dietpi_dashboard
       - uses: actions/upload-artifact@v2
         with:
           name: dietpi-dashboard-armv8
-          path: $GITHUB_WORKSPACE/src/backend/target/aarch64-unknown-linux-gnu/release/dietpi_dashboard
+          path: src/backend/target/aarch64-unknown-linux-gnu/release/dietpi_dashboard
 
