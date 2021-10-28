@@ -38,19 +38,15 @@ jobs:
       - name: Build amd64
         working-directory: src/backend
         run: cargo build --release
-      #- uses: actions-rs/cargo@v1
-        #with:
-          #use-cross: true
-          #command: build
-          #args: --release --target arm-unknown-linux-gnueabihf --manifest-path src/backend/Cargo.toml
+      - name: Build armv6
+        working-directory: src/backend
+        run: cross build --release --target arm-unknown-linux-gnueabihf
       - name: Build armv7
         working-directory: src/backend
         run: cross build --release --target armv7-unknown-linux-gnueabihf
-      - uses: actions-rs/cargo@v1
-        with:
-          use-cross: true
-          command: build
-          args: --release --target aarch64-unknown-linux-gnu --manifest-path src/backend/Cargo.toml
+      - name: Build armv8
+        working-directory: src/backend
+        run: cross build --release --target aarch64-unknown-linux-gnu
       - uses: Swatinem/rust-cache@v1
         with:
           working-directory: $GITHUB_WORKSPACE/src/backend
@@ -58,10 +54,10 @@ jobs:
         with:
           name: dietpi-dashboard-amd64
           path: $GITHUB_WORKSPACE/src/backend/target/release/dietpi_dashboard
-      #- uses: actions/upload-artifact@v2
-        #with:
-          #name: dietpi-dashboard-armv6
-          #path: $GITHUB_WORKSPACE/src/backend/target/arm-unknown-linux-gnueabihf/release/dietpi_dashboard
+      - uses: actions/upload-artifact@v2
+        with:
+          name: dietpi-dashboard-armv6
+          path: $GITHUB_WORKSPACE/src/backend/target/arm-unknown-linux-gnueabihf/release/dietpi_dashboard
       - uses: actions/upload-artifact@v2
         with:
           name: dietpi-dashboard-armv7
