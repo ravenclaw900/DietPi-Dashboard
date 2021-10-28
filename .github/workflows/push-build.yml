@@ -25,6 +25,8 @@ jobs:
           rustup target add arm-unknown-linux-gnueabihf
           rustup target add armv7-unknown-linux-gnueabihf
           rustup target add aarch64-unknown-linux-gnu
+      - name: Install Rust cross-compiler
+        run: cargo install cross
       - name: Install Yarn Dependencies
         working-directory: src/frontend
         run: yarn install
@@ -33,20 +35,17 @@ jobs:
         run: yarn build
       - name: Copy "dist" folder
         run: cp -r $GITHUB_WORKSPACE/src/frontend/dist $GITHUB_WORKSPACE/src/backend
-      - uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release --manifest-path src/backend/Cargo.toml
+      - name: Build amd64
+        working-directory: src/backend
+        run: cargo build --release --manifest-path src/backend/Cargo.toml
       #- uses: actions-rs/cargo@v1
         #with:
           #use-cross: true
           #command: build
           #args: --release --target arm-unknown-linux-gnueabihf --manifest-path src/backend/Cargo.toml
-      - uses: actions-rs/cargo@v1
-        with:
-          use-cross: true
-          command: build
-          args: --release --target armv7-unknown-linux-gnueabihf --manifest-path src/backend/Cargo.toml
+      - name: Build armv7
+        working-directory: src/backend
+        run: cross build--release --target armv7-unknown-linux-gnueabihf
       - uses: actions-rs/cargo@v1
         with:
           use-cross: true
