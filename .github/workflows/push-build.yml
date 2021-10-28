@@ -36,11 +36,11 @@ jobs:
         with:
           command: build
           args: --release --manifest-path src/backend/Cargo.toml
-      - uses: actions-rs/cargo@v1
-        with:
-          use-cross: true
-          command: build
-          args: --release --target arm-unknown-linux-gnueabihf --manifest-path src/backend/Cargo.toml
+      #- uses: actions-rs/cargo@v1
+        #with:
+          #use-cross: true
+          #command: build
+          #args: --release --target arm-unknown-linux-gnueabihf --manifest-path src/backend/Cargo.toml
       - uses: actions-rs/cargo@v1
         with:
           use-cross: true
@@ -58,10 +58,10 @@ jobs:
         with:
           name: dietpi-dashboard-amd64
           path: $GITHUB_WORKSPACE/src/backend/target/release/dietpi_dashboard
-      - uses: actions/upload-artifact@v2
-        with:
-          name: dietpi-dashboard-armv6
-          path: $GITHUB_WORKSPACE/src/backend/target/arm-unknown-linux-gnueabihf/release/dietpi_dashboard
+      #- uses: actions/upload-artifact@v2
+        #with:
+          #name: dietpi-dashboard-armv6
+          #path: $GITHUB_WORKSPACE/src/backend/target/arm-unknown-linux-gnueabihf/release/dietpi_dashboard
       - uses: actions/upload-artifact@v2
         with:
           name: dietpi-dashboard-armv7
