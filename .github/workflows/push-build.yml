@@ -20,9 +20,6 @@ jobs:
           profile: minimal
           toolchain: stable
           components: rustfmt, clippy
-          target: "aarch64-unknown-linux-gnu"
-          target: "armv7-unknown-linux-gnueabihf" 
-          target: "arm-unknown-linux-gnueabihf"
        - name: Change to frontend folder
          run: cd $GITHUB_WORKSPACE/src/frontend
        - name: Install Yarn Dependencies
