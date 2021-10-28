@@ -26,7 +26,7 @@ jobs:
         working-directory: src/frontend
         run: yarn build
       - name: Copy "dist" folder
-        run: cp $GITHUB_WORKSPACE/src/frontend/dist $GITHUB_WORKSPACE/src/backend
+        run: cp -r $GITHUB_WORKSPACE/src/frontend/dist $GITHUB_WORKSPACE/src/backend
       - uses: actions-rs/cargo@v1
         with:
           command: build
