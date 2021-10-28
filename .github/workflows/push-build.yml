@@ -37,7 +37,7 @@ jobs:
         run: cp -r $GITHUB_WORKSPACE/src/frontend/dist $GITHUB_WORKSPACE/src/backend
       - name: Build amd64
         working-directory: src/backend
-        run: cargo build --release --manifest-path src/backend/Cargo.toml
+        run: cargo build --release
       #- uses: actions-rs/cargo@v1
         #with:
           #use-cross: true
@@ -45,7 +45,7 @@ jobs:
           #args: --release --target arm-unknown-linux-gnueabihf --manifest-path src/backend/Cargo.toml
       - name: Build armv7
         working-directory: src/backend
-        run: cross build--release --target armv7-unknown-linux-gnueabihf
+        run: cross build --release --target armv7-unknown-linux-gnueabihf
       - uses: actions-rs/cargo@v1
         with:
           use-cross: true
