@@ -28,28 +28,24 @@ jobs:
       - name: Copy "dist" folder
         run: cp $GITHUB_WORKSPACE/src/frontend/dist $GITHUB_WORKSPACE/src/backend
       - uses: actions-rs/cargo@v1
-        working-directory: src/backend
         with:
           command: build
-          args: --release
+          args: --release --manifest-path src/backend/Cargo.toml
       - uses: actions-rs/cargo@v1
-        working-directory: src/backend
         with:
           use_cross: true
           command: build
-          args: --release --target armv-unknown-linux-gnueabihf
-      - uses: actions-rs/cargo@v1
-        working-directory: src/backend
+          args: --release --target armv-unknown-linux-gnueabihf --manifest-path src/backend/Cargo.toml
+      - uses: actions-rs/cargo
         with:
           use_cross: true
           command: build
-          args: --release --target armv7-unknown-linux-gnueabihf
-      - uses: actions-rs/cargo@v1
-        working-directory: src/backend
+          args: --release --target armv7-unknown-linux-gnueabihf --manifest-path src/backend/Cargo.toml
+      - uses: actions-rs/cargo
         with:
           use_cross: true
           command: build
-          args: --release --target aarch64-unknown-linux-gnu
+          args: --release --target aarch64-unknown-linux-gnu --manifest-path src/backend/Cargo.toml
       - uses: Swatinem/rust-cache@v1
         with:
           working-directory: $GITHUB_WORKSPACE/src/backend
