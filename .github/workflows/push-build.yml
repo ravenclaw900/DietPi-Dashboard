@@ -19,18 +19,16 @@ jobs:
         with:
           profile: minimal
           toolchain: stable
-#      - name: Change to frontend folder
-#        run: cd $GITHUB_WORKSPACE/src/frontend
-      - name: Check directory
-        run: ls
+      - name: Change to frontend folder
+        run: cd src/frontend
       - name: Install Yarn Dependencies
         run: yarn install
-      - name: Build Frontend
+      - name: Build frontend
         run: yarn build
       - name: Copy "dist" folder
         run: cp $GITHUB_WORKSPACE/src/frontend/dist $GITHUB_WORKSPACE/src/backend
       - name: Change to backend folder
-        run: cd $GITHUB_WORKSPACE/src/frontend
+        run: cd $GITHUB_WORKSPACE/src/backend
       - uses: actions-rs/cargo@v1
         with:
           command: build
