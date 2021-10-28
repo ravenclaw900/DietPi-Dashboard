@@ -1,8 +1,8 @@
-name: Daily Build
+name: Build
 on: [push]
 
 jobs:
-  debugBuild:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -19,10 +19,10 @@ jobs:
         with:
           profile: minimal
           toolchain: stable
-      - name: Change to frontend folder
-        run: cd $GITHUB_WORKSPACE/src/frontend
+#      - name: Change to frontend folder
+#        run: cd $GITHUB_WORKSPACE/src/frontend
       - name: Check directory
-        run: pwd
+        run: ls
       - name: Install Yarn Dependencies
         run: yarn install
       - name: Build Frontend
