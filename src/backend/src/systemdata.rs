@@ -112,7 +112,13 @@ pub async fn processes() -> Vec<types::ProcessData> {
     let mut cpu_list: HashMap<i32, process::CpuUsage> = HashMap::new();
     process_list.reserve(processes.len());
     for element in &processes {
-        cpu_list.insert(element.pid(), element.cpu_usage().await.unwrap());
+        // CPU could fail if the process terminates, if so skip the process
+        let cpu;
+        match element.cpu().await {
+            Ok(unwrapped_cpu) => cpu = unwrapped_cpu,
+            Err(_) => continue,
+        }
+        cpu_list.insert(element.pid(), cpu);
     }
     thread::sleep(time::Duration::from_millis(500));
     for element in processes {
