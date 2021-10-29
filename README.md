@@ -4,9 +4,11 @@ A web dashboard for DietPi
 [![CodeFactor](https://www.codefactor.io/repository/github/ravenclaw900/dietpi-dashboard/badge/main)](https://www.codefactor.io/repository/github/ravenclaw900/dietpi-dashboard/overview/main)
 
 ## Installation
-To install, use one of the [precompiled releases](#downloading) or [compile it yourself](#compiling)
+To install, use one of the [precompiled releases](#release), [nightly builds](#nightly) or [compile it yourself](#compiling)
 
 ### Downloading
+#### Release:
+
 ```sh
 # Get architecture
 dpdashboardarch=
@@ -19,12 +21,33 @@ elif (( $G_HW_ARCH == 2 )); then
 else
     dpdashboardarch='armv6'
 fi
-curl -L $(curl -sS 'https://api.github.com/repos/ravenclaw900/dietpi-dashboard/releases/latest' | mawk -F\" "/\"browser_download_url\": \".*dietpi-dashboard-$dpdashboardarch\"/{print \$4}")  -o dietpi-dashboard # Download latest binary for current architecture
+curl -L $(curl -sS 'https://api.github.com/repos/ravenclaw900/dietpi-dashboard/releases/latest' | mawk -F\" "/\"browser_download_url\": \".*dietpi-dashboard-$dpdashboardarch\"/{print \$4}") -o dietpi-dashboard # Download latest binary for current architecture
 unset dpdashboardarch # Remove architecture variable
 chmod +x dietpi-dashboard # Make binary exectuable
 ./dietpi-dashboard # Run binary
-
 ```
+
+#### Nightly:
+
+```sh
+# Get architecture
+dpdashboardarch=
+if (( $G_HW_ARCH == 10 )); then
+    dpdashboardarch='amd64'
+elif (( $G_HW_ARCH == 3 )); then
+    dpdashboardarch='armv8'
+elif (( $G_HW_ARCH == 2 )); then
+    dpdashboardarch='armv7'
+else
+    dpdashboardarch='armv6'
+fi
+curl -L "https://nightly.link/ravenclaw900/DietPi-Dashboard/workflows/push-build/main/dietpi-dashboard-$dpdashboardarch.zip" -o dietpi-dashboard.zip # Download latest nightly build for current architecture
+unzip dietpi-dashboard.zip # Unzip binary
+unset dpdashboardarch # Remove architecture variable
+chmod +x dietpi_dashboard # Make binary exectuable
+./dietpi_dashboard # Run binary
+```
+
 
 ### Compiling
 #### Prereq:

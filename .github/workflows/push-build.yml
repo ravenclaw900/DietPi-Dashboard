@@ -1,0 +1,61 @@
+name: Build
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - name: Install other Rust targets
+        run: |
+          rustup target add arm-unknown-linux-gnueabihf
+          rustup target add armv7-unknown-linux-gnueabihf
+          rustup target add aarch64-unknown-linux-gnu
+      - name: Install Rust cross-compiler
+        run: cargo install cross
+      - name: Install Yarn Dependencies
+        working-directory: src/frontend
+        run: yarn install
+      - name: Build frontend
+        working-directory: src/frontend
+        run: yarn build
+      - name: Copy "dist" folder
+        run: cp -r src/frontend/dist src/backend
+      - name: Build amd64
+        working-directory: src/backend
+        run: cargo build --release
+      - name: Build armv6
+        working-directory: src/backend
+        run: cross build --release --target arm-unknown-linux-gnueabihf
+      - name: Build armv7
+        working-directory: src/backend
+        run: cross build --release --target armv7-unknown-linux-gnueabihf
+      - name: Build armv8
+        working-directory: src/backend
+        run: cross build --release --target aarch64-unknown-linux-gnu
+      - uses: Swatinem/rust-cache@v1
+        with:
+          working-directory: src/backend
+      - uses: actions/upload-artifact@v2
+        with:
+          name: dietpi-dashboard-amd64
+          path: src/backend/target/release/dietpi_dashboard
+      - uses: actions/upload-artifact@v2
+        with:
+          name: dietpi-dashboard-armv6
+          path: src/backend/target/arm-unknown-linux-gnueabihf/release/dietpi_dashboard
+      - uses: actions/upload-artifact@v2
+        with:
+          name: dietpi-dashboard-armv7
+          path: src/backend/target/armv7-unknown-linux-gnueabihf/release/dietpi_dashboard
+      - uses: actions/upload-artifact@v2
+        with:
+          name: dietpi-dashboard-armv8
+          path: src/backend/target/aarch64-unknown-linux-gnu/release/dietpi_dashboard
+
