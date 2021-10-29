@@ -114,7 +114,7 @@ pub async fn processes() -> Vec<types::ProcessData> {
     for element in &processes {
         // CPU could fail if the process terminates, if so skip the process
         let cpu;
-        match element.cpu().await {
+        match element.cpu_usage().await {
             Ok(unwrapped_cpu) => cpu = unwrapped_cpu,
             Err(_) => continue,
         }
