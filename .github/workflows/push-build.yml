@@ -19,6 +19,10 @@ jobs:
           rustup target add aarch64-unknown-linux-gnu
       - name: Install Rust cross-compiler
         run: cargo install cross
+      - name: Restore Rust cache
+        uses: Swatinem/rust-cache@v1
+        with:
+          working-directory: src/backend
       - name: Install Yarn Dependencies
         working-directory: src/frontend
         run: yarn install
@@ -39,9 +43,6 @@ jobs:
       - name: Build armv8
         working-directory: src/backend
         run: cross build --release --target aarch64-unknown-linux-gnu
-      - uses: Swatinem/rust-cache@v1
-        with:
-          working-directory: src/backend
       - uses: actions/upload-artifact@v2
         with:
           name: dietpi-dashboard-amd64
