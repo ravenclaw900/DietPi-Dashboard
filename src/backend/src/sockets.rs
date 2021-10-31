@@ -198,7 +198,6 @@ async fn browser_refresh(
         .send(Message::text(SerJson::serialize_json(
             &types::BrowserList {
                 contents: systemdata::browser_dir(std::path::Path::new(dir_path)),
-                currentpath: dir_path.to_string(),
             },
         )))
         .await;
@@ -216,7 +215,6 @@ async fn browser_handler(
                 contents: systemdata::browser_dir(std::path::Path::new(
                     &std::env::var_os("HOME").unwrap(),
                 )),
-                currentpath: std::env::var("HOME").unwrap(),
             },
         )))
         .await;
@@ -233,7 +231,6 @@ async fn browser_handler(
                                 contents: systemdata::browser_dir(std::path::Path::new(
                                     &data.args[0],
                                 )),
-                                currentpath: data.args[0].clone(),
                             },
                         )))
                         .await;
@@ -242,11 +239,17 @@ async fn browser_handler(
                     let _send = (*socket_send)
                         .send(Message::text(SerJson::serialize_json(
                             &types::BrowserFileData {
-                                data: std::fs::read_to_string(std::path::Path::new(&data.args[0]))
-                                    .unwrap(),
-                                currentpath: data.args[0].clone(),
+                                textdata: std::fs::read_to_string(std::path::Path::new(
+                                    &data.args[0],
+                                ))
+                                .unwrap(),
                             },
                         )))
+                        .await;
+                }
+                "img" => {
+                    let _send = (*socket_send)
+                        .send(Message::binary(std::fs::read(&data.args[0]).unwrap()))
                         .await;
                 }
                 "save" => {

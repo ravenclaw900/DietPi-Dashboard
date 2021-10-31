@@ -105,12 +105,10 @@ pub struct BrowserDirData {
 
 #[derive(SerJson)]
 pub struct BrowserFileData {
-    pub data: String,
-    pub currentpath: String,
+    pub textdata: String,
 }
 
 #[derive(SerJson)]
 pub struct BrowserList {
     pub contents: Vec<BrowserDirData>,
-    pub currentpath: String,
 }

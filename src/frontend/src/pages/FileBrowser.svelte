@@ -22,12 +22,15 @@
 
     export let socket;
     export let socketData: broserList;
+    export let binData;
 
     let fileDataSet = false;
     let pathArray;
     let fileData;
     let fileText;
     let fileDiv;
+    // TODO: better solution than just assuming dashboard is being run by root
+    let currentPath = "/root";
 
     let selPath: browser = {
         name: "",
@@ -38,14 +41,13 @@
         size: 0,
     };
 
-    $: console.log(socketData);
     $: autosize(fileText), autosize.update();
+    $: console.log(binData.length, binData.byteLength);
     // Skip first array element (empty string)
-    $: socketData.currentpath != undefined &&
-        (pathArray = socketData.currentpath.split("/").slice(1));
-    $: socketData.data != undefined &&
+    $: pathArray = currentPath.split("/").slice(1);
+    $: socketData.textdata != undefined &&
         !fileDataSet &&
-        ((fileData = socketData.data), (fileDataSet = true));
+        ((fileData = socketData.textdata), (fileDataSet = true));
     // Set innerText manually to avoid issues with highlighting
     $: fileDiv != undefined &&
         ((fileDiv.innerHTML = fileData
@@ -55,8 +57,8 @@
 
     interface broserList {
         contents?: browser[];
-        data?: string;
-        currentpath: string;
+        textdata?: string;
+        currentpath?: string;
     }
 
     interface browser {
@@ -159,7 +161,7 @@
 </script>
 
 <main class="min-h-full">
-    {#if socketData.contents != undefined || socketData.data != undefined}
+    {#if socketData.contents != undefined || socketData.textdata != undefined || binData != ""}
         <div class="flex">
             <div class="w-11/12">
                 <div class="mb-2 p bg-white dark:bg-black">
@@ -167,6 +169,7 @@
                         class="btn px-2 focus:outline-none"
                         on:click={() => {
                             sendCmd("/", "cd");
+                            currentPath = "/";
                         }}>/</button
                     >
                     {#each pathArray as path}
@@ -187,6 +190,7 @@
                                         }
                                     }
                                     sendCmd(fullPath, "cd");
+                                    currentPath = fullPath;
                                 }}>{path}</button
                             >
                         {/if}
@@ -213,11 +217,15 @@
                                         case "text":
                                             sendCmd(contents.path, "open");
                                             break;
+                                        case "image":
+                                            sendCmd(contents.path, "img");
+                                            break;
                                         default:
                                             alert(
                                                 "ERROR: can't view that type of file"
                                             );
                                     }
+                                    currentPath = contents.path;
                                 }}
                                 on:click={() => (selPath = contents)}
                             >
@@ -239,7 +247,7 @@
                             </tr>
                         {/each}
                     </table>
-                {:else if socketData.data != undefined}
+                {:else if socketData.textdata != undefined}
                     <div class="flex">
                         <textarea
                             bind:value={fileData}
@@ -254,6 +262,10 @@
                             class="w-full microlight -ml-[100%] font-mono whitespace-pre bg-white dark:bg-black text-sm z-10 tab-4 !overflow-x-scroll p-px"
                         />
                     </div>
+                {:else if binData != ""}
+                    <div>
+                        <img src={binData} alt="Unknown" />
+                    </div>
                 {/if}
             </div>
             <div
@@ -267,10 +279,7 @@
                             let name = prompt(
                                 "Please enter the name of the new directory"
                             );
-                            sendCmd(
-                                socketData.currentpath + "/" + name,
-                                "mkdir"
-                            );
+                            sendCmd(currentPath + "/" + name, "mkdir");
                         }}><Fa icon={faFolderPlus} size="lg" /></span
                     >
                     <span
@@ -280,10 +289,7 @@
                             let name = prompt(
                                 "Please enter the name of the new file"
                             );
-                            sendCmd(
-                                socketData.currentpath + "/" + name,
-                                "mkfile"
-                            );
+                            sendCmd(currentPath + "/" + name, "mkfile");
                         }}><Fa icon={faFileMedical} size="lg" /></span
                     >
                     {#if selPath.path != ""}
@@ -294,10 +300,7 @@
                                 let name = prompt(
                                     "Please enter the new name of the file"
                                 );
-                                rename(
-                                    selPath.path,
-                                    socketData.currentpath + "/" + name
-                                );
+                                rename(selPath.path, currentPath + "/" + name);
                             }}><Fa icon={faICursor} size="lg" /></span
                         >
                         {#if selPath.maintype == "dir"}
@@ -322,10 +325,10 @@
                             >
                         {/if}
                     {/if}
-                {:else if socketData.data != undefined}
+                {:else if socketData.textdata != undefined}
                     <span
                         class="cursor-pointer"
-                        on:click={() => sendFile(socketData.currentpath)}
+                        on:click={() => sendFile(currentPath)}
                         ><Fa icon={faSave} size="lg" /></span
                     >{/if}
             </div>

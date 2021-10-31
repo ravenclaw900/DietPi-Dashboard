@@ -34,7 +34,7 @@
         services?: services[];
         // File browser page
         contents?: browser[];
-        currentpath?: string;
+        textdata?: string;
         // Global
         update?: string;
     }
@@ -76,12 +76,19 @@
 
     let socket;
     let socketData: socketData = {};
+    let binData = "";
     let shown = false;
     let menu = window.innerWidth > 768;
     let update = "";
 
     const socketMessageListener = (e) => {
-        socketData = JSON.parse(e.data);
+        if (typeof e.data === "string") {
+            socketData = JSON.parse(e.data);
+            binData = "";
+        } else {
+            socketData = {};
+            binData = URL.createObjectURL(e.data);
+        }
         if (socketData.update != undefined) {
             update = socketData.update;
         }
@@ -189,7 +196,7 @@
                         ><Management {socket} {socketData} /></Route
                     >
                     <Route path="browser"
-                        ><FileBrowser {socket} {socketData} /></Route
+                        ><FileBrowser {socket} {socketData} {binData} /></Route
                     >
                     <Route path="service"
                         ><Service {socket} {socketData} /></Route
