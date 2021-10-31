@@ -1,5 +1,6 @@
 <script lang="ts">
     import Card from "../components/Card.svelte";
+    import humanizeDuration from "humanize-duration";
 
     export let socket;
     export let socketData;
@@ -9,7 +10,8 @@
     let msg = "";
 
     $: socketData.uptime &&
-        ((uptime = new Date(socketData.uptime * 1000)), (dialog = false));
+        ((uptime = humanizeDuration(socketData.uptime * 1000)),
+        (dialog = false));
 
     function sendData(data) {
         socket.send(JSON.stringify({ cmd: data }));
@@ -64,7 +66,7 @@
                     class="even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800"
                 >
                     <td class="p-1 font-semibold">Uptime:</td>
-                    <td class="p-1">{uptime.toISOString().substr(11, 8)}</td>
+                    <td class="p-1">{uptime}</td>
                 </tr>
                 <tr
                     class="even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800"

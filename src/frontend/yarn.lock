@@ -505,6 +505,7 @@ __metadata:
     "@tsconfig/svelte": ^2.0.1
     autosize: ^5.0.1
     chart.js: ^3.6.0
+    humanize-duration: ^3.27.0
     microlight: ^0.0.7
     svelte: ^3.37.0
     svelte-check: ^2.1.0
@@ -914,6 +915,13 @@ fsevents@~2.3.2:
     agent-base: 6
     debug: 4
   checksum: 165bfb090bd26d47693597661298006841ab733d0c7383a8cb2f17373387a94c903a3ac687090aa739de05e379ab6f868bae84ab4eac288ad85c328cd1ec9e53
+  languageName: node
+  linkType: hard
+
+"humanize-duration@npm:^3.27.0":
+  version: 3.27.0
+  resolution: "humanize-duration@npm:3.27.0"
+  checksum: db34111b391056bd0da8d6a3cc965ee52c2de497892c85f16d5559529232924dfabd8f3c4210135fbd12d0cea7da34dade05accc14ef69f2cba758ff4b4bbd3d
   languageName: node
   linkType: hard
 
