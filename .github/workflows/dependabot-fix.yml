@@ -3,6 +3,8 @@ name: Dependabot Fix (Yarn)
 on:
   push:
     branches: [ dependabot/npm_and_yarn/** ]
+    
+permissions: write-all
 
 jobs:
   build:
