@@ -14,7 +14,7 @@ jobs:
       with:
         fetch-depth: 2
         token: ${{ secrets.DEPENDABOT_TOKEN }}
-        branch: ${{ env.GITHUB_REF }}
+        ref: ${{ env.GITHUB_REF }}
     - name: Autofix lockfile
       working-directory: src/frontend
       run: |
