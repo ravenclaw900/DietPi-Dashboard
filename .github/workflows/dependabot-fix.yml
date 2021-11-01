@@ -1,0 +1,27 @@
+name: Dependabot Fix (Yarn)
+
+on:
+  push:
+    branches: [ dependabot/npm_and_yarn/** ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Autofix lockfile
+      working-directory: src/frontend
+      run: |
+        rm yarn.lock
+        yarn install
+    - name: Config Git
+      run: |
+        git config user.name 'GitHub Actions'
+        git config user.email '<>'
+    - name: Commit changes
+      run: |
+        git add yarn.lock .yarn/cache
+        git commit -m "Dependabot autofix"
+        git push
