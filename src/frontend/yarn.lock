@@ -2078,16 +2078,7 @@ resolve@^1.20.0:
   languageName: node
   linkType: hard
 
-"windicss@npm:^3.1.9":
-  version: 3.2.0
-  resolution: "windicss@npm:3.2.0"
-  bin:
-    windicss: cli/index.js
-  checksum: 41c2467c26387a1057df496c72719950640e86ed5773cd322a4783e444965710235b7b473f8f7705edabdc4786ef6c981573b3d07f59380c67caa5f3631d738a
-  languageName: node
-  linkType: hard
-
-"windicss@npm:^3.2.1":
+"windicss@npm:^3.1.9, windicss@npm:^3.2.1":
   version: 3.2.1
   resolution: "windicss@npm:3.2.1"
   bin:
