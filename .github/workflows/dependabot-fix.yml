@@ -14,8 +14,8 @@ jobs:
     - name: Autofix lockfile
       working-directory: src/frontend
       run: |
-        rm yarn.lock
-        yarn install
+        git checkout HEAD^ -- yarn.lock
+        yarn dedupe
     - name: Config Git
       run: |
         git config user.name 'GitHub Actions'
