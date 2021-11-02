@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - run: echo ${{ github.head_ref }} ${{ github.actor }}
-    - run: echo ${{ github.head_ref == 'dependabot/npm_and_yarn/src/frontend/*' }}
+    - run: echo ${{ github.head_ref == 'dependabot/npm_and_yarn/src/frontend/svelte-check-2.2.8' }}
   build:
     runs-on: ubuntu-latest
     if: github.actor == 'dependabot[bot]' && github.head_ref == 'dependabot/npm_and_yarn/**'
