@@ -22,6 +22,7 @@ jobs:
       working-directory: src/frontend
       run: |
         git checkout HEAD^ -- yarn.lock
+        yarn install
         yarn dedupe
     - name: Config Git
       run: |
