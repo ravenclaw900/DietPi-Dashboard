@@ -2,13 +2,10 @@ name: Dependabot Fix (Yarn)
 
 on: pull_request_target
 
-permissions: write-all
-
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: github.actor == 'dependabot[bot]'
-    if: github.head_ref == 'dependabot/npm_and_yarn/**'
+    if: github.actor == 'dependabot[bot]' && github.head_ref == 'dependabot/npm_and_yarn/**'
 
     steps:
     - uses: actions/checkout@v2
