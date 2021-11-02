@@ -3,6 +3,11 @@ name: Dependabot Fix (Yarn)
 on: pull_request_target
 
 jobs:
+  print:
+    runs-on: ubuntu-latest
+    steps:
+    - run: echo ${{ github.head_ref }} ${{ github.actor }}
+    - run: echo ${{ github.actor == 'dependabot[bot]' && github.head_ref == 'dependabot/npm_and_yarn/**' }}
   build:
     runs-on: ubuntu-latest
     if: github.actor == 'dependabot[bot]' && github.head_ref == 'dependabot/npm_and_yarn/**'
