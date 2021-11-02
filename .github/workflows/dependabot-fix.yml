@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - run: echo ${{ github.head_ref }} ${{ github.actor }}
-    - run: echo ${{ github.head_ref == 'dependabot/npm_and_yarn/**' }}
+    - run: echo ${{ github.head_ref == "dependabot/npm_and_yarn/**" }}
   build:
     runs-on: ubuntu-latest
     if: github.actor == 'dependabot[bot]' && github.head_ref == 'dependabot/npm_and_yarn/**'
