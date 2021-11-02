@@ -10,7 +10,7 @@ jobs:
     - run: echo ${{ github.head_ref == 'dependabot/npm_and_yarn/**' }}
   build:
     runs-on: ubuntu-latest
-    if: github.actor == 'dependabot[bot]' && github.head_ref == dependabot/npm_and_yarn/**
+    if: github.actor == 'dependabot[bot]' && github.head_ref == 'dependabot/npm_and_yarn/**'
 
     steps:
     - uses: actions/checkout@v2
