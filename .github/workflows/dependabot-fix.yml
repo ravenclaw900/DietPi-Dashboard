@@ -15,7 +15,7 @@ jobs:
         fetch-depth: 2
         token: ${{ secrets.DEPENDABOT_TOKEN }}
         ref: ""
-    - run: echo $GITHUB_REF
+    - run: echo ${{ github.head_ref }}
     - name: Autofix lockfile
       working-directory: src/frontend
       run: |
