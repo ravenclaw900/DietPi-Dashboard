@@ -105,7 +105,10 @@
         if (socket) {
             console.log("Disconnected");
         }
-        socket = new WebSocket(`ws://${window.location.hostname}:8080/ws`);
+        let proto = window.location.protocol == "https:" ? "wss" : "ws";
+        socket = new WebSocket(
+            `${proto}://${window.location.hostname}:${window.location.port}/ws`
+        );
         socket.onopen = socketOpenListener;
         socket.onmessage = socketMessageListener;
         socket.onclose = socketCloseListener;

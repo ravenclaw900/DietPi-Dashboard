@@ -9,8 +9,9 @@
 
     let termDiv;
 
+    let proto = window.location.protocol == "https:" ? "wss" : "ws";
     const socket = new WebSocket(
-        `ws://${window.location.hostname}:8080/ws/term`
+        `${proto}://${window.location.hostname}:${window.location.port}/ws/term`
     );
     const attachAddon = new AttachAddon(socket);
 
