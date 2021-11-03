@@ -6,7 +6,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-warp = {version = "0.3.1", features = ["compression"]}
+warp = {version = "0.3.1", default-features = false, features = ["compression", "websocket", "tls"]}
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 simple_logger = "1.13.0"
 log = "0.4.14"
@@ -17,7 +17,6 @@ nanoserde = "0.1.29"
 pty-process = "0.1.0"
 heim = "0.0.11"
 infer = { version = "0.5.0", default-features = false }
-config = { version = "0.11.0", default-features = false, features = ["toml"] }
 
 # Heim needs a patch to run on ARM64
 [patch.crates-io]

@@ -3,6 +3,7 @@
 use simple_logger::SimpleLogger;
 use warp::Filter;
 
+mod config;
 mod sockets;
 mod systemdata;
 mod terminal;
@@ -11,6 +12,8 @@ mod types;
 #[tokio::main(flavor = "multi_thread", worker_threads = 4)]
 async fn main() {
     const DIR: include_dir::Dir = include_dir::include_dir!("dist");
+
+    let cfg = config::config();
 
     SimpleLogger::new()
         .with_level(log::LevelFilter::Info)
@@ -74,5 +77,5 @@ async fn main() {
             );
         }));
 
-    warp::serve(routes).run(([0, 0, 0, 0], 8080)).await;
+    warp::serve(routes).run(([0, 0, 0, 0], cfg.port)).await;
 }
