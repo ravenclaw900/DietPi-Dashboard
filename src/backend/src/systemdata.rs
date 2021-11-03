@@ -29,15 +29,11 @@ fn round_percent(unrounded: f64) -> f32 {
 }
 
 pub async fn cpu() -> f32 {
-    let times1 = cpu::time().await.unwrap();
-    let used1 = times1.system() + times1.user();
+    let usage1 = cpu::usage().await.unwrap();
     thread::sleep(time::Duration::from_secs(1));
-    let times2 = cpu::time().await.unwrap();
-    let used2 = times2.system() + times2.user();
+    let usage2 = cpu::usage().await.unwrap();
 
-    round_percent(
-        ((used2 - used1) / ((used2 + times2.idle()) - (used1 + times1.idle()))).get::<percent>(),
-    )
+    round_percent((usage2 - usage1).get::<percent>().min(100.0).into())
 }
 
 #[allow(clippy::cast_precision_loss)]
@@ -83,6 +79,8 @@ pub async fn disk() -> types::UsageData {
 pub async fn network() -> types::NetData {
     // Get data from all interfaces
     let (sent, recv) = net::io_counters()
+        .await
+        .unwrap()
         .fold((0_u64, 0_u64), |accumulated, val| async move {
             let unwrapped = val.unwrap();
             (
@@ -105,6 +103,8 @@ pub async fn network() -> types::NetData {
 
 pub async fn processes() -> Vec<types::ProcessData> {
     let processes = process::processes()
+        .await
+        .unwrap()
         .map(Result::unwrap)
         .collect::<Vec<process::Process>>()
         .await;
@@ -258,11 +258,19 @@ pub async fn host() -> types::HostData {
         arch = "armv7";
     }
     // Skip loopback MAC, loopback IP, and interface MAC
-    let nic = net::nic().skip(3).next().await.unwrap().unwrap();
+    let nic = net::nic()
+        .await
+        .unwrap()
+        .skip(3)
+        .next()
+        .await
+        .unwrap()
+        .unwrap();
 
     let mut ip = String::new();
     match nic.address() {
-        net::Address::Inet(addr) | net::Address::Inet6(addr) => ip = addr.ip().to_string(),
+        net::Address::Inet(addr4) => ip = addr4.ip().to_string(),
+        net::Address::Inet6(addr6) => ip = addr6.ip().to_string(),
         _ => (),
     }
     types::HostData {
