@@ -16,6 +16,8 @@ jobs:
         with:
           toolchain: stable
           profile: minimal
+      - name: Change Directory
+        run: cd src/backend
       - name: Run cargo bloat
         uses: orf/cargo-bloat-action@v1
         with:
