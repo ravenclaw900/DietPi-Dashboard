@@ -122,32 +122,47 @@ pub async fn processes() -> Vec<types::ProcessData> {
     }
     thread::sleep(time::Duration::from_millis(500));
     for element in processes {
-        // Name could fail if the process terminates, if so skip the process
+        let pid = element.pid();
+        // Everything could fail if the process terminates, if so skip the process
         let name;
         match element.name().await {
             Ok(unwrapped_name) => name = unwrapped_name,
             Err(_) => continue,
         }
         let status: String;
-        match element.status().await.unwrap() {
-            // The proceses that are running show up as sleeping, for some reason
-            process::Status::Sleeping => status = "running".to_string(),
-            process::Status::Idle => status = "idle".to_string(),
-            process::Status::Stopped => status = "stopped".to_string(),
-            process::Status::Zombie => status = "zombie".to_string(),
-            process::Status::Dead => status = "dead".to_string(),
-            _ => status = String::new(),
+        match element.status().await {
+            Ok(unwrapped_status) => match unwrapped_status {
+                // The proceses that are running show up as sleeping, for some reason
+                process::Status::Sleeping => status = "running".to_string(),
+                process::Status::Idle => status = "idle".to_string(),
+                process::Status::Stopped => status = "stopped".to_string(),
+                process::Status::Zombie => status = "zombie".to_string(),
+                process::Status::Dead => status = "dead".to_string(),
+                _ => status = String::new(),
+            },
+            Err(_) => continue,
         }
-        let pid = element.pid();
+        let cpu: f32;
+        match element.cpu_usage().await {
+            Ok(unwrapped_cpu) => {
+                cpu = round_percent(
+                    (unwrapped_cpu - cpu_list.remove(&pid).unwrap())
+                        .get::<percent>()
+                        .into(),
+                );
+            }
+            Err(_) => continue,
+        }
+        let ram: u64;
+        match element.memory().await {
+            Ok(unwrapped_mem) => ram = unwrapped_mem.vms().get::<mebibyte>(),
+            Err(_) => continue,
+        }
         process_list.push(types::ProcessData {
             pid,
             name,
-            cpu: round_percent(
-                (element.cpu_usage().await.unwrap() - cpu_list.remove(&pid).unwrap())
-                    .get::<percent>()
-                    .into(),
-            ),
-            ram: element.memory().await.unwrap().vms().get::<mebibyte>(),
+            cpu,
+            ram,
             status,
         });
     }
