@@ -77,11 +77,11 @@ async fn main() {
             );
         }));
 
-    if cfg.tls.enable {
+    if cfg.tls {
         warp::serve(routes)
             .tls()
-            .cert_path(cfg.tls.cert)
-            .key_path(cfg.tls.key)
+            .cert_path(cfg.cert)
+            .key_path(cfg.key)
             .run(([0, 0, 0, 0], cfg.port))
             .await;
     } else {

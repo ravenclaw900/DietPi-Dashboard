@@ -2,11 +2,8 @@ use nanoserde::{Toml, TomlParser};
 
 pub struct Config {
     pub port: u16,
-    pub tls: CfgTLS,
-}
 
-pub struct CfgTLS {
-    pub enable: bool,
+    pub tls: bool,
     pub cert: String,
     pub key: String,
 }
@@ -34,25 +31,23 @@ pub fn config() -> Config {
     #[allow(clippy::cast_possible_truncation)]
     let port: u16 = cfg.get("port").unwrap_or(&Toml::Num(8080.0)).num() as u16;
 
-    let tlsenable = cfg.get("tls.enable").unwrap_or(&Toml::Bool(false));
+    let tls = cfg.get("tls").unwrap_or(&Toml::Bool(false));
 
-    let tlscert = cfg
-        .get("tls.cert")
+    let cert = cfg
+        .get("cert")
         .unwrap_or(&Toml::Str(String::new()))
         .str()
         .to_string();
-    let tlskey = cfg
-        .get("tls.key")
+    let key = cfg
+        .get("key")
         .unwrap_or(&Toml::Str(String::new()))
         .str()
         .to_string();
 
     Config {
         port,
-        tls: CfgTLS {
-            enable: tlsenable == &Toml::Bool(true),
-            cert: tlscert,
-            key: tlskey,
-        },
+        tls: tls == &Toml::Bool(true),
+        cert,
+        key,
     }
 }
