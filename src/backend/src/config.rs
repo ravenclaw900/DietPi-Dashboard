@@ -29,7 +29,7 @@ pub fn config() -> Config {
 
     #[allow(clippy::cast_sign_loss)]
     #[allow(clippy::cast_possible_truncation)]
-    let port: u16 = cfg.get("port").unwrap_or(&Toml::Num(8080.0)).num() as u16;
+    let port: u16 = cfg.get("port").unwrap_or(&Toml::Num(8088.0)).num() as u16;
 
     let tls = cfg.get("tls").unwrap_or(&Toml::Bool(false));
 

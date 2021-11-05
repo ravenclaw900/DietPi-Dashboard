@@ -168,29 +168,29 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@windicss/config@npm:1.4.12":
-  version: 1.4.12
-  resolution: "@windicss/config@npm:1.4.12"
+"@windicss/config@npm:1.5.1":
+  version: 1.5.1
+  resolution: "@windicss/config@npm:1.5.1"
   dependencies:
     debug: ^4.3.2
     jiti: ^1.12.9
-    windicss: ^3.1.9
-  checksum: 684fb8a68817ab6b915e5c6483f9fa60f2c34e39cf5e887ca5c92afda257322f6b958a32c1a8986ef83fc9a992b33ffdf1141d87a07d48175da89e0bd03c72c3
+    windicss: ^3.2.1
+  checksum: b8b18d51e11b9590337afb6ca56ba1accdb45795bedde48d1cf900579db4af0d6bb6f0830d26c6f6c03a8f0634b0387d8e12ad24c8b2ff085da765d3175dd2f8
   languageName: node
   linkType: hard
 
-"@windicss/plugin-utils@npm:1.4.12":
-  version: 1.4.12
-  resolution: "@windicss/plugin-utils@npm:1.4.12"
+"@windicss/plugin-utils@npm:1.5.1":
+  version: 1.5.1
+  resolution: "@windicss/plugin-utils@npm:1.5.1"
   dependencies:
     "@antfu/utils": ^0.3.0
-    "@windicss/config": 1.4.12
+    "@windicss/config": 1.5.1
     debug: ^4.3.2
     fast-glob: ^3.2.7
     magic-string: ^0.25.7
     micromatch: ^4.0.4
-    windicss: ^3.1.9
-  checksum: 64640c875f08d317319181d8512afca40f9eddbaec26bfbed8dde733ab8ce0cfdc116e76fce1be75cf05058c50d48b7fd152b2c9f13fa8dddcc48d1ab036205d
+    windicss: ^3.2.1
+  checksum: 62584f13d41da7566be97c79675acffe1f0aeb075695b88f4aec2920f6ebb6a510407b66f1ae69d9604bd5230be2a3b364568037c8a28fac6efa6a7a02fa05bd
   languageName: node
   linkType: hard
 
@@ -516,7 +516,7 @@ __metadata:
     typescript: ^4.3.2
     vite: ^2.6.4
     vite-plugin-replace: ^0.1.1
-    vite-plugin-windicss: ^1.4.12
+    vite-plugin-windicss: ^1.5.1
     windicss: ^3.2.1
     xterm: ^4.14.1
     xterm-addon-attach: ^0.6.0
@@ -2015,17 +2015,17 @@ resolve@^1.20.0:
   languageName: node
   linkType: hard
 
-"vite-plugin-windicss@npm:^1.4.12":
-  version: 1.4.12
-  resolution: "vite-plugin-windicss@npm:1.4.12"
+"vite-plugin-windicss@npm:^1.5.1":
+  version: 1.5.1
+  resolution: "vite-plugin-windicss@npm:1.5.1"
   dependencies:
-    "@windicss/plugin-utils": 1.4.12
+    "@windicss/plugin-utils": 1.5.1
     chalk: ^4.1.2
     debug: ^4.3.2
-    windicss: ^3.1.9
+    windicss: ^3.2.1
   peerDependencies:
     vite: ^2.0.1
-  checksum: cc654e0a873849273e4aa7c4f4b1e0b4243820ec001639e77a58ad2b8e59d7422e9191a3b09237c9d84e83cfbe687c1b5d319822560c642d0e46aa1f6800471c
+  checksum: 44103ea9eb93c9a3a92eb5369c5eacc363efaa659c823dbc74dbc9aa80b8768f64f7c69b6c4f2470db37345f81106d04fb335f449b64ca8e29475b78a620afb6
   languageName: node
   linkType: hard
 
@@ -2078,7 +2078,7 @@ resolve@^1.20.0:
   languageName: node
   linkType: hard
 
-"windicss@npm:^3.1.9, windicss@npm:^3.2.1":
+"windicss@npm:^3.2.1":
   version: 3.2.1
   resolution: "windicss@npm:3.2.1"
   bin:
