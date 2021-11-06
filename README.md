@@ -10,19 +10,7 @@ To install, use one of the [precompiled releases](#release), [nightly builds](#n
 #### Release:
 
 ```sh
-# Get architecture
-dpdashboardarch=
-if (( $G_HW_ARCH == 10 )); then
-    dpdashboardarch='amd64'
-elif (( $G_HW_ARCH == 3 )); then
-    dpdashboardarch='armv8'
-elif (( $G_HW_ARCH == 2 )); then
-    dpdashboardarch='armv7'
-else
-    dpdashboardarch='armv6'
-fi
-curl -L $(curl -sS 'https://api.github.com/repos/ravenclaw900/dietpi-dashboard/releases/latest' | mawk -F\" "/\"browser_download_url\": \".*dietpi-dashboard-$dpdashboardarch\"/{print \$4}") -o dietpi-dashboard # Download latest binary for current architecture
-unset dpdashboardarch # Remove architecture variable
+curl -fL "$(curl -sSf 'https://api.github.com/repos/ravenclaw900/dietpi-dashboard/releases/latest' | mawk -F\" "/\"browser_download_url\": \".*dietpi-dashboard-$G_HW_ARCH_NAME\"/{print \$4}")" -o dietpi-dashboard # Download latest binary for current architecture
 chmod +x dietpi-dashboard # Make binary exectuable
 ./dietpi-dashboard # Run binary
 ```
@@ -30,20 +18,9 @@ chmod +x dietpi-dashboard # Make binary exectuable
 #### Nightly:
 
 ```sh
-# Get architecture
-dpdashboardarch=
-if (( $G_HW_ARCH == 10 )); then
-    dpdashboardarch='amd64'
-elif (( $G_HW_ARCH == 3 )); then
-    dpdashboardarch='armv8'
-elif (( $G_HW_ARCH == 2 )); then
-    dpdashboardarch='armv7'
-else
-    dpdashboardarch='armv6'
-fi
-curl -L "https://nightly.link/ravenclaw900/DietPi-Dashboard/workflows/push-build/main/dietpi-dashboard-$dpdashboardarch.zip" -o dietpi-dashboard.zip # Download latest nightly build for current architecture
+curl -fL "https://nightly.link/ravenclaw900/DietPi-Dashboard/workflows/push-build/main/dietpi-dashboard-$G_HW_ARCH_NAME.zip" -o dietpi-dashboard.zip # Download latest nightly build for current architecture
 unzip dietpi-dashboard.zip # Unzip binary
-unset dpdashboardarch # Remove architecture variable
+rm dietpi-dashboard.zip # Remove archive
 chmod +x dietpi-dashboard # Make binary exectuable
 ./dietpi-dashboard # Run binary
 ```
