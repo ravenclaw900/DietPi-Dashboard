@@ -46,18 +46,18 @@ jobs:
         run: cross build --release --target aarch64-unknown-linux-musl
       - uses: actions/upload-artifact@v2
         with:
-          name: dietpi-dashboard-amd64
+          name: dietpi-dashboard-x86_64
           path: src/backend/target/x86_64-unknown-linux-musl/release/dietpi-dashboard
       - uses: actions/upload-artifact@v2
         with:
-          name: dietpi-dashboard-armv6
+          name: dietpi-dashboard-armv6l
           path: src/backend/target/arm-unknown-linux-gnueabihf/release/dietpi-dashboard
       - uses: actions/upload-artifact@v2
         with:
-          name: dietpi-dashboard-armv7
+          name: dietpi-dashboard-armv7l
           path: src/backend/target/armv7-unknown-linux-gnueabihf/release/dietpi-dashboard
       - uses: actions/upload-artifact@v2
         with:
-          name: dietpi-dashboard-armv8
+          name: dietpi-dashboard-aarch64
           path: src/backend/target/aarch64-unknown-linux-gnu/release/dietpi-dashboard
 
