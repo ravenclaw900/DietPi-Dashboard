@@ -213,7 +213,7 @@ async fn browser_handler(
         .send(Message::text(SerJson::serialize_json(
             &types::BrowserList {
                 contents: systemdata::browser_dir(std::path::Path::new(
-                    &std::env::var_os("HOME").unwrap(),
+                    &std::env::var_os("HOME").unwrap_or("/root"),
                 )),
             },
         )))
