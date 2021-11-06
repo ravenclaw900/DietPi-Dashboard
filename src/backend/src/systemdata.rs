@@ -29,11 +29,15 @@ fn round_percent(unrounded: f64) -> f32 {
 }
 
 pub async fn cpu() -> f32 {
-    let usage1 = cpu::usage().await.unwrap();
+    let times1 = cpu::time().await.unwrap();
+    let used1 = times1.system() + times1.user();
     thread::sleep(time::Duration::from_secs(1));
-    let usage2 = cpu::usage().await.unwrap();
+    let times2 = cpu::time().await.unwrap();
+    let used2 = times2.system() + times2.user();
 
-    round_percent((usage2 - usage1).get::<percent>().min(100.0).into())
+    round_percent(
+        ((used2 - used1) / ((used2 + times2.idle()) - (used1 + times1.idle()))).get::<percent>(),
+    )
 }
 
 #[allow(clippy::cast_precision_loss)]
