@@ -302,11 +302,15 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                     first_message = false;
                 } else {
                     // Quit out of handler
-                    data_send.send(None).await.unwrap();
+                    if data_send.send(None).await.is_err() {
+                        break;
+                    }
                 }
             }
             // Send new page/data
-            data_send.send(Some(req.clone())).await.unwrap();
+            if data_send.send(Some(req.clone())).await.is_err() {
+                break;
+            }
         }
     });
     // Send global message (shown on all pages)
