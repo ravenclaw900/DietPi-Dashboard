@@ -232,7 +232,7 @@
         <table
             class="border border-gray-300 dark:border-gray-700 w-full table-fixed break-words overflow-x-scroll"
         >
-            <tr class="bg-dplime">
+            <tr class="table-header">
                 <th
                     >PID<span on:click={setPid}
                         ><Fa
