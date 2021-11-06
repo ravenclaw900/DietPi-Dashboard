@@ -44,8 +44,8 @@ fi
 curl -L "https://nightly.link/ravenclaw900/DietPi-Dashboard/workflows/push-build/main/dietpi-dashboard-$dpdashboardarch.zip" -o dietpi-dashboard.zip # Download latest nightly build for current architecture
 unzip dietpi-dashboard.zip # Unzip binary
 unset dpdashboardarch # Remove architecture variable
-chmod +x dietpi_dashboard # Make binary exectuable
-./dietpi_dashboard # Run binary
+chmod +x dietpi-dashboard # Make binary exectuable
+./dietpi-dashboard # Run binary
 ```
 
 
