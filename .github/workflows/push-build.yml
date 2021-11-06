@@ -14,9 +14,10 @@ jobs:
           override: true
       - name: Install other Rust targets
         run: |
-          rustup target add arm-unknown-linux-gnueabihf
-          rustup target add armv7-unknown-linux-gnueabihf
-          rustup target add aarch64-unknown-linux-gnu
+          rustup target add x86_64-unknown-linux-musl
+          rustup target add arm-unknown-linux-musleabihf
+          rustup target add armv7-unknown-linux-musleabihf
+          rustup target add aarch64-unknown-linux-musl
       - name: Restore Rust cache
         uses: Swatinem/rust-cache@v1
         with:
@@ -33,30 +34,30 @@ jobs:
         run: cp -r src/frontend/dist src/backend
       - name: Build amd64
         working-directory: src/backend
-        run: cargo build --release
+        run: cross build --release --target x86_64-unknown-linux-musl
       - name: Build armv6
         working-directory: src/backend
-        run: cross build --release --target arm-unknown-linux-gnueabihf
+        run: cross build --release --target arm-unknown-linux-musleabihf
       - name: Build armv7
         working-directory: src/backend
-        run: cross build --release --target armv7-unknown-linux-gnueabihf
+        run: cross build --release --target armv7-unknown-linux-musleabihf
       - name: Build armv8
         working-directory: src/backend
-        run: cross build --release --target aarch64-unknown-linux-gnu
+        run: cross build --release --target aarch64-unknown-linux-musl
       - uses: actions/upload-artifact@v2
         with:
           name: dietpi-dashboard-x86_64
-          path: src/backend/target/x86_64-unknown-linux-gnu/release/dietpi-dashboard
+          path: src/backend/target/x86_64-unknown-linux-musl/release/dietpi-dashboard
       - uses: actions/upload-artifact@v2
         with:
           name: dietpi-dashboard-armv6l
-          path: src/backend/target/arm-unknown-linux-gnueabihf/release/dietpi-dashboard
+          path: src/backend/target/arm-unknown-linux-musleabihf/release/dietpi-dashboard
       - uses: actions/upload-artifact@v2
         with:
           name: dietpi-dashboard-armv7l
-          path: src/backend/target/armv7-unknown-linux-gnueabihf/release/dietpi-dashboard
+          path: src/backend/target/armv7-unknown-linux-musleabihf/release/dietpi-dashboard
       - uses: actions/upload-artifact@v2
         with:
           name: dietpi-dashboard-aarch64
-          path: src/backend/target/aarch64-unknown-linux-gnu/release/dietpi-dashboard
+          path: src/backend/target/aarch64-unknown-linux-musl/release/dietpi-dashboard
 
