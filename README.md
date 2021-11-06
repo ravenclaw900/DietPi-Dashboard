@@ -10,7 +10,7 @@ To install, use one of the [precompiled releases](#release), [nightly builds](#n
 #### Release:
 
 ```sh
-curl -sSfL $(curl -sSf 'https://api.github.com/repos/ravenclaw900/dietpi-dashboard/releases/latest' | mawk -F\" "/\"browser_download_url\": \".*dietpi-dashboard-$G_HW_ARCH_NAME\"/{print \$4}") -o dietpi-dashboard # Download latest binary for current architecture
+curl -fL "$(curl -sSf 'https://api.github.com/repos/ravenclaw900/dietpi-dashboard/releases/latest' | mawk -F\" "/\"browser_download_url\": \".*dietpi-dashboard-$G_HW_ARCH_NAME\"/{print \$4}")" -o dietpi-dashboard # Download latest binary for current architecture
 chmod +x dietpi-dashboard # Make binary exectuable
 ./dietpi-dashboard # Run binary
 ```
@@ -18,7 +18,7 @@ chmod +x dietpi-dashboard # Make binary exectuable
 #### Nightly:
 
 ```sh
-curl -sSfL "https://nightly.link/ravenclaw900/DietPi-Dashboard/workflows/push-build/main/dietpi-dashboard-$G_HW_ARCH_NAME.zip" -o dietpi-dashboard.zip # Download latest nightly build for current architecture
+curl -fL "https://nightly.link/ravenclaw900/DietPi-Dashboard/workflows/push-build/main/dietpi-dashboard-$G_HW_ARCH_NAME.zip" -o dietpi-dashboard.zip # Download latest nightly build for current architecture
 unzip dietpi-dashboard.zip # Unzip binary
 rm dietpi-dashboard.zip # Remove archive
 chmod +x dietpi-dashboard # Make binary exectuable
