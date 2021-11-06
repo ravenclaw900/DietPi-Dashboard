@@ -95,7 +95,7 @@
         <table
             class="border border-gray-300 dark:border-gray-700 w-full table-fixed break-words"
         >
-            <tr class="bg-dplime" style="color:#000">
+            <tr class="table-header">
                 <th>ID</th>
                 <th>Installed</th>
                 <th>Name</th>
