@@ -34,7 +34,7 @@ jobs:
         run: cp -r src/frontend/dist src/backend
       - name: Build amd64
         working-directory: src/backend
-        run: cargo build --release --target x86_64-unknown-linux-musl
+        run: cross build --release --target x86_64-unknown-linux-musl
       - name: Build armv6
         working-directory: src/backend
         run: cross build --release --target arm-unknown-linux-musleabihf
