@@ -137,9 +137,20 @@ pub async fn processes() -> Vec<types::ProcessData> {
         match element {
             Ok(unwrapped_process) => {
                 pid = unwrapped_process.pid();
+                // Skip processes not caught by containing match
                 match unwrapped_process.name().await {
                     Ok(unwrapped_name) => name = unwrapped_name,
                     Err(_) => continue,
+                }
+                // Skip kernel threads
+                if unwrapped_process
+                    .command()
+                    .await
+                    .unwrap()
+                    .into_os_string()
+                    .is_empty()
+                {
+                    continue;
                 }
                 match unwrapped_process.status().await.unwrap() {
                     // The proceses that are running show up as sleeping, for some reason
