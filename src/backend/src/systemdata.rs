@@ -129,7 +129,7 @@ pub async fn processes() -> Vec<types::ProcessData> {
                     {
                         continue;
                     }
-                    cpu = unwrapped_cpu
+                    cpu = unwrapped_cpu;
                 }
                 Err(_) => continue,
             },
