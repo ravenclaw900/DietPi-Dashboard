@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.1](https://github.com/ravenclaw900/DietPi-Dashboard/compare/v0.3.0...v0.3.1) (2021-11-07)
+
+
+### Features
+
+* add TLS support ([5a8eb21](https://github.com/ravenclaw900/DietPi-Dashboard/commit/5a8eb215ae3ebe407afa6f2ad55b822418ca295c))
+* **backend:** add config file ([10d917b](https://github.com/ravenclaw900/DietPi-Dashboard/commit/10d917b6045a37b61873a298507615d57a313593))
+* **filebrowser:** allow viewing images from browser ([921913d](https://github.com/ravenclaw900/DietPi-Dashboard/commit/921913d9bc2b0c86f012703864640b8117336bb4))
+* **processes:** skip kernel threads ([4a0ab2d](https://github.com/ravenclaw900/DietPi-Dashboard/commit/4a0ab2d22af5bb3dfc59ef6769220e943ac03245))
+
+
+### Bug Fixes
+
+* **dashboard:** switch back to old method of getting CPU usage ([5f3cc1e](https://github.com/ravenclaw900/DietPi-Dashboard/commit/5f3cc1e4bd55d06c73f665a3bbad97775798e629))
+* **filebrowser:** add `/root` fallback in case $HOME variable is not set ([9e606bb](https://github.com/ravenclaw900/DietPi-Dashboard/commit/9e606bb89b70dc090c35e6b0560c4d55abe14e35))
+* **filebrowser:** convert "/root" into an OsString ([279c71a](https://github.com/ravenclaw900/DietPi-Dashboard/commit/279c71a9a90541bbfe10d20ca9adf8eedf2da109))
+* **frontend:** change table header text color from white to black ([#17](https://github.com/ravenclaw900/DietPi-Dashboard/issues/17)) ([d89dc4c](https://github.com/ravenclaw900/DietPi-Dashboard/commit/d89dc4c355b92f2a28fa7905e0d8d0f39735e53a))
+* **management:** fix page crashing due to channel send error ([8731174](https://github.com/ravenclaw900/DietPi-Dashboard/commit/8731174075bc03b50558cf9b2cf680cdae2d0f9c)), closes [#20](https://github.com/ravenclaw900/DietPi-Dashboard/issues/20)
+* **processes:** fix more NoProcessErrors ([a3e8d5b](https://github.com/ravenclaw900/DietPi-Dashboard/commit/a3e8d5bd9ce5c3990a95f62dc1feb8ce32d3263e)), closes [#22](https://github.com/ravenclaw900/DietPi-Dashboard/issues/22)
+* **processes:** stop NoSuchProcess error ([da0841b](https://github.com/ravenclaw900/DietPi-Dashboard/commit/da0841b836a42aa64f81cf331e0ab82712b35240))
+* **processes:** use tabs instead of colon for getting service status ([80c6ce5](https://github.com/ravenclaw900/DietPi-Dashboard/commit/80c6ce5a98de057526eada9e26114ec85d83a5cb)), closes [#14](https://github.com/ravenclaw900/DietPi-Dashboard/issues/14)
+
 ## [0.3.0](https://github.com/ravenclaw900/DietPi-Dashboard/compare/v0.2.0...v0.3.0) (2021-10-31)
 
 
