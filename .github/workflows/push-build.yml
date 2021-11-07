@@ -3,7 +3,7 @@ on: push
 
 jobs:
   build:
-    if: success() && !startsWith(github.event.head_commit.message, "docs") && !startsWith(github.event.head_commit.message, "style")
+    if: "!startsWith(github.event.head_commit.message, 'docs') && !startsWith(github.event.head_commit.message, 'style')"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
