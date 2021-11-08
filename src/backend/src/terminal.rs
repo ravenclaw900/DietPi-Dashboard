@@ -49,13 +49,13 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
         // Stop reader
         (*cmd_write.read().await)
             .pty()
-            .write_all("exit".as_bytes())
+            .write_all("exit\n".as_bytes())
             .unwrap();
     });
 
     let pty_reader = tokio::spawn(async move {
         loop {
-            let mut data = [0; 1024];
+            let mut data = [0; 512];
             let lock = cmd_read.read().await;
             match (*lock).pty().read(&mut data) {
                 Ok(_) => {}
@@ -73,8 +73,8 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
     // Wait for threads to exit
     tokio::try_join!(pty_writer, pty_reader).unwrap();
 
-    // Process should be safe to kill after exiting
-    (*cmd.write().await).kill().unwrap();
+    // Reap PID
+    (*cmd.write().await).wait().unwrap();
 
     log::info!("Closed terminal");
 }
