@@ -365,6 +365,7 @@ dependencies = [
  "lazy_static",
  "log",
  "nanoserde",
+ "num_cpus",
  "pty-process",
  "simple_logger",
  "tokio",
