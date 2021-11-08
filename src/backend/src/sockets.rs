@@ -3,11 +3,12 @@ use futures::{SinkExt, StreamExt};
 use nanoserde::{DeJson, SerJson};
 use std::process::Command;
 use std::sync::Arc;
-use std::{thread, time};
+use std::time::Duration;
 use tokio::sync::{
     mpsc::{self, Receiver},
     Mutex,
 };
+use tokio::time::sleep;
 use warp::ws::Message;
 
 use crate::{systemdata, types};
@@ -52,7 +53,7 @@ async fn process_handler(
                     },
                 )))
                 .await;
-            thread::sleep(time::Duration::from_secs(1));
+            sleep(Duration::from_secs(1)).await;
         }
     });
     loop {
@@ -140,7 +141,7 @@ async fn management_handler(
                     &systemdata::host().await,
                 )))
                 .await;
-            thread::sleep(time::Duration::from_secs(1));
+            sleep(Duration::from_secs(1)).await;
         }
     });
     loop {
@@ -170,7 +171,7 @@ async fn service_handler(
                     },
                 )))
                 .await;
-            thread::sleep(time::Duration::from_secs(2));
+            sleep(Duration::from_secs(2)).await;
         }
     });
     loop {

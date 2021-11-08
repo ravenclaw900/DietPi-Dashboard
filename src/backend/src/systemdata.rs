@@ -13,7 +13,8 @@ use std::fs;
 use std::process::Command;
 use std::str::from_utf8;
 use std::sync::atomic::{AtomicU64, Ordering::Relaxed};
-use std::{thread, time};
+use std::time::Duration;
+use tokio::time::sleep;
 
 use crate::types;
 
@@ -31,7 +32,7 @@ fn round_percent(unrounded: f64) -> f32 {
 pub async fn cpu() -> f32 {
     let times1 = cpu::time().await.unwrap();
     let used1 = times1.system() + times1.user();
-    thread::sleep(time::Duration::from_secs(1));
+    sleep(Duration::from_secs(1)).await;
     let times2 = cpu::time().await.unwrap();
     let used2 = times2.system() + times2.user();
 
@@ -137,7 +138,7 @@ pub async fn processes() -> Vec<types::ProcessData> {
         }
         cpu_list.insert(element.as_ref().unwrap().pid(), cpu);
     }
-    thread::sleep(time::Duration::from_millis(500));
+    sleep(Duration::from_millis(500)).await;
     for element in processes {
         let pid: i32;
         let name: String;
