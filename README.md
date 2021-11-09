@@ -70,4 +70,8 @@ yarn # Install dependencies
 cd ../.. # Change directories
 make build # Compile binaries for all platforms
 ```
-Binaries will then be avalible in the `build` directory.
+Binaries will then be available in the `build` directory.
+
+### Open dashboard:
+`http://<your.IP>:8088`
+
