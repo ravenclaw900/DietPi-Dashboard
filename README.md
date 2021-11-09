@@ -72,6 +72,6 @@ make build # Compile binaries for all platforms
 ```
 Binaries will then be available in the `build` directory.
 
-#### Open dashboard:
-http://dietpi_ip:8088
+### Open dashboard:
+`http://<your.IP>:8088`
 
