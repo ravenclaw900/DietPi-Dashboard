@@ -10,7 +10,7 @@
     let msg = "";
 
     $: socketData.uptime &&
-        ((uptime = humanizeDuration(socketData.uptime * 1000)),
+        ((uptime = humanizeDuration(socketData.uptime * 60000)),
         (dialog = false));
 
     function sendData(data) {

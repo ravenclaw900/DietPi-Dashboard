@@ -4,7 +4,7 @@ use heim::{
     units::{
         information::{byte, mebibyte},
         ratio::percent,
-        time::second,
+        time::minute,
     },
 };
 use lazy_static::lazy_static;
@@ -277,7 +277,7 @@ pub fn dpsoftware() -> Vec<types::DPSoftwareData> {
 #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
 pub async fn host() -> types::HostData {
     let info = host::platform().await.unwrap();
-    let uptime = host::uptime().await.unwrap().get::<second>().round() as u64;
+    let uptime = host::uptime().await.unwrap().get::<minute>().round() as u64;
     let dp_file = fs::read_to_string(&std::path::Path::new("/boot/dietpi/.version")).unwrap();
     let dp_version: Vec<&str> = dp_file.split(&['=', '\n'][..]).collect();
     let installed_pkgs = from_utf8(

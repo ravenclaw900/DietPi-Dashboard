@@ -133,21 +133,15 @@ async fn management_handler(
     socket_ptr: Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>,
     data_recv: &mut Receiver<Option<types::Request>>,
 ) {
-    let handle = tokio::spawn(async move {
-        loop {
-            let mut socket_send = socket_ptr.lock().await;
-            let _send = (*socket_send)
-                .send(Message::text(SerJson::serialize_json(
-                    &systemdata::host().await,
-                )))
-                .await;
-            sleep(Duration::from_secs(1)).await;
-        }
-    });
+    let mut socket_send = socket_ptr.lock().await;
+    let _send = (*socket_send)
+        .send(Message::text(SerJson::serialize_json(
+            &systemdata::host().await,
+        )))
+        .await;
     loop {
         match data_recv.recv().await {
             Some(None) | None => {
-                handle.abort();
                 break;
             }
             Some(Some(data)) => {
@@ -161,23 +155,17 @@ async fn service_handler(
     socket_ptr: Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>,
     data_recv: &mut Receiver<Option<types::Request>>,
 ) {
-    let handle = tokio::spawn(async move {
-        loop {
-            let mut socket_send = socket_ptr.lock().await;
-            let _send = (*socket_send)
-                .send(Message::text(SerJson::serialize_json(
-                    &types::ServiceList {
-                        services: systemdata::services(),
-                    },
-                )))
-                .await;
-            sleep(Duration::from_secs(2)).await;
-        }
-    });
+    let mut socket_send = socket_ptr.lock().await;
+    let _send = (*socket_send)
+        .send(Message::text(SerJson::serialize_json(
+            &types::ServiceList {
+                services: systemdata::services(),
+            },
+        )))
+        .await;
     loop {
         match data_recv.recv().await {
             Some(None) | None => {
-                handle.abort();
                 break;
             }
             Some(Some(data)) => {
@@ -185,6 +173,13 @@ async fn service_handler(
                     .args([data.cmd, (&*data.args[0]).to_string()])
                     .spawn()
                     .unwrap();
+                let _send = (*socket_send)
+                    .send(Message::text(SerJson::serialize_json(
+                        &types::ServiceList {
+                            services: systemdata::services(),
+                        },
+                    )))
+                    .await;
             }
         }
     }
