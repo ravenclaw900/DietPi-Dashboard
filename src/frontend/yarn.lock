@@ -514,7 +514,7 @@ __metadata:
     svelte-routing: ^1.6.0
     tslib: ^2.2.0
     typescript: ^4.3.2
-    vite: ^2.6.4
+    vite: ^2.6.14
     vite-plugin-replace: ^0.1.1
     vite-plugin-windicss: ^1.5.1
     windicss: ^3.2.1
@@ -2029,9 +2029,9 @@ resolve@^1.20.0:
   languageName: node
   linkType: hard
 
-"vite@npm:^2.6.4":
-  version: 2.6.13
-  resolution: "vite@npm:2.6.13"
+"vite@npm:^2.6.14":
+  version: 2.6.14
+  resolution: "vite@npm:2.6.14"
   dependencies:
     esbuild: ^0.13.2
     fsevents: ~2.3.2
@@ -2054,7 +2054,7 @@ resolve@^1.20.0:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 59e09d8650328eac44990de9aaa9f49011113e3c1d8c3b54d9b8550496c8d290ec14149048bbbd49b39f78a80f23c4019130bd55924bfd139f63423be8d4754a
+  checksum: 4bf2b7407771440de81546932cf0b1bd74f9254e6056665a596b9310f37b2d34a65728a2a0525300ef48fa1f3e2ec5a3366326eecf31db7b86c19463e22186a8
   languageName: node
   linkType: hard
 
