@@ -21,8 +21,10 @@ jobs:
           rustup target add armv7-unknown-linux-musleabihf
           rustup target add aarch64-unknown-linux-musl
       - name: Lint (rustfmt)
-        run: cargo fmt --all -- --check
+        working-directory: src/backend
+        run: cargo fmt -- --check
       - name: Lint (clippy)
+        working-directory: src/backend
         run: cargo clippy --all-targets --all-feature -- -D warnings
       - name: Restore Rust cache
         uses: Swatinem/rust-cache@v1
