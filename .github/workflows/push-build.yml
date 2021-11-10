@@ -14,18 +14,15 @@ jobs:
           toolchain: stable
           override: true
           components: rustfmt, clippy
+      - name: Lint (rustfmt)
+        working-directory: src/backend
+        run: cargo fmt -- --check
       - name: Install other Rust targets
         run: |
           rustup target add x86_64-unknown-linux-musl
           rustup target add arm-unknown-linux-musleabihf
           rustup target add armv7-unknown-linux-musleabihf
           rustup target add aarch64-unknown-linux-musl
-      - name: Lint (rustfmt)
-        working-directory: src/backend
-        run: cargo fmt -- --check
-      - name: Lint (clippy)
-        working-directory: src/backend
-        run: cargo clippy --all-targets --all-features -- -D warnings
       - name: Restore Rust cache
         uses: Swatinem/rust-cache@v1
         with:
@@ -40,6 +37,9 @@ jobs:
         run: yarn build
       - name: Copy "dist" folder
         run: cp -r src/frontend/dist src/backend
+      - name: Lint (clippy)
+        working-directory: src/backend
+        run: cargo clippy --all-targets --all-features -- -D warnings
       - name: Build amd64
         working-directory: src/backend
         run: cross build --release --target x86_64-unknown-linux-musl
