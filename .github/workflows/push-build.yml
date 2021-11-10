@@ -25,7 +25,7 @@ jobs:
         run: cargo fmt -- --check
       - name: Lint (clippy)
         working-directory: src/backend
-        run: cargo clippy --all-targets --all-feature -- -D warnings
+        run: cargo clippy --all-targets --all-features -- -D warnings
       - name: Restore Rust cache
         uses: Swatinem/rust-cache@v1
         with:
