@@ -13,6 +13,10 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
+          components: rustfmt, clippy
+      - name: Lint (rustfmt)
+        working-directory: src/backend
+        run: cargo fmt -- --check
       - name: Install other Rust targets
         run: |
           rustup target add x86_64-unknown-linux-musl
@@ -23,8 +27,11 @@ jobs:
         uses: Swatinem/rust-cache@v1
         with:
           working-directory: src/backend
-      - name: Install Rust cross-compiler
-        run: cargo install cross
+      - name: Lint (clippy)
+        working-directory: src/backend
+        run: |
+          mkdir dist
+          cargo clippy --all-targets --all-features -- -D warnings
       - name: Install Yarn Dependencies
         working-directory: src/frontend
         run: yarn install
@@ -32,7 +39,7 @@ jobs:
         working-directory: src/frontend
         run: yarn build
       - name: Copy "dist" folder
-        run: cp -r src/frontend/dist src/backend
+        run: cp -r src/frontend/dist/. src/backend/dist/
       - name: Build amd64
         working-directory: src/backend
         run: cross build --release --target x86_64-unknown-linux-musl
