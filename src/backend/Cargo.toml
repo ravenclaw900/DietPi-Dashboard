@@ -15,7 +15,7 @@ include_dir = "0.6.2"
 lazy_static = "1.4.0"
 futures = "0.3.17"
 nanoserde = "0.1.29"
-pty-process = "0.1.0"
+pty-process = "0.1.1"
 heim = { git = "https://github.com/heim-rs/heim", features = ["cpu", "disk", "host", "memory", "net", "process"] }
 infer = { version = "0.5.0", default-features = false }
 
