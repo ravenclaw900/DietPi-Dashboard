@@ -119,7 +119,7 @@
         }
         let proto = window.location.protocol == "https:" ? "wss" : "ws";
         socket = new WebSocket(
-            `${proto}://${window.location.hostname}:${window.location.port}/ws`
+            `${proto}://${window.location.hostname}:8088/ws`
         );
         socket.onopen = socketOpenListener;
         socket.onmessage = socketMessageListener;
@@ -201,7 +201,7 @@
         </header>
         <div
             class="dark:bg-gray-900 bg-gray-100 flex-grow p-6 dark:text-white{blur
-                ? ' blur-2 filter'
+                ? ' children:blur-2 children:filter'
                 : ''}"
         >
             {#if shown}
