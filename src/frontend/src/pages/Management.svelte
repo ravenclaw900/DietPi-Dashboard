@@ -39,7 +39,6 @@
             {msg}
         </div>
     </div>
-    {#if socketData.hostname != undefined}
         <Card header="System Information">
             <table
                 class="border border-gray-100 dark:border-gray-900 h-full w-full"
@@ -111,7 +110,4 @@
                 >
             </div>
         </Card>
-    {:else}
-        <h3>Getting data...</h3>
-    {/if}
 </main>

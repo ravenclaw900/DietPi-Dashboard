@@ -161,179 +161,175 @@
 </script>
 
 <main class="min-h-full">
-    {#if socketData.contents != undefined || socketData.textdata != undefined || binData != ""}
-        <div class="flex">
-            <div class="w-11/12">
-                <div class="mb-2 p bg-white dark:bg-black">
-                    <button
-                        class="btn px-2 focus:outline-none"
-                        on:click={() => {
-                            sendCmd("/", "cd");
-                            currentPath = "/";
-                        }}>/</button
-                    >
-                    {#each pathArray as path}
-                        {path != pathArray[0] ? " /" : ""}
-                        {#if path == pathArray[pathArray.length - 1]}
-                            <div class="inline-block cursor-default">
-                                {path}
-                            </div>
-                        {:else}
-                            <button
-                                class="btn focus:outline-none"
-                                on:click={() => {
-                                    let fullPath = "";
-                                    for (let element of pathArray) {
-                                        fullPath += "/" + element;
-                                        if (element == path) {
-                                            break;
-                                        }
+    <div class="flex">
+        <div class="w-11/12">
+            <div class="mb-2 p bg-white dark:bg-black">
+                <button
+                    class="btn px-2 focus:outline-none"
+                    on:click={() => {
+                        sendCmd("/", "cd");
+                        currentPath = "/";
+                    }}>/</button
+                >
+                {#each pathArray as path}
+                    {path != pathArray[0] ? " /" : ""}
+                    {#if path == pathArray[pathArray.length - 1]}
+                        <div class="inline-block cursor-default">
+                            {path}
+                        </div>
+                    {:else}
+                        <button
+                            class="btn focus:outline-none"
+                            on:click={() => {
+                                let fullPath = "";
+                                for (let element of pathArray) {
+                                    fullPath += "/" + element;
+                                    if (element == path) {
+                                        break;
                                     }
-                                    sendCmd(fullPath, "cd");
-                                    currentPath = fullPath;
-                                }}>{path}</button
-                            >
-                        {/if}
-                    {/each}
-                </div>
-                {#if socketData.contents != undefined}
-                    <table class="bg-white w-full dark:bg-black">
-                        <tr>
-                            <th class="px-2">Name</th>
-                            <th class="px-2">Kind</th>
-                            <th class="px-2">Size</th>
-                        </tr>
-                        {#each socketData.contents as contents}
-                            <tr
-                                class="even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800 select-none{selPath ==
-                                contents
-                                    ? ' !bg-blue-400 dark:!bg-blue-600'
-                                    : ''}"
-                                on:dblclick={() => {
-                                    switch (contents.maintype) {
-                                        case "dir":
-                                            sendCmd(contents.path, "cd");
-                                            break;
-                                        case "text":
-                                            sendCmd(contents.path, "open");
-                                            break;
-                                        case "image":
-                                            sendCmd(contents.path, "img");
-                                            break;
-                                        default:
-                                            alert(
-                                                "ERROR: can't view that type of file"
-                                            );
-                                    }
-                                    currentPath = contents.path;
-                                }}
-                                on:click={() => (selPath = contents)}
-                            >
-                                <td class="px-2"
-                                    ><Fa
-                                        icon={getIcon(
-                                            contents.maintype,
-                                            contents.subtype
-                                        )}
-                                        class="mr-2"
-                                    />{contents.name}</td
-                                >
-                                <td class="px-2">{contents.prettytype}</td>
-                                <td class="px-2"
-                                    >{contents.maintype == "dir"
-                                        ? "--"
-                                        : unitCalc(contents.size)}</td
-                                >
-                            </tr>
-                        {/each}
-                    </table>
-                {:else if socketData.textdata != undefined}
-                    <div class="flex">
-                        <textarea
-                            bind:value={fileData}
-                            bind:this={fileText}
-                            on:scroll={syncScroll}
-                            on:keydown={checkTab}
-                            spellcheck="false"
-                            class="w-full font-mono text-sm bg-transparent text-transparent whitespace-pre tab-4 !overflow-x-scroll caret-black dark:caret-white z-20 focus:outline-none p-px"
-                        />
-                        <div
-                            bind:this={fileDiv}
-                            class="w-full microlight -ml-[100%] font-mono whitespace-pre bg-white dark:bg-black text-sm z-10 tab-4 !overflow-x-scroll p-px"
-                        />
-                    </div>
-                {:else if binData != ""}
-                    <div>
-                        <img src={binData} alt="Unknown" />
-                    </div>
-                {/if}
+                                }
+                                sendCmd(fullPath, "cd");
+                                currentPath = fullPath;
+                            }}>{path}</button
+                        >
+                    {/if}
+                {/each}
             </div>
-            <div
-                class="min-w-16 bg-gray-300 dark:bg-gray-800 ml-4 min-h-full max-h-full flex flex-col gap-2 items-center justify-center"
-            >
-                {#if socketData.contents != undefined}
+            {#if socketData.contents != undefined}
+                <table class="bg-white w-full dark:bg-black">
+                    <tr>
+                        <th class="px-2">Name</th>
+                        <th class="px-2">Kind</th>
+                        <th class="px-2">Size</th>
+                    </tr>
+                    {#each socketData.contents as contents}
+                        <tr
+                            class="even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800 select-none{selPath ==
+                            contents
+                                ? ' !bg-blue-400 dark:!bg-blue-600'
+                                : ''}"
+                            on:dblclick={() => {
+                                switch (contents.maintype) {
+                                    case "dir":
+                                        sendCmd(contents.path, "cd");
+                                        break;
+                                    case "text":
+                                        sendCmd(contents.path, "open");
+                                        break;
+                                    case "image":
+                                        sendCmd(contents.path, "img");
+                                        break;
+                                    default:
+                                        alert(
+                                            "ERROR: can't view that type of file"
+                                        );
+                                }
+                                currentPath = contents.path;
+                            }}
+                            on:click={() => (selPath = contents)}
+                        >
+                            <td class="px-2"
+                                ><Fa
+                                    icon={getIcon(
+                                        contents.maintype,
+                                        contents.subtype
+                                    )}
+                                    class="mr-2"
+                                />{contents.name}</td
+                            >
+                            <td class="px-2">{contents.prettytype}</td>
+                            <td class="px-2"
+                                >{contents.maintype == "dir"
+                                    ? "--"
+                                    : unitCalc(contents.size)}</td
+                            >
+                        </tr>
+                    {/each}
+                </table>
+            {:else if socketData.textdata != undefined}
+                <div class="flex">
+                    <textarea
+                        bind:value={fileData}
+                        bind:this={fileText}
+                        on:scroll={syncScroll}
+                        on:keydown={checkTab}
+                        spellcheck="false"
+                        class="w-full font-mono text-sm bg-transparent text-transparent whitespace-pre tab-4 !overflow-x-scroll caret-black dark:caret-white z-20 focus:outline-none p-px"
+                    />
+                    <div
+                        bind:this={fileDiv}
+                        class="w-full microlight -ml-[100%] font-mono whitespace-pre bg-white dark:bg-black text-sm z-10 tab-4 !overflow-x-scroll p-px"
+                    />
+                </div>
+            {:else if binData != ""}
+                <div>
+                    <img src={binData} alt="Unknown" />
+                </div>
+            {/if}
+        </div>
+        <div
+            class="min-w-16 bg-gray-300 dark:bg-gray-800 ml-4 min-h-full max-h-full flex flex-col gap-2 items-center justify-center"
+        >
+            {#if socketData.contents != undefined}
+                <span
+                    class="cursor-pointer"
+                    title="New Directory"
+                    on:click={() => {
+                        let name = prompt(
+                            "Please enter the name of the new directory"
+                        );
+                        sendCmd(currentPath + "/" + name, "mkdir");
+                    }}><Fa icon={faFolderPlus} size="lg" /></span
+                >
+                <span
+                    class="cursor-pointer"
+                    title="New File"
+                    on:click={() => {
+                        let name = prompt(
+                            "Please enter the name of the new file"
+                        );
+                        sendCmd(currentPath + "/" + name, "mkfile");
+                    }}><Fa icon={faFileMedical} size="lg" /></span
+                >
+                {#if selPath.path != ""}
                     <span
                         class="cursor-pointer"
-                        title="New Directory"
+                        title="Rename"
                         on:click={() => {
                             let name = prompt(
-                                "Please enter the name of the new directory"
+                                "Please enter the new name of the file"
                             );
-                            sendCmd(currentPath + "/" + name, "mkdir");
-                        }}><Fa icon={faFolderPlus} size="lg" /></span
+                            rename(selPath.path, currentPath + "/" + name);
+                        }}><Fa icon={faICursor} size="lg" /></span
                     >
-                    <span
-                        class="cursor-pointer"
-                        title="New File"
-                        on:click={() => {
-                            let name = prompt(
-                                "Please enter the name of the new file"
-                            );
-                            sendCmd(currentPath + "/" + name, "mkfile");
-                        }}><Fa icon={faFileMedical} size="lg" /></span
-                    >
-                    {#if selPath.path != ""}
+                    {#if selPath.maintype == "dir"}
                         <span
                             class="cursor-pointer"
-                            title="Rename"
-                            on:click={() => {
-                                let name = prompt(
-                                    "Please enter the new name of the file"
-                                );
-                                rename(selPath.path, currentPath + "/" + name);
-                            }}><Fa icon={faICursor} size="lg" /></span
+                            title="Delete"
+                            on:click={() => sendCmd(selPath.path, "rmdir")}
+                            ><Fa icon={faTrash} size="lg" /></span
                         >
-                        {#if selPath.maintype == "dir"}
-                            <span
-                                class="cursor-pointer"
-                                title="Delete"
-                                on:click={() => sendCmd(selPath.path, "rmdir")}
-                                ><Fa icon={faTrash} size="lg" /></span
-                            >
-                        {:else}
-                            <span
-                                class="cursor-pointer"
-                                title="Copy"
-                                on:click={() => sendCmd(selPath.path, "copy")}
-                                ><Fa icon={faCopy} size="lg" /></span
-                            >
-                            <span
-                                class="cursor-pointer"
-                                title="Delete"
-                                on:click={() => sendCmd(selPath.path, "rm")}
-                                ><Fa icon={faTrash} size="lg" /></span
-                            >
-                        {/if}
+                    {:else}
+                        <span
+                            class="cursor-pointer"
+                            title="Copy"
+                            on:click={() => sendCmd(selPath.path, "copy")}
+                            ><Fa icon={faCopy} size="lg" /></span
+                        >
+                        <span
+                            class="cursor-pointer"
+                            title="Delete"
+                            on:click={() => sendCmd(selPath.path, "rm")}
+                            ><Fa icon={faTrash} size="lg" /></span
+                        >
                     {/if}
-                {:else if socketData.textdata != undefined}
-                    <span
-                        class="cursor-pointer"
-                        on:click={() => sendFile(currentPath)}
-                        ><Fa icon={faSave} size="lg" /></span
-                    >{/if}
-            </div>
+                {/if}
+            {:else if socketData.textdata != undefined}
+                <span
+                    class="cursor-pointer"
+                    on:click={() => sendFile(currentPath)}
+                    ><Fa icon={faSave} size="lg" /></span
+                >{/if}
         </div>
-    {:else}
-        <h3>Getting data...</h3>
-    {/if}
+    </div>
 </main>

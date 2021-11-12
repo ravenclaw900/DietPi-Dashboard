@@ -228,7 +228,6 @@
 </script>
 
 <main>
-    {#if socketData.processes != undefined}
         <table
             class="border border-gray-300 dark:border-gray-700 w-full table-fixed break-words overflow-x-scroll"
         >
@@ -333,7 +332,4 @@
                 </tr>
             {/each}
         </table>
-    {:else}
-        <h3>Getting data...</h3>
-    {/if}
 </main>

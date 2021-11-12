@@ -220,8 +220,6 @@
                 <div class="bg-yellow-500 h-3" style="width:{$diskAnimate}%" />
             </div>
         </Card>
-    {:else}
-        <h3>Getting data...</h3>
     {/if}
 </main>
 

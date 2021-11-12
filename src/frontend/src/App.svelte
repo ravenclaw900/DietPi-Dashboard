@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Router, Route } from "svelte-routing";
+    import { navigate, Route, Router } from "svelte-routing";
     import { onMount } from "svelte";
     import Home from "./pages/Home.svelte";
     import Process from "./pages/Process.svelte";
@@ -84,6 +84,8 @@
     let update = "";
     let darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
     let darkIcon;
+    let blur = false;
+    let navPage = "";
     $: darkIcon = darkMode ? faMoon : faSun;
 
     const socketMessageListener = (e) => {
@@ -97,11 +99,16 @@
         if (socketData.update != undefined) {
             update = socketData.update;
         }
+        if (navPage) {
+            blur = false;
+            navigate(navPage);
+            navPage = "";
+        }
     };
     const socketOpenListener = () => {
         console.log("Connected");
         shown = true;
-        pollServer();
+        pollServer(window.location.pathname);
     };
     const socketErrorListener = (e) => {
         console.error(e);
@@ -112,7 +119,7 @@
         }
         let proto = window.location.protocol == "https:" ? "wss" : "ws";
         socket = new WebSocket(
-            `${proto}://${window.location.hostname}:8088/ws`
+            `${proto}://${window.location.hostname}:${window.location.port}/ws`
         );
         socket.onopen = socketOpenListener;
         socket.onmessage = socketMessageListener;
@@ -120,8 +127,17 @@
         socket.onerror = socketErrorListener;
     };
 
-    function pollServer() {
-        socket.send(JSON.stringify({ page: window.location.pathname }));
+    function pollServer(page: string) {
+        socket.send(JSON.stringify({ page }));
+        navPage = page;
+    }
+
+    function changePage(page: string) {
+        if (page != window.location.pathname) {
+            blur = true;
+            pollServer(page);
+        }
+        // Continued in socketMessageListener
     }
 
     onMount(() => {
@@ -130,73 +146,66 @@
 </script>
 
 <main class="min-h-screen flex overflow-x-hidden{darkMode ? ' dark' : ''}">
-    <Router {url}>
+    <div
+        class="bg-gray-900 dark:bg-black flex-grow{menu ? '' : ' shrink'}"
+        id="sidebarMenu"
+    >
         <div
-            class="bg-gray-900 dark:bg-black flex-grow{menu ? '' : ' shrink'}"
-            id="sidebarMenu"
+            class="hidden lg:flex whitespace-nowrap h-12 bg-dplime-dark text-2xl items-center justify-center"
         >
-            <div
-                class="hidden lg:flex whitespace-nowrap h-12 bg-dplime-dark text-2xl items-center justify-center"
-            >
-                DietPi Dashboard
-            </div>
-            <span on:click={pollServer}
-                ><NavbarLink icon={faTachometerAlt} to="/"
-                    >Statistics</NavbarLink
-                ></span
-            >
-            <span on:click={pollServer}
-                ><NavbarLink icon={faMicrochip} to="process"
-                    >Processes</NavbarLink
-                ></span
-            >
-            <span on:click={pollServer}
-                ><NavbarLink icon={faList} to="service">Services</NavbarLink
-                ></span
-            >
-            <span on:click={pollServer}
-                ><NavbarLink icon={faDatabase} to="software"
-                    >Software</NavbarLink
-                ></span
-            >
-            <NavbarLink icon={faTerminal} to="terminal">Terminal</NavbarLink>
-            <span on:click={pollServer}
-                ><NavbarLink icon={faUser} to="management"
-                    >Management</NavbarLink
-                ></span
-            >
-            <span on:click={pollServer}
-                ><NavbarLink icon={faFolder} to="browser"
-                    >File Browser</NavbarLink
-                ></span
-            >
+            DietPi Dashboard
         </div>
-        <div class="w-5/6 flex flex-col flex-grow min-h-full">
-            <header class="bg-dplime h-12 grid grid-cols-3 items-center">
-                <span on:click={() => (menu = !menu)} class="justify-self-start"
-                    ><Fa icon={faBars} class="btn ml-1 p-1" size="3x" /></span
-                >
-                <a
-                    href="https://dietpi.com"
-                    class="justify-self-center"
-                    target="_blank"
-                    ><img src={logo} alt="DietPi logo" class="h-10" /></a
-                >
-                {#if update != ""}
-                    <span class="text-red-500 justify-self-center"
-                        >DietPi update avalible: {update}</span
-                    >
-                {/if}
-                <span
-                    class="cursor-pointer justify-self-end mr-2"
-                    on:click={() => (darkMode = !darkMode)}
-                    ><Fa icon={darkIcon} size="lg" /></span
-                >
-            </header>
-            <div
-                class="dark:bg-gray-900 bg-gray-100 flex-grow p-6 dark:text-white"
+        <span on:click={() => changePage("/")}
+            ><NavbarLink icon={faTachometerAlt}>Statistics</NavbarLink></span
+        >
+        <span on:click={() => changePage("/process")}
+            ><NavbarLink icon={faMicrochip}>Processes</NavbarLink></span
+        >
+        <span on:click={() => changePage("/service")}
+            ><NavbarLink icon={faList}>Services</NavbarLink></span
+        >
+        <span on:click={() => changePage("/software")}
+            ><NavbarLink icon={faDatabase}>Software</NavbarLink></span
+        >
+        <span on:click={() => navigate("/terminal")}>
+            <NavbarLink icon={faTerminal}>Terminal</NavbarLink>
+        </span>
+        <span on:click={() => changePage("/management")}
+            ><NavbarLink icon={faUser}>Management</NavbarLink></span
+        >
+        <span on:click={() => changePage("/browser")}
+            ><NavbarLink icon={faFolder}>File Browser</NavbarLink></span
+        >
+    </div>
+    <div class="w-5/6 flex flex-col flex-grow min-h-full">
+        <header class="bg-dplime h-12 grid grid-cols-3 items-center">
+            <span on:click={() => (menu = !menu)} class="justify-self-start"
+                ><Fa icon={faBars} class="btn ml-1 p-1" size="3x" /></span
             >
-                {#if shown}
+            <a
+                href="https://dietpi.com"
+                class="justify-self-center"
+                target="_blank"
+                ><img src={logo} alt="DietPi logo" class="h-10" /></a
+            >
+            {#if update != ""}
+                <span class="text-red-500 justify-self-center"
+                    >DietPi update avalible: {update}</span
+                >
+            {/if}
+            <span
+                class="cursor-pointer justify-self-end mr-2"
+                on:click={() => (darkMode = !darkMode)}
+                ><Fa icon={darkIcon} size="lg" /></span
+            >
+        </header>
+        <div
+            class="dark:bg-gray-900 bg-gray-100 flex-grow p-6 dark:text-white{blur
+                ? ' blur-2 filter'
+                : ''}"
+        >
+            {#if shown}
+                <Router {url}>
                     <Route path="process"
                         ><Process {socketData} {socket} /></Route
                     >
@@ -215,32 +224,32 @@
                         ><Service {socket} {socketData} /></Route
                     >
                     <Route path=""><h3>Page not found</h3></Route>
-                {:else}
-                    <h3>Connecting to API...</h3>
-                {/if}
-            </div>
-            <footer
-                class="border-t bg-gray-200 dark:bg-gray-800 dark:border-gray-700 border-gray-300 h-16 flex flex-col justify-center items-center dark:text-white"
-            >
-                <div>
-                    DietPi-Dashboard <a
-                        class="text-blue-500 dark:text-blue-600"
-                        href="https://github.com/ravenclaw900/DietPi-Dashboard/releases/tag/v{'__PACKAGE_VERSION__'}"
-                        target="_blank">v{"__PACKAGE_VERSION__"}</a
-                    > created by ravenclaw900
-                </div>
-                <a
-                    href="https://github.com/ravenclaw900/DietPi-Dashboard"
-                    target="_blank"
-                    ><Fa
-                        icon={faGithub}
-                        class="hover:opacity-75 dark:hover:opacity-60"
-                        size="2x"
-                    /></a
-                >
-            </footer>
+                </Router>
+            {:else}
+                <h3>Connecting to API...</h3>
+            {/if}
         </div>
-    </Router>
+        <footer
+            class="border-t bg-gray-200 dark:bg-gray-800 dark:border-gray-700 border-gray-300 h-16 flex flex-col justify-center items-center dark:text-white"
+        >
+            <div>
+                DietPi-Dashboard <a
+                    class="text-blue-500 dark:text-blue-600"
+                    href="https://github.com/ravenclaw900/DietPi-Dashboard/releases/tag/v{'__PACKAGE_VERSION__'}"
+                    target="_blank">v{"__PACKAGE_VERSION__"}</a
+                > created by ravenclaw900
+            </div>
+            <a
+                href="https://github.com/ravenclaw900/DietPi-Dashboard"
+                target="_blank"
+                ><Fa
+                    icon={faGithub}
+                    class="hover:opacity-75 dark:hover:opacity-60"
+                    size="2x"
+                /></a
+            >
+        </footer>
+    </div>
 </main>
 
 <style global>
