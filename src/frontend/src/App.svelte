@@ -119,7 +119,7 @@
         }
         let proto = window.location.protocol == "https:" ? "wss" : "ws";
         socket = new WebSocket(
-            `${proto}://${window.location.hostname}:8088/ws`
+            `${proto}://${window.location.hostname}:${window.location.port}/ws`
         );
         socket.onopen = socketOpenListener;
         socket.onmessage = socketMessageListener;
