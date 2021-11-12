@@ -22,6 +22,7 @@
     });
 
     export let socketData;
+    export let darkMode;
     let canvas;
 
     function unitCalc(used, total) {
@@ -118,12 +119,7 @@
                         },
                     },
                     grid: {
-                        color:
-                            window.matchMedia &&
-                            window.matchMedia("(prefers-color-scheme: dark)")
-                                .matches
-                                ? "#4B5563"
-                                : "#D1D5DB",
+                        color: darkMode ? "#4B5563" : "#D1D5DB",
                     },
                 },
                 usageScale: {
@@ -135,22 +131,12 @@
                         },
                     },
                     grid: {
-                        color:
-                            window.matchMedia &&
-                            window.matchMedia("(prefers-color-scheme: dark)")
-                                .matches
-                                ? "#4B5563"
-                                : "#D1D5DB",
+                        color: darkMode ? "#4B5563" : "#D1D5DB",
                     },
                 },
                 x: {
                     grid: {
-                        color:
-                            window.matchMedia &&
-                            window.matchMedia("(prefers-color-scheme: dark)")
-                                .matches
-                                ? "#4B5563"
-                                : "#D1D5DB",
+                        color: darkMode ? "#4B5563" : "#D1D5DB",
                     },
                 },
             },
@@ -177,6 +163,15 @@
         let chart = new Chart(canvas.getContext("2d"), config);
 
         setInterval(() => {
+            chart.options.scales.cpuScale.grid.color = darkMode
+                ? "#4B5563"
+                : "#D1D5DB";
+            chart.options.scales.usageScale.grid.color = darkMode
+                ? "#4B5563"
+                : "#D1D5DB";
+            chart.options.scales.x.grid.color = darkMode
+                ? "#4B5563"
+                : "#D1D5DB";
             let currenttime = new Date();
             chartData.labels.push(
                 `${currenttime.getHours()}:${currenttime.getMinutes()}:${currenttime.getSeconds()}`

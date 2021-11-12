@@ -17,6 +17,8 @@
         faBars,
         faList,
         faFolder,
+        faSun,
+        faMoon,
     } from "@fortawesome/free-solid-svg-icons";
     import Management from "./pages/Management.svelte";
     import FileBrowser from "./pages/FileBrowser.svelte";
@@ -80,6 +82,9 @@
     let shown = false;
     let menu = window.innerWidth > 768;
     let update = "";
+    let darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    let darkIcon;
+    $: darkIcon = darkMode ? faMoon : faSun;
 
     const socketMessageListener = (e) => {
         if (typeof e.data === "string") {
@@ -107,7 +112,7 @@
         }
         let proto = window.location.protocol == "https:" ? "wss" : "ws";
         socket = new WebSocket(
-            `${proto}://${window.location.hostname}:${window.location.port}/ws`
+            `${proto}://${window.location.hostname}:8088/ws`
         );
         socket.onopen = socketOpenListener;
         socket.onmessage = socketMessageListener;
@@ -124,14 +129,14 @@
     });
 </script>
 
-<main class="min-h-screen flex overflow-x-hidden dark:text-white">
+<main class="min-h-screen flex overflow-x-hidden{darkMode ? ' dark' : ''}">
     <Router {url}>
         <div
             class="bg-gray-900 dark:bg-black flex-grow{menu ? '' : ' shrink'}"
             id="sidebarMenu"
         >
             <div
-                class="hidden lg:flex whitespace-nowrap h-12 bg-dplime-dark text-black text-2xl items-center justify-center"
+                class="hidden lg:flex whitespace-nowrap h-12 bg-dplime-dark text-2xl items-center justify-center"
             >
                 DietPi Dashboard
             </div>
@@ -168,9 +173,7 @@
         </div>
         <div class="w-5/6 flex flex-col flex-grow min-h-full">
             <header class="bg-dplime h-12 grid grid-cols-3 items-center">
-                <span
-                    on:click={() => (menu = !menu)}
-                    class="justify-self-start text-black"
+                <span on:click={() => (menu = !menu)} class="justify-self-start"
                     ><Fa icon={faBars} class="btn ml-1 p-1" size="3x" /></span
                 >
                 <a
@@ -184,13 +187,20 @@
                         >DietPi update avalible: {update}</span
                     >
                 {/if}
+                <span
+                    class="cursor-pointer justify-self-end mr-2"
+                    on:click={() => (darkMode = !darkMode)}
+                    ><Fa icon={darkIcon} size="lg" /></span
+                >
             </header>
-            <div class="dark:bg-gray-900 bg-gray-100 flex-grow p-6">
+            <div
+                class="dark:bg-gray-900 bg-gray-100 flex-grow p-6 dark:text-white"
+            >
                 {#if shown}
                     <Route path="process"
                         ><Process {socketData} {socket} /></Route
                     >
-                    <Route path="/"><Home {socketData} /></Route>
+                    <Route path="/"><Home {socketData} {darkMode} /></Route>
                     <Route path="software"
                         ><Software {socketData} {socket} /></Route
                     >
@@ -210,7 +220,7 @@
                 {/if}
             </div>
             <footer
-                class="border-t bg-gray-200 dark:bg-gray-800 dark:border-gray-700 border-gray-300 h-16 flex flex-col justify-center items-center"
+                class="border-t bg-gray-200 dark:bg-gray-800 dark:border-gray-700 border-gray-300 h-16 flex flex-col justify-center items-center dark:text-white"
             >
                 <div>
                     DietPi-Dashboard <a
