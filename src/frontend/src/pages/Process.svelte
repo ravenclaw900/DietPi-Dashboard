@@ -228,6 +228,7 @@
 </script>
 
 <main>
+    {#if socketData.processes}
         <table
             class="border border-gray-300 dark:border-gray-700 w-full table-fixed break-words overflow-x-scroll"
         >
@@ -332,4 +333,5 @@
                 </tr>
             {/each}
         </table>
+    {/if}
 </main>

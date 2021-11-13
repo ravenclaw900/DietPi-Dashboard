@@ -129,13 +129,13 @@
 
     function pollServer(page: string) {
         socket.send(JSON.stringify({ page }));
-        navPage = page;
     }
 
     function changePage(page: string) {
         if (page != window.location.pathname) {
             blur = true;
             pollServer(page);
+            navPage = page;
         }
         // Continued in socketMessageListener
     }
