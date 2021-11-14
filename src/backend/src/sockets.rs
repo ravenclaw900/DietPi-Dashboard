@@ -288,7 +288,10 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
         let mut first_message = true;
         let mut req: types::Request;
         loop {
-            let data = socket_recv.next().await.unwrap().unwrap();
+            let data = match socket_recv.next().await {
+                Some(Ok(data)) => data,
+                Some(Err(_)) | None => break,
+            };
             if data.is_close() {
                 break;
             }
