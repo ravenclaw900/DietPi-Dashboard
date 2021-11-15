@@ -198,19 +198,52 @@ pub async fn processes() -> Vec<types::ProcessData> {
     process_list
 }
 
+#[allow(clippy::too_many_lines)]
 pub fn dpsoftware() -> Vec<types::DPSoftwareData> {
+    let free_out = Command::new("/boot/dietpi/dietpi-software")
+        .arg("free")
+        .output()
+        .unwrap()
+        .stdout;
+    let free = from_utf8(&free_out)
+        .unwrap()
+        .lines()
+        .nth(4)
+        .unwrap()
+        .trim_start_matches("Free software ID(s): ");
+    let free_list: Vec<i16>;
+    if &free[..4] == "None" {
+        free_list = Vec::new();
+    } else {
+        free_list = free
+            .split(' ')
+            .map(|id| id.parse::<i16>().unwrap())
+            .collect();
+    }
     let out = Command::new("/boot/dietpi/dietpi-software")
         .arg("list")
         .output()
         .unwrap()
         .stdout;
-    let out_list = from_utf8(&out).unwrap().split('\n').collect::<Vec<&str>>();
+    let out_list = from_utf8(&out).unwrap().lines().collect::<Vec<&str>>();
     let mut software_list = Vec::new();
+    let mut index = 0_i16;
     software_list.reserve(match out_list.len().checked_sub(9) {
         Some(num) => num,
         None => return software_list,
     });
-    'software: for element in out_list.iter().skip(4).take(out_list.len() - 5) {
+    'software: for element in out_list.iter().skip(4).take(out_list.len() - 4) {
+        if free_list.contains(&(index as i16)) {
+            software_list.push(types::DPSoftwareData {
+                id: -1,
+                installed: false,
+                name: String::new(),
+                description: String::new(),
+                dependencies: String::new(),
+                docs: String::new(),
+            });
+            index += 1;
+        }
         let mut id = 0;
         let mut installed = false;
         let mut name = String::new();
@@ -248,6 +281,7 @@ pub fn dpsoftware() -> Vec<types::DPSoftwareData> {
                             dependencies: String::new(),
                             docs: String::new(),
                         });
+                        index += 1;
                         continue 'software;
                     }
                     depends = el1.trim().to_string();
@@ -270,6 +304,7 @@ pub fn dpsoftware() -> Vec<types::DPSoftwareData> {
             description: desc,
             installed,
         });
+        index += 1;
     }
     software_list
 }
