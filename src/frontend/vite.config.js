@@ -12,5 +12,14 @@ export default defineConfig({
         to: process.env.npm_package_version,
       },
     ]
-  })]
+  })],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          xterm: ['xterm', 'xterm-addon-attach', 'xterm-addon-fit']
+        }
+      }
+    }
+  }
 })
