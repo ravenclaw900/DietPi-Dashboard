@@ -508,7 +508,7 @@ __metadata:
     humanize-duration: ^3.27.0
     microlight: ^0.0.7
     svelte: ^3.44.1
-    svelte-check: ^2.2.8
+    svelte-check: ^2.2.9
     svelte-fa: ^2.3.3
     svelte-preprocess: ^4.7.2
     svelte-routing: ^1.6.0
@@ -1814,9 +1814,9 @@ resolve@^1.20.0:
   languageName: node
   linkType: hard
 
-"svelte-check@npm:^2.2.8":
-  version: 2.2.8
-  resolution: "svelte-check@npm:2.2.8"
+"svelte-check@npm:^2.2.9":
+  version: 2.2.9
+  resolution: "svelte-check@npm:2.2.9"
   dependencies:
     chalk: ^4.0.0
     chokidar: ^3.4.1
@@ -1831,7 +1831,7 @@ resolve@^1.20.0:
     svelte: ^3.24.0
   bin:
     svelte-check: bin/svelte-check
-  checksum: 10aa6d73f9d24265a568586d8a42aca1a6476c23c8e7f218999d64c003bd1501142073cb8940522124fab05141cb9c67baa4c852574ce8ab1a8533b2350d25ce
+  checksum: 893c01987b732162ccf9622e95dc3d40e2faa7c9a004bf34ce4ec9e12ed135edc8e6d024be0ffc55a70ba40eef361195fbcc9ded287d2709634f3c31420b1467
   languageName: node
   linkType: hard
 
