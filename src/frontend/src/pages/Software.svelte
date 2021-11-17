@@ -154,7 +154,7 @@
     </div>
     {#if socketData.response != ""}
         <textarea
-            class="w-full bg-gray-200 h-72 rounded"
+            class="w-full bg-gray-200 h-72 rounded dark:bg-gray-800"
             value={socketData.response}
             disabled
         />
