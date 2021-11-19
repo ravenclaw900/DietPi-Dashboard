@@ -509,7 +509,7 @@ __metadata:
     microlight: ^0.0.7
     svelte: ^3.44.1
     svelte-check: ^2.2.10
-    svelte-fa: ^2.3.3
+    svelte-fa: ^2.4.0
     svelte-preprocess: ^4.7.2
     svelte-routing: ^1.6.0
     tslib: ^2.2.0
@@ -1835,10 +1835,10 @@ resolve@^1.20.0:
   languageName: node
   linkType: hard
 
-"svelte-fa@npm:^2.3.3":
-  version: 2.3.3
-  resolution: "svelte-fa@npm:2.3.3"
-  checksum: 03549dcfaa36baafa5c4ad1c5a3c7f4e7c773d77fa526c5fd8d66229e562811c3d46698256789a16092f0d31c40c0f0050b7621ea75c0ca23791b1dfbc0f5f7d
+"svelte-fa@npm:^2.4.0":
+  version: 2.4.0
+  resolution: "svelte-fa@npm:2.4.0"
+  checksum: e844043c97fc6395e2a8df02e28c62b48cf75aad54d2048d5fdf9fa52e19007b1f8ff00701a92d40b6e6b17297a70cee34bf2ddf3372f6f31e2fa4108faf3713
   languageName: node
   linkType: hard
 
