@@ -114,6 +114,7 @@
                     loginDialog = true;
                 }
             } else {
+                localStorage.removeItem("token");
                 pollServer(window.location.pathname);
             }
         }
@@ -190,6 +191,23 @@
                 }
             })
         );
+    }
+
+    function socketSend(cmd, args) {
+        let json;
+        if (login) {
+            json = JSON.stringify({
+                cmd,
+                args,
+                token,
+            });
+        } else {
+            json = JSON.stringify({
+                cmd,
+                args,
+            });
+        }
+        socket.send(json);
     }
 
     onMount(() => {
@@ -281,21 +299,25 @@
             {#if shown}
                 <Router {url}>
                     <Route path="process"
-                        ><Process {socketData} {socket} /></Route
+                        ><Process {socketData} {socketSend} /></Route
                     >
                     <Route path="/"><Home {socketData} {darkMode} /></Route>
                     <Route path="software"
-                        ><Software {socketData} {socket} /></Route
+                        ><Software {socketData} {socketSend} /></Route
                     >
                     <Route path="terminal"><Terminal /></Route>
                     <Route path="management"
-                        ><Management {socket} {socketData} /></Route
+                        ><Management {socketSend} {socketData} /></Route
                     >
                     <Route path="browser"
-                        ><FileBrowser {socket} {socketData} {binData} /></Route
+                        ><FileBrowser
+                            {socketSend}
+                            {socketData}
+                            {binData}
+                        /></Route
                     >
                     <Route path="service"
-                        ><Service {socket} {socketData} /></Route
+                        ><Service {socketSend} {socketData} /></Route
                     >
                     <Route path=""><h3>Page not found</h3></Route>
                 </Router>

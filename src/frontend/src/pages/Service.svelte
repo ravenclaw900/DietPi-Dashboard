@@ -6,7 +6,7 @@
     } from "@fortawesome/free-solid-svg-icons";
     import Fa from "svelte-fa";
 
-    export let socket;
+    export let socketSend = (cmd, args) => {};
     export let socketData: serviceData;
 
     interface serviceData {
@@ -18,10 +18,6 @@
         status: string;
         log: string;
         start: string;
-    }
-
-    function sendAction(action, name) {
-        socket.send(JSON.stringify({ cmd: action, args: [name] }));
     }
 </script>
 
@@ -56,7 +52,7 @@
                         {#if service.status == "dead" || service.status == "failed"}
                             <span
                                 on:click={() =>
-                                    sendAction("start", service.name)}
+                                    socketSend("start", [service.name])}
                                 title="Start"
                                 ><Fa
                                     icon={faPlay}
@@ -67,7 +63,7 @@
                         {:else}
                             <span
                                 on:click={() =>
-                                    sendAction("stop", service.name)}
+                                    socketSend("stop", [service.name])}
                                 title="Stop"
                                 ><Fa
                                     icon={faSquare}
@@ -76,7 +72,7 @@
                                 /></span
                             ><span
                                 on:click={() =>
-                                    sendAction("restart", service.name)}
+                                    socketSend("restart", [service.name])}
                                 title="Restart"
                                 ><Fa
                                     icon={faRedoAlt}

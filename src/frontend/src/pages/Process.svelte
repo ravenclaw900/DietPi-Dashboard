@@ -11,7 +11,7 @@
     } from "@fortawesome/free-solid-svg-icons";
 
     export let socketData: processData;
-    export let socket;
+    export let socketSend = (cmd, args) => {};
 
     interface processData {
         processes?: processes[];
@@ -221,10 +221,6 @@
             statusIcon = faSortUp;
         }
     }
-
-    function sendSignal(signal, pid) {
-        socket.send(JSON.stringify({ cmd: signal, args: [pid.toString()] }));
-    }
 </script>
 
 <main>
@@ -288,7 +284,9 @@
                         {#if process.name != "dietpi-dashboard"}
                             <span
                                 on:click={() =>
-                                    sendSignal("terminate", process.pid)}
+                                    socketSend("terminate", [
+                                        process.pid.toString(),
+                                    ])}
                                 title="Terminate"
                                 ><Fa
                                     icon={faBan}
@@ -297,7 +295,10 @@
                                 /></span
                             >
                             <span
-                                on:click={() => sendSignal("kill", process.pid)}
+                                on:click={() =>
+                                    socketSend("kill", [
+                                        process.pid.toString(),
+                                    ])}
                                 title="Kill"
                                 ><Fa
                                     icon={faSkull}
@@ -308,7 +309,9 @@
                             {#if process.status != "stopped"}
                                 <span
                                     on:click={() =>
-                                        sendSignal("suspend", process.pid)}
+                                        socketSend("suspend", [
+                                            process.pid.toString(),
+                                        ])}
                                     title="Suspend"
                                     ><Fa
                                         icon={faPause}
@@ -319,7 +322,9 @@
                             {:else}
                                 <span
                                     on:click={() =>
-                                        sendSignal("resume", process.pid)}
+                                        socketSend("resume", [
+                                            process.pid.toString(),
+                                        ])}
                                     title="Resume"
                                     ><Fa
                                         icon={faPlay}

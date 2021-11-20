@@ -3,7 +3,7 @@
     import humanizeDuration from "humanize-duration";
     import { fade } from "svelte/transition";
 
-    export let socket;
+    export let socketSend = (cmd, args) => {};
     export let socketData;
 
     let uptime;
@@ -15,7 +15,7 @@
         (dialog = false));
 
     function sendData(data) {
-        socket.send(JSON.stringify({ cmd: data }));
+        socketSend(data, []);
         // Give backend an extra second to loop again
         setTimeout(() => {
             dialog = true;

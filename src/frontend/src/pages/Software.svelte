@@ -3,7 +3,7 @@
     import { faCircleNotch } from "@fortawesome/free-solid-svg-icons";
 
     export let socketData: softwareData;
-    export let socket;
+    export let socketSend = (cmd, args) => {};
 
     interface softwareData {
         software?: software[];
@@ -74,12 +74,10 @@
     }
 
     function sendSoftware() {
-        socket.send(
-            JSON.stringify({
-                cmd: uninstall == true ? "uninstall" : "install",
-                args: installArray.map((val) => {
-                    return val.toString();
-                }),
+        socketSend(
+            uninstall == true ? "uninstall" : "install",
+            installArray.map((val) => {
+                return val.toString();
             })
         );
         running = true;

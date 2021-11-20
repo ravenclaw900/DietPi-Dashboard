@@ -20,7 +20,7 @@
     } from "@fortawesome/free-solid-svg-icons";
     import Fa from "svelte-fa";
 
-    export let socket;
+    export let socketSend = (cmd, args) => {};
     export let socketData: broserList;
     export let binData;
 
@@ -78,7 +78,7 @@
             prettytype: "",
             size: 0,
         };
-        socket.send(JSON.stringify({ cmd: cmd, args: [path] }));
+        socketSend(cmd, [path]);
         fileDataSet = false;
     }
 
@@ -91,9 +91,7 @@
             prettytype: "",
             size: 0,
         };
-        socket.send(
-            JSON.stringify({ cmd: "rename", args: [oldname, newname] })
-        );
+        socketSend("rename", [oldname, newname]);
         fileDataSet = false;
     }
 
@@ -140,10 +138,6 @@
             default:
                 return faFile;
         }
-    }
-
-    function sendFile(path: string) {
-        socket.send(JSON.stringify({ cmd: "save", args: [path, fileData] }));
     }
 
     function unitCalc(num: number) {
@@ -326,7 +320,7 @@
             {:else if socketData.textdata != undefined}
                 <span
                     class="cursor-pointer"
-                    on:click={() => sendFile(currentPath)}
+                    on:click={() => socketSend("save", [currentPath, fileData])}
                     ><Fa icon={faSave} size="lg" /></span
                 >{/if}
         </div>
