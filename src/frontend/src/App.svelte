@@ -305,7 +305,7 @@
                     <Route path="software"
                         ><Software {socketData} {socketSend} /></Route
                     >
-                    <Route path="terminal"><Terminal /></Route>
+                    <Route path="terminal"><Terminal {loginDialog} /></Route>
                     <Route path="management"
                         ><Management {socketSend} {socketData} /></Route
                     >

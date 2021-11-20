@@ -7,6 +7,7 @@
 
     import "xterm/css/xterm.css";
 
+    export let loginDialog: boolean;
     let termDiv;
 
     let proto = window.location.protocol == "https:" ? "wss" : "ws";
@@ -41,4 +42,4 @@
     onDestroy(() => socket.close(1000));
 </script>
 
-<div bind:this={termDiv} class="h-full" />
+<div bind:this={termDiv} class="h-full{loginDialog ? ' hidden' : ''}" />
