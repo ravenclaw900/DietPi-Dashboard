@@ -18,6 +18,35 @@ struct TTYSize {
 pub async fn term_handler(socket: warp::ws::WebSocket) {
     let (mut socket_send, mut socket_recv) = socket.split();
 
+    if crate::CONFIG.pass {
+        let token = socket_recv.next().await.unwrap().unwrap();
+        let token = token.to_str().unwrap();
+        if token.get(..5) == Some("token") {
+            let key = jwts::jws::Key::new(&crate::CONFIG.secret, jwts::jws::Algorithm::HS256);
+            let verified: jwts::jws::Token<jwts::Claims>;
+            if let Ok(token) = jwts::jws::Token::verify_with_key(&token[5..], &key) {
+                verified = token;
+            } else {
+                log::error!("Couldn't verify token");
+                return;
+            };
+            let config = jwts::ValidationConfig {
+                iat_validation: false,
+                nbf_validation: false,
+                exp_validation: true,
+                expected_iss: None,
+                expected_sub: None,
+                expected_aud: None,
+                expected_jti: None,
+            };
+            if verified.validate_claims(&config).is_err() {
+                return;
+            }
+        } else {
+            return;
+        }
+    }
+
     let cmd = Arc::new(RwLock::new(
         // Use hardcoded bash here until we have better support for other shells
         std::process::Command::new("/bin/bash")

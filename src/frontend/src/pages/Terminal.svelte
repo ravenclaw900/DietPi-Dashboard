@@ -14,6 +14,7 @@
     const socket = new WebSocket(
         `${proto}://${window.location.hostname}:${window.location.port}/ws/term`
     );
+
     const attachAddon = new AttachAddon(socket);
 
     const fitAddon = new FitAddon();
@@ -24,7 +25,7 @@
 
     const sendSize = (e) => {
         let size = JSON.stringify({ cols: e.cols, rows: e.rows + 1 });
-        socket.send("size" + size);
+        socket.send(`size${size}`);
     };
 
     terminal.onResize((e) => sendSize(e));
@@ -34,6 +35,9 @@
     };
 
     socket.onopen = () => {
+        if (localStorage.getItem("token") != null) {
+            socket.send(`token${localStorage.getItem("token")}`);
+        }
         terminal.open(termDiv);
         fitAddon.fit();
         sendSize({ cols: terminal.cols, rows: terminal.rows });
