@@ -1,6 +1,7 @@
 <script lang="ts">
     import { navigate, Route, Router } from "svelte-routing";
     import { onMount } from "svelte";
+    import { fade } from "svelte/transition";
     import Home from "./pages/Home.svelte";
     import Process from "./pages/Process.svelte";
     import Software from "./pages/Software.svelte";
@@ -39,6 +40,8 @@
         textdata?: string;
         // Global
         update?: string;
+        login?: boolean;
+        error?: boolean;
     }
 
     interface software {
@@ -83,10 +86,12 @@
     let menu = window.innerWidth > 768;
     let update = "";
     let darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    let darkIcon;
     let blur = false;
     let navPage = "";
-    $: darkIcon = darkMode ? faMoon : faSun;
+    let token = "";
+    let password = "";
+    let login = false;
+    let loginDialog = false;
 
     const socketMessageListener = (e) => {
         if (typeof e.data === "string") {
@@ -98,6 +103,18 @@
         }
         if (socketData.update != undefined) {
             update = socketData.update;
+            login = socketData.login;
+            // Get token
+            if (localStorage.getItem("token") != null) {
+                token = localStorage.getItem("token");
+                pollServer(window.location.pathname);
+            } else {
+                // Or login
+                loginDialog = true;
+            }
+        }
+        if (socketData.error == true) {
+            loginDialog = true;
         }
         if (navPage) {
             blur = false;
@@ -108,7 +125,6 @@
     const socketOpenListener = () => {
         console.log("Connected");
         shown = true;
-        pollServer(window.location.pathname);
     };
     const socketErrorListener = (e) => {
         console.error(e);
@@ -128,7 +144,18 @@
     };
 
     function pollServer(page: string) {
-        socket.send(JSON.stringify({ page }));
+        let json;
+        if (login) {
+            json = JSON.stringify({
+                page,
+                token,
+            });
+        } else {
+            JSON.stringify({
+                page,
+            });
+        }
+        socket.send(json);
     }
 
     function changePage(page: string) {
@@ -140,12 +167,56 @@
         // Continued in socketMessageListener
     }
 
+    function getToken() {
+        console.log("Getting token...");
+        const options = {
+            method: "POST",
+            body: password,
+        };
+        fetch(
+            `${window.location.protocol}//${window.location.hostname}:${window.location.port}/login/`,
+            options
+        ).then((response) =>
+            response.text().then((body) => {
+                password = "";
+                if (body != "Unauthorized") {
+                    (token = body),
+                        localStorage.setItem("token", body),
+                        (loginDialog = false),
+                        pollServer(window.location.pathname);
+                }
+            })
+        );
+    }
+
     onMount(() => {
         socketCloseListener();
     });
 </script>
 
 <main class="min-h-screen flex overflow-x-hidden{darkMode ? ' dark' : ''}">
+    {#if loginDialog}
+        <div
+            class="fixed inset-0 bg-gray-600/50 h-screen w-screen flex items-center justify-center"
+            transition:fade
+        >
+            <div
+                class="bg-white dark:bg-black w-1/2 h-1/3 rounded-md flex items-center flex-col justify-center text-xl z-40 gap-5 dark:text-white"
+            >
+                <h6>Please login:</h6>
+                <input
+                    type="password"
+                    class="outline-none bg-gray-100 border border-gray-400 dark:border-gray-700 rounded focus:bg-gray-200 dark:bg-gray-900 dark:focus:bg-gray-800"
+                    bind:value={password}
+                />
+                <button
+                    on:click={getToken}
+                    class="border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none border p-2 rounded active:bg-gray-200 dark:active:bg-gray-800"
+                    >Login</button
+                >
+            </div>
+        </div>
+    {/if}
     <div
         class="bg-gray-900 dark:bg-black flex-grow{menu ? '' : ' shrink'}"
         id="sidebarMenu"
@@ -196,11 +267,11 @@
             <span
                 class="cursor-pointer justify-self-end mr-2"
                 on:click={() => (darkMode = !darkMode)}
-                ><Fa icon={darkIcon} size="lg" /></span
+                ><Fa icon={darkMode ? faMoon : faSun} size="lg" /></span
             >
         </header>
         <div
-            class="dark:bg-gray-900 bg-gray-100 flex-grow p-6 dark:text-white{blur
+            class="dark:bg-gray-900 bg-gray-100 flex-grow p-4 md:p-6 dark:text-white{blur
                 ? ' children:blur-2 children:filter'
                 : ''}"
         >

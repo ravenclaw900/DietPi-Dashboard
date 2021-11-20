@@ -91,53 +91,55 @@
 </script>
 
 <main>
-    <table
-        class="border border-gray-300 dark:border-gray-700 w-full table-fixed break-words"
-    >
-        <tr class="table-header">
-            <th>ID</th>
-            <th>Installed</th>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Dependencies</th>
-            <th>Documentation link</th>
-        </tr>
-        {#each socketData.software as software}
-            {#if software.id != -1}
-                <tr
-                    class="mt-32 even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800  dark:border-gray-600 border-t-2 border-gray-300 border-opacity-50"
-                >
-                    <td class="p-2">{software.id}</td>
-                    <td class="p-2"
-                        ><input
-                            type="checkbox"
-                            on:click={() =>
-                                (installTemp[software.id] =
-                                    !installTemp[software.id])}
-                            bind:checked={installTemp[software.id]}
-                            disabled={running}
-                        /></td
+    {#if socketData.software}
+        <table
+            class="border border-gray-300 dark:border-gray-700 w-full table-fixed break-words"
+        >
+            <tr class="table-header">
+                <th>ID</th>
+                <th>Installed</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Dependencies</th>
+                <th>Documentation link</th>
+            </tr>
+            {#each socketData.software as software}
+                {#if software.id != -1}
+                    <tr
+                        class="mt-32 even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800  dark:border-gray-600 border-t-2 border-gray-300 border-opacity-50"
                     >
-                    <td class="p-2">{software.name}</td>
-                    <td class="p-2">{software.description}</td>
-                    <td class="p-2">{software.dependencies}</td>
-                    <td class="p-2">
-                        {#if software.docs.substr(0, 5) == "https"}
-                            <a
-                                href={software.docs}
-                                class="text-blue-500 underline"
-                                target="_blank"
-                            >
+                        <td class="p-2">{software.id}</td>
+                        <td class="p-2"
+                            ><input
+                                type="checkbox"
+                                on:click={() =>
+                                    (installTemp[software.id] =
+                                        !installTemp[software.id])}
+                                bind:checked={installTemp[software.id]}
+                                disabled={running}
+                            /></td
+                        >
+                        <td class="p-2">{software.name}</td>
+                        <td class="p-2">{software.description}</td>
+                        <td class="p-2">{software.dependencies}</td>
+                        <td class="p-2">
+                            {#if software.docs.substr(0, 5) == "https"}
+                                <a
+                                    href={software.docs}
+                                    class="text-blue-500 underline"
+                                    target="_blank"
+                                >
+                                    {software.docs}
+                                </a>
+                            {:else}
                                 {software.docs}
-                            </a>
-                        {:else}
-                            {software.docs}
-                        {/if}
-                    </td>
-                </tr>
-            {/if}
-        {/each}
-    </table>
+                            {/if}
+                        </td>
+                    </tr>
+                {/if}
+            {/each}
+        </table>
+    {/if}
     <div class="flex justify-center my-2">
         <button
             on:click={sendSoftware}

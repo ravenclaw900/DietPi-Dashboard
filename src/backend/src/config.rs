@@ -6,6 +6,10 @@ pub struct Config {
     pub tls: bool,
     pub cert: String,
     pub key: String,
+
+    pub pass: bool,
+    pub hash: String,
+    pub secret: String,
 }
 
 pub fn config() -> Config {
@@ -32,7 +36,6 @@ pub fn config() -> Config {
     let port: u16 = cfg.get("port").unwrap_or(&Toml::Num(8088.0)).num() as u16;
 
     let tls = cfg.get("tls").unwrap_or(&Toml::Bool(false));
-
     let cert = cfg
         .get("cert")
         .unwrap_or(&Toml::Str(String::new()))
@@ -44,10 +47,25 @@ pub fn config() -> Config {
         .str()
         .to_string();
 
+    let pass = cfg.get("pass").unwrap_or(&Toml::Bool(false));
+    let hash = cfg
+        .get("hash")
+        .unwrap_or(&Toml::Str(String::new()))
+        .str()
+        .to_string();
+    let secret = cfg
+        .get("secret")
+        .unwrap_or(&Toml::Str(String::new()))
+        .str()
+        .to_string();
+
     Config {
         port,
         tls: tls == &Toml::Bool(true),
         cert,
         key,
+        pass: pass == &Toml::Bool(true),
+        hash,
+        secret,
     }
 }

@@ -172,18 +172,22 @@
             chart.options.scales.x.grid.color = darkMode
                 ? "#4B5563"
                 : "#D1D5DB";
-            let currenttime = new Date();
-            chartData.labels.push(
-                `${currenttime.getHours()}:${currenttime.getMinutes()}:${currenttime.getSeconds()}`
-            );
-            chartData.datasets[0].data.push(socketData.cpu);
-            chartData.datasets[1].data.push(socketData.ram.used / 1048576);
-            chartData.datasets[2].data.push(socketData.swap.used / 1048576);
-            chartData.datasets[3].data.push(socketData.disk.used / 1048576);
-            chartData.datasets[4].data.push(socketData.network.sent / 1048576);
-            chartData.datasets[5].data.push(
-                socketData.network.recieved / 1048576
-            );
+            if (socketData.ram.used != undefined) {
+                let currenttime = new Date();
+                chartData.labels.push(
+                    `${currenttime.getHours()}:${currenttime.getMinutes()}:${currenttime.getSeconds()}`
+                );
+                chartData.datasets[0].data.push(socketData.cpu);
+                chartData.datasets[1].data.push(socketData.ram.used / 1048576);
+                chartData.datasets[2].data.push(socketData.swap.used / 1048576);
+                chartData.datasets[3].data.push(socketData.disk.used / 1048576);
+                chartData.datasets[4].data.push(
+                    socketData.network.sent / 1048576
+                );
+                chartData.datasets[5].data.push(
+                    socketData.network.recieved / 1048576
+                );
+            }
             chart.update();
         }, 2000);
     });

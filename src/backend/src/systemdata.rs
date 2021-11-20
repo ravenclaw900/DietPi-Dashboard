@@ -422,7 +422,10 @@ pub fn services() -> Vec<types::ServiceData> {
 pub fn global() -> types::GlobalData {
     let update =
         fs::read_to_string("/run/dietpi/.update_available").unwrap_or_else(|_| String::new());
-    types::GlobalData { update }
+    types::GlobalData {
+        update,
+        login: crate::CONFIG.pass,
+    }
 }
 
 pub fn browser_dir(path: &std::path::Path) -> Vec<types::BrowserDirData> {

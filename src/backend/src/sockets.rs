@@ -11,7 +11,7 @@ use tokio::sync::{
 use tokio::time::sleep;
 use warp::ws::Message;
 
-use crate::{systemdata, types};
+use crate::{systemdata, types, CONFIG};
 
 async fn main_handler(
     socket_ptr: Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>,
@@ -292,6 +292,52 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                 break;
             }
             req = DeJson::deserialize_json(data.to_str().unwrap()).unwrap();
+            if CONFIG.pass {
+                let key = jwts::jws::Key::new(&CONFIG.secret, jwts::jws::Algorithm::HS256);
+                let verified: jwts::jws::Token<jwts::Claims>;
+                if let Ok(token) = jwts::jws::Token::verify_with_key(&req.token, &key) {
+                    verified = token;
+                } else {
+                    log::error!("Couldn't verify token");
+                    if !first_message {
+                        data_send.send(None).await.unwrap();
+                    }
+                    data_send
+                        .send(Some(types::Request {
+                            page: "/login".to_string(),
+                            token: String::new(),
+                            cmd: String::new(),
+                            args: Vec::new(),
+                        }))
+                        .await
+                        .unwrap();
+                    continue;
+                };
+                let config = jwts::ValidationConfig {
+                    iat_validation: false,
+                    nbf_validation: false,
+                    exp_validation: true,
+                    expected_iss: None,
+                    expected_sub: None,
+                    expected_aud: None,
+                    expected_jti: None,
+                };
+                if verified.validate_claims(&config).is_err() {
+                    if !first_message {
+                        data_send.send(None).await.unwrap();
+                    }
+                    data_send
+                        .send(Some(types::Request {
+                            page: "/login".to_string(),
+                            token: String::new(),
+                            cmd: String::new(),
+                            args: Vec::new(),
+                        }))
+                        .await
+                        .unwrap();
+                    continue;
+                }
+            }
             if req.cmd.is_empty() {
                 if first_message {
                     first_message = false;
@@ -332,6 +378,14 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
             }
             "/browser" => {
                 browser_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
+            }
+            "/login" => {
+                // Internal poll, see other thread
+                let _send = (*socket_ptr.lock().await)
+                    .send(Message::text(SerJson::serialize_json(&types::TokenError {
+                        error: true,
+                    })))
+                    .await;
             }
             _ => {}
         }

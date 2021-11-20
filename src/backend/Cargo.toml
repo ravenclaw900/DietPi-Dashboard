@@ -18,6 +18,8 @@ nanoserde = "0.1.29"
 pty-process = "0.1.1"
 heim = { git = "https://github.com/heim-rs/heim", features = ["cpu", "disk", "host", "memory", "net", "process"] }
 infer = { version = "0.5.0", default-features = false }
+jwts = "0.2.3"
+sha2 = "0.9.8"
 
 [profile.release]
 lto = "fat"

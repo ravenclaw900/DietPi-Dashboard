@@ -1,5 +1,6 @@
 #![warn(clippy::pedantic)]
 #![warn(clippy::cognitive_complexity)]
+use sha2::{Digest, Sha512};
 use simple_logger::SimpleLogger;
 use warp::Filter;
 
@@ -9,6 +10,11 @@ mod systemdata;
 mod terminal;
 mod types;
 
+lazy_static::lazy_static! {
+    static ref CONFIG: config::Config = config::config();
+}
+
+#[allow(clippy::too_many_lines)]
 fn main() {
     tokio::runtime::Builder::new_multi_thread()
         .worker_threads(num_cpus::get().max(2)) // We have to use num_cpus because heim is async, and the runtime hasn't been started yet. Minimum of 2 threads.
@@ -17,8 +23,6 @@ fn main() {
         .unwrap()
         .block_on(async {
             const DIR: include_dir::Dir = include_dir::include_dir!("dist");
-
-            let cfg = config::config();
 
             SimpleLogger::new()
                 .with_level(log::LevelFilter::Info)
@@ -51,6 +55,44 @@ fn main() {
                     )
                 });
 
+            let login_route = warp::path("login")
+                .and(warp::post())
+                .and(warp::body::bytes())
+                .map(|pass| {
+                    if CONFIG.pass {
+                        let mut hasher = Sha512::new();
+                        hasher.update(pass);
+                        let shasum = format!("{:x?}", hasher.finalize())
+                            .split(&['[', ']', ',', ' '][..])
+                            .collect::<String>();
+                        if shasum == CONFIG.hash {
+                            let mut claims = jwts::Claims::new();
+                            claims.exp = Some(
+                                (std::time::SystemTime::now()
+                                    + std::time::Duration::from_secs(3600))
+                                .duration_since(std::time::UNIX_EPOCH)
+                                .unwrap()
+                                .as_secs(),
+                            );
+                            let mut token = jwts::jws::Token::with_payload(claims);
+                            let key =
+                                jwts::jws::Key::new(&CONFIG.secret, jwts::jws::Algorithm::HS256);
+                            return warp::reply::with_status(
+                                token.sign(&key).unwrap(),
+                                warp::http::StatusCode::OK,
+                            );
+                        }
+                        return warp::reply::with_status(
+                            "Unauthorized".to_string(),
+                            warp::http::StatusCode::UNAUTHORIZED,
+                        );
+                    }
+                    warp::reply::with_status(
+                        "No login needed".to_string(),
+                        warp::http::StatusCode::OK,
+                    )
+                });
+
             let terminal_route = warp::path!("ws" / "term")
                 .and(warp::ws())
                 .map(|ws: warp::ws::Ws| ws.on_upgrade(terminal::term_handler));
@@ -65,6 +107,7 @@ fn main() {
 
             let page_routes = favicon_route
                 .or(assets_route)
+                .or(login_route)
                 .or(main_route)
                 .with(warp::compression::gzip());
 
@@ -83,15 +126,15 @@ fn main() {
                     );
                 }));
 
-            if cfg.tls {
+            if CONFIG.tls {
                 warp::serve(routes)
                     .tls()
-                    .cert_path(cfg.cert)
-                    .key_path(cfg.key)
-                    .run(([0, 0, 0, 0], cfg.port))
+                    .cert_path(&CONFIG.cert)
+                    .key_path(&CONFIG.key)
+                    .run(([0, 0, 0, 0], CONFIG.port))
                     .await;
             } else {
-                warp::serve(routes).run(([0, 0, 0, 0], cfg.port)).await;
+                warp::serve(routes).run(([0, 0, 0, 0], CONFIG.port)).await;
             }
         });
 }

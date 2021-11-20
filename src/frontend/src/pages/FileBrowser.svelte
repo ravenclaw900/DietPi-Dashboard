@@ -42,7 +42,6 @@
     };
 
     $: autosize(fileText), autosize.update();
-    $: console.log(binData.length, binData.byteLength);
     // Skip first array element (empty string)
     $: pathArray = currentPath.split("/").slice(1);
     $: socketData.textdata != undefined &&

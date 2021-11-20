@@ -30,6 +30,8 @@ pub struct Request {
     pub cmd: String,
     #[nserde(default)]
     pub args: Vec<String>,
+    #[nserde(default)]
+    pub token: String,
 }
 
 #[derive(SerJson)]
@@ -91,6 +93,7 @@ pub struct ServiceList {
 #[derive(SerJson)]
 pub struct GlobalData {
     pub update: String,
+    pub login: bool,
 }
 
 #[derive(SerJson, Debug)]
@@ -111,4 +114,9 @@ pub struct BrowserFileData {
 #[derive(SerJson)]
 pub struct BrowserList {
     pub contents: Vec<BrowserDirData>,
+}
+
+#[derive(SerJson)]
+pub struct TokenError {
+    pub error: bool,
 }
