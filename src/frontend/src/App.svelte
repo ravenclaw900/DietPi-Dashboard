@@ -333,7 +333,13 @@
                     class="text-blue-500 dark:text-blue-600"
                     href="https://github.com/ravenclaw900/DietPi-Dashboard/releases/tag/v{'__PACKAGE_VERSION__'}"
                     target="_blank">v{"__PACKAGE_VERSION__"}</a
-                > created by ravenclaw900
+                >
+                created by ravenclaw900.
+                <a
+                    class="text-blue-500 dark:text-blue-600"
+                    href="https://dietpi.com/docs/software/system_stats/#dietpi-dashboard"
+                    target="_blank">More Info</a
+                >
             </div>
             <a
                 href="https://github.com/ravenclaw900/DietPi-Dashboard"
