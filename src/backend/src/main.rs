@@ -74,6 +74,7 @@ fn main() {
                                 .unwrap()
                                 .as_secs(),
                             );
+                            claims.iss = Some("DietPi Dashboard".to_string());
                             let mut token = jwts::jws::Token::with_payload(claims);
                             let key =
                                 jwts::jws::Key::new(&CONFIG.secret, jwts::jws::Algorithm::HS256);

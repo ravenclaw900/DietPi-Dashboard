@@ -318,7 +318,7 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                     iat_validation: false,
                     nbf_validation: false,
                     exp_validation: true,
-                    expected_iss: None,
+                    expected_iss: Some("DietPi Dashboard".to_string()),
                     expected_sub: None,
                     expected_aud: None,
                     expected_jti: None,
