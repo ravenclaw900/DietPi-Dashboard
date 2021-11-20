@@ -11,17 +11,17 @@ use tokio::sync::{
 use tokio::time::sleep;
 use warp::ws::Message;
 
-use crate::{systemdata, types, CONFIG};
+use crate::{shared, systemdata, CONFIG};
 
 async fn main_handler(
     socket_ptr: Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>,
-    data_recv: &mut Receiver<Option<types::Request>>,
+    data_recv: &mut Receiver<Option<shared::Request>>,
 ) {
     let handle = tokio::spawn(async move {
         let mut socket_send = socket_ptr.lock().await;
         loop {
             let _send = (*socket_send)
-                .send(Message::text(SerJson::serialize_json(&types::SysData {
+                .send(Message::text(SerJson::serialize_json(&shared::SysData {
                     cpu: systemdata::cpu().await,
                     ram: systemdata::ram().await,
                     swap: systemdata::swap().await,
@@ -41,14 +41,14 @@ async fn main_handler(
 
 async fn process_handler(
     socket_ptr: Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>,
-    data_recv: &mut Receiver<Option<types::Request>>,
+    data_recv: &mut Receiver<Option<shared::Request>>,
 ) {
     let handle = tokio::spawn(async move {
         loop {
             let mut socket_send = socket_ptr.lock().await;
             let _send = (*socket_send)
                 .send(Message::text(SerJson::serialize_json(
-                    &types::ProcessList {
+                    &shared::ProcessList {
                         processes: systemdata::processes().await,
                     },
                 )))
@@ -85,12 +85,12 @@ async fn process_handler(
 
 async fn software_handler(
     socket_ptr: Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>,
-    data_recv: &mut Receiver<Option<types::Request>>,
+    data_recv: &mut Receiver<Option<shared::Request>>,
 ) {
     let mut socket_send = socket_ptr.lock().await;
     let _send = (*socket_send)
         .send(Message::text(SerJson::serialize_json(
-            &types::DPSoftwareList {
+            &shared::DPSoftwareList {
                 software: systemdata::dpsoftware(),
                 response: String::new(),
             },
@@ -118,7 +118,7 @@ async fn software_handler(
                         .replace("", "");
                 let _send = socket_send
                     .send(Message::text(SerJson::serialize_json(
-                        &types::DPSoftwareList {
+                        &shared::DPSoftwareList {
                             software: systemdata::dpsoftware(),
                             response: out,
                         },
@@ -131,7 +131,7 @@ async fn software_handler(
 
 async fn management_handler(
     socket_ptr: Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>,
-    data_recv: &mut Receiver<Option<types::Request>>,
+    data_recv: &mut Receiver<Option<shared::Request>>,
 ) {
     let mut socket_send = socket_ptr.lock().await;
     let _send = (*socket_send)
@@ -153,12 +153,12 @@ async fn management_handler(
 
 async fn service_handler(
     socket_ptr: Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>,
-    data_recv: &mut Receiver<Option<types::Request>>,
+    data_recv: &mut Receiver<Option<shared::Request>>,
 ) {
     let mut socket_send = socket_ptr.lock().await;
     let _send = (*socket_send)
         .send(Message::text(SerJson::serialize_json(
-            &types::ServiceList {
+            &shared::ServiceList {
                 services: systemdata::services(),
             },
         )))
@@ -175,7 +175,7 @@ async fn service_handler(
                     .unwrap();
                 let _send = (*socket_send)
                     .send(Message::text(SerJson::serialize_json(
-                        &types::ServiceList {
+                        &shared::ServiceList {
                             services: systemdata::services(),
                         },
                     )))
@@ -192,7 +192,7 @@ async fn browser_refresh(
     let dir_path = path.rsplit_once('/').unwrap().0;
     let _send = socket_send
         .send(Message::text(SerJson::serialize_json(
-            &types::BrowserList {
+            &shared::BrowserList {
                 contents: systemdata::browser_dir(std::path::Path::new(dir_path)),
             },
         )))
@@ -201,13 +201,13 @@ async fn browser_refresh(
 
 async fn browser_handler(
     socket_ptr: Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>,
-    data_recv: &mut Receiver<Option<types::Request>>,
+    data_recv: &mut Receiver<Option<shared::Request>>,
 ) {
     let mut socket_send = socket_ptr.lock().await;
     // Get initial listing of $HOME
     let _send = (*socket_send)
         .send(Message::text(SerJson::serialize_json(
-            &types::BrowserList {
+            &shared::BrowserList {
                 contents: systemdata::browser_dir(std::path::Path::new(
                     &std::env::var_os("HOME").unwrap_or_else(|| "/root".into()),
                 )),
@@ -223,7 +223,7 @@ async fn browser_handler(
                 "cd" => {
                     let _send = (*socket_send)
                         .send(Message::text(SerJson::serialize_json(
-                            &types::BrowserList {
+                            &shared::BrowserList {
                                 contents: systemdata::browser_dir(std::path::Path::new(
                                     &data.args[0],
                                 )),
@@ -234,7 +234,7 @@ async fn browser_handler(
                 "open" => {
                     let _send = (*socket_send)
                         .send(Message::text(SerJson::serialize_json(
-                            &types::BrowserFileData {
+                            &shared::BrowserFileData {
                                 textdata: std::fs::read_to_string(std::path::Path::new(
                                     &data.args[0],
                                 ))
@@ -287,57 +287,26 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
     let (data_send, mut data_recv) = mpsc::channel(1);
     tokio::task::spawn(async move {
         let mut first_message = true;
-        let mut req: types::Request;
+        let mut req: shared::Request;
         while let Some(Ok(data)) = socket_recv.next().await {
             if data.is_close() {
                 break;
             }
             req = DeJson::deserialize_json(data.to_str().unwrap()).unwrap();
-            if CONFIG.pass {
-                let key = jwts::jws::Key::new(&CONFIG.secret, jwts::jws::Algorithm::HS256);
-                let verified: jwts::jws::Token<jwts::Claims>;
-                if let Ok(token) = jwts::jws::Token::verify_with_key(&req.token, &key) {
-                    verified = token;
-                } else {
-                    log::error!("Couldn't verify token");
-                    if !first_message {
-                        data_send.send(None).await.unwrap();
-                    }
-                    data_send
-                        .send(Some(types::Request {
-                            page: "/login".to_string(),
-                            token: String::new(),
-                            cmd: String::new(),
-                            args: Vec::new(),
-                        }))
-                        .await
-                        .unwrap();
-                    continue;
-                };
-                let config = jwts::ValidationConfig {
-                    iat_validation: false,
-                    nbf_validation: false,
-                    exp_validation: true,
-                    expected_iss: Some("DietPi Dashboard".to_string()),
-                    expected_sub: None,
-                    expected_aud: None,
-                    expected_jti: None,
-                };
-                if verified.validate_claims(&config).is_err() {
-                    if !first_message {
-                        data_send.send(None).await.unwrap();
-                    }
-                    data_send
-                        .send(Some(types::Request {
-                            page: "/login".to_string(),
-                            token: String::new(),
-                            cmd: String::new(),
-                            args: Vec::new(),
-                        }))
-                        .await
-                        .unwrap();
-                    continue;
+            if CONFIG.pass && !shared::validate_token(&req.token) {
+                if !first_message {
+                    data_send.send(None).await.unwrap();
                 }
+                data_send
+                    .send(Some(shared::Request {
+                        page: "/login".to_string(),
+                        token: String::new(),
+                        cmd: String::new(),
+                        args: Vec::new(),
+                    }))
+                    .await
+                    .unwrap();
+                continue;
             }
             if req.cmd.is_empty() {
                 if first_message {
@@ -383,9 +352,9 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
             "/login" => {
                 // Internal poll, see other thread
                 let _send = (*socket_ptr.lock().await)
-                    .send(Message::text(SerJson::serialize_json(&types::TokenError {
-                        error: true,
-                    })))
+                    .send(Message::text(SerJson::serialize_json(
+                        &shared::TokenError { error: true },
+                    )))
                     .await;
             }
             _ => {}

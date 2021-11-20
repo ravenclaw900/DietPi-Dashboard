@@ -16,7 +16,7 @@ use std::sync::atomic::{AtomicU64, Ordering::Relaxed};
 use std::time::Duration;
 use tokio::time::sleep;
 
-use crate::types;
+use crate::shared;
 
 // Use u64::MAX to originally set traffic
 lazy_static! {
@@ -42,12 +42,12 @@ pub async fn cpu() -> f32 {
 }
 
 #[allow(clippy::cast_precision_loss)]
-pub async fn ram() -> types::UsageData {
+pub async fn ram() -> shared::UsageData {
     let ram = memory::memory().await.unwrap();
     let ram_used = (ram.total() - ram.available()).get::<byte>();
     let ram_total = ram.total().get::<byte>();
 
-    types::UsageData {
+    shared::UsageData {
         used: ram_used,
         total: ram_total,
         percent: round_percent((ram_used as f64 / ram_total as f64) * 100.0),
@@ -55,12 +55,12 @@ pub async fn ram() -> types::UsageData {
 }
 
 #[allow(clippy::cast_precision_loss)]
-pub async fn swap() -> types::UsageData {
+pub async fn swap() -> shared::UsageData {
     let swap = memory::swap().await.unwrap();
     let swap_used = swap.used().get::<byte>();
     let swap_total = swap.total().get::<byte>();
 
-    types::UsageData {
+    shared::UsageData {
         used: swap_used,
         total: swap_total,
         percent: if swap_total == 0 {
@@ -71,17 +71,17 @@ pub async fn swap() -> types::UsageData {
     }
 }
 
-pub async fn disk() -> types::UsageData {
+pub async fn disk() -> shared::UsageData {
     let disk = disk::usage("/").await.unwrap();
 
-    types::UsageData {
+    shared::UsageData {
         used: disk.used().get::<byte>(),
         total: disk.total().get::<byte>(),
         percent: round_percent(disk.ratio().get::<percent>().into()),
     }
 }
 
-pub async fn network() -> types::NetData {
+pub async fn network() -> shared::NetData {
     // Get data from all interfaces
     let (sent, recv) = net::io_counters()
         .await
@@ -95,7 +95,7 @@ pub async fn network() -> types::NetData {
         })
         .await;
 
-    let data = types::NetData {
+    let data = shared::NetData {
         recieved: recv.saturating_sub(BYTES_RECV.load(Relaxed)),
         sent: sent.saturating_sub(BYTES_SENT.load(Relaxed)),
     };
@@ -106,7 +106,7 @@ pub async fn network() -> types::NetData {
     data
 }
 
-pub async fn processes() -> Vec<types::ProcessData> {
+pub async fn processes() -> Vec<shared::ProcessData> {
     let processes = process::processes()
         .await
         .unwrap()
@@ -187,7 +187,7 @@ pub async fn processes() -> Vec<types::ProcessData> {
             }
             Err(_) => continue,
         }
-        process_list.push(types::ProcessData {
+        process_list.push(shared::ProcessData {
             pid,
             name,
             cpu,
@@ -199,7 +199,7 @@ pub async fn processes() -> Vec<types::ProcessData> {
 }
 
 #[allow(clippy::too_many_lines)]
-pub fn dpsoftware() -> Vec<types::DPSoftwareData> {
+pub fn dpsoftware() -> Vec<shared::DPSoftwareData> {
     let free_out = Command::new("/boot/dietpi/dietpi-software")
         .arg("free")
         .output()
@@ -234,7 +234,7 @@ pub fn dpsoftware() -> Vec<types::DPSoftwareData> {
     });
     'software: for element in out_list.iter().skip(4).take(out_list.len() - 4) {
         if free_list.contains(&(index as i16)) {
-            software_list.push(types::DPSoftwareData {
+            software_list.push(shared::DPSoftwareData {
                 id: -1,
                 installed: false,
                 name: String::new(),
@@ -273,7 +273,7 @@ pub fn dpsoftware() -> Vec<types::DPSoftwareData> {
                 }
                 3 => {
                     if el1.contains("DISABLED") {
-                        software_list.push(types::DPSoftwareData {
+                        software_list.push(shared::DPSoftwareData {
                             id: -1,
                             installed: false,
                             name: String::new(),
@@ -296,7 +296,7 @@ pub fn dpsoftware() -> Vec<types::DPSoftwareData> {
                 _ => {}
             }
         }
-        software_list.push(types::DPSoftwareData {
+        software_list.push(shared::DPSoftwareData {
             id,
             dependencies: depends,
             docs,
@@ -310,7 +310,7 @@ pub fn dpsoftware() -> Vec<types::DPSoftwareData> {
 }
 
 #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
-pub async fn host() -> types::HostData {
+pub async fn host() -> shared::HostData {
     let info = host::platform().await.unwrap();
     let uptime = host::uptime().await.unwrap().get::<minute>().round() as u64;
     let dp_file = fs::read_to_string(&std::path::Path::new("/boot/dietpi/.version")).unwrap();
@@ -352,7 +352,7 @@ pub async fn host() -> types::HostData {
         net::Address::Inet6(addr6) => ip = addr6.ip().to_string(),
         _ => (),
     }
-    types::HostData {
+    shared::HostData {
         hostname: info.hostname().to_string(),
         uptime,
         arch: arch.to_string(),
@@ -365,7 +365,7 @@ pub async fn host() -> types::HostData {
     }
 }
 
-pub fn services() -> Vec<types::ServiceData> {
+pub fn services() -> Vec<shared::ServiceData> {
     let services = &Command::new("/boot/dietpi/dietpi-services")
         .arg("status")
         .output()
@@ -409,7 +409,7 @@ pub fn services() -> Vec<types::ServiceData> {
                 None => status = "dead".to_string(),
             }
         }
-        services_list.push(types::ServiceData {
+        services_list.push(shared::ServiceData {
             name,
             log,
             status,
@@ -419,16 +419,16 @@ pub fn services() -> Vec<types::ServiceData> {
     services_list
 }
 
-pub fn global() -> types::GlobalData {
+pub fn global() -> shared::GlobalData {
     let update =
         fs::read_to_string("/run/dietpi/.update_available").unwrap_or_else(|_| String::new());
-    types::GlobalData {
+    shared::GlobalData {
         update,
         login: crate::CONFIG.pass,
     }
 }
 
-pub fn browser_dir(path: &std::path::Path) -> Vec<types::BrowserDirData> {
+pub fn browser_dir(path: &std::path::Path) -> Vec<shared::BrowserDirData> {
     let dir = fs::read_dir(path).unwrap();
     let mut file_list = Vec::new();
     for file in dir {
@@ -449,7 +449,7 @@ pub fn browser_dir(path: &std::path::Path) -> Vec<types::BrowserDirData> {
                 buf = val;
             } else {
                 log::error!("Could not read directory");
-                return vec![types::BrowserDirData {
+                return vec![shared::BrowserDirData {
                     path: "/".to_string(),
                     name: "ERROR".to_string(),
                     maintype: "dir".to_string(),
@@ -492,7 +492,7 @@ pub fn browser_dir(path: &std::path::Path) -> Vec<types::BrowserDirData> {
                 prettytype = "Plain Text File".to_string();
             }
         }
-        file_list.push(types::BrowserDirData {
+        file_list.push(shared::BrowserDirData {
             path: file.path().into_os_string().into_string().unwrap(),
             name: file.file_name().into_string().unwrap(),
             maintype,

@@ -1,18 +1,15 @@
 #![warn(clippy::pedantic)]
 #![warn(clippy::cognitive_complexity)]
+use crate::shared::CONFIG;
 use sha2::{Digest, Sha512};
 use simple_logger::SimpleLogger;
 use warp::Filter;
 
 mod config;
+mod shared;
 mod sockets;
 mod systemdata;
 mod terminal;
-mod types;
-
-lazy_static::lazy_static! {
-    static ref CONFIG: config::Config = config::config();
-}
 
 #[allow(clippy::too_many_lines)]
 fn main() {
@@ -60,11 +57,13 @@ fn main() {
                 .and(warp::body::bytes())
                 .map(|pass| {
                     if CONFIG.pass {
+                        dbg!(&pass);
                         let mut hasher = Sha512::new();
                         hasher.update(pass);
                         let shasum = format!("{:x?}", hasher.finalize())
                             .split(&['[', ']', ',', ' '][..])
                             .collect::<String>();
+                        dbg!(&shasum, &CONFIG.hash);
                         if shasum == CONFIG.hash {
                             let mut claims = jwts::Claims::new();
                             claims.exp = Some(

@@ -22,24 +22,7 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
         let token = socket_recv.next().await.unwrap().unwrap();
         let token = token.to_str().unwrap();
         if token.get(..5) == Some("token") {
-            let key = jwts::jws::Key::new(&crate::CONFIG.secret, jwts::jws::Algorithm::HS256);
-            let verified: jwts::jws::Token<jwts::Claims>;
-            if let Ok(token) = jwts::jws::Token::verify_with_key(&token[5..], &key) {
-                verified = token;
-            } else {
-                log::error!("Couldn't verify token");
-                return;
-            };
-            let config = jwts::ValidationConfig {
-                iat_validation: false,
-                nbf_validation: false,
-                exp_validation: true,
-                expected_iss: Some("DietPi Dashboard".to_string()),
-                expected_sub: None,
-                expected_aud: None,
-                expected_jti: None,
-            };
-            if verified.validate_claims(&config).is_err() {
+            if !crate::shared::validate_token(&token[5..]) {
                 return;
             }
         } else {
