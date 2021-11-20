@@ -57,13 +57,11 @@ fn main() {
                 .and(warp::body::bytes())
                 .map(|pass| {
                     if CONFIG.pass {
-                        dbg!(&pass);
                         let mut hasher = Sha512::new();
                         hasher.update(pass);
                         let shasum = format!("{:x?}", hasher.finalize())
                             .split(&['[', ']', ',', ' '][..])
                             .collect::<String>();
-                        dbg!(&shasum, &CONFIG.hash);
                         if shasum == CONFIG.hash {
                             let mut claims = jwts::Claims::new();
                             claims.exp = Some(
