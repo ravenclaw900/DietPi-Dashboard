@@ -36,15 +36,15 @@ pub fn config() -> Config {
     let port: u16 = cfg.get("port").unwrap_or(&Toml::Num(8088.0)).num() as u16;
 
     let tls = cfg.get("tls").unwrap_or(&Toml::Bool(false));
-    let cert = String::new();
-    let key = String::new();
+    let mut cert = String::new();
+    let mut key = String::new();
     if tls == &Toml::Bool(true) {
-        let cert = cfg
+        cert = cfg
             .get("cert")
             .unwrap_or(&Toml::Str(String::new()))
             .str()
             .to_string();
-        let key = cfg
+        key = cfg
             .get("key")
             .unwrap_or(&Toml::Str(String::new()))
             .str()
@@ -52,8 +52,8 @@ pub fn config() -> Config {
     }
 
     let pass = cfg.get("pass").unwrap_or(&Toml::Bool(false));
-    let hash = String::new();
-    let secret = String::new();
+    let mut hash = String::new();
+    let mut secret = String::new();
     if pass == &Toml::Bool(true) {
         hash = cfg
             .get("hash")
