@@ -105,12 +105,16 @@
             update = socketData.update;
             login = socketData.login;
             // Get token
-            if (localStorage.getItem("token") != null) {
-                token = localStorage.getItem("token");
-                pollServer(window.location.pathname);
+            if (login) {
+                if (localStorage.getItem("token") != null) {
+                    token = localStorage.getItem("token");
+                    pollServer(window.location.pathname);
+                } else {
+                    // Or login
+                    loginDialog = true;
+                }
             } else {
-                // Or login
-                loginDialog = true;
+                pollServer(window.location.pathname);
             }
         }
         if (socketData.error == true) {
@@ -151,7 +155,7 @@
                 token,
             });
         } else {
-            JSON.stringify({
+            json = JSON.stringify({
                 page,
             });
         }
@@ -168,7 +172,6 @@
     }
 
     function getToken() {
-        console.log("Getting token...");
         const options = {
             method: "POST",
             body: password,

@@ -281,6 +281,7 @@ async fn browser_handler(
     }
 }
 
+#[allow(clippy::too_many_lines)]
 pub async fn socket_handler(socket: warp::ws::WebSocket) {
     let (mut socket_send, mut socket_recv) = socket.split();
     let (data_send, mut data_recv) = mpsc::channel(1);
