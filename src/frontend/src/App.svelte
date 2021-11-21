@@ -85,13 +85,20 @@
     let shown = false;
     let menu = window.innerWidth > 768;
     let update = "";
-    let darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    let darkMode = false;
     let blur = false;
     let navPage = "";
     let token = "";
     let password = "";
     let login = false;
     let loginDialog = false;
+
+    // Get dark mode
+    if (localStorage.getItem("darkMode") != null) {
+        darkMode = JSON.parse(localStorage.getItem("darkMode"));
+    } else {
+        darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    }
 
     const socketMessageListener = (e) => {
         if (typeof e.data === "string") {
@@ -287,8 +294,10 @@
             {/if}
             <span
                 class="cursor-pointer justify-self-end mr-2"
-                on:click={() => (darkMode = !darkMode)}
-                ><Fa icon={darkMode ? faMoon : faSun} size="lg" /></span
+                on:click={() => (
+                    (darkMode = !darkMode),
+                    localStorage.setItem("darkMode", darkMode.toString())
+                )}><Fa icon={darkMode ? faMoon : faSun} size="lg" /></span
             >
         </header>
         <div
