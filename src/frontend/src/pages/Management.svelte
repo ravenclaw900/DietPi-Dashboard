@@ -1,6 +1,6 @@
 <script lang="ts">
     import Card from "../components/Card.svelte";
-    import humanizeDuration from "humanize-duration";
+    import prettyMilliseconds from "pretty-ms";
     import { fade } from "svelte/transition";
 
     export let socketSend = (cmd, args) => {};
@@ -11,7 +11,9 @@
     let msg = "";
 
     $: socketData.uptime &&
-        ((uptime = humanizeDuration(socketData.uptime * 60000)),
+        ((uptime = prettyMilliseconds(socketData.uptime * 60000, {
+            verbose: true,
+        })),
         (dialog = false));
 
     function sendData(data) {
