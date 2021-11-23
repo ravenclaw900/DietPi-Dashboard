@@ -13,7 +13,7 @@ simple_logger = "1.13.0"
 log = "0.4.14"
 include_dir = "0.7.1"
 lazy_static = "1.4.0"
-futures = "0.3.17"
+futures = "0.3.18"
 nanoserde = "0.1.29"
 pty-process = "0.1.1"
 heim = { git = "https://github.com/heim-rs/heim", features = ["cpu", "disk", "host", "memory", "net", "process"] }
