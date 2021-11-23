@@ -1,4 +1,6 @@
-default: yarn publiccopy fmt 
+default: yarn publiccopy fmt
+
+	rm src/backend/target/debug/deps/dietpi_dashboard-*
 
 	cd src/backend; cargo build
 
