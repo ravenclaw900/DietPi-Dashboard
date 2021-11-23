@@ -145,6 +145,8 @@
         },
     };
 
+    let portrait = window.innerHeight > window.innerWidth;
+
     let ramData, swapData, diskData;
 
     $: socketData.cpu != undefined &&
@@ -193,7 +195,11 @@
     });
 </script>
 
-<main class="flex gap-5 flex-wrap min-h-full flex-col md:flex-row flex-grow">
+<main
+    class="flex gap-5 flex-wrap min-h-full flex-col{portrait
+        ? ''
+        : ' md:flex-row'} flex-grow"
+>
     <Card header="System Diagnostics">
         <div id="chartWrapper">
             <canvas bind:this={canvas} />

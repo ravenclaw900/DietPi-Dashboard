@@ -246,7 +246,9 @@
         </div>
     {/if}
     <div
-        class="bg-gray-900 dark:bg-black flex-grow{menu ? '' : ' shrink'}"
+        class="bg-gray-900 dark:bg-black flex-grow{menu
+            ? ''
+            : ' shrink'} w-1/6 2xl:w-10rem"
         id="sidebarMenu"
     >
         <div
@@ -367,7 +369,6 @@
     #sidebarMenu {
         min-width: 10rem;
         max-width: 16.666667%;
-        width: 16.666667%;
         transition: width 1.5s, max-width 1.5s, min-width 1.5s;
     }
 
