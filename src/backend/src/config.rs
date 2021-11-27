@@ -13,8 +13,10 @@ pub struct Config {
 }
 
 pub fn config() -> Config {
+    let mut cfgpath = std::env::current_exe().unwrap();
+    cfgpath.set_file_name("config.toml");
     let cfg = TomlParser::parse(
-        &match std::fs::read_to_string("config.toml") {
+        &match std::fs::read_to_string(cfgpath) {
             Err(ref e) if e.kind() == std::io::ErrorKind::NotFound => {
                 std::fs::write("config.toml", "").unwrap();
                 String::new()
