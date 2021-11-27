@@ -145,7 +145,8 @@
         },
     };
 
-    let portrait = window.innerHeight > window.innerWidth;
+    let portrait;
+    $: portrait = window.innerHeight > window.innerWidth;
 
     let ramData, swapData, diskData;
 
@@ -201,7 +202,12 @@
         : ' md:flex-row'} flex-grow"
 >
     <Card header="System Diagnostics">
-        <div id="chartWrapper">
+        <div
+            id="chartWrapper"
+            class={portrait
+                ? "w-70vw min-w-full h-50vh"
+                : "max-w-full h-70vh max-h-95%"}
+        >
             <canvas bind:this={canvas} />
         </div>
     </Card>
@@ -232,14 +238,3 @@
         </Card>
     {/if}
 </main>
-
-<style>
-    #chartWrapper {
-        max-width: 100%;
-        min-width: 0;
-        width: 85vw;
-        max-height: 95%;
-        min-height: 0;
-        height: 70vh;
-    }
-</style>
