@@ -6,31 +6,38 @@
     export let socketSend = (cmd, args) => {};
 
     interface softwareData {
-        software?: software[];
+        uninstalled?: software[];
+        installed?: software[];
         response?: string;
     }
 
     interface software {
         id: number;
-        installed: boolean;
         name: string;
         description: string;
         dependencies: string;
         docs: string;
     }
 
-    let installTemp = [];
+    let installTemp: boolean[] = [];
     let installArray = [];
     let nameList = "";
-    let uninstall;
+    let installTable = false;
     let needInstallTemp = true;
     let running = false;
 
     const installTempCreate = () => {
         if (needInstallTemp) {
-            for (let i = 0; i < socketData.software.length; i++) {
-                installTemp[socketData.software[i].id] =
-                    socketData.software[i].installed;
+            installTemp = [];
+            for (
+                let i = 0;
+                i <
+                socketData[installTable ? "installed" : "uninstalled"].length;
+                i++
+            ) {
+                installTemp[
+                    socketData[installTable ? "installed" : "uninstalled"][i].id
+                ] = false;
             }
         }
         needInstallTemp = false;
@@ -38,21 +45,11 @@
     };
 
     function checkButton() {
-        uninstall = undefined;
         installArray = [];
-        for (const i of socketData.software) {
-            if (i.installed != installTemp[i.id]) {
-                if (
-                    uninstall !== undefined &&
-                    uninstall !== !installTemp[i.id]
-                ) {
-                    alert(
-                        "ERROR: cannot install and uninstall at the same time"
-                    );
-                    installTemp[i.id] = !installTemp[i.id];
-                    return;
-                }
-                uninstall = !installTemp[i.id];
+        for (const i of socketData[
+            installTable ? "installed" : "uninstalled"
+        ]) {
+            if (installTemp[i.id] == true) {
                 installArray = [...installArray, i.id];
             }
         }
@@ -66,7 +63,9 @@
             } else {
                 nameList += ", ";
             }
-            nameList += socketData.software[installArray[i]].name;
+            nameList += socketData[
+                installTable ? "installed" : "uninstalled"
+            ].find((o) => o.id == installArray[i]).name;
             if (i == installArray.length - 1) {
                 nameList += ")";
             }
@@ -75,7 +74,7 @@
 
     function sendSoftware() {
         socketSend(
-            uninstall == true ? "uninstall" : "install",
+            installTable ? "uninstall" : "install",
             installArray.map((val) => {
                 return val.toString();
             })
@@ -83,25 +82,43 @@
         running = true;
     }
 
-    $: socketData.software && installTempCreate();
+    // Runs once data is recieved or table is changed
+    $: socketData.uninstalled && installTempCreate();
+    $: (installTable == true || installTable == false) &&
+        ((needInstallTemp = true), installTempCreate());
 
-    $: socketData.software && installTemp && (checkButton(), getNameList());
+    // Runs every time installTemp array is changed
+    $: socketData.uninstalled && installTemp && (checkButton(), getNameList());
 </script>
 
 <main>
-    {#if socketData.software}
+    {#if socketData.uninstalled}
+        <div class="border-b-2 border-gray-500">
+            <button
+                class="border-1 border-b-0 border-gray-500 p-1 focus:outline-none{installTable
+                    ? ''
+                    : ' bg-gray-200 dark:bg-gray-700'}"
+                on:click={() => (installTable = false)}>Not installed</button
+            >
+            <button
+                class="border-1 border-b-0 border-gray-500 p-1 focus:outline-none{installTable
+                    ? ' bg-gray-200 dark:bg-gray-700'
+                    : ''}"
+                on:click={() => (installTable = true)}>Installed</button
+            >
+        </div>
         <table
             class="border border-gray-300 dark:border-gray-700 w-full table-fixed break-words"
         >
             <tr class="table-header">
                 <th>ID</th>
-                <th>Installed</th>
+                <th>{installTable ? "Uninstall" : "Install"}</th>
                 <th>Name</th>
                 <th>Description</th>
                 <th>Dependencies</th>
                 <th>Documentation link</th>
             </tr>
-            {#each socketData.software as software}
+            {#each socketData[installTable ? "installed" : "uninstalled"] as software}
                 {#if software.id != -1}
                     <tr
                         class="mt-32 even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800  dark:border-gray-600 border-t-2 border-gray-300 border-opacity-50"
@@ -141,7 +158,7 @@
     <div class="flex justify-center my-2">
         <button
             on:click={sendSoftware}
-            class="rounded border {uninstall == true
+            class="rounded border {installTable
                 ? 'bg-red-500 border-red-600 hover:bg-red-700'
                 : 'bg-green-500 border-green-600 hover:bg-green-700'} p-2 disabled:opacity-50"
             disabled={installArray.length == 0 || running}
@@ -149,7 +166,7 @@
             {#if running}
                 <Fa icon={faCircleNotch} class="animate-spin" />
             {/if}
-            {uninstall == true ? "Uni" : "I"}nstall{nameList}
+            {installTable ? "Uni" : "I"}nstall{nameList}
         </button>
     </div>
     {#if socketData.response != ""}

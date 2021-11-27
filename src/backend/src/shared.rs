@@ -79,7 +79,6 @@ pub struct ProcessList {
 #[derive(SerJson)]
 pub struct DPSoftwareData {
     pub id: i16,
-    pub installed: bool,
     pub name: String,
     pub description: String,
     pub dependencies: String,
@@ -88,7 +87,8 @@ pub struct DPSoftwareData {
 
 #[derive(SerJson)]
 pub struct DPSoftwareList {
-    pub software: Vec<DPSoftwareData>,
+    pub installed: Vec<DPSoftwareData>,
+    pub uninstalled: Vec<DPSoftwareData>,
     pub response: String,
 }
 

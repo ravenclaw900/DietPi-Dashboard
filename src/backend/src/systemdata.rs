@@ -199,7 +199,7 @@ pub async fn processes() -> Vec<shared::ProcessData> {
 }
 
 #[allow(clippy::too_many_lines)]
-pub fn dpsoftware() -> Vec<shared::DPSoftwareData> {
+pub fn dpsoftware() -> (Vec<shared::DPSoftwareData>, Vec<shared::DPSoftwareData>) {
     let free_out = Command::new("/boot/dietpi/dietpi-software")
         .arg("free")
         .output()
@@ -226,22 +226,15 @@ pub fn dpsoftware() -> Vec<shared::DPSoftwareData> {
         .unwrap()
         .stdout;
     let out_list = from_utf8(&out).unwrap().lines().collect::<Vec<&str>>();
-    let mut software_list = Vec::new();
+    let mut installed_list = Vec::new();
+    let mut uninstalled_list = Vec::new();
     let mut index = 0_i16;
-    software_list.reserve(match out_list.len().checked_sub(9) {
+    uninstalled_list.reserve(match out_list.len().checked_sub(9) {
         Some(num) => num,
-        None => return software_list,
+        None => return (uninstalled_list, installed_list),
     });
     'software: for element in out_list.iter().skip(4).take(out_list.len() - 4) {
         if free_list.contains(&(index as i16)) {
-            software_list.push(shared::DPSoftwareData {
-                id: -1,
-                installed: false,
-                name: String::new(),
-                description: String::new(),
-                dependencies: String::new(),
-                docs: String::new(),
-            });
             index += 1;
         }
         let mut id = 0;
@@ -273,14 +266,6 @@ pub fn dpsoftware() -> Vec<shared::DPSoftwareData> {
                 }
                 3 => {
                     if el1.contains("DISABLED") {
-                        software_list.push(shared::DPSoftwareData {
-                            id: -1,
-                            installed: false,
-                            name: String::new(),
-                            description: String::new(),
-                            dependencies: String::new(),
-                            docs: String::new(),
-                        });
                         index += 1;
                         continue 'software;
                     }
@@ -296,17 +281,26 @@ pub fn dpsoftware() -> Vec<shared::DPSoftwareData> {
                 _ => {}
             }
         }
-        software_list.push(shared::DPSoftwareData {
-            id,
-            dependencies: depends,
-            docs,
-            name,
-            description: desc,
-            installed,
-        });
+        if installed {
+            installed_list.push(shared::DPSoftwareData {
+                id,
+                dependencies: depends,
+                docs,
+                name,
+                description: desc,
+            });
+        } else {
+            uninstalled_list.push(shared::DPSoftwareData {
+                id,
+                dependencies: depends,
+                docs,
+                name,
+                description: desc,
+            });
+        }
         index += 1;
     }
-    software_list
+    (uninstalled_list, installed_list)
 }
 
 #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]

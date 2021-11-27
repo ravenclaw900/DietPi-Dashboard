@@ -88,10 +88,12 @@ async fn software_handler(
     data_recv: &mut Receiver<Option<shared::Request>>,
 ) {
     let mut socket_send = socket_ptr.lock().await;
+    let software = systemdata::dpsoftware();
     let _send = (*socket_send)
         .send(Message::text(SerJson::serialize_json(
             &shared::DPSoftwareList {
-                software: systemdata::dpsoftware(),
+                uninstalled: software.0,
+                installed: software.1,
                 response: String::new(),
             },
         )))
@@ -116,10 +118,12 @@ async fn software_handler(
                     std::string::String::from_utf8(cmd.args(arg_list).output().unwrap().stdout)
                         .unwrap()
                         .replace("", "");
+                let software = systemdata::dpsoftware();
                 let _send = socket_send
                     .send(Message::text(SerJson::serialize_json(
                         &shared::DPSoftwareList {
-                            software: systemdata::dpsoftware(),
+                            uninstalled: software.0,
+                            installed: software.1,
                             response: out,
                         },
                     )))

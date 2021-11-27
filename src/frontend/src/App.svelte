@@ -29,7 +29,8 @@
 
     interface socketData {
         // Software page
-        software?: software[];
+        uninstalled?: software[];
+        installed?: software[];
         response?: string;
         // Process page
         processes?: processes[];
@@ -46,7 +47,6 @@
 
     interface software {
         id: number;
-        installed: boolean;
         name: string;
         description: string;
         dependencies: string;
