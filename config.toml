@@ -1,0 +1,13 @@
+# TCP network port
+# - Default: 8088
+#port = 8088
+# TLS for HTTPS
+# - Default: false
+#tls = false
+#cert = "/path/to/cert"
+#key = "/path/to/key"
+# Password protection
+# - Default: false
+#pass = false
+#hash = "SHA512 hash of password"
+#secret = "64-character secret"
