@@ -42,16 +42,16 @@ jobs:
         run: cp -r src/frontend/dist/. src/backend/dist/
       - name: Build amd64
         working-directory: src/backend
-        run: cross build --release --target x86_64-unknown-linux-musl
+        run: cross build --release --target x86_64-unknown-linux-musl --no-default-features
       - name: Build armv6
         working-directory: src/backend
-        run: cross build --release --target arm-unknown-linux-musleabihf
+        run: cross build --release --target arm-unknown-linux-musleabihf --no-default-features
       - name: Build armv7
         working-directory: src/backend
-        run: cross build --release --target armv7-unknown-linux-musleabihf
+        run: cross build --release --target armv7-unknown-linux-musleabihf --no-default-features
       - name: Build armv8
         working-directory: src/backend
-        run: cross build --release --target aarch64-unknown-linux-musl
+        run: cross build --release --target aarch64-unknown-linux-musl --no-default-features
       - uses: actions/upload-artifact@v2
         with:
           name: dietpi-dashboard-x86_64
