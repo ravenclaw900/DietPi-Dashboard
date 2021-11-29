@@ -9,5 +9,7 @@
 # Password protection
 # - Default: false
 #pass = false
+# To get hash: "echo -n '<PASSWORD>' | sha512sum"
 #hash = "SHA512 hash of password"
+# To get random secret: "openssl rand -hex 32" 
 #secret = "64-character secret"
