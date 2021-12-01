@@ -371,10 +371,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chart.js@npm:^3.6.0":
-  version: 3.6.0
-  resolution: "chart.js@npm:3.6.0"
-  checksum: c5d372cb5249d668993a3ddc455b86d5504aa8c34815daa3782fc63d23b62551bcfb06c1c87934b1c88996f9aa922d707bb1e69874c0d3af7dfede7c11ba3c90
+"chart.js@npm:^3.6.1":
+  version: 3.6.1
+  resolution: "chart.js@npm:3.6.1"
+  checksum: 195dcd6c4f23d9375a516b7737318abed686d9b993f0678a4c47666d7e6a75b3b855874976e881a9973e0b93327e75f262b0dbe89b378d8bba8078ddb6aac3c6
   languageName: node
   linkType: hard
 
@@ -504,7 +504,7 @@ __metadata:
     "@sveltejs/vite-plugin-svelte": ^1.0.0-next.11
     "@tsconfig/svelte": ^2.0.1
     autosize: ^5.0.1
-    chart.js: ^3.6.0
+    chart.js: ^3.6.1
     microlight: ^0.0.7
     pretty-ms: ^7.0.1
     svelte: ^3.44.2
