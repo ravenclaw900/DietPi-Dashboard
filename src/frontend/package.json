@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "autosize": "^5.0.1",
-    "chart.js": "^3.6.0",
+    "chart.js": "^3.6.1",
     "microlight": "^0.0.7",
     "pretty-ms": "^7.0.1",
     "xterm": "^4.15.0",
