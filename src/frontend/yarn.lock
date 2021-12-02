@@ -168,29 +168,29 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@windicss/config@npm:1.5.3":
-  version: 1.5.3
-  resolution: "@windicss/config@npm:1.5.3"
+"@windicss/config@npm:1.5.4":
+  version: 1.5.4
+  resolution: "@windicss/config@npm:1.5.4"
   dependencies:
     debug: ^4.3.3
     jiti: ^1.12.9
     windicss: ^3.2.1
-  checksum: 08bcf3f7cfabdb25cab85116dfb6aae99ea29848384751d058697f704dfc36917b550b2c4785bed27fe968e7be7feabfc2c622fcb4a753ec0522e64d6f2f9aa3
+  checksum: 097049f094c56af4fba0166d7222e12bb0848f17a1fe3f48f23118eaa24148670d44722a467d1cd5e41ff36bca9358e5fc5de4ea1a90d1bda63f3ced27ede3ab
   languageName: node
   linkType: hard
 
-"@windicss/plugin-utils@npm:1.5.3":
-  version: 1.5.3
-  resolution: "@windicss/plugin-utils@npm:1.5.3"
+"@windicss/plugin-utils@npm:1.5.4":
+  version: 1.5.4
+  resolution: "@windicss/plugin-utils@npm:1.5.4"
   dependencies:
     "@antfu/utils": ^0.3.0
-    "@windicss/config": 1.5.3
+    "@windicss/config": 1.5.4
     debug: ^4.3.3
     fast-glob: ^3.2.7
     magic-string: ^0.25.7
     micromatch: ^4.0.4
     windicss: ^3.2.1
-  checksum: ab474e4ee9cdd94e38201da8baaf744f2574ee8108d4f45a42c23b5c19ab19d87f704f787b2457d8cac905f54ff479651d19366b1c34147943091741992fbc68
+  checksum: 834187cef612ffe2f6e787b8ba0af0faf89dda806e09bab274a5eafc745643ff875ae0b31a470be4fb9cd7d544f26dd50a7ebccaf084b4f124f5f72f29d211d4
   languageName: node
   linkType: hard
 
@@ -516,7 +516,7 @@ __metadata:
     typescript: ^4.5.2
     vite: ^2.6.14
     vite-plugin-replace: ^0.1.1
-    vite-plugin-windicss: ^1.5.3
+    vite-plugin-windicss: ^1.5.4
     windicss: ^3.2.1
     xterm: ^4.15.0
     xterm-addon-attach: ^0.6.0
@@ -2031,17 +2031,17 @@ resolve@^1.20.0:
   languageName: node
   linkType: hard
 
-"vite-plugin-windicss@npm:^1.5.3":
-  version: 1.5.3
-  resolution: "vite-plugin-windicss@npm:1.5.3"
+"vite-plugin-windicss@npm:^1.5.4":
+  version: 1.5.4
+  resolution: "vite-plugin-windicss@npm:1.5.4"
   dependencies:
-    "@windicss/plugin-utils": 1.5.3
+    "@windicss/plugin-utils": 1.5.4
     debug: ^4.3.3
     kolorist: ^1.5.0
     windicss: ^3.2.1
   peerDependencies:
     vite: ^2.0.1
-  checksum: 2f0779e383a5b36df4b958074f9a99a562ed63b53d002a677da6484ae2ebda3421a5b3c14a9e1ab68ae82255cb4c2158808d4f235971ea49b7506e68a1d35798
+  checksum: 9ff58c1e9d1fdc737cbd1b4eb54b4c59af2475707724bb778b11b20b0f050d33e7ff595ebf225cdd4a044f066f281158e756df98e4324c1058b24ebf2e7a1d6c
   languageName: node
   linkType: hard
 
