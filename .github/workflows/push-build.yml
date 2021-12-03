@@ -32,6 +32,8 @@ jobs:
         run: |
           mkdir dist
           cargo clippy --all-targets --all-features -- -D warnings
+      - name: Install Cross-compiler
+        run: cargo install cross
       - name: Install Yarn Dependencies
         working-directory: src/frontend
         run: yarn install
