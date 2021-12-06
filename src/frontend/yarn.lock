@@ -103,12 +103,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sveltejs/vite-plugin-svelte@npm:^1.0.0-next.11":
-  version: 1.0.0-next.30
-  resolution: "@sveltejs/vite-plugin-svelte@npm:1.0.0-next.30"
+"@sveltejs/vite-plugin-svelte@npm:^1.0.0-next.31":
+  version: 1.0.0-next.31
+  resolution: "@sveltejs/vite-plugin-svelte@npm:1.0.0-next.31"
   dependencies:
     "@rollup/pluginutils": ^4.1.1
-    debug: ^4.3.2
+    debug: ^4.3.3
     kleur: ^4.1.4
     magic-string: ^0.25.7
     require-relative: ^0.8.7
@@ -120,7 +120,7 @@ __metadata:
   peerDependenciesMeta:
     diff-match-patch:
       optional: true
-  checksum: 1db89bd8c350c2884a9d1d2305b04e5479abf7a9918fb3c826fdbb5bc7d2ae62eda69c291cff8bf34ce253cfe39609d47979eae258849c4a3cc9bde071ca2cfc
+  checksum: 6b3f196f8540a663421d0007dc8c3a3fe0e33ac6c37106b1d3de15aaf9a56fb03b11385a675e0e7736a0ec742e8d5cca15d671f848927b274c4508695464cd47
   languageName: node
   linkType: hard
 
@@ -455,7 +455,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:4, debug@npm:^4.1.0, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.3":
+"debug@npm:4, debug@npm:^4.1.0, debug@npm:^4.3.1, debug@npm:^4.3.3":
   version: 4.3.3
   resolution: "debug@npm:4.3.3"
   dependencies:
@@ -501,7 +501,7 @@ __metadata:
   dependencies:
     "@fortawesome/free-brands-svg-icons": ^5.15.4
     "@fortawesome/free-solid-svg-icons": ^5.15.4
-    "@sveltejs/vite-plugin-svelte": ^1.0.0-next.11
+    "@sveltejs/vite-plugin-svelte": ^1.0.0-next.31
     "@tsconfig/svelte": ^2.0.1
     autosize: ^5.0.1
     chart.js: ^3.6.1
