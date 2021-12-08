@@ -1,6 +1,6 @@
 [package]
 name = "dietpi-dashboard"
-version = "0.3.1"
+version = "0.3.2"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -11,7 +11,7 @@ tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "sync"
 num_cpus = "1.13.0"
 simple_logger = "1.15.0"
 log = "0.4.14"
-include_dir = {version = "0.7.1", optional = true}
+include_dir = {version = "0.7.2", optional = true}
 lazy_static = "1.4.0"
 futures = "0.3.18"
 nanoserde = "0.1.29"

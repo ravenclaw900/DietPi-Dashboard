@@ -2,6 +2,38 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.2](https://github.com/ravenclaw900/DietPi-Dashboard/compare/v0.3.1...v0.3.2) (2021-11-27)
+
+
+### Features
+
+* **frontend:** add dark mode trigger ([38bbd3a](https://github.com/ravenclaw900/DietPi-Dashboard/commit/38bbd3a63b846a647912c0cd4b5d4ae31dddd342))
+* **frontend:** add persistent dark mode storage ([87b9366](https://github.com/ravenclaw900/DietPi-Dashboard/commit/87b936634ac508c29d00eeccf110b58740b69838)), closes [#52](https://github.com/ravenclaw900/DietPi-Dashboard/issues/52)
+* implement password protection ([6eff076](https://github.com/ravenclaw900/DietPi-Dashboard/commit/6eff076ebe7863be8744797d84fef6c10d28e449))
+* **software:** seperate tables ([7cb9b72](https://github.com/ravenclaw900/DietPi-Dashboard/commit/7cb9b7266a6d02693502b5e06602624d2faff43c)), closes [#48](https://github.com/ravenclaw900/DietPi-Dashboard/issues/48)
+* **terminal:** add token validation to terminal ([3b138da](https://github.com/ravenclaw900/DietPi-Dashboard/commit/3b138da8b526d46214d102c446517f518a5bd17b))
+
+
+### Bug Fixes
+
+* **backend:** close connection even without handshake ([630d38d](https://github.com/ravenclaw900/DietPi-Dashboard/commit/630d38d6dab2dbd90f458f4905bb66dc440493d4))
+* **backend:** don't use synchronus sleep on asyncronus threads ([8a5d801](https://github.com/ravenclaw900/DietPi-Dashboard/commit/8a5d80176cf18f2ad8d2148c2c833c6c8372bff5))
+* **backend:** fix terminal on single-core machines ([122c38b](https://github.com/ravenclaw900/DietPi-Dashboard/commit/122c38b65414b2502fb69983038360ffb793b878))
+* **config:** actually get config from executable directory, instead of cwd ([5965551](https://github.com/ravenclaw900/DietPi-Dashboard/commit/5965551fec41d355749c92c9c743c75b536bd815))
+* **config:** make config variables mutable ([db7032e](https://github.com/ravenclaw900/DietPi-Dashboard/commit/db7032e4eaa7810d579cf14b13575cf7d7e641d4))
+* **dashboard:** have cards be vertical on portrait displays ([e0647b0](https://github.com/ravenclaw900/DietPi-Dashboard/commit/e0647b0b7b098c269549d8adb3799f507cd975b4))
+* **dashboard:** make charts look better in portrait mode ([0773943](https://github.com/ravenclaw900/DietPi-Dashboard/commit/0773943aae9b57bbc429ae86098a8d7049c3d755))
+* don't push changes to service and management pages ([9bd3033](https://github.com/ravenclaw900/DietPi-Dashboard/commit/9bd30338e458666a46542067ed6b2584f42d019e))
+* **frontend:** add connect-src to CSP ([f8afa8b](https://github.com/ravenclaw900/DietPi-Dashboard/commit/f8afa8b5604d2f34f66237a2cbe3d16d45dd55ed))
+* **frontend:** allow not using passwords ([1607ece](https://github.com/ravenclaw900/DietPi-Dashboard/commit/1607ecec1ff56a52056406706a20049507cbf984))
+* **frontend:** allow using token with every action ([109ddc7](https://github.com/ravenclaw900/DietPi-Dashboard/commit/109ddc78ed87e52553daa32d44a667cb893f595c))
+* **frontend:** fix pages with tables not loading by direct access ([8c8b63c](https://github.com/ravenclaw900/DietPi-Dashboard/commit/8c8b63cd555f4ee71a3d14dc282736981e46ff07))
+* **frontend:** hide terminal when not logged in ([274ed46](https://github.com/ravenclaw900/DietPi-Dashboard/commit/274ed466b1e785e7b5d49b4e8bfd26444b7a5581))
+* **frontend:** soft code port for websocket ([#35](https://github.com/ravenclaw900/DietPi-Dashboard/issues/35)) ([bc5bf51](https://github.com/ravenclaw900/DietPi-Dashboard/commit/bc5bf51c805a210fd2189972543a43e7f5aedc7c))
+* **software:** change color of response box on dark mode ([cf81782](https://github.com/ravenclaw900/DietPi-Dashboard/commit/cf817825179300cfc370602abe214aaae2df7b81))
+* **software:** fix software page not working when there are free IDs ([19e3e39](https://github.com/ravenclaw900/DietPi-Dashboard/commit/19e3e39f6d78df65421ba81231e4545a9ed5cf60))
+* **terminal:** stop zombie bash processes from stacking up ([cdaa017](https://github.com/ravenclaw900/DietPi-Dashboard/commit/cdaa0178d2f21635bc148a657b0624cbe820c385)), closes [#24](https://github.com/ravenclaw900/DietPi-Dashboard/issues/24)
+
 ### [0.3.1](https://github.com/ravenclaw900/DietPi-Dashboard/compare/v0.3.0...v0.3.1) (2021-11-07)
 
 

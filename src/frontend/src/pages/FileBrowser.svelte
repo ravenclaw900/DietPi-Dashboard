@@ -205,19 +205,21 @@
                                 switch (contents.maintype) {
                                     case "dir":
                                         sendCmd(contents.path, "cd");
+                                        currentPath = contents.path;
                                         break;
                                     case "text":
                                         sendCmd(contents.path, "open");
+                                        currentPath = contents.path;
                                         break;
                                     case "image":
                                         sendCmd(contents.path, "img");
+                                        currentPath = contents.path;
                                         break;
                                     default:
                                         alert(
                                             "ERROR: can't view that type of file"
                                         );
                                 }
-                                currentPath = contents.path;
                             }}
                             on:click={() => (selPath = contents)}
                         >

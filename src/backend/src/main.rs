@@ -1,5 +1,4 @@
 #![warn(clippy::pedantic)]
-#![warn(clippy::cognitive_complexity)]
 use crate::shared::CONFIG;
 use sha2::{Digest, Sha512};
 use simple_logger::SimpleLogger;
@@ -62,9 +61,7 @@ fn main() {
                     if CONFIG.pass {
                         let mut hasher = Sha512::new();
                         hasher.update(pass);
-                        let shasum = format!("{:x?}", hasher.finalize())
-                            .split(&['[', ']', ',', ' '][..])
-                            .collect::<String>();
+                        let shasum = format!("{:x}", hasher.finalize());
                         if shasum == CONFIG.hash {
                             let mut claims = jwts::Claims::new();
                             claims.exp = Some(
