@@ -13,3 +13,8 @@
 #hash = "SHA512 hash of password"
 # To get random secret: "openssl rand -hex 32" 
 #secret = "64-character secret"
+# Other nodes viewable on frontend page
+# - Defualt: []
+# Please insert the IP addresses and ports of these nodes
+# For example: ["192.168.1.1:5252", "192.168.1.60:4386"]
+#nodes = []

@@ -20,6 +20,7 @@ heim = { git = "https://github.com/heim-rs/heim", features = ["cpu", "disk", "ho
 infer = { version = "0.5.0", default-features = false }
 jwts = "0.2.3"
 sha2 = "0.9.8"
+toml = "0.5.8"
 
 [features]
 default = ["frontend"]
