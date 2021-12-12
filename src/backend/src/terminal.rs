@@ -67,7 +67,7 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
 
     let pty_reader = tokio::spawn(async move {
         loop {
-            let mut data = [0; 512];
+            let mut data = [0; 256];
             let lock = cmd_read.read().await;
             match (*lock).pty().read(&mut data) {
                 Ok(_) => {}
@@ -76,7 +76,10 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
             if stop_thread_read.load(Relaxed) {
                 break;
             }
-            socket_send.send(Message::binary(data)).await.unwrap();
+            socket_send
+                .send(Message::binary(data.split(|num| num == &0).next().unwrap()))
+                .await
+                .unwrap();
         }
         stop_thread_read.store(true, Relaxed);
         // Writer won't exit until page is changed/closed
