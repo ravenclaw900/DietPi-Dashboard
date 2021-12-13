@@ -24,7 +24,7 @@
     "vite": "^2.7.2",
     "vite-plugin-replace": "^0.1.1",
     "vite-plugin-windicss": "^1.5.4",
-    "windicss": "^3.2.1"
+    "windicss": "^3.3.0"
   },
   "dependencies": {
     "autosize": "^5.0.1",
