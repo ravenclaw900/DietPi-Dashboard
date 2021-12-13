@@ -510,7 +510,7 @@ __metadata:
     svelte: ^3.44.2
     svelte-check: ^2.2.10
     svelte-fa: ^2.4.0
-    svelte-preprocess: ^4.7.2
+    svelte-preprocess: ^4.10.0
     svelte-routing: ^1.6.0
     tslib: ^2.2.0
     typescript: ^4.5.3
@@ -1867,9 +1867,9 @@ resolve@^1.20.0:
   languageName: node
   linkType: hard
 
-"svelte-preprocess@npm:^4.0.0, svelte-preprocess@npm:^4.7.2":
-  version: 4.9.8
-  resolution: "svelte-preprocess@npm:4.9.8"
+"svelte-preprocess@npm:^4.0.0, svelte-preprocess@npm:^4.10.0":
+  version: 4.10.0
+  resolution: "svelte-preprocess@npm:4.10.0"
   dependencies:
     "@types/pug": ^2.0.4
     "@types/sass": ^1.16.0
@@ -1888,7 +1888,7 @@ resolve@^1.20.0:
     stylus: ^0.54.7
     sugarss: ^2.0.0
     svelte: ^3.23.0
-    typescript: ^3.9.5 || ^4.0.0
+    typescript: ^4.5.2
   peerDependenciesMeta:
     "@babel/core":
       optional: true
@@ -1912,7 +1912,7 @@ resolve@^1.20.0:
       optional: true
     typescript:
       optional: true
-  checksum: 4a270ca101628ef816b3e3db75b504004bbf4f69334e1c201a8ce72ef26a2900b75cb514d283a9a6297e8ac481425a179e50973487d7d031762064c9d99b242a
+  checksum: dc9f7b5e495ecaf03664f5a752b3032adf195790dd1b86c11b80670bf0f8967bad63a97b02dab13282c08dc248793f5307146e4a273388e664dbfb58dc2f7f07
   languageName: node
   linkType: hard
 
