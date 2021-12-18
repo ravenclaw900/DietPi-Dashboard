@@ -103,9 +103,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sveltejs/vite-plugin-svelte@npm:^1.0.0-next.31":
-  version: 1.0.0-next.31
-  resolution: "@sveltejs/vite-plugin-svelte@npm:1.0.0-next.31"
+"@sveltejs/vite-plugin-svelte@npm:^1.0.0-next.32":
+  version: 1.0.0-next.32
+  resolution: "@sveltejs/vite-plugin-svelte@npm:1.0.0-next.32"
   dependencies:
     "@rollup/pluginutils": ^4.1.1
     debug: ^4.3.3
@@ -116,11 +116,11 @@ __metadata:
   peerDependencies:
     diff-match-patch: ^1.0.5
     svelte: ^3.44.0
-    vite: ^2.6.0
+    vite: ^2.7.0
   peerDependenciesMeta:
     diff-match-patch:
       optional: true
-  checksum: 6b3f196f8540a663421d0007dc8c3a3fe0e33ac6c37106b1d3de15aaf9a56fb03b11385a675e0e7736a0ec742e8d5cca15d671f848927b274c4508695464cd47
+  checksum: 552cad8d1377aa951fe706e1a47150ddba70326993c0d1bd0d6625e2f7bbfe6f4599efd05faab24f7e3a45e6972bbd12a2f4170473e7a08c25d1f4f97c6d9a93
   languageName: node
   linkType: hard
 
@@ -501,23 +501,23 @@ __metadata:
   dependencies:
     "@fortawesome/free-brands-svg-icons": ^5.15.4
     "@fortawesome/free-solid-svg-icons": ^5.15.4
-    "@sveltejs/vite-plugin-svelte": ^1.0.0-next.31
+    "@sveltejs/vite-plugin-svelte": ^1.0.0-next.32
     "@tsconfig/svelte": ^2.0.1
     autosize: ^5.0.1
     chart.js: ^3.6.2
     microlight: ^0.0.7
     pretty-ms: ^7.0.1
-    svelte: ^3.44.2
+    svelte: ^3.44.3
     svelte-check: ^2.2.10
     svelte-fa: ^2.4.0
-    svelte-preprocess: ^4.7.2
+    svelte-preprocess: ^4.10.0
     svelte-routing: ^1.6.0
     tslib: ^2.2.0
-    typescript: ^4.5.2
-    vite: ^2.7.0
+    typescript: ^4.5.4
+    vite: ^2.7.2
     vite-plugin-replace: ^0.1.1
     vite-plugin-windicss: ^1.5.4
-    windicss: ^3.2.1
+    windicss: ^3.3.0
     xterm: ^4.15.0
     xterm-addon-attach: ^0.6.0
     xterm-addon-fit: ^0.5.0
@@ -1867,9 +1867,9 @@ resolve@^1.20.0:
   languageName: node
   linkType: hard
 
-"svelte-preprocess@npm:^4.0.0, svelte-preprocess@npm:^4.7.2":
-  version: 4.9.8
-  resolution: "svelte-preprocess@npm:4.9.8"
+"svelte-preprocess@npm:^4.0.0, svelte-preprocess@npm:^4.10.0":
+  version: 4.10.0
+  resolution: "svelte-preprocess@npm:4.10.0"
   dependencies:
     "@types/pug": ^2.0.4
     "@types/sass": ^1.16.0
@@ -1888,7 +1888,7 @@ resolve@^1.20.0:
     stylus: ^0.54.7
     sugarss: ^2.0.0
     svelte: ^3.23.0
-    typescript: ^3.9.5 || ^4.0.0
+    typescript: ^4.5.2
   peerDependenciesMeta:
     "@babel/core":
       optional: true
@@ -1912,7 +1912,7 @@ resolve@^1.20.0:
       optional: true
     typescript:
       optional: true
-  checksum: 4a270ca101628ef816b3e3db75b504004bbf4f69334e1c201a8ce72ef26a2900b75cb514d283a9a6297e8ac481425a179e50973487d7d031762064c9d99b242a
+  checksum: dc9f7b5e495ecaf03664f5a752b3032adf195790dd1b86c11b80670bf0f8967bad63a97b02dab13282c08dc248793f5307146e4a273388e664dbfb58dc2f7f07
   languageName: node
   linkType: hard
 
@@ -1940,10 +1940,10 @@ resolve@^1.20.0:
   languageName: node
   linkType: hard
 
-"svelte@npm:^3.44.2":
-  version: 3.44.2
-  resolution: "svelte@npm:3.44.2"
-  checksum: 912b186e113bbcc58442066be43a9c9d2ada43945eacfb90733c7454e6c5286014f66ced4222f8040e0c930289a47c83b4cda10226e2805479f8bfba9076812a
+"svelte@npm:^3.44.3":
+  version: 3.44.3
+  resolution: "svelte@npm:3.44.3"
+  checksum: ea5972df35b5dce91dde1b6f621be359e058557e89297a83955ff613f9fd20de7b994ec3deb5cce304eb59fc7d3c97de2b9751524f655f4a1fd4f10064c27129
   languageName: node
   linkType: hard
 
@@ -1977,23 +1977,23 @@ resolve@^1.20.0:
   languageName: node
   linkType: hard
 
-"typescript@*, typescript@^4.5.2":
-  version: 4.5.2
-  resolution: "typescript@npm:4.5.2"
+"typescript@*, typescript@^4.5.4":
+  version: 4.5.4
+  resolution: "typescript@npm:4.5.4"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 74f9ce65d532bdf5d0214b3f60cf37992180023388c87a11ee6f838a803067ef0b63c600fa501b0deb07f989257dce1e244c9635ed79feca40bbccf6e0aa1ebc
+  checksum: 59f3243f9cd6fe3161e6150ff6bf795fc843b4234a655dbd938a310515e0d61afd1ac942799e7415e4334255e41c2c49b7dd5d9fd38a17acd25a6779ca7e0961
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@*#~builtin<compat/typescript>, typescript@patch:typescript@^4.5.2#~builtin<compat/typescript>":
-  version: 4.5.2
-  resolution: "typescript@patch:typescript@npm%3A4.5.2#~builtin<compat/typescript>::version=4.5.2&hash=32657b"
+"typescript@patch:typescript@*#~builtin<compat/typescript>, typescript@patch:typescript@^4.5.4#~builtin<compat/typescript>":
+  version: 4.5.4
+  resolution: "typescript@patch:typescript@npm%3A4.5.4#~builtin<compat/typescript>::version=4.5.4&hash=32657b"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 02cf0f190f0cb6d216558d8db9c3a968feeab4965c340a351e5e6e84a42a3946e5e200a9538b6e427af9d17e4f713254dd0707d5fd6f238ce93f0aee1986ab57
+  checksum: db7fe40618f600c22a17db25bd727acbef509d8a4bd9a514f1b8c146f3cf9dd79478c5a8cd13c48a60d1ee4463319d9f72b6445f9e445f81bce6192d205d1811
   languageName: node
   linkType: hard
 
@@ -2045,9 +2045,9 @@ resolve@^1.20.0:
   languageName: node
   linkType: hard
 
-"vite@npm:^2.7.0":
-  version: 2.7.0
-  resolution: "vite@npm:2.7.0"
+"vite@npm:^2.7.2":
+  version: 2.7.2
+  resolution: "vite@npm:2.7.2"
   dependencies:
     esbuild: ^0.13.12
     fsevents: ~2.3.2
@@ -2070,7 +2070,7 @@ resolve@^1.20.0:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 147e1cf3c90971febd9edc978e912edcc501896208f3e37df0c6c3cdd55d76a41372d1cc4ef789f7eeb18d09786113d9a37a82f2a537bb294ad2608e5294d8bd
+  checksum: bce8926d943e00ec95a03e1044a93647d93c7f0c62d5cfcc8ba3829b2a3b16433cac77357a518aeeeba28052230f36a5b914b07e9d6e26d7927b36bb07539ed0
   languageName: node
   linkType: hard
 
@@ -2094,12 +2094,12 @@ resolve@^1.20.0:
   languageName: node
   linkType: hard
 
-"windicss@npm:^3.2.1":
-  version: 3.2.1
-  resolution: "windicss@npm:3.2.1"
+"windicss@npm:^3.2.1, windicss@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "windicss@npm:3.3.0"
   bin:
     windicss: cli/index.js
-  checksum: 05406b5b02a70d5a232d451b8f92ed7d1357b0e850290f165d7be2561797832a9aa6d488301452a716234386bf4b28621becac6a9a7f762280a48432ffa9626e
+  checksum: f96cc63bc99613d807096c495a4017a0c5e6d444cc9d06795c58dd680b79e4d0e1902e596c3fdfbcb743657721facb20ae1e09b41ec11ef2f31e2364588b4bba
   languageName: node
   linkType: hard
 
