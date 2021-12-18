@@ -131,10 +131,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tsconfig/svelte@npm:^2.0.1":
-  version: 2.0.1
-  resolution: "@tsconfig/svelte@npm:2.0.1"
-  checksum: b866a3e2a40eed8e4ab9f062a70086d3ab564e7b359545802bdd092f077a268ef715c58408c1b5ef0846efaf3884cc3a26fcb43df6e37195ec0d93392302c431
+"@tsconfig/svelte@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "@tsconfig/svelte@npm:3.0.0"
+  checksum: 92986428a6aa87d5db9377de65cd7bd6bf73367bc3ec03bb06faba7db2ac51c45470402212914bbc76c00efa08e1116e9d269aea38274e04dbb183705dbb7a09
   languageName: node
   linkType: hard
 
@@ -502,7 +502,7 @@ __metadata:
     "@fortawesome/free-brands-svg-icons": ^5.15.4
     "@fortawesome/free-solid-svg-icons": ^5.15.4
     "@sveltejs/vite-plugin-svelte": ^1.0.0-next.32
-    "@tsconfig/svelte": ^2.0.1
+    "@tsconfig/svelte": ^3.0.0
     autosize: ^5.0.1
     chart.js: ^3.6.2
     microlight: ^0.0.7
