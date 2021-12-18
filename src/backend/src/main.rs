@@ -23,6 +23,7 @@ fn main() {
 
             SimpleLogger::new()
                 .with_level(log::LevelFilter::Info)
+                .with_utc_timestamps()
                 .env()
                 .init()
                 .unwrap();
@@ -89,7 +90,11 @@ fn main() {
                         "No login needed".to_string(),
                         warp::http::StatusCode::OK,
                     )
-                });
+                })
+                .with(warp::reply::with::header(
+                    "Access-Control-Allow-Origin",
+                    "*",
+                ));
 
             let terminal_route = warp::path!("ws" / "term")
                 .and(warp::ws())

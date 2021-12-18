@@ -122,6 +122,8 @@ pub struct ServiceList {
 pub struct GlobalData {
     pub update: String,
     pub login: bool,
+    #[cfg(feature = "frontend")]
+    pub nodes: Vec<String>,
 }
 
 #[derive(SerJson, Debug)]

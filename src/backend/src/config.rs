@@ -10,6 +10,8 @@ pub struct Config {
     pub pass: bool,
     pub hash: String,
     pub secret: String,
+
+    #[cfg(feature = "frontend")]
     pub nodes: Vec<String>,
 }
 
@@ -82,8 +84,10 @@ pub fn config() -> Config {
             .to_string();
     }
 
+    #[cfg(feature = "frontend")]
     let mut nodes = Vec::new();
 
+    #[cfg(feature = "frontend")]
     for i in cfg
         .get("nodes")
         .unwrap_or(&Value::Array(Vec::new()))
@@ -93,8 +97,6 @@ pub fn config() -> Config {
         nodes.push(i.as_str().unwrap().to_string());
     }
 
-    dbg!(&nodes);
-
     Config {
         port,
         tls,
@@ -103,6 +105,7 @@ pub fn config() -> Config {
         pass,
         hash,
         secret,
+        #[cfg(feature = "frontend")]
         nodes,
     }
 }

@@ -1,6 +1,5 @@
 <script lang="ts">
     import { navigate, Route, Router } from "svelte-routing";
-    import { onMount } from "svelte";
     import { fade } from "svelte/transition";
     import Home from "./pages/Home.svelte";
     import Process from "./pages/Process.svelte";
@@ -43,6 +42,7 @@
         update?: string;
         login?: boolean;
         error?: boolean;
+        nodes?: string[];
     }
 
     interface software {
@@ -79,7 +79,7 @@
 
     let url = "";
 
-    let socket;
+    let socket: WebSocket;
     let socketData: socketData = {};
     let binData = "";
     let shown = false;
@@ -92,6 +92,8 @@
     let password = "";
     let login = false;
     let loginDialog = false;
+    let nodes = [];
+    let node = `${window.location.hostname}:${window.location.port}`;
 
     // Get dark mode
     if (localStorage.getItem("darkMode") != null) {
@@ -111,6 +113,9 @@
         if (socketData.update != undefined) {
             update = socketData.update;
             login = socketData.login;
+            if (socketData.nodes) {
+                nodes = socketData.nodes;
+            }
             // Get token
             if (login) {
                 if (localStorage.getItem("token") != null) {
@@ -140,23 +145,14 @@
     };
     const socketErrorListener = (e) => {
         console.error(e);
+        connectSocket(node);
     };
     const socketCloseListener = () => {
-        if (socket) {
-            console.log("Disconnected");
-        }
-        let proto = window.location.protocol == "https:" ? "wss" : "ws";
-        socket = new WebSocket(
-            `${proto}://${window.location.hostname}:${window.location.port}/ws`
-        );
-        socket.onopen = socketOpenListener;
-        socket.onmessage = socketMessageListener;
-        socket.onclose = socketCloseListener;
-        socket.onerror = socketErrorListener;
+        console.log("Disconnected");
     };
 
     function pollServer(page: string) {
-        let json;
+        let json: string;
         if (login) {
             json = JSON.stringify({
                 page,
@@ -184,19 +180,17 @@
             method: "POST",
             body: password,
         };
-        fetch(
-            `${window.location.protocol}//${window.location.hostname}:${window.location.port}/login/`,
-            options
-        ).then((response) =>
-            response.text().then((body) => {
-                password = "";
-                if (body != "Unauthorized") {
-                    (token = body),
-                        localStorage.setItem("token", body),
-                        (loginDialog = false),
-                        pollServer(window.location.pathname);
-                }
-            })
+        fetch(`${window.location.protocol}//${node}/login/`, options).then(
+            (response) =>
+                response.text().then((body) => {
+                    password = "";
+                    if (body != "Unauthorized") {
+                        (token = body),
+                            localStorage.setItem("token", body),
+                            (loginDialog = false),
+                            pollServer(window.location.pathname);
+                    }
+                })
         );
     }
 
@@ -217,9 +211,19 @@
         socket.send(json);
     }
 
-    onMount(() => {
-        socketCloseListener();
-    });
+    function connectSocket(url: string) {
+        if (socket) {
+            socket.close();
+        }
+        let proto = window.location.protocol == "https:" ? "wss" : "ws";
+        socket = new WebSocket(`${proto}://${url}/ws`);
+        socket.onopen = socketOpenListener;
+        socket.onmessage = socketMessageListener;
+        socket.onclose = socketCloseListener;
+        socket.onerror = socketErrorListener;
+    }
+
+    $: node && ((shown = false), connectSocket(node));
 </script>
 
 <main class="min-h-screen flex overflow-x-hidden{darkMode ? ' dark' : ''}">
@@ -294,6 +298,17 @@
                     >DietPi update avalible: {update}</span
                 >
             {/if}
+            <select bind:value={node}>
+                <option
+                    value={`${window.location.hostname}:${window.location.port}`}
+                    >{`${window.location.hostname}:${window.location.port}`}
+                </option>
+                {#each nodes as node}
+                    <option value={node}>
+                        {node}
+                    </option>
+                {/each}
+            </select>
             <span
                 class="cursor-pointer justify-self-end mr-2"
                 on:click={() => (
@@ -316,7 +331,9 @@
                     <Route path="software"
                         ><Software {socketData} {socketSend} /></Route
                     >
-                    <Route path="terminal"><Terminal {loginDialog} /></Route>
+                    <Route path="terminal"
+                        ><Terminal {loginDialog} {node} /></Route
+                    >
                     <Route path="management"
                         ><Management {socketSend} {socketData} /></Route
                     >
