@@ -15,7 +15,7 @@
     "@sveltejs/vite-plugin-svelte": "^1.0.0-next.32",
     "@tsconfig/svelte": "^3.0.0",
     "svelte": "^3.44.3",
-    "svelte-check": "^2.2.10",
+    "svelte-check": "^2.2.11",
     "svelte-fa": "^2.4.0",
     "svelte-preprocess": "^4.10.1",
     "svelte-routing": "^1.6.0",
