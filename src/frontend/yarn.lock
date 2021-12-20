@@ -514,7 +514,7 @@ __metadata:
     svelte-routing: ^1.6.0
     tslib: ^2.2.0
     typescript: ^4.5.4
-    vite: ^2.7.3
+    vite: ^2.7.4
     vite-plugin-replace: ^0.1.1
     vite-plugin-windicss: ^1.5.4
     windicss: ^3.3.0
@@ -1463,14 +1463,14 @@ fsevents@~2.3.2:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.3.11":
-  version: 8.4.4
-  resolution: "postcss@npm:8.4.4"
+"postcss@npm:^8.4.5":
+  version: 8.4.5
+  resolution: "postcss@npm:8.4.5"
   dependencies:
     nanoid: ^3.1.30
     picocolors: ^1.0.0
     source-map-js: ^1.0.1
-  checksum: 6cf3fe0ecdf5a0d2aeb5e8404938c7eab968704e2e29dc5421e90b4014eb1975c1c0ad828425f2428807ef6e3fcfadd71f988ab55cb06c28ac2866f22403255b
+  checksum: b78abdd89c10f7b48f4bdcd376104a19d6e9c7495ab521729bdb3df315af6c211360e9f06887ad3bc0ab0f61a04b91d68ea11462997c79cced58b9ccd66fac07
   languageName: node
   linkType: hard
 
@@ -2045,13 +2045,13 @@ resolve@^1.20.0:
   languageName: node
   linkType: hard
 
-"vite@npm:^2.7.3":
-  version: 2.7.3
-  resolution: "vite@npm:2.7.3"
+"vite@npm:^2.7.4":
+  version: 2.7.4
+  resolution: "vite@npm:2.7.4"
   dependencies:
     esbuild: ^0.13.12
     fsevents: ~2.3.2
-    postcss: ^8.3.11
+    postcss: ^8.4.5
     resolve: ^1.20.0
     rollup: ^2.59.0
   peerDependencies:
@@ -2070,7 +2070,7 @@ resolve@^1.20.0:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 5db8eb9c3ef609524fad429f836f71978d9b93038d665d9a06f879938f8473b20a68a162ad3b522c98da00369310e82793a6d616e9c9bea7820fa51428c2a390
+  checksum: 7e2ee43688a7ee8ef46b9d3a9469a7f3c70f134302e5c71ecc06adc2e88a9e9139c5c3d36c83f355a0fa6038bfc6250d07cb88ddfcfa2af8fc18b9444686cc34
   languageName: node
   linkType: hard
 
