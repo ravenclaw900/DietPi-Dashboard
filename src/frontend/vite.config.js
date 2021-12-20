@@ -11,6 +11,10 @@ export default defineConfig({
         from: /__PACKAGE_VERSION__/g,
         to: process.env.npm_package_version,
       },
+      {
+        from: /5252/g,
+        to: "window.location.port",
+      },
     ]
   })],
   build: {
