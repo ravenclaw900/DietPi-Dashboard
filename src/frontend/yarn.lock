@@ -517,7 +517,7 @@ __metadata:
     vite: ^2.7.4
     vite-plugin-replace: ^0.1.1
     vite-plugin-windicss: ^1.5.4
-    windicss: ^3.3.0
+    windicss: ^3.4.0
     xterm: ^4.15.0
     xterm-addon-attach: ^0.6.0
     xterm-addon-fit: ^0.5.0
@@ -2094,12 +2094,12 @@ resolve@^1.20.0:
   languageName: node
   linkType: hard
 
-"windicss@npm:^3.2.1, windicss@npm:^3.3.0":
-  version: 3.3.0
-  resolution: "windicss@npm:3.3.0"
+"windicss@npm:^3.2.1, windicss@npm:^3.4.0":
+  version: 3.4.0
+  resolution: "windicss@npm:3.4.0"
   bin:
     windicss: cli/index.js
-  checksum: f96cc63bc99613d807096c495a4017a0c5e6d444cc9d06795c58dd680b79e4d0e1902e596c3fdfbcb743657721facb20ae1e09b41ec11ef2f31e2364588b4bba
+  checksum: 8f11de3cb4d459e86e86dd52b1d5eaf77e9b9224432c7e110978c561242dbb7cf2574286f1d6bff706881346284be08963d6b0ba6b937bb4d89193e5633667f6
   languageName: node
   linkType: hard
 
