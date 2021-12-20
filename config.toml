@@ -14,7 +14,7 @@
 # To get random secret: "openssl rand -hex 32" 
 #secret = "64-character secret"
 # Other nodes viewable on frontend page
-# - Defualt: []
+# - Default: []
 # Please insert the IP addresses/domains and ports of these nodes
 # For example: ["example.com:5252", "192.168.1.60:4386"]
 #nodes = []
