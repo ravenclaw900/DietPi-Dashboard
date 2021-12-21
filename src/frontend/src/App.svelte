@@ -318,7 +318,7 @@
                             size="lg"
                         />
                     </span>
-                    {#if notificationsShown}
+                    {#if notificationsShown && window.innerWidth >= 768}
                         <div
                             class="w-1/6 bg-gray-50 dark:bg-gray-800 rounded absolute top-15 right-5 p-2"
                             transition:slide
@@ -345,6 +345,19 @@
                 >
             </div>
         </header>
+        {#if notificationsShown && window.innerWidth < 768}
+            <div class="bg-gray-50 dark:bg-gray-800 p-2" transition:slide>
+                <div class="min-h-10">
+                    <table class="w-full">
+                        {#if update}
+                            <tr class="border-b border-gray-300 border-gray-600"
+                                >DietPi update avalible: {update}</tr
+                            >
+                        {/if}
+                    </table>
+                </div>
+            </div>
+        {/if}
         <div
             class="dark:bg-gray-900 bg-gray-100 flex-grow p-4 md:p-6 dark:text-white{blur
                 ? ' children:blur-2 children:filter'
