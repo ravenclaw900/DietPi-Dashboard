@@ -518,7 +518,7 @@ __metadata:
     vite-plugin-replace: ^0.1.1
     vite-plugin-windicss: ^1.6.1
     windicss: ^3.4.1
-    xterm: ^4.15.0
+    xterm: ^4.16.0
     xterm-addon-attach: ^0.6.0
     xterm-addon-fit: ^0.5.0
   languageName: unknown
@@ -2128,10 +2128,10 @@ resolve@^1.20.0:
   languageName: node
   linkType: hard
 
-"xterm@npm:^4.15.0":
-  version: 4.15.0
-  resolution: "xterm@npm:4.15.0"
-  checksum: dae5fd8c7ea5ae8797d6810cb493d45957a30b46c17b6e8f93506ab5f83d09c877e152e2fc0bec6a3c39ff27902bf8f9b8f2966a042e5484d6166f3123fc1dfc
+"xterm@npm:^4.16.0":
+  version: 4.16.0
+  resolution: "xterm@npm:4.16.0"
+  checksum: 11243a5b01aa71266e14c7ce920bdcf4268089bd1d923731d9e5f016567d699e08f95f50e5691a06aec90e6f71429e9a148ba9997d10f9dbf4f0d4cce653b91d
   languageName: node
   linkType: hard
 
