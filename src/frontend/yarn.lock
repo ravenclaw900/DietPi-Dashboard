@@ -93,26 +93,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rollup/pluginutils@npm:^4.1.1":
-  version: 4.1.1
-  resolution: "@rollup/pluginutils@npm:4.1.1"
+"@rollup/pluginutils@npm:^4.1.2":
+  version: 4.1.2
+  resolution: "@rollup/pluginutils@npm:4.1.2"
   dependencies:
     estree-walker: ^2.0.1
     picomatch: ^2.2.2
-  checksum: 405f681c7d32661980aa3caa928ff22e1c06f0e081db1550e6ab9c179dc9d3d8d63c05dcc7338fe65ab3f856a56c465696a51300b83e98171956fcb141106e39
+  checksum: 498d67e7b48c707e3e0d9f7ddaa405833d77575b2d9607cd1914be40455ed534235e0512f9d046bf0e4ed1740e7816fd32ab1c673195e897c4fa180bcbfd7283
   languageName: node
   linkType: hard
 
-"@sveltejs/vite-plugin-svelte@npm:^1.0.0-next.32":
-  version: 1.0.0-next.32
-  resolution: "@sveltejs/vite-plugin-svelte@npm:1.0.0-next.32"
+"@sveltejs/vite-plugin-svelte@npm:^1.0.0-next.33":
+  version: 1.0.0-next.33
+  resolution: "@sveltejs/vite-plugin-svelte@npm:1.0.0-next.33"
   dependencies:
-    "@rollup/pluginutils": ^4.1.1
+    "@rollup/pluginutils": ^4.1.2
     debug: ^4.3.3
     kleur: ^4.1.4
     magic-string: ^0.25.7
     require-relative: ^0.8.7
-    svelte-hmr: ^0.14.7
+    svelte-hmr: ^0.14.9
   peerDependencies:
     diff-match-patch: ^1.0.5
     svelte: ^3.44.0
@@ -120,7 +120,7 @@ __metadata:
   peerDependenciesMeta:
     diff-match-patch:
       optional: true
-  checksum: 552cad8d1377aa951fe706e1a47150ddba70326993c0d1bd0d6625e2f7bbfe6f4599efd05faab24f7e3a45e6972bbd12a2f4170473e7a08c25d1f4f97c6d9a93
+  checksum: eb1c120106abaa87ac9c8ab538a3e92aeafe7ec6624165ede4415ca84f2d69f408f1e74b141230994cf875e9d5a38140b52da390525810804dbc4d4e1dce411f
   languageName: node
   linkType: hard
 
@@ -501,7 +501,7 @@ __metadata:
   dependencies:
     "@fortawesome/free-brands-svg-icons": ^5.15.4
     "@fortawesome/free-solid-svg-icons": ^5.15.4
-    "@sveltejs/vite-plugin-svelte": ^1.0.0-next.32
+    "@sveltejs/vite-plugin-svelte": ^1.0.0-next.33
     "@tsconfig/svelte": ^3.0.0
     autosize: ^5.0.1
     chart.js: ^3.7.0
@@ -1858,12 +1858,12 @@ resolve@^1.20.0:
   languageName: node
   linkType: hard
 
-"svelte-hmr@npm:^0.14.7":
-  version: 0.14.8
-  resolution: "svelte-hmr@npm:0.14.8"
+"svelte-hmr@npm:^0.14.9":
+  version: 0.14.9
+  resolution: "svelte-hmr@npm:0.14.9"
   peerDependencies:
     svelte: ">=3.19.0"
-  checksum: 9fb13c163f675cc8f42403d96aee47019cac4b96a96bf4c9ca043637ac867a410f70762dc435db170b66a7402e6bc2388724a6c8fee6f53f8ceb565dc85151bf
+  checksum: f13e152cad53a82181409fe1a3aebfb0465f837109f7f4a7aa52f357ab4153920a9d3aefb077b68d1cbc01e4fc4f907b9b142734bed2aa43b0e64f5b15ae9d98
   languageName: node
   linkType: hard
 
