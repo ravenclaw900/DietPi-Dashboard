@@ -18,6 +18,7 @@ fn main() {
         .build()
         .unwrap()
         .block_on(async {
+            #[cfg(feature = "frontend")]
             const DIR: include_dir::Dir = include_dir::include_dir!("dist");
 
             SimpleLogger::new()
@@ -27,6 +28,7 @@ fn main() {
                 .init()
                 .unwrap();
 
+            #[cfg(feature = "frontend")]
             let favicon_route = warp::path("favicon.png").map(|| {
                 warp::reply::with_header(
                     DIR.get_file("favicon.png").unwrap().contents(),
@@ -35,6 +37,7 @@ fn main() {
                 )
             });
 
+            #[cfg(feature = "frontend")]
             let assets_route = warp::path("assets")
                 .and(warp::path::param())
                 .map(|path: String| {
@@ -87,7 +90,11 @@ fn main() {
                         "No login needed".to_string(),
                         warp::http::StatusCode::OK,
                     )
-                });
+                })
+                .with(warp::reply::with::header(
+                    "Access-Control-Allow-Origin",
+                    "*",
+                ));
 
             let terminal_route = warp::path!("ws" / "term")
                 .and(warp::ws())
@@ -97,20 +104,21 @@ fn main() {
                 .and(warp::ws())
                 .map(|ws: warp::ws::Ws| ws.on_upgrade(sockets::socket_handler));
 
+            #[cfg(feature = "frontend")]
             let main_route = warp::any().map(|| {
                 warp::reply::html(DIR.get_file("index.html").unwrap().contents_utf8().unwrap())
             });
 
+            #[cfg(feature = "frontend")]
             let page_routes = favicon_route
                 .or(assets_route)
-                .or(login_route)
                 .or(main_route)
                 .with(warp::compression::gzip());
 
             let socket_routes = terminal_route.or(socket_route);
 
             let routes = socket_routes
-                .or(page_routes)
+                .or(login_route)
                 .with(warp::log::custom(|info| {
                     log::info!("Request to {}", info.path());
                     log::debug!(
@@ -121,6 +129,9 @@ fn main() {
                         info.status()
                     );
                 }));
+
+            #[cfg(feature = "frontend")]
+            let routes = routes.or(page_routes);
 
             if CONFIG.tls {
                 warp::serve(routes)

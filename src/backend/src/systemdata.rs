@@ -419,6 +419,8 @@ pub fn global() -> shared::GlobalData {
     shared::GlobalData {
         update,
         login: crate::CONFIG.pass,
+        #[cfg(feature = "frontend")]
+        nodes: crate::CONFIG.nodes.clone(),
     }
 }
 

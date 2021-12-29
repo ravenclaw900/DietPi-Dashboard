@@ -1,7 +1,6 @@
 <script lang="ts">
     import { navigate, Route, Router } from "svelte-routing";
-    import { onMount } from "svelte";
-    import { fade } from "svelte/transition";
+    import { fade, slide } from "svelte/transition";
     import Home from "./pages/Home.svelte";
     import Process from "./pages/Process.svelte";
     import Software from "./pages/Software.svelte";
@@ -20,6 +19,9 @@
         faFolder,
         faSun,
         faMoon,
+        faEnvelope,
+        faEnvelopeOpenText,
+        faCog,
     } from "@fortawesome/free-solid-svg-icons";
     import Management from "./pages/Management.svelte";
     import FileBrowser from "./pages/FileBrowser.svelte";
@@ -43,6 +45,7 @@
         update?: string;
         login?: boolean;
         error?: boolean;
+        nodes?: string[];
     }
 
     interface software {
@@ -79,7 +82,7 @@
 
     let url = "";
 
-    let socket;
+    let socket: WebSocket;
     let socketData: socketData = {};
     let binData = "";
     let shown = false;
@@ -92,6 +95,10 @@
     let password = "";
     let login = false;
     let loginDialog = false;
+    let nodes = [];
+    let node = `${window.location.hostname}:${window.location.port}`;
+    let notificationsShown = false;
+    let settingsShown = false;
 
     // Get dark mode
     if (localStorage.getItem("darkMode") != null) {
@@ -111,6 +118,9 @@
         if (socketData.update != undefined) {
             update = socketData.update;
             login = socketData.login;
+            if (socketData.nodes) {
+                nodes = socketData.nodes;
+            }
             // Get token
             if (login) {
                 if (localStorage.getItem("token") != null) {
@@ -140,23 +150,14 @@
     };
     const socketErrorListener = (e) => {
         console.error(e);
+        connectSocket(node);
     };
     const socketCloseListener = () => {
-        if (socket) {
-            console.log("Disconnected");
-        }
-        let proto = window.location.protocol == "https:" ? "wss" : "ws";
-        socket = new WebSocket(
-            `${proto}://${window.location.hostname}:${window.location.port}/ws`
-        );
-        socket.onopen = socketOpenListener;
-        socket.onmessage = socketMessageListener;
-        socket.onclose = socketCloseListener;
-        socket.onerror = socketErrorListener;
+        console.log("Disconnected");
     };
 
     function pollServer(page: string) {
-        let json;
+        let json: string;
         if (login) {
             json = JSON.stringify({
                 page,
@@ -184,19 +185,17 @@
             method: "POST",
             body: password,
         };
-        fetch(
-            `${window.location.protocol}//${window.location.hostname}:${window.location.port}/login/`,
-            options
-        ).then((response) =>
-            response.text().then((body) => {
-                password = "";
-                if (body != "Unauthorized") {
-                    (token = body),
-                        localStorage.setItem("token", body),
-                        (loginDialog = false),
-                        pollServer(window.location.pathname);
-                }
-            })
+        fetch(`${window.location.protocol}//${node}/login/`, options).then(
+            (response) =>
+                response.text().then((body) => {
+                    password = "";
+                    if (body != "Unauthorized") {
+                        (token = body),
+                            localStorage.setItem("token", body),
+                            (loginDialog = false),
+                            pollServer(window.location.pathname);
+                    }
+                })
         );
     }
 
@@ -217,9 +216,19 @@
         socket.send(json);
     }
 
-    onMount(() => {
-        socketCloseListener();
-    });
+    function connectSocket(url: string) {
+        if (socket) {
+            socket.close();
+        }
+        let proto = window.location.protocol == "https:" ? "wss" : "ws";
+        socket = new WebSocket(`${proto}://${url}/ws`);
+        socket.onopen = socketOpenListener;
+        socket.onmessage = socketMessageListener;
+        socket.onclose = socketCloseListener;
+        socket.onerror = socketErrorListener;
+    }
+
+    $: node && ((shown = false), connectSocket(node));
 </script>
 
 <main class="min-h-screen flex overflow-x-hidden{darkMode ? ' dark' : ''}">
@@ -289,19 +298,92 @@
                 target="_blank"
                 ><img src={logo} alt="DietPi logo" class="h-10" /></a
             >
-            {#if update != ""}
-                <span class="text-red-500 justify-self-center"
-                    >DietPi update avalible: {update}</span
+            <div class="flex justify-around">
+                <select bind:value={node} class="hidden md:inline-block">
+                    <option
+                        value={`${window.location.hostname}:${window.location.port}`}
+                        >{`${window.location.hostname}:${window.location.port}`}
+                    </option>
+                    {#each nodes as node}
+                        <option value={node}>
+                            {node}
+                        </option>
+                    {/each}
+                </select>
+                <div>
+                    <span
+                        class="cursor-pointer"
+                        on:click={() =>
+                            (notificationsShown = !notificationsShown)}
+                        ><Fa
+                            icon={update ? faEnvelopeOpenText : faEnvelope}
+                            size="lg"
+                        />
+                    </span>
+                    {#if notificationsShown && window.innerWidth >= 768}
+                        <div
+                            class="w-1/6 bg-gray-50 dark:bg-gray-800 rounded absolute top-15 right-5 p-2"
+                            transition:slide
+                        >
+                            <div class="min-h-20">
+                                <table class="w-full">
+                                    {#if update}
+                                        <tr
+                                            class="border-b border-gray-300 border-gray-600"
+                                            >DietPi update avalible: {update}</tr
+                                        >
+                                    {/if}
+                                </table>
+                            </div>
+                        </div>
+                    {/if}
+                </div>
+                <span
+                    class="cursor-pointer md:hidden"
+                    on:click={() => (settingsShown = !settingsShown)}
+                    ><Fa icon={faCog} size="lg" />
+                </span>
+                <span
+                    class="cursor-pointer"
+                    on:click={() => (
+                        (darkMode = !darkMode),
+                        localStorage.setItem("darkMode", darkMode.toString())
+                    )}><Fa icon={darkMode ? faMoon : faSun} size="lg" /></span
                 >
-            {/if}
-            <span
-                class="cursor-pointer justify-self-end mr-2"
-                on:click={() => (
-                    (darkMode = !darkMode),
-                    localStorage.setItem("darkMode", darkMode.toString())
-                )}><Fa icon={darkMode ? faMoon : faSun} size="lg" /></span
-            >
+            </div>
         </header>
+        {#if notificationsShown && window.innerWidth < 768}
+            <div class="bg-gray-50 dark:bg-gray-800 p-2" transition:slide>
+                <div class="min-h-10">
+                    <table class="w-full">
+                        {#if update}
+                            <tr class="border-b border-gray-300 border-gray-600"
+                                >DietPi update avalible: {update}</tr
+                            >
+                        {/if}
+                    </table>
+                </div>
+            </div>
+        {/if}
+        {#if settingsShown && window.innerWidth < 768}
+            <div class="bg-gray-50 dark:bg-gray-800 p-2" transition:slide>
+                <div class="min-h-10">
+                    <table class="w-full">
+                        <select bind:value={node} class="w-full">
+                            <option
+                                value={`${window.location.hostname}:${window.location.port}`}
+                                >{`${window.location.hostname}:${window.location.port}`}
+                            </option>
+                            {#each nodes as node}
+                                <option value={node}>
+                                    {node}
+                                </option>
+                            {/each}
+                        </select>
+                    </table>
+                </div>
+            </div>
+        {/if}
         <div
             class="dark:bg-gray-900 bg-gray-100 flex-grow p-4 md:p-6 dark:text-white{blur
                 ? ' children:blur-2 children:filter'
@@ -316,7 +398,9 @@
                     <Route path="software"
                         ><Software {socketData} {socketSend} /></Route
                     >
-                    <Route path="terminal"><Terminal {loginDialog} /></Route>
+                    <Route path="terminal"
+                        ><Terminal {loginDialog} {node} /></Route
+                    >
                     <Route path="management"
                         ><Management {socketSend} {socketData} /></Route
                     >
@@ -337,7 +421,7 @@
             {/if}
         </div>
         <footer
-            class="border-t bg-gray-200 dark:bg-gray-800 dark:border-gray-700 border-gray-300 h-16 flex flex-col justify-center items-center dark:text-white"
+            class="border-t bg-gray-200 dark:bg-gray-800 dark:border-gray-700 border-gray-300 min-h-16 flex flex-col justify-center items-center dark:text-white"
         >
             <div>
                 DietPi-Dashboard <a

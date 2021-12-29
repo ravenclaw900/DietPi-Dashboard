@@ -42,16 +42,16 @@ jobs:
         run: yarn build
       - name: Copy "dist" folder
         run: cp -r src/frontend/dist/. src/backend/dist/
-      - name: Build amd64
+      - name: Build x86_64
         working-directory: src/backend
         run: cross build --release --target x86_64-unknown-linux-musl
-      - name: Build armv6
+      - name: Build armv6l
         working-directory: src/backend
         run: cross build --release --target arm-unknown-linux-musleabihf
-      - name: Build armv7
+      - name: Build armv7l
         working-directory: src/backend
         run: cross build --release --target armv7-unknown-linux-musleabihf
-      - name: Build armv8
+      - name: Build aarch64
         working-directory: src/backend
         run: cross build --release --target aarch64-unknown-linux-musl
       - uses: actions/upload-artifact@v2
@@ -69,5 +69,33 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: dietpi-dashboard-aarch64
+          path: src/backend/target/aarch64-unknown-linux-musl/release/dietpi-dashboard
+      - name: Build x86_64 (backend only)
+        working-directory: src/backend
+        run: cross build --release --target x86_64-unknown-linux-musl --no-default-features
+      - name: Build armv6l (backend only)
+        working-directory: src/backend
+        run: cross build --release --target arm-unknown-linux-musleabihf --no-default-features
+      - name: Build armv7l (backend only)
+        working-directory: src/backend
+        run: cross build --release --target armv7-unknown-linux-musleabihf --no-default-features
+      - name: Build aarch64 (backend only)
+        working-directory: src/backend
+        run: cross build --release --target aarch64-unknown-linux-musl --no-default-features
+      - uses: actions/upload-artifact@v2
+        with:
+          name: dietpi-dashboard-x86_64-backend
+          path: src/backend/target/x86_64-unknown-linux-musl/release/dietpi-dashboard
+      - uses: actions/upload-artifact@v2
+        with:
+          name: dietpi-dashboard-armv6l-backend
+          path: src/backend/target/arm-unknown-linux-musleabihf/release/dietpi-dashboard
+      - uses: actions/upload-artifact@v2
+        with:
+          name: dietpi-dashboard-armv7l-backend
+          path: src/backend/target/armv7-unknown-linux-musleabihf/release/dietpi-dashboard
+      - uses: actions/upload-artifact@v2
+        with:
+          name: dietpi-dashboard-aarch64-backend
           path: src/backend/target/aarch64-unknown-linux-musl/release/dietpi-dashboard
 

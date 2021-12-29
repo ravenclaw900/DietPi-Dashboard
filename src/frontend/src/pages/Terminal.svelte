@@ -8,12 +8,12 @@
     import "xterm/css/xterm.css";
 
     export let loginDialog: boolean;
+    export let node: string;
+
     let termDiv;
 
     let proto = window.location.protocol == "https:" ? "wss" : "ws";
-    const socket = new WebSocket(
-        `${proto}://${window.location.hostname}:${window.location.port}/ws/term`
-    );
+    const socket = new WebSocket(`${proto}://${node}/ws/term`);
 
     const attachAddon = new AttachAddon(socket);
 
