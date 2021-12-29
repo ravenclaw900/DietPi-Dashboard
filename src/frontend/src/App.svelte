@@ -96,7 +96,7 @@
     let login = false;
     let loginDialog = false;
     let nodes = [];
-    let node = `${window.location.hostname}:${5252}`;
+    let node = `${window.location.hostname}:${window.location.port}`;
     let notificationsShown = false;
     let settingsShown = false;
 
@@ -300,8 +300,9 @@
             >
             <div class="flex justify-around">
                 <select bind:value={node} class="hidden md:inline-block">
-                    <option value={`${window.location.hostname}:${5252}`}
-                        >{`${window.location.hostname}:${5252}`}
+                    <option
+                        value={`${window.location.hostname}:${window.location.port}`}
+                        >{`${window.location.hostname}:${window.location.port}`}
                     </option>
                     {#each nodes as node}
                         <option value={node}>
@@ -370,8 +371,8 @@
                     <table class="w-full">
                         <select bind:value={node} class="w-full">
                             <option
-                                value={`${window.location.hostname}:${5252}`}
-                                >{`${window.location.hostname}:${5252}`}
+                                value={`${window.location.hostname}:${window.location.port}`}
+                                >{`${window.location.hostname}:${window.location.port}`}
                             </option>
                             {#each nodes as node}
                                 <option value={node}>
