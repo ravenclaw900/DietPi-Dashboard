@@ -21,6 +21,7 @@
         faMoon,
         faEnvelope,
         faEnvelopeOpenText,
+        faCog,
     } from "@fortawesome/free-solid-svg-icons";
     import Management from "./pages/Management.svelte";
     import FileBrowser from "./pages/FileBrowser.svelte";
@@ -95,8 +96,9 @@
     let login = false;
     let loginDialog = false;
     let nodes = [];
-    let node = `${window.location.hostname}:${window.location.port}`;
+    let node = `${window.location.hostname}:${5252}`;
     let notificationsShown = false;
+    let settingsShown = false;
 
     // Get dark mode
     if (localStorage.getItem("darkMode") != null) {
@@ -297,10 +299,9 @@
                 ><img src={logo} alt="DietPi logo" class="h-10" /></a
             >
             <div class="flex justify-around">
-                <select bind:value={node}>
-                    <option
-                        value={`${window.location.hostname}:${window.location.port}`}
-                        >{`${window.location.hostname}:${window.location.port}`}
+                <select bind:value={node} class="hidden md:inline-block">
+                    <option value={`${window.location.hostname}:${5252}`}
+                        >{`${window.location.hostname}:${5252}`}
                     </option>
                     {#each nodes as node}
                         <option value={node}>
@@ -337,6 +338,11 @@
                     {/if}
                 </div>
                 <span
+                    class="cursor-pointer md:hidden"
+                    on:click={() => (settingsShown = !settingsShown)}
+                    ><Fa icon={faCog} size="lg" />
+                </span>
+                <span
                     class="cursor-pointer"
                     on:click={() => (
                         (darkMode = !darkMode),
@@ -354,6 +360,25 @@
                                 >DietPi update avalible: {update}</tr
                             >
                         {/if}
+                    </table>
+                </div>
+            </div>
+        {/if}
+        {#if settingsShown && window.innerWidth < 768}
+            <div class="bg-gray-50 dark:bg-gray-800 p-2" transition:slide>
+                <div class="min-h-10">
+                    <table class="w-full">
+                        <select bind:value={node} class="w-full">
+                            <option
+                                value={`${window.location.hostname}:${5252}`}
+                                >{`${window.location.hostname}:${5252}`}
+                            </option>
+                            {#each nodes as node}
+                                <option value={node}>
+                                    {node}
+                                </option>
+                            {/each}
+                        </select>
                     </table>
                 </div>
             </div>
@@ -395,7 +420,7 @@
             {/if}
         </div>
         <footer
-            class="border-t bg-gray-200 dark:bg-gray-800 dark:border-gray-700 border-gray-300 h-16 flex flex-col justify-center items-center dark:text-white"
+            class="border-t bg-gray-200 dark:bg-gray-800 dark:border-gray-700 border-gray-300 min-h-16 flex flex-col justify-center items-center dark:text-white"
         >
             <div>
                 DietPi-Dashboard <a
