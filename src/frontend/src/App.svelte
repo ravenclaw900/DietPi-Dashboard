@@ -99,6 +99,7 @@
     let node = `${window.location.hostname}:${window.location.port}`;
     let notificationsShown = false;
     let settingsShown = false;
+    let passwordMessage = false;
 
     // Get dark mode
     if (localStorage.getItem("darkMode") != null) {
@@ -189,7 +190,10 @@
             (response) =>
                 response.text().then((body) => {
                     password = "";
-                    if (body != "Unauthorized") {
+                    if (body == "Unauthorized") {
+                        passwordMessage = true;
+                        setTimeout(() => (passwordMessage = false), 2000);
+                    } else {
                         (token = body),
                             localStorage.setItem("token", body),
                             (loginDialog = false),
@@ -251,6 +255,11 @@
                     class="border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none border p-2 rounded active:bg-gray-200 dark:active:bg-gray-800"
                     >Login</button
                 >
+                {#if passwordMessage}
+                    <h6 class="text-red-500" transition:fade>
+                        Incorrect password
+                    </h6>
+                {/if}
             </div>
         </div>
     {/if}
