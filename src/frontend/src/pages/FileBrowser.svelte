@@ -8,7 +8,6 @@
         faFileImage,
         faFileAudio,
         faFileVideo,
-        IconDefinition,
         faFilePdf,
         faFolder,
         faCopy,
@@ -118,7 +117,7 @@
         }
     }
 
-    function getIcon(maintype: string, subtype: string): IconDefinition {
+    function getIcon(maintype: string, subtype: string) {
         switch (maintype) {
             case "dir":
                 return faFolder;
