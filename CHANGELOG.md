@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.1](https://github.com/ravenclaw900/DietPi-Dashboard/compare/v0.4.0...v0.4.1) (2021-12-30)
+
+
+### Features
+
+* **frontend:** Show "Incorrect password" if the password is wrong ([02c540e](https://github.com/ravenclaw900/DietPi-Dashboard/commit/02c540e43a443f9990c9913fec8f4cd5cd59e5ff))
+
+
+### Bug Fixes
+
+* **backend:** Remove 'IconDefinition' ([e521fb4](https://github.com/ravenclaw900/DietPi-Dashboard/commit/e521fb4540cf57f70b611d731be80723cd03e4cb))
+* **config:** remove testing nodes ([4bab08e](https://github.com/ravenclaw900/DietPi-Dashboard/commit/4bab08e6e27cd105296a18e88d27110042d056a3))
+* don't show select box unless other nodes are available to select ([ea6b94a](https://github.com/ravenclaw900/DietPi-Dashboard/commit/ea6b94a8bc01c396c44156e6cf493ffe49bc8aa0))
+
 ## [0.4.0](https://github.com/ravenclaw900/DietPi-Dashboard/compare/v0.3.2...v0.4.0) (2021-12-30)
 
 
