@@ -2,6 +2,61 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.4.0](https://github.com/ravenclaw900/DietPi-Dashboard/compare/v0.3.2...v0.4.0) (2021-12-30)
+
+
+### Features
+
+* **frontend:** allow managing multiple nodes on one page ([#66](https://github.com/ravenclaw900/DietPi-Dashboard/issues/66)) ([c2b6953](https://github.com/ravenclaw900/DietPi-Dashboard/commit/c2b695349233adbf4f2cf196dd25b75737dddb3f))
+
+
+### Bug Fixes
+
+* **backend:** change port to 5252 ([962ef1d](https://github.com/ravenclaw900/DietPi-Dashboard/commit/962ef1db3c391d2464cb96b826f566b1c9b6af73))
+* **backend:** strip extra null characters from output ([fd7711c](https://github.com/ravenclaw900/DietPi-Dashboard/commit/fd7711c2bf06617e81ac924c8aa7e31b1d42ae23))
+* **backend:** use UTC timestamps on logger ([a3853c2](https://github.com/ravenclaw900/DietPi-Dashboard/commit/a3853c2697d5a0606499c41fc6cf456543e01a4e))
+* **filebrowser:** only set path if file can be opened ([e901295](https://github.com/ravenclaw900/DietPi-Dashboard/commit/e901295f3c05e82f4c845a4eecb5d941f8f4883c))
+
+### [0.3.3](https://github.com/ravenclaw900/DietPi-Dashboard/compare/v0.3.2...v0.3.3) (2021-12-30)
+
+
+### Features
+
+* **frontend:** allow managing multiple nodes on one page ([#66](https://github.com/ravenclaw900/DietPi-Dashboard/issues/66)) ([c2b6953](https://github.com/ravenclaw900/DietPi-Dashboard/commit/c2b695349233adbf4f2cf196dd25b75737dddb3f))
+
+
+### Bug Fixes
+
+* **backend:** change port to 5252 ([962ef1d](https://github.com/ravenclaw900/DietPi-Dashboard/commit/962ef1db3c391d2464cb96b826f566b1c9b6af73))
+* **backend:** strip extra null characters from output ([fd7711c](https://github.com/ravenclaw900/DietPi-Dashboard/commit/fd7711c2bf06617e81ac924c8aa7e31b1d42ae23))
+* **backend:** use UTC timestamps on logger ([a3853c2](https://github.com/ravenclaw900/DietPi-Dashboard/commit/a3853c2697d5a0606499c41fc6cf456543e01a4e))
+* **filebrowser:** only set path if file can be opened ([e901295](https://github.com/ravenclaw900/DietPi-Dashboard/commit/e901295f3c05e82f4c845a4eecb5d941f8f4883c))
+
+### [0.3.4](https://github.com/ravenclaw900/DietPi-Dashboard/compare/v0.3.2...v0.3.4) (2021-12-30)
+
+
+### Features
+
+* **frontend:** allow managing multiple nodes on one page ([#66](https://github.com/ravenclaw900/DietPi-Dashboard/issues/66)) ([c2b6953](https://github.com/ravenclaw900/DietPi-Dashboard/commit/c2b695349233adbf4f2cf196dd25b75737dddb3f))
+
+
+### Bug Fixes
+
+* **backend:** change port to 5252 ([962ef1d](https://github.com/ravenclaw900/DietPi-Dashboard/commit/962ef1db3c391d2464cb96b826f566b1c9b6af73))
+* **backend:** strip extra null characters from output ([fd7711c](https://github.com/ravenclaw900/DietPi-Dashboard/commit/fd7711c2bf06617e81ac924c8aa7e31b1d42ae23))
+* **backend:** use UTC timestamps on logger ([a3853c2](https://github.com/ravenclaw900/DietPi-Dashboard/commit/a3853c2697d5a0606499c41fc6cf456543e01a4e))
+* **filebrowser:** only set path if file can be opened ([e901295](https://github.com/ravenclaw900/DietPi-Dashboard/commit/e901295f3c05e82f4c845a4eecb5d941f8f4883c))
+
+### [0.3.3](https://github.com/ravenclaw900/DietPi-Dashboard/compare/v0.3.2...v0.3.3) (2021-12-30)
+
+
+### Bug Fixes
+
+* **backend:** change port to 5252 ([962ef1d](https://github.com/ravenclaw900/DietPi-Dashboard/commit/962ef1db3c391d2464cb96b826f566b1c9b6af73))
+* **backend:** strip extra null characters from output ([fd7711c](https://github.com/ravenclaw900/DietPi-Dashboard/commit/fd7711c2bf06617e81ac924c8aa7e31b1d42ae23))
+* **backend:** use UTC timestamps on logger ([a3853c2](https://github.com/ravenclaw900/DietPi-Dashboard/commit/a3853c2697d5a0606499c41fc6cf456543e01a4e))
+* **filebrowser:** only set path if file can be opened ([e901295](https://github.com/ravenclaw900/DietPi-Dashboard/commit/e901295f3c05e82f4c845a4eecb5d941f8f4883c))
+
 ### [0.3.2](https://github.com/ravenclaw900/DietPi-Dashboard/compare/v0.3.1...v0.3.2) (2021-11-27)
 
 

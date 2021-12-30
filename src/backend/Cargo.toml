@@ -1,6 +1,6 @@
 [package]
 name = "dietpi-dashboard"
-version = "0.3.2"
+version = "0.4.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -30,4 +30,3 @@ frontend = ["include_dir", "warp/compression"]
 lto = "fat"
 panic = "abort"
 codegen-units = 1
-incremental = false
