@@ -9,6 +9,10 @@
         {
             "filename": "src/frontend/package.json",
             "type": "json"
+        },
+        {
+            "filename": "src/backend/Cargo.toml",
+            "updater": "standard-version-toml.js"
         }
     ]
 }
