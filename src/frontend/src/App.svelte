@@ -308,17 +308,19 @@
                 ><img src={logo} alt="DietPi logo" class="h-10" /></a
             >
             <div class="flex justify-around">
-                <select bind:value={node} class="hidden md:inline-block">
-                    <option
-                        value={`${window.location.hostname}:${window.location.port}`}
-                        >{`${window.location.hostname}:${window.location.port}`}
-                    </option>
-                    {#each nodes as node}
-                        <option value={node}>
-                            {node}
+                {#if nodes.length != 0}
+                    <select bind:value={node} class="hidden md:inline-block">
+                        <option
+                            value={`${window.location.hostname}:${window.location.port}`}
+                            >{`${window.location.hostname}:${window.location.port}`}
                         </option>
-                    {/each}
-                </select>
+                        {#each nodes as node}
+                            <option value={node}>
+                                {node}
+                            </option>
+                        {/each}
+                    </select>
+                {/if}
                 <div>
                     <span
                         class="cursor-pointer"
@@ -329,29 +331,14 @@
                             size="lg"
                         />
                     </span>
-                    {#if notificationsShown && window.innerWidth >= 768}
-                        <div
-                            class="w-1/6 bg-gray-50 dark:bg-gray-800 rounded absolute top-15 right-5 p-2"
-                            transition:slide
-                        >
-                            <div class="min-h-20">
-                                <table class="w-full">
-                                    {#if update}
-                                        <tr
-                                            class="border-b border-gray-300 border-gray-600"
-                                            >DietPi update avalible: {update}</tr
-                                        >
-                                    {/if}
-                                </table>
-                            </div>
-                        </div>
-                    {/if}
                 </div>
-                <span
-                    class="cursor-pointer md:hidden"
-                    on:click={() => (settingsShown = !settingsShown)}
-                    ><Fa icon={faCog} size="lg" />
-                </span>
+                {#if nodes.length != 0}
+                    <span
+                        class="cursor-pointer md:hidden"
+                        on:click={() => (settingsShown = !settingsShown)}
+                        ><Fa icon={faCog} size="lg" />
+                    </span>
+                {/if}
                 <span
                     class="cursor-pointer"
                     on:click={() => (
@@ -361,7 +348,7 @@
                 >
             </div>
         </header>
-        {#if notificationsShown && window.innerWidth < 768}
+        {#if notificationsShown}
             <div class="bg-gray-50 dark:bg-gray-800 p-2" transition:slide>
                 <div class="min-h-10">
                     <table class="w-full">
@@ -374,7 +361,7 @@
                 </div>
             </div>
         {/if}
-        {#if settingsShown && window.innerWidth < 768}
+        {#if settingsShown}
             <div class="bg-gray-50 dark:bg-gray-800 p-2" transition:slide>
                 <div class="min-h-10">
                     <table class="w-full">
