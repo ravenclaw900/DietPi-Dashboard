@@ -17,4 +17,4 @@
 # - Default: []
 # Please insert the IP addresses/domains and ports of these nodes
 # For example: ["example.com:5252", "192.168.1.60:4386"]
-nodes = ["192.168.1.100:5252"]
+#nodes = []
