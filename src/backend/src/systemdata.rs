@@ -500,6 +500,7 @@ pub fn browser_dir(path: &std::path::Path) -> Vec<shared::BrowserDirData> {
     file_list
 }
 
+#[allow(clippy::float_cmp)] // All it's doing is rounding, so there shouldn't be any floating point errors
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -521,6 +522,7 @@ mod tests {
         assert!((0.0..=100.0).contains(&output));
     }
 
+    #[allow(clippy::cast_precision_loss)]
     fn usage_test(used: u64, total: u64, percent_test: f32) {
         assert!(used <= total);
         if total != 0 {
