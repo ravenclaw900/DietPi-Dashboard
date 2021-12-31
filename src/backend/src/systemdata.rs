@@ -504,9 +504,50 @@ pub fn browser_dir(path: &std::path::Path) -> Vec<shared::BrowserDirData> {
 mod tests {
     use super::*;
 
+    #[test]
+    fn check_round() {
+        assert_eq!(round_percent(56.7396), 56.74);
+        assert_eq!(round_percent(99.989), 99.99);
+        assert_eq!(round_percent(99.999), 100.00);
+        assert_eq!(round_percent(31.25), 31.25);
+        assert_eq!(round_percent(20.323), 20.32);
+        assert_eq!(round_percent(0.105), 0.11);
+        assert_eq!(round_percent(0.001), 0.0);
+    }
+
     #[tokio::test]
     async fn validate_cpu() {
         let output = cpu().await;
         assert!((0.0..=100.0).contains(&output));
+    }
+
+    fn usage_test(used: u64, total: u64, percent_test: f32) {
+        assert!(used <= total);
+        if total != 0 {
+            assert_eq!(
+                round_percent((used as f64 / total as f64) * 100.0),
+                percent_test
+            );
+        }
+    }
+
+    #[tokio::test]
+    async fn validate_ram() {
+        let output = ram().await;
+        assert!(output.total > 0);
+        usage_test(output.used, output.total, output.percent);
+    }
+
+    #[tokio::test]
+    async fn validate_swap() {
+        let output = swap().await;
+        usage_test(output.used, output.total, output.percent);
+    }
+
+    // The disk function gets the percentage used from Heim, not calculated here, so we can't use usage_test
+    #[tokio::test]
+    async fn validate_disk() {
+        let output = disk().await;
+        assert!(output.used <= output.total);
     }
 }
