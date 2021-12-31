@@ -499,3 +499,14 @@ pub fn browser_dir(path: &std::path::Path) -> Vec<shared::BrowserDirData> {
     }
     file_list
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn validate_cpu() {
+        let output = cpu().await;
+        assert!(output >= 0.0 && output <= 100.0);
+    }
+}
