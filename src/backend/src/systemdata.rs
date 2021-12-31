@@ -507,6 +507,6 @@ mod tests {
     #[tokio::test]
     async fn validate_cpu() {
         let output = cpu().await;
-        assert!(output >= 0.0 && output <= 100.0);
+        assert!((0.0..=100.0).contains(&output));
     }
 }
