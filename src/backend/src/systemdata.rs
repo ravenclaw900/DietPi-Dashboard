@@ -552,4 +552,20 @@ mod tests {
         let output = disk().await;
         assert!(output.used <= output.total);
     }
+
+    #[tokio::test]
+    async fn validate_network() {
+        let mut output = network().await;
+        assert_eq!(output.sent, 0);
+        assert_eq!(output.received, 0);
+        // Just make sure that it works
+        for _ in 0..20 {
+            sleep(Duration::from_millis(100)).await;
+            let old_sent = BYTES_SENT.load(Relaxed);
+            let old_recv = BYTES_RECV.load(Relaxed);
+            output = network().await;
+            assert_eq!(BYTES_SENT.load(Relaxed), output.sent + old_sent);
+            assert_eq!(BYTES_RECV.load(Relaxed), output.recieved + old_recv);
+        }
+    }
 }
