@@ -138,7 +138,7 @@
                         <td class="p-2">{software.description}</td>
                         <td class="p-2">{software.dependencies}</td>
                         <td class="p-2">
-                            {#if software.docs.substr(0, 5) == "https"}
+                            {#if software.docs.substring(0, 5) == "https"}
                                 <a
                                     href={software.docs}
                                     class="text-blue-500 underline"
