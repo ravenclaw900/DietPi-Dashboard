@@ -96,7 +96,7 @@ pub async fn network() -> shared::NetData {
         .await;
 
     let data = shared::NetData {
-        recieved: recv.saturating_sub(BYTES_RECV.load(Relaxed)),
+        received: recv.saturating_sub(BYTES_RECV.load(Relaxed)),
         sent: sent.saturating_sub(BYTES_SENT.load(Relaxed)),
     };
 
