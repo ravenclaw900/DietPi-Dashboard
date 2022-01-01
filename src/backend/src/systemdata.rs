@@ -96,7 +96,7 @@ pub async fn network() -> shared::NetData {
         .await;
 
     let data = shared::NetData {
-        recieved: recv.saturating_sub(BYTES_RECV.load(Relaxed)),
+        received: recv.saturating_sub(BYTES_RECV.load(Relaxed)),
         sent: sent.saturating_sub(BYTES_SENT.load(Relaxed)),
     };
 
@@ -565,7 +565,7 @@ mod tests {
             let old_recv = BYTES_RECV.load(Relaxed);
             output = network().await;
             assert_eq!(BYTES_SENT.load(Relaxed), output.sent + old_sent);
-            assert_eq!(BYTES_RECV.load(Relaxed), output.recieved + old_recv);
+            assert_eq!(BYTES_RECV.load(Relaxed), output.received + old_recv);
         }
     }
 }

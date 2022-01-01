@@ -82,7 +82,7 @@
         running = true;
     }
 
-    // Runs once data is recieved or table is changed
+    // Runs once data is received or table is changed
     $: socketData.uninstalled && installTempCreate();
     $: (installTable == true || installTable == false) &&
         ((needInstallTemp = true), installTempCreate());

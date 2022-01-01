@@ -47,7 +47,7 @@ pub struct UsageData {
 #[derive(SerJson)]
 pub struct NetData {
     pub sent: u64,
-    pub recieved: u64,
+    pub received: u64,
 }
 
 #[derive(Debug, Clone, DeJson)]

@@ -95,7 +95,7 @@
                 hidden: false,
             },
             {
-                label: "Network (recieved)",
+                label: "Network (received)",
                 backgroundColor: "#EC4899",
                 borderColor: "#EC4899",
                 data: [],
@@ -188,7 +188,7 @@
                     socketData.network.sent / 1048576
                 );
                 chartData.datasets[5].data.push(
-                    socketData.network.recieved / 1048576
+                    socketData.network.received / 1048576
                 );
             }
             chart.update();
