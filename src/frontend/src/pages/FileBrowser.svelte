@@ -19,15 +19,15 @@
     } from "@fortawesome/free-solid-svg-icons";
     import Fa from "svelte-fa";
 
-    export let socketSend = (cmd, args) => {};
+    export let socketSend: (cmd: string, args: string[]) => void;
     export let socketData: broserList;
-    export let binData;
+    export let binData: string;
 
     let fileDataSet = false;
-    let pathArray;
-    let fileData;
-    let fileText;
-    let fileDiv;
+    let pathArray: string[];
+    let fileData: string;
+    let fileText: HTMLTextAreaElement;
+    let fileDiv: HTMLDivElement;
     // TODO: better solution than just assuming dashboard is being run by root
     let currentPath = "/root";
 
@@ -40,7 +40,7 @@
         size: 0,
     };
 
-    $: autosize(fileText), autosize.update();
+    $: autosize(fileText), autosize.update(fileText);
     // Skip first array element (empty string)
     $: pathArray = currentPath.split("/").slice(1);
     $: socketData.textdata != undefined &&
@@ -99,8 +99,8 @@
         fileDiv.scrollLeft = fileText.scrollLeft;
     }
 
-    function checkTab(event) {
-        if (event.keyCode == 9) {
+    function checkTab(event: KeyboardEvent) {
+        if (event.key == "Tab") {
             event.preventDefault();
 
             let startPos = fileText.selectionStart;

@@ -6,7 +6,7 @@
     } from "@fortawesome/free-solid-svg-icons";
     import Fa from "svelte-fa";
 
-    export let socketSend = (cmd, args) => {};
+    export let socketSend: (cmd: string, args: string[]) => void;
     export let socketData: serviceData;
 
     interface serviceData {

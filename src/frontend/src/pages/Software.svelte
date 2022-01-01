@@ -3,7 +3,7 @@
     import { faCircleNotch } from "@fortawesome/free-solid-svg-icons";
 
     export let socketData: softwareData;
-    export let socketSend = (cmd, args) => {};
+    export let socketSend: (cmd: string, args: string[]) => void;
 
     interface softwareData {
         uninstalled?: software[];
@@ -20,7 +20,7 @@
     }
 
     let installTemp: boolean[] = [];
-    let installArray = [];
+    let installArray: number[] = [];
     let nameList = "";
     let installTable = false;
     let needInstallTemp = true;

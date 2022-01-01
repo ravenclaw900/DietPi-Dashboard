@@ -1,7 +1,7 @@
 <script lang="ts">
     import { Terminal } from "xterm";
     import { AttachAddon } from "xterm-addon-attach";
-    import { FitAddon } from "xterm-addon-fit";
+    import { FitAddon, type ITerminalDimensions } from "xterm-addon-fit";
 
     import { onDestroy } from "svelte";
 
@@ -10,7 +10,7 @@
     export let loginDialog: boolean;
     export let node: string;
 
-    let termDiv;
+    let termDiv: HTMLDivElement;
 
     let proto = window.location.protocol == "https:" ? "wss" : "ws";
     const socket = new WebSocket(`${proto}://${node}/ws/term`);
@@ -23,7 +23,7 @@
     terminal.loadAddon(attachAddon);
     terminal.loadAddon(fitAddon);
 
-    const sendSize = (e) => {
+    const sendSize = (e: ITerminalDimensions) => {
         let size = JSON.stringify({ cols: e.cols, rows: e.rows + 1 });
         socket.send(`size${size}`);
     };

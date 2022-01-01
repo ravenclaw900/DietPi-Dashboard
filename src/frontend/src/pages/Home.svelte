@@ -1,7 +1,7 @@
 <script lang="ts">
     import Card from "../components/Card.svelte";
     import Chart from "chart.js/auto";
-    import type { ChartConfiguration } from "chart.js";
+    import type { ChartConfiguration, ChartData } from "chart.js";
     import { onMount } from "svelte";
     import { tweened } from "svelte/motion";
 
@@ -21,11 +21,30 @@
         duration: 200,
     });
 
-    export let socketData;
-    export let darkMode;
-    let canvas;
+    interface statData {
+        cpu?: number;
+        ram?: usage;
+        swap?: usage;
+        disk?: usage;
+        network?: net;
+    }
 
-    function unitCalc(used, total) {
+    interface usage {
+        used: number;
+        total: number;
+        percent: number;
+    }
+
+    interface net {
+        sent: number;
+        received: number;
+    }
+
+    export let socketData: statData;
+    export let darkMode: boolean;
+    let canvas: HTMLCanvasElement;
+
+    function unitCalc(used: number, total: number) {
         let unitTotal, unitUsed, unit;
         if (total > 1099512000000) {
             unitTotal = Math.round((total / 1099512000000) * 100) / 100;
@@ -51,7 +70,7 @@
         return [unitUsed, unitTotal, unit];
     }
 
-    const chartData = {
+    const chartData: ChartData = {
         labels: [],
         datasets: [
             {
@@ -145,10 +164,12 @@
         },
     };
 
-    let portrait;
+    let portrait: boolean;
     $: portrait = window.innerHeight > window.innerWidth;
 
-    let ramData, swapData, diskData;
+    let ramData: (string | number)[],
+        swapData: (string | number)[],
+        diskData: (string | number)[];
 
     $: socketData.cpu != undefined &&
         (cpuAnimate.set(socketData.cpu),

@@ -14,6 +14,7 @@
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "@sveltejs/vite-plugin-svelte": "^1.0.0-next.33",
     "@tsconfig/svelte": "^3.0.0",
+    "@types/autosize": "^4.0.1",
     "svelte": "^3.44.3",
     "svelte-check": "^2.2.11",
     "svelte-fa": "^2.4.0",

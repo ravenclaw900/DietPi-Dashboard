@@ -11,7 +11,7 @@
     } from "@fortawesome/free-solid-svg-icons";
 
     export let socketData: processData;
-    export let socketSend = (cmd, args) => {};
+    export let socketSend: (cmd: string, args: string[]) => void;
 
     interface processData {
         processes?: processes[];
@@ -43,7 +43,7 @@
     $: ramSort && socketData.processes && sortRAM(reverse);
     $: statusSort && socketData.processes && sortStatus(reverse);
 
-    function sortCPU(reverse) {
+    function sortCPU(reverse: boolean) {
         socketData.processes.sort((a, b) => {
             if (a.cpu < b.cpu) {
                 return reverse ? -1 : 1;
@@ -79,7 +79,7 @@
         }
     }
 
-    function sortName(reverse) {
+    function sortName(reverse: boolean) {
         socketData.processes.sort((a, b) => {
             if (a.name < b.name) {
                 return reverse ? 1 : -1;
@@ -115,7 +115,7 @@
         }
     }
 
-    function sortPid(reverse) {
+    function sortPid(reverse: boolean) {
         socketData.processes.sort((a, b) => {
             if (a.pid < b.pid) {
                 return reverse ? 1 : -1;
@@ -151,7 +151,7 @@
         }
     }
 
-    function sortRAM(reverse) {
+    function sortRAM(reverse: boolean) {
         socketData.processes.sort((a, b) => {
             if (a.ram < b.ram) {
                 return reverse ? -1 : 1;
@@ -187,7 +187,7 @@
         }
     }
 
-    function sortStatus(reverse) {
+    function sortStatus(reverse: boolean) {
         socketData.processes.sort((a, b) => {
             if (a.status < b.status) {
                 return reverse ? -1 : 1;

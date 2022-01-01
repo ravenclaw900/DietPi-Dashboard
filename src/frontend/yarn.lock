@@ -138,6 +138,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/autosize@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "@types/autosize@npm:4.0.1"
+  checksum: 190d5ef27cab78a8d1dc5271528905da9971a44668cdc705d96c8412cbc710a5e377429f11e16139d4f06120726d1a65732f1f5d4a7c6793fb15c89978d814f8
+  languageName: node
+  linkType: hard
+
 "@types/node@npm:*":
   version: 16.11.6
   resolution: "@types/node@npm:16.11.6"
@@ -503,6 +510,7 @@ __metadata:
     "@fortawesome/free-solid-svg-icons": ^5.15.4
     "@sveltejs/vite-plugin-svelte": ^1.0.0-next.33
     "@tsconfig/svelte": ^3.0.0
+    "@types/autosize": ^4.0.1
     autosize: ^5.0.1
     chart.js: ^3.7.0
     microlight: ^0.0.7

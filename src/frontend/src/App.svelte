@@ -30,22 +30,38 @@
     import logo from "./assets/dietpi.png";
 
     interface socketData {
+        // Statistics page
+        cpu: number;
+        ram: usage;
+        swap: usage;
+        disk: usage;
+        network: net;
         // Software page
-        uninstalled?: software[];
-        installed?: software[];
-        response?: string;
+        uninstalled: software[];
+        installed: software[];
+        response: string;
         // Process page
-        processes?: processes[];
+        processes: processes[];
         // Services page
-        services?: services[];
+        services: services[];
         // File browser page
-        contents?: browser[];
-        textdata?: string;
+        contents: browser[];
+        textdata: string;
+        // Management page
+        hostname: String;
+        uptime: number;
+        arch: string;
+        kernel: string;
+        version: string;
+        packages: number;
+        upgrades: number;
+        nic: string;
+        ip: string;
         // Global
-        update?: string;
-        login?: boolean;
-        error?: boolean;
-        nodes?: string[];
+        update: string;
+        login: boolean;
+        error: boolean;
+        nodes: string[];
     }
 
     interface software {
@@ -80,10 +96,21 @@
         size: number;
     }
 
+    interface usage {
+        used: number;
+        total: number;
+        percent: number;
+    }
+
+    interface net {
+        sent: number;
+        received: number;
+    }
+
     let url = "";
 
     let socket: WebSocket;
-    let socketData: socketData = {};
+    let socketData: Partial<socketData> = {};
     let binData = "";
     let shown = false;
     let menu = window.innerWidth > 768;
@@ -95,7 +122,7 @@
     let password = "";
     let login = false;
     let loginDialog = false;
-    let nodes = [];
+    let nodes: string[] = [];
     let node = `${window.location.hostname}:${window.location.port}`;
     let notificationsShown = false;
     let settingsShown = false;
@@ -108,7 +135,7 @@
         darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
     }
 
-    const socketMessageListener = (e) => {
+    const socketMessageListener = (e: MessageEvent) => {
         if (typeof e.data === "string") {
             socketData = JSON.parse(e.data);
             binData = "";
@@ -149,7 +176,7 @@
         console.log("Connected");
         shown = true;
     };
-    const socketErrorListener = (e) => {
+    const socketErrorListener = (e: ErrorEvent) => {
         console.error(e);
         connectSocket(node);
     };
@@ -203,7 +230,7 @@
         );
     }
 
-    function socketSend(cmd, args) {
+    function socketSend(cmd: string, args: string[]) {
         let json;
         if (login) {
             json = JSON.stringify({
