@@ -607,6 +607,8 @@ mod tests {
                 install_counter += 1
             }
         }
+        assert_eq!(uninstall_counter, output.0.len());
+        assert_eq!(install_counter, output.1.len());
     }
 
     #[tokio::test]
