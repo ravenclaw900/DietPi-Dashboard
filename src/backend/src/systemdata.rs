@@ -585,10 +585,9 @@ mod tests {
             .output()
             .unwrap()
             .stdout;
-        let cmd_list = from_utf8(&cmd).unwrap().lines().collect::<Vec<&str>>();
         let mut install_counter = 0;
         let mut uninstall_counter = 0;
-        for i in cmd_list.into_iter().skip(4) {
+        for i in from_utf8(&cmd).unwrap().lines().skip(4) {
             if i.contains("DISABLED") {
                 continue;
             }
@@ -597,14 +596,11 @@ mod tests {
                 .1
                 .trim()
                 .trim_start_matches('=')
-                .chars()
-                .nth(0)
-                .unwrap()
-                == '0'
+                .starts_with('0')
             {
-                uninstall_counter += 1
+                uninstall_counter += 1;
             } else {
-                install_counter += 1
+                install_counter += 1;
             }
         }
         assert_eq!(uninstall_counter, output.0.len());
@@ -641,7 +637,7 @@ mod tests {
                 assert_ne!(i.start, "");
                 assert_eq!(i.log, "");
             } else if i.status == "failed" {
-                assert_ne!(i.log, "")
+                assert_ne!(i.log, "");
             }
         }
     }
