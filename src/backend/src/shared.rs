@@ -126,7 +126,7 @@ pub struct GlobalData {
     pub nodes: Vec<String>,
 }
 
-#[derive(SerJson, Debug)]
+#[derive(SerJson)]
 pub struct BrowserDirData {
     pub path: String,
     pub name: String,

@@ -568,4 +568,79 @@ mod tests {
             assert_eq!(BYTES_RECV.load(Relaxed), output.received + old_recv);
         }
     }
+
+    // Very little to actually validate here, just make sure that there are no errors
+    #[tokio::test]
+    async fn validate_processes() {
+        for _ in 0..30 {
+            processes().await;
+        }
+    }
+
+    #[test]
+    fn validate_software() {
+        let output = dpsoftware();
+        let cmd = Command::new("/boot/dietpi/dietpi-software")
+            .arg("list")
+            .output()
+            .unwrap()
+            .stdout;
+        let cmd_list = from_utf8(&cmd).unwrap().lines().collect::<Vec<&str>>();
+        let mut install_counter = 0;
+        let mut uninstall_counter = 0;
+        for i in cmd_list.into_iter().skip(4) {
+            if i.contains("DISABLED") {
+                continue;
+            }
+            if i.split_once('|')
+                .unwrap()
+                .1
+                .trim()
+                .trim_start_matches('=')
+                .chars()
+                .nth(0)
+                .unwrap()
+                == '0'
+            {
+                uninstall_counter += 1
+            } else {
+                install_counter += 1
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn validate_host() {
+        let output = host().await;
+
+        assert_eq!(
+            output.kernel,
+            from_utf8(&Command::new("uname").arg("-r").output().unwrap().stdout)
+                .unwrap()
+                .trim_end_matches('\n')
+        );
+
+        // The IP address shouldn't be the loopback
+        assert_ne!(output.nic, "127.0.0.1");
+
+        assert_eq!(
+            output.hostname,
+            from_utf8(&Command::new("hostname").output().unwrap().stdout)
+                .unwrap()
+                .trim_end_matches('\n')
+        );
+    }
+
+    #[test]
+    fn validate_services() {
+        let output = services();
+        for i in output {
+            if i.status == "running" || i.status == "exited" {
+                assert_ne!(i.start, "");
+                assert_eq!(i.log, "");
+            } else if i.status == "failed" {
+                assert_ne!(i.log, "")
+            }
+        }
+    }
 }
