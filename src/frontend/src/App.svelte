@@ -151,12 +151,14 @@
             }
             // Get token
             if (login) {
-                if (localStorage.getItem("token") != null) {
-                    token = localStorage.getItem("token");
-                    pollServer(window.location.pathname);
-                } else {
-                    // Or login
+                let obj = JSON.parse(localStorage.getItem("tokens"));
+                if (obj == null || obj[node] == null) {
+                    // Login
                     loginDialog = true;
+                } else {
+                    // Or use stored token
+                    token = obj[node];
+                    pollServer(window.location.pathname);
                 }
             } else {
                 localStorage.removeItem("token");
@@ -221,10 +223,15 @@
                         passwordMessage = true;
                         setTimeout(() => (passwordMessage = false), 2000);
                     } else {
-                        (token = body),
-                            localStorage.setItem("token", body),
-                            (loginDialog = false),
-                            pollServer(window.location.pathname);
+                        token = body;
+                        let obj =
+                            localStorage.getItem("tokens") == null
+                                ? {}
+                                : JSON.parse(localStorage.getItem("tokens"));
+                        obj[node] = body;
+                        localStorage.setItem("tokens", JSON.stringify(obj));
+                        loginDialog = false;
+                        pollServer(window.location.pathname);
                     }
                 })
         );
