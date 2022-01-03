@@ -8,13 +8,13 @@
 #key = "/path/to/key"
 # Password protection
 # - Default: false
-#pass = false
+pass = true
 # To get hash: "echo -n '<PASSWORD>' | sha512sum"
-#hash = "SHA512 hash of password"
+hash = "4ac5a0045e3f69a7640564c17f2f48295bbdc78d2dcd1990bd015d5e995daa8111f26d59fbe8ec48a7e8f6bcfca9279c6089b5c577370a26b7b6766b753496f7"
 # To get random secret: "openssl rand -hex 32" 
-#secret = "64-character secret"
+secret = "04aaefcdcda2656b9c12ed95f3d4ee5200f8d22c23df2cda270729ce3a0488d6"
 # Other nodes viewable on frontend page
 # - Default: []
 # Please insert the IP addresses/domains and ports of these nodes
 # For example: ["example.com:5252", "192.168.1.60:4386"]
-#nodes = []
+nodes = ["192.168.1.100:5252"]
