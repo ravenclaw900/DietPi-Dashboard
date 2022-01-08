@@ -182,7 +182,7 @@ pub async fn processes() -> Vec<shared::ProcessData> {
                     .memory()
                     .await
                     .unwrap()
-                    .vms()
+                    .rss()
                     .get::<mebibyte>();
             }
             Err(_) => continue,
