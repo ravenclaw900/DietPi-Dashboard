@@ -5,12 +5,12 @@ __metadata:
   version: 4
   cacheKey: 8
 
-"@antfu/utils@npm:^0.3.0":
-  version: 0.3.0
-  resolution: "@antfu/utils@npm:0.3.0"
+"@antfu/utils@npm:^0.4.0":
+  version: 0.4.0
+  resolution: "@antfu/utils@npm:0.4.0"
   dependencies:
     "@types/throttle-debounce": ^2.1.0
-  checksum: 1f42790560e1768e16d05e302c9f1a69e64c3e048ab5a79d2d9f5c0d92d350e910f54c097475a0ed702a576ce0d306a6af68c7b0c53335df109358cf13f0cd0c
+  checksum: 1c679120c0b6a4433dc59c44b54d046cd0316b793120c1a4569671ed8307ab94734a04f9ad502112a07e5bd5db2ac82736d1a7e857aa0aa91029e1f1a59e7a0c
   languageName: node
   linkType: hard
 
@@ -175,29 +175,29 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@windicss/config@npm:1.6.1":
-  version: 1.6.1
-  resolution: "@windicss/config@npm:1.6.1"
+"@windicss/config@npm:1.6.2":
+  version: 1.6.2
+  resolution: "@windicss/config@npm:1.6.2"
   dependencies:
     debug: ^4.3.3
     jiti: ^1.12.9
-    windicss: ^3.4.0
-  checksum: 8e59c9b69f772c1fd2476b4e931cf7aff4897aaa515e6bb8a05f44cd0750e5c2140ef8a9ab6590f65b9288c23ac7ded421e271dd6698a4f73e79c06a92185f84
+    windicss: ^3.4.2
+  checksum: 120695da96f7957f290eba94eed9cdb71dc79e8c9b5a3faf035e0547980c105cd7283220a0575f4d7d41a58892b0c874ad733228b3a8427a21a7e2db84159d33
   languageName: node
   linkType: hard
 
-"@windicss/plugin-utils@npm:1.6.1":
-  version: 1.6.1
-  resolution: "@windicss/plugin-utils@npm:1.6.1"
+"@windicss/plugin-utils@npm:1.6.2":
+  version: 1.6.2
+  resolution: "@windicss/plugin-utils@npm:1.6.2"
   dependencies:
-    "@antfu/utils": ^0.3.0
-    "@windicss/config": 1.6.1
+    "@antfu/utils": ^0.4.0
+    "@windicss/config": 1.6.2
     debug: ^4.3.3
-    fast-glob: ^3.2.7
+    fast-glob: ^3.2.10
     magic-string: ^0.25.7
     micromatch: ^4.0.4
-    windicss: ^3.4.0
-  checksum: 9a68feaa3903f22302444e0586a92f9212afbbcc3f6fcc5c159b749db4f82c8264a97c03ae17fb86aed63803b5feacc5e99569dfc732a67f2aa931026120b929
+    windicss: ^3.4.2
+  checksum: b99eda6b6b74a29afd978147b9622c808b5cb292d53c82fc08421d347b842cf8795389a3df70e2455db738780301a36626b0fa1efb417591c7b03ebba90aa28b
   languageName: node
   linkType: hard
 
@@ -524,7 +524,7 @@ __metadata:
     typescript: ^4.5.4
     vite: ^2.7.10
     vite-plugin-replace: ^0.1.1
-    vite-plugin-windicss: ^1.6.1
+    vite-plugin-windicss: ^1.6.2
     windicss: ^3.4.2
     xterm: ^4.16.0
     xterm-addon-attach: ^0.6.0
@@ -757,16 +757,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-glob@npm:^3.2.7":
-  version: 3.2.7
-  resolution: "fast-glob@npm:3.2.7"
+"fast-glob@npm:^3.2.10, fast-glob@npm:^3.2.7":
+  version: 3.2.10
+  resolution: "fast-glob@npm:3.2.10"
   dependencies:
     "@nodelib/fs.stat": ^2.0.2
     "@nodelib/fs.walk": ^1.2.3
     glob-parent: ^5.1.2
     merge2: ^1.3.0
     micromatch: ^4.0.4
-  checksum: 2f4708ff112d2b451888129fdd9a0938db88b105b0ddfd043c064e3c4d3e20eed8d7c7615f7565fee660db34ddcf08a2db1bf0ab3c00b87608e4719694642d78
+  checksum: dee958d95638c8d00d200c55af5884dda513cfef96f674caab5a289a4436936ee26d603841a9ab85a6a4d9f7914558bce78dbf1088d3b8ec64b255422eea840b
   languageName: node
   linkType: hard
 
@@ -2039,17 +2039,17 @@ resolve@^1.20.0:
   languageName: node
   linkType: hard
 
-"vite-plugin-windicss@npm:^1.6.1":
-  version: 1.6.1
-  resolution: "vite-plugin-windicss@npm:1.6.1"
+"vite-plugin-windicss@npm:^1.6.2":
+  version: 1.6.2
+  resolution: "vite-plugin-windicss@npm:1.6.2"
   dependencies:
-    "@windicss/plugin-utils": 1.6.1
+    "@windicss/plugin-utils": 1.6.2
     debug: ^4.3.3
     kolorist: ^1.5.1
-    windicss: ^3.4.0
+    windicss: ^3.4.2
   peerDependencies:
     vite: ^2.0.1
-  checksum: 2db70d221218dfef3c81fc5724e95f600eab5ef75a79e1bc84c1272e48f1574854d16b83385ec444517865bcbd34200116d045a58b58036f4d70fa4babac6d7e
+  checksum: 4d61365b5326383e5d68927d6efdeb7f8cabff7106cda5e7873c8dfa75b9e9cb3f38c10e1b4a7e76a0a935e977349c5f6a1b5d9ea374df27fda1e7f0b0ce5108
   languageName: node
   linkType: hard
 
@@ -2102,7 +2102,7 @@ resolve@^1.20.0:
   languageName: node
   linkType: hard
 
-"windicss@npm:^3.4.0, windicss@npm:^3.4.2":
+"windicss@npm:^3.4.2":
   version: 3.4.2
   resolution: "windicss@npm:3.4.2"
   bin:
