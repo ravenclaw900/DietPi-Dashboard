@@ -252,15 +252,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ansi-styles@npm:^4.1.0":
-  version: 4.3.0
-  resolution: "ansi-styles@npm:4.3.0"
-  dependencies:
-    color-convert: ^2.0.1
-  checksum: 513b44c3b2105dd14cc42a19271e80f386466c4be574bccf60b627432f9198571ebf4ab1e4c3ba17347658f4ee1711c163d574248c0c1cdc2d5917a0ad582ec4
-  languageName: node
-  linkType: hard
-
 "anymatch@npm:~3.1.2":
   version: 3.1.2
   resolution: "anymatch@npm:3.1.2"
@@ -368,16 +359,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chalk@npm:^4.0.0":
-  version: 4.1.2
-  resolution: "chalk@npm:4.1.2"
-  dependencies:
-    ansi-styles: ^4.1.0
-    supports-color: ^7.1.0
-  checksum: fe75c9d5c76a7a98d45495b91b2172fa3b7a09e0cc9370e5c8feb1c567b85c4288e2b3fded7cfdd7359ac28d6b3844feb8b82b8686842e93d23c827c417e83fc
-  languageName: node
-  linkType: hard
-
 "chart.js@npm:^3.7.0":
   version: 3.7.0
   resolution: "chart.js@npm:3.7.0"
@@ -422,22 +403,6 @@ __metadata:
   version: 1.1.0
   resolution: "code-point-at@npm:1.1.0"
   checksum: 17d5666611f9b16d64fdf48176d9b7fb1c7d1c1607a189f7e600040a11a6616982876af148230336adb7d8fe728a559f743a4e29db3747e3b1a32fa7f4529681
-  languageName: node
-  linkType: hard
-
-"color-convert@npm:^2.0.1":
-  version: 2.0.1
-  resolution: "color-convert@npm:2.0.1"
-  dependencies:
-    color-name: ~1.1.4
-  checksum: 79e6bdb9fd479a205c71d89574fccfb22bd9053bd98c6c4d870d65c132e5e904e6034978e55b43d69fcaa7433af2016ee203ce76eeba9cfa554b373e7f7db336
-  languageName: node
-  linkType: hard
-
-"color-name@npm:~1.1.4":
-  version: 1.1.4
-  resolution: "color-name@npm:1.1.4"
-  checksum: b0445859521eb4021cd0fb0cc1a75cecf67fceecae89b63f62b201cca8d345baf8b952c966862a9d9a2632987d4f6581f0ec8d957dfacece86f0a7919316f610
   languageName: node
   linkType: hard
 
@@ -516,7 +481,7 @@ __metadata:
     microlight: ^0.0.7
     pretty-ms: ^7.0.1
     svelte: ^3.45.0
-    svelte-check: ^2.2.11
+    svelte-check: ^2.2.12
     svelte-fa: ^2.4.0
     svelte-preprocess: ^4.10.1
     svelte-routing: ^1.6.0
@@ -872,13 +837,6 @@ fsevents@~2.3.2:
   version: 4.2.8
   resolution: "graceful-fs@npm:4.2.8"
   checksum: 5d224c8969ad0581d551dfabdb06882706b31af2561bd5e2034b4097e67cc27d05232849b8643866585fd0a41c7af152950f8776f4dd5579e9853733f31461c6
-  languageName: node
-  linkType: hard
-
-"has-flag@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "has-flag@npm:4.0.0"
-  checksum: 261a1357037ead75e338156b1f9452c016a37dcd3283a972a30d9e4a87441ba372c8b81f818cd0fbcd9c0354b4ae7e18b9e1afa1971164aef6d18c2b6095a8ad
   languageName: node
   linkType: hard
 
@@ -1829,24 +1787,15 @@ resolve@^1.20.0:
   languageName: node
   linkType: hard
 
-"supports-color@npm:^7.1.0":
-  version: 7.2.0
-  resolution: "supports-color@npm:7.2.0"
+"svelte-check@npm:^2.2.12":
+  version: 2.2.12
+  resolution: "svelte-check@npm:2.2.12"
   dependencies:
-    has-flag: ^4.0.0
-  checksum: 3dda818de06ebbe5b9653e07842d9479f3555ebc77e9a0280caf5a14fb877ffee9ed57007c3b78f5a6324b8dbeec648d9e97a24e2ed9fdb81ddc69ea07100f4a
-  languageName: node
-  linkType: hard
-
-"svelte-check@npm:^2.2.11":
-  version: 2.2.11
-  resolution: "svelte-check@npm:2.2.11"
-  dependencies:
-    chalk: ^4.0.0
     chokidar: ^3.4.1
     fast-glob: ^3.2.7
     import-fresh: ^3.2.1
     minimist: ^1.2.5
+    picocolors: ^1.0.0
     sade: ^1.7.4
     source-map: ^0.7.3
     svelte-preprocess: ^4.0.0
@@ -1855,7 +1804,7 @@ resolve@^1.20.0:
     svelte: ^3.24.0
   bin:
     svelte-check: bin/svelte-check
-  checksum: 27244a7f3fea306880939b40e620487a63ed2c433098bd6633677b007f340bca0137090112b98357926d316fb4c0a6db8b57ecfc6841fb4ba5d65d86e3b132bf
+  checksum: b23db69491eb5c7e7e4a09b55d75ee2ca2d768011edbfe0804f1e911b9eef20607711d034be28c07d3189733f17515bb3f32d86a11df904710fdf9e26005b0f3
   languageName: node
   linkType: hard
 
