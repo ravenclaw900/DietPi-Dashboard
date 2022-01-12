@@ -35,8 +35,9 @@
     };
 
     socket.onopen = () => {
-        if (localStorage.getItem("token") != null) {
-            socket.send(`token${localStorage.getItem("token")}`);
+        let obj = JSON.parse(localStorage.getItem("tokens"));
+        if (obj != null && obj[node] != null) {
+            socket.send(`token${obj[node]}`);
         }
         terminal.open(termDiv);
         fitAddon.fit();
