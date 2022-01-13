@@ -480,7 +480,7 @@ __metadata:
     chart.js: ^3.7.0
     microlight: ^0.0.7
     pretty-ms: ^7.0.1
-    svelte: ^3.46.0
+    svelte: ^3.46.1
     svelte-check: ^2.2.12
     svelte-fa: ^2.4.0
     svelte-preprocess: ^4.10.1
@@ -1897,10 +1897,10 @@ resolve@^1.20.0:
   languageName: node
   linkType: hard
 
-"svelte@npm:^3.46.0":
-  version: 3.46.0
-  resolution: "svelte@npm:3.46.0"
-  checksum: 9f5b36bbc831cb5c428c6d2f7aa89eada09edfd557b471b48d1329b94127897a2befb772496f8bf0e3e8de8ae5c880bd2c9fcc93e74b1782c667567ff565c6c5
+"svelte@npm:^3.46.1":
+  version: 3.46.1
+  resolution: "svelte@npm:3.46.1"
+  checksum: 8d838b0ab84998b6326030a5df6ac3c94851a0fd5f766a7c12879409d67dd0c669638da54b5842c7fa18d2c7278d5027ca842fb22443dcbc39306144015564c9
   languageName: node
   linkType: hard
 
