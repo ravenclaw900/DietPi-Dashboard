@@ -162,6 +162,7 @@
                 }
             } else {
                 localStorage.removeItem("token");
+                localStorage.removeItem("tokens");
                 pollServer(window.location.pathname);
             }
         }
