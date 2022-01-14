@@ -481,7 +481,7 @@ __metadata:
     microlight: ^0.0.7
     pretty-ms: ^7.0.1
     svelte: ^3.46.1
-    svelte-check: ^2.2.12
+    svelte-check: ^2.3.0
     svelte-fa: ^2.4.0
     svelte-preprocess: ^4.10.1
     svelte-routing: ^1.6.0
@@ -1787,9 +1787,9 @@ resolve@^1.20.0:
   languageName: node
   linkType: hard
 
-"svelte-check@npm:^2.2.12":
-  version: 2.2.12
-  resolution: "svelte-check@npm:2.2.12"
+"svelte-check@npm:^2.3.0":
+  version: 2.3.0
+  resolution: "svelte-check@npm:2.3.0"
   dependencies:
     chokidar: ^3.4.1
     fast-glob: ^3.2.7
@@ -1804,7 +1804,7 @@ resolve@^1.20.0:
     svelte: ^3.24.0
   bin:
     svelte-check: bin/svelte-check
-  checksum: b23db69491eb5c7e7e4a09b55d75ee2ca2d768011edbfe0804f1e911b9eef20607711d034be28c07d3189733f17515bb3f32d86a11df904710fdf9e26005b0f3
+  checksum: 81e957b0b32c4f07e0787e36a89756035f52aa2a04b6e18e579ae9abadbbd6e8c1ac601bc916b0c1361288860e36dfd59796df89e7750e96cddfa4ee7f8e331c
   languageName: node
   linkType: hard
 
