@@ -139,6 +139,36 @@
                 return faFile;
         }
     }
+
+    function validateInput(name: string) {
+        if (name) {
+            for (let element of socketData.contents) {
+                if (element.name == name) {
+                    if (
+                        confirm(
+                            `This will overwrite the ${
+                                element.maintype == "dir" ? "directory" : "file"
+                            } ${name}${
+                                element.maintype == "dir"
+                                    ? ", and delete everything in it"
+                                    : ""
+                            }. Are you sure you want to continue?`
+                        )
+                    ) {
+                        sendCmd(
+                            currentPath + "/" + name,
+                            `rm${element.maintype == "dir" ? "dir" : ""}`
+                        );
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
+    }
 </script>
 
 <main class="min-h-full">
@@ -261,7 +291,9 @@
                         let name = prompt(
                             "Please enter the name of the new directory"
                         );
-                        sendCmd(currentPath + "/" + name, "mkdir");
+                        if (validateInput(name)) {
+                            sendCmd(currentPath + "/" + name, "mkdir");
+                        }
                     }}><Fa icon={faFolderPlus} size="lg" /></span
                 >
                 <span
@@ -271,7 +303,9 @@
                         let name = prompt(
                             "Please enter the name of the new file"
                         );
-                        sendCmd(currentPath + "/" + name, "mkfile");
+                        if (validateInput(name)) {
+                            sendCmd(currentPath + "/" + name, "mkfile");
+                        }
                     }}><Fa icon={faFileMedical} size="lg" /></span
                 >
                 {#if selPath.path != ""}
@@ -282,26 +316,8 @@
                             let name = prompt(
                                 "Please enter the new name of the file"
                             );
-                            if (name) {
-                                for (let element of socketData.contents) {
-                                    if (element.name == name) {
-                                        if (
-                                            confirm(
-                                                `This will overwrite the file ${name}. Are you sure you want to continue?`
-                                            )
-                                        ) {
-                                            rename(
-                                                selPath.path,
-                                                currentPath + "/" + name
-                                            );
-                                        }
-                                    } else {
-                                        rename(
-                                            selPath.path,
-                                            currentPath + "/" + name
-                                        );
-                                    }
-                                }
+                            if (validateInput(name)) {
+                                rename(selPath.path, currentPath + "/" + name);
                             }
                         }}><Fa icon={faICursor} size="lg" /></span
                     >
