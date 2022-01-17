@@ -282,7 +282,27 @@
                             let name = prompt(
                                 "Please enter the new name of the file"
                             );
-                            rename(selPath.path, currentPath + "/" + name);
+                            if (name) {
+                                for (let element of socketData.contents) {
+                                    if (element.name == name) {
+                                        if (
+                                            confirm(
+                                                `This will overwrite the file ${name}. Are you sure you want to continue?`
+                                            )
+                                        ) {
+                                            rename(
+                                                selPath.path,
+                                                currentPath + "/" + name
+                                            );
+                                        }
+                                    } else {
+                                        rename(
+                                            selPath.path,
+                                            currentPath + "/" + name
+                                        );
+                                    }
+                                }
+                            }
                         }}><Fa icon={faICursor} size="lg" /></span
                     >
                     {#if selPath.maintype == "dir"}
