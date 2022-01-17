@@ -1,11 +1,7 @@
 use futures::StreamExt;
 use heim::{
     cpu, disk, host, memory, net, process,
-    units::{
-        information::{byte, mebibyte},
-        ratio::percent,
-        time::minute,
-    },
+    units::{information::byte, ratio::percent, time::minute},
 };
 use lazy_static::lazy_static;
 use std::collections::HashMap;
@@ -183,7 +179,7 @@ pub async fn processes() -> Vec<shared::ProcessData> {
                     .await
                     .unwrap()
                     .rss()
-                    .get::<mebibyte>();
+                    .get::<byte>();
             }
             Err(_) => continue,
         }

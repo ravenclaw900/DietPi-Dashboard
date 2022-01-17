@@ -4,6 +4,7 @@
     import type { ChartConfiguration, ChartData } from "chart.js";
     import { onMount } from "svelte";
     import { tweened } from "svelte/motion";
+    import prettyBytes from "pretty-bytes";
 
     const cpuAnimate = tweened(0, {
         duration: 200,
@@ -43,32 +44,6 @@
     export let socketData: statData;
     export let darkMode: boolean;
     let canvas: HTMLCanvasElement;
-
-    function unitCalc(used: number, total: number) {
-        let unitTotal, unitUsed, unit;
-        if (total > 1099512000000) {
-            unitTotal = Math.round((total / 1099512000000) * 100) / 100;
-            unitUsed = Math.round((used / 1099512000000) * 100) / 100;
-            unit = "TiB";
-        } else if (total > 1073742000) {
-            unitTotal = Math.round((total / 1073742000) * 100) / 100;
-            unitUsed = Math.round((used / 1073742000) * 100) / 100;
-            unit = "GiB";
-        } else if (total > 1048576) {
-            unitTotal = Math.round((total / 1048576) * 100) / 100;
-            unitUsed = Math.round((used / 1048576) * 100) / 100;
-            unit = "MiB";
-        } else if (total > 1024) {
-            unitTotal = Math.round((total / 1024) * 100) / 100;
-            unitUsed = Math.round((used / 1024) * 100) / 100;
-            unit = "KiB";
-        } else if (total < 1024) {
-            unitTotal = total;
-            unitUsed = used;
-            unit = "B";
-        }
-        return [unitUsed, unitTotal, unit];
-    }
 
     const chartData: ChartData = {
         labels: [],
@@ -178,10 +153,19 @@
         diskAnimate.set(socketData.disk.percent));
 
     $: socketData.ram &&
-        ((ramData = unitCalc(socketData.ram.used, socketData.ram.total)),
-        (swapData = unitCalc(socketData.swap.used, socketData.swap.total)),
+        ((ramData = [
+            prettyBytes(socketData.ram.used, { binary: true }),
+            prettyBytes(socketData.ram.total, { binary: true }),
+        ]),
+        (swapData = [
+            prettyBytes(socketData.swap.used, { binary: true }),
+            prettyBytes(socketData.swap.total, { binary: true }),
+        ]),
         (chartData.datasets[2].hidden = socketData.swap.total == 0),
-        (diskData = unitCalc(socketData.disk.used, socketData.disk.total)));
+        (diskData = [
+            prettyBytes(socketData.disk.used),
+            prettyBytes(socketData.disk.total),
+        ]));
 
     onMount(() => {
         let chart = new Chart(canvas.getContext("2d"), config);
@@ -238,21 +222,15 @@
             <div class="bg-gray-200 dark:bg-gray-800 w-full h-3 my-1">
                 <div class="bg-green-500 h-3" style="width:{$cpuAnimate}%" />
             </div>
-            RAM:<span class="float-right"
-                >{ramData[0]}/{ramData[1]}{ramData[2]}</span
-            >
+            RAM:<span class="float-right">{ramData[0]}/{ramData[1]}</span>
             <div class="bg-gray-200 dark:bg-gray-800 w-full h-3 my-1">
                 <div class="bg-red-500 h-3" style="width:{$ramAnimate}%" />
             </div>
-            Swap:<span class="float-right"
-                >{swapData[0]}/{swapData[1]}{swapData[2]}</span
-            >
+            Swap:<span class="float-right">{swapData[0]}/{swapData[1]}</span>
             <div class="bg-gray-200 dark:bg-gray-800 w-full h-3 my-1">
                 <div class="bg-blue-500 h-3" style="width:{$swapAnimate}%" />
             </div>
-            Disk:<span class="float-right"
-                >{diskData[0]}/{diskData[1]}{diskData[2]}</span
-            >
+            Disk:<span class="float-right">{diskData[0]}/{diskData[1]}</span>
             <div class="bg-gray-200 dark:bg-gray-800 w-full h-3 my-1">
                 <div class="bg-yellow-500 h-3" style="width:{$diskAnimate}%" />
             </div>

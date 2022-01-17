@@ -9,6 +9,7 @@
         faPause,
         faPlay,
     } from "@fortawesome/free-solid-svg-icons";
+    import prettyBytes from "pretty-bytes";
 
     export let socketData: processData;
     export let socketSend: (cmd: string, args: string[]) => void;
@@ -279,7 +280,12 @@
                     <td class="p-2">{process.name}</td>
                     <td class="p-2">{process.status}</td>
                     <td class="p-2">{process.cpu}%</td>
-                    <td class="p-2">{process.ram}MiB</td>
+                    <td class="p-2"
+                        >{prettyBytes(process.ram, {
+                            binary: true,
+                            maximumFractionDigits: 0,
+                        })}</td
+                    >
                     <td class="p-2 space-x-2">
                         {#if process.name != "dietpi-dashboard"}
                             <span
