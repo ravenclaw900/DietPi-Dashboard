@@ -161,6 +161,7 @@
                     pollServer(window.location.pathname);
                 }
             } else {
+                // Remove legacy "token" setting
                 localStorage.removeItem("token");
                 localStorage.removeItem("tokens");
                 pollServer(window.location.pathname);

@@ -478,6 +478,7 @@ __metadata:
     autosize: ^5.0.1
     chart.js: ^3.7.0
     microlight: ^0.0.7
+    pretty-bytes: ^5.6.0
     pretty-ms: ^7.0.1
     svelte: ^3.46.3
     svelte-check: ^2.3.0
@@ -1436,6 +1437,13 @@ fsevents@~2.3.2:
     picocolors: ^1.0.0
     source-map-js: ^1.0.1
   checksum: b78abdd89c10f7b48f4bdcd376104a19d6e9c7495ab521729bdb3df315af6c211360e9f06887ad3bc0ab0f61a04b91d68ea11462997c79cced58b9ccd66fac07
+  languageName: node
+  linkType: hard
+
+"pretty-bytes@npm:^5.6.0":
+  version: 5.6.0
+  resolution: "pretty-bytes@npm:5.6.0"
+  checksum: 9c082500d1e93434b5b291bd651662936b8bd6204ec9fa17d563116a192d6d86b98f6d328526b4e8d783c07d5499e2614a807520249692da9ec81564b2f439cd
   languageName: node
   linkType: hard
 

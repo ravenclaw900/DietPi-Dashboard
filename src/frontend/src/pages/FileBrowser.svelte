@@ -18,6 +18,7 @@
         faICursor,
     } from "@fortawesome/free-solid-svg-icons";
     import Fa from "svelte-fa";
+    import prettyBytes from "pretty-bytes";
 
     export let socketSend: (cmd: string, args: string[]) => void;
     export let socketData: broserList;
@@ -138,18 +139,6 @@
                 return faFile;
         }
     }
-
-    function unitCalc(num: number) {
-        if (num > 1000000000) {
-            return Math.round((num / 1000000000) * 100) / 100 + " GB";
-        } else if (num > 1000000) {
-            return Math.round((num / 1000000) * 100) / 100 + " MB";
-        } else if (num > 1000) {
-            return Math.round((num / 1000) * 100) / 100 + " KB";
-        } else if (num < 1000) {
-            return num + " bytes";
-        }
-    }
 </script>
 
 <main class="min-h-full">
@@ -235,7 +224,7 @@
                             <td class="px-2"
                                 >{contents.maintype == "dir"
                                     ? "--"
-                                    : unitCalc(contents.size)}</td
+                                    : prettyBytes(contents.size)}</td
                             >
                         </tr>
                     {/each}
