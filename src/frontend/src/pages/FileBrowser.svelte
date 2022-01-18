@@ -16,6 +16,7 @@
         faFolderPlus,
         faFileMedical,
         faICursor,
+        faSyncAlt,
     } from "@fortawesome/free-solid-svg-icons";
     import Fa from "svelte-fa";
     import prettyBytes from "pretty-bytes";
@@ -156,7 +157,7 @@
                         )
                     ) {
                         sendCmd(
-                            currentPath + "/" + name,
+                            `${currentPath}/${name}`,
                             `rm${element.maintype == "dir" ? "dir" : ""}`
                         );
                         return true;
@@ -290,13 +291,20 @@
             {#if socketData.contents != undefined}
                 <span
                     class="cursor-pointer"
+                    title="Refresh"
+                    on:click={() => {
+                        sendCmd(`${currentPath}/.`, "refresh");
+                    }}><Fa icon={faSyncAlt} size="lg" /></span
+                >
+                <span
+                    class="cursor-pointer"
                     title="New Directory"
                     on:click={() => {
                         let name = prompt(
                             "Please enter the name of the new directory"
                         );
                         if (validateInput(name)) {
-                            sendCmd(currentPath + "/" + name, "mkdir");
+                            sendCmd(`${currentPath}/${name}`, "mkdir");
                         }
                     }}><Fa icon={faFolderPlus} size="lg" /></span
                 >
@@ -308,7 +316,7 @@
                             "Please enter the name of the new file"
                         );
                         if (validateInput(name)) {
-                            sendCmd(currentPath + "/" + name, "mkfile");
+                            sendCmd(`${currentPath}/${name}`, "mkfile");
                         }
                     }}><Fa icon={faFileMedical} size="lg" /></span
                 >
@@ -321,7 +329,7 @@
                                 "Please enter the new name of the file"
                             );
                             if (validateInput(name)) {
-                                rename(selPath.path, currentPath + "/" + name);
+                                rename(selPath.path, `${currentPath}/${name}`);
                             }
                         }}><Fa icon={faICursor} size="lg" /></span
                     >

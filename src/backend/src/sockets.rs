@@ -283,6 +283,9 @@ async fn browser_handler(
                     std::fs::rename(&data.args[0], &data.args[1]).unwrap();
                     browser_refresh(&mut *socket_send, &data.args[0]).await;
                 }
+                "refresh" => {
+                    browser_refresh(&mut *socket_send, &data.args[0]).await;
+                }
                 _ => {}
             },
         }
