@@ -96,7 +96,8 @@ fn main() {
                     "*",
                 ));
 
-            let terminal_route = warp::path!("ws" / "term")
+            let terminal_route = warp::path("ws")
+                .and(warp::path("term"))
                 .and(warp::ws())
                 .map(|ws: warp::ws::Ws| ws.on_upgrade(terminal::term_handler));
 
