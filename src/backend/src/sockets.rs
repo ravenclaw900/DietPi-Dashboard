@@ -256,7 +256,11 @@ async fn browser_handler(
                     std::fs::write(std::path::Path::new(&data.args[0]), &data.args[1]).unwrap();
                 }
                 "copy" => {
-                    std::fs::copy(&data.args[0], format!("{} {}", &data.args[0], 2)).unwrap();
+                    let mut num = 2;
+                    while std::path::Path::new(&format!("{} {}", &data.args[0], num)).exists() {
+                        num += 1;
+                    }
+                    std::fs::copy(&data.args[0], format!("{} {}", &data.args[0], num)).unwrap();
                     browser_refresh(&mut *socket_send, &data.args[0]).await;
                 }
                 "rm" => {
