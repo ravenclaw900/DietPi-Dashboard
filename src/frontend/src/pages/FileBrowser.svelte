@@ -207,7 +207,9 @@
                 {/each}
             </div>
             {#if socketData.contents != undefined}
-                <table class="bg-white w-full dark:bg-black">
+                <table
+                    class="bg-white w-full dark:bg-black table-fixed min-w-50"
+                >
                     <tr>
                         <th class="px-2">Name</th>
                         <th class="px-2">Kind</th>
@@ -248,7 +250,9 @@
                                         contents.subtype
                                     )}
                                     class="mr-2"
-                                />{contents.name}</td
+                                /><span class="break-words"
+                                    >{contents.name}</span
+                                ></td
                             >
                             <td class="px-2">{contents.prettytype}</td>
                             <td class="px-2"
@@ -281,7 +285,7 @@
             {/if}
         </div>
         <div
-            class="min-w-16 bg-gray-300 dark:bg-gray-800 ml-4 min-h-full max-h-full flex flex-col gap-2 items-center justify-center"
+            class="min-w-16 bg-gray-300 dark:bg-gray-800 flex flex-col items-center ml-4 justify-center sticky top-10 p-4 h-min gap-2"
         >
             {#if socketData.contents != undefined}
                 <span

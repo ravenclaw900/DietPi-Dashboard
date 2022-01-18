@@ -271,7 +271,11 @@
     $: node && ((shown = false), connectSocket(node));
 </script>
 
-<main class="min-h-screen flex overflow-x-hidden{darkMode ? ' dark' : ''}">
+<main
+    class="min-h-screen flex{menu ? ' <sm:overflow-x-hidden' : ''}{darkMode
+        ? ' dark'
+        : ''}"
+>
     {#if loginDialog}
         <div
             class="fixed inset-0 bg-gray-600/50 h-screen w-screen flex items-center justify-center"
