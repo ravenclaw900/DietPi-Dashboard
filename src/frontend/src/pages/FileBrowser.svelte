@@ -333,27 +333,40 @@
                             }
                         }}><Fa icon={faICursor} size="lg" /></span
                     >
-                    {#if selPath.maintype == "dir"}
-                        <span
-                            class="cursor-pointer"
-                            title="Delete"
-                            on:click={() => sendCmd(selPath.path, "rmdir")}
-                            ><Fa icon={faTrash} size="lg" /></span
-                        >
-                    {:else}
+                    {#if selPath.maintype != "dir"}
                         <span
                             class="cursor-pointer"
                             title="Copy"
                             on:click={() => sendCmd(selPath.path, "copy")}
                             ><Fa icon={faCopy} size="lg" /></span
                         >
-                        <span
-                            class="cursor-pointer"
-                            title="Delete"
-                            on:click={() => sendCmd(selPath.path, "rm")}
-                            ><Fa icon={faTrash} size="lg" /></span
-                        >
                     {/if}
+                    <span
+                        class="cursor-pointer"
+                        title="Delete"
+                        on:click={() => {
+                            if (
+                                confirm(
+                                    `Are you sure you want to delete the ${
+                                        selPath.maintype == "dir"
+                                            ? "directory"
+                                            : "file"
+                                    } ${selPath.name}?${
+                                        selPath.maintype == "dir"
+                                            ? " This will delete everything in it!"
+                                            : ""
+                                    }`
+                                )
+                            ) {
+                                sendCmd(
+                                    selPath.path,
+                                    `rm${
+                                        selPath.maintype == "dir" ? "dir" : ""
+                                    }`
+                                );
+                            }
+                        }}><Fa icon={faTrash} size="lg" /></span
+                    >
                 {/if}
             {:else if socketData.textdata != undefined}
                 <span
