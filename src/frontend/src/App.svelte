@@ -389,7 +389,7 @@
                     <table class="w-full">
                         {#if update}
                             <tr class="border-b border-gray-300 border-gray-600"
-                                >DietPi update avalible: {update}</tr
+                                >DietPi update available: {update}</tr
                             >
                         {/if}
                     </table>
