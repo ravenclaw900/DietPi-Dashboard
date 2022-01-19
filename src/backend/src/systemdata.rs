@@ -165,7 +165,7 @@ pub async fn processes() -> Vec<shared::ProcessData> {
                     continue;
                 }
                 match unwrapped_process.status().await.unwrap() {
-                    // The proceses that are running show up as sleeping, for some reason
+                    // The processes that are running show up as sleeping, for some reason
                     process::Status::Sleeping => status = "running".to_string(),
                     process::Status::Idle => status = "idle".to_string(),
                     process::Status::Stopped => status = "stopped".to_string(),
