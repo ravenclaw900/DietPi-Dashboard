@@ -9,7 +9,7 @@ edition = "2021"
 warp = {version = "0.3.2", default-features = false, features = ["websocket", "tls"]}
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "sync"] }
 num_cpus = "1.13.1"
-simple_logger = "1.16.0"
+simple_logger = "2.1.0"
 log = "0.4.14"
 include_dir = {version = "0.7.2", optional = true}
 lazy_static = "1.4.0"
