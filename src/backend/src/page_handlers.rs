@@ -1,19 +1,16 @@
 use futures::stream::SplitSink;
-use futures::{SinkExt, StreamExt};
-use nanoserde::{DeJson, SerJson};
+use futures::SinkExt;
+use nanoserde::SerJson;
 use std::process::Command;
 use std::sync::Arc;
 use std::time::Duration;
-use tokio::sync::{
-    mpsc::{self, Receiver},
-    Mutex,
-};
+use tokio::sync::{mpsc::Receiver, Mutex};
 use tokio::time::sleep;
 use warp::ws::Message;
 
-use crate::{shared, systemdata, CONFIG};
+use crate::{shared, systemdata};
 
-async fn main_handler(
+pub async fn main_handler(
     socket_ptr: Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>,
     data_recv: &mut Receiver<Option<shared::Request>>,
 ) {
@@ -39,7 +36,7 @@ async fn main_handler(
     }
 }
 
-async fn process_handler(
+pub async fn process_handler(
     socket_ptr: Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>,
     data_recv: &mut Receiver<Option<shared::Request>>,
 ) {
@@ -82,7 +79,7 @@ async fn process_handler(
     }
 }
 
-async fn software_handler(
+pub async fn software_handler(
     socket_ptr: Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>,
     data_recv: &mut Receiver<Option<shared::Request>>,
 ) {
@@ -132,7 +129,7 @@ async fn software_handler(
     }
 }
 
-async fn management_handler(
+pub async fn management_handler(
     socket_ptr: Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>,
     data_recv: &mut Receiver<Option<shared::Request>>,
 ) {
@@ -152,7 +149,7 @@ async fn management_handler(
     }
 }
 
-async fn service_handler(
+pub async fn service_handler(
     socket_ptr: Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>,
     data_recv: &mut Receiver<Option<shared::Request>>,
 ) {
@@ -200,7 +197,7 @@ async fn browser_refresh(
         .await;
 }
 
-async fn browser_handler(
+pub async fn browser_handler(
     socket_ptr: Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>,
     data_recv: &mut Receiver<Option<shared::Request>>,
 ) {
@@ -278,99 +275,6 @@ async fn browser_handler(
                 }
                 _ => {}
             },
-        }
-    }
-}
-
-#[allow(clippy::too_many_lines)]
-pub async fn socket_handler(socket: warp::ws::WebSocket) {
-    let (mut socket_send, mut socket_recv) = socket.split();
-    let (data_send, mut data_recv) = mpsc::channel(1);
-    tokio::task::spawn(async move {
-        let mut first_message = true;
-        let mut req: shared::Request;
-        while let Some(Ok(data)) = socket_recv.next().await {
-            if data.is_close() {
-                break;
-            }
-            let data_str;
-            if let Ok(data_string) = data.to_str() {
-                data_str = data_string;
-            } else {
-                log::error!("Couldn't convert received data to text");
-                continue;
-            }
-            req = if let Ok(json) = DeJson::deserialize_json(data_str) {
-                json
-            } else {
-                log::error!("Couldn't parse JSON");
-                continue;
-            };
-            if CONFIG.pass && !shared::validate_token(&req.token) {
-                if !first_message && data_send.send(None).await.is_err() {
-                    break;
-                }
-                data_send
-                    .send(Some(shared::Request {
-                        page: "/login".to_string(),
-                        token: String::new(),
-                        cmd: String::new(),
-                        args: Vec::new(),
-                    }))
-                    .await
-                    .unwrap();
-                continue;
-            }
-            if req.cmd.is_empty() {
-                if first_message {
-                    first_message = false;
-                } else {
-                    // Quit out of handler
-                    if data_send.send(None).await.is_err() {
-                        break;
-                    }
-                }
-            }
-            // Send new page/data
-            if data_send.send(Some(req.clone())).await.is_err() {
-                break;
-            }
-        }
-    });
-    // Send global message (shown on all pages)
-    let _send = socket_send
-        .send(Message::text(
-            SerJson::serialize_json(&systemdata::global()),
-        ))
-        .await;
-    let socket_ptr = Arc::new(Mutex::new(socket_send));
-    while let Some(Some(message)) = data_recv.recv().await {
-        match message.page.as_str() {
-            "/" => main_handler(Arc::clone(&socket_ptr), &mut data_recv).await,
-            "/process" => {
-                process_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
-            }
-            "/software" => {
-                software_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
-            }
-            "/management" => {
-                management_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
-            }
-            "/service" => {
-                service_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
-            }
-            "/browser" => {
-                browser_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
-            }
-            "/login" => {
-                // Internal poll, see other thread
-                let _send = (*socket_ptr.lock().await)
-                    .send(Message::text(SerJson::serialize_json(
-                        &shared::TokenError { error: true },
-                    )))
-                    .await;
-            }
-            _ => {}
         }
     }
 }
