@@ -123,7 +123,8 @@
     let login = false;
     let loginDialog = false;
     let nodes: string[] = [];
-    let node = `${window.location.hostname}:${window.location.port}`;
+    // let node = `${window.location.hostname}:${window.location.port}`;
+    let node = "172.16.1.16:5252"
     let notificationsShown = false;
     let settingsShown = false;
     let passwordMessage = false;
@@ -238,6 +239,13 @@
         );
     }
 
+    function onPasswordEnter(e: KeyboardEvent) {
+        // when enter key pressed
+        if (e.key == 'Enter') {
+            getToken();
+        }
+    }
+
     function socketSend(cmd: string, args: string[]) {
         let json;
         if (login) {
@@ -267,7 +275,7 @@
         socket.onerror = socketErrorListener;
     }
 
-    $: node && ((shown = false), connectSocket(node));
+    $: node && ((shown = false), connectSocket("172.16.1.16:5252"));
 </script>
 
 <main class="min-h-screen flex overflow-x-hidden{darkMode ? ' dark' : ''}">
@@ -283,6 +291,7 @@
                 <input
                     type="password"
                     class="outline-none bg-gray-100 border border-gray-400 dark:border-gray-700 rounded focus:bg-gray-200 dark:bg-gray-900 dark:focus:bg-gray-800"
+                    on:keypress="{onPasswordEnter}"
                     bind:value={password}
                 />
                 <button
