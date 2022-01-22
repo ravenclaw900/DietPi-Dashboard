@@ -123,8 +123,7 @@
     let login = false;
     let loginDialog = false;
     let nodes: string[] = [];
-    // let node = `${window.location.hostname}:${window.location.port}`;
-    let node = "172.16.1.16:5252"
+    let node = `${window.location.hostname}:${window.location.port}`;
     let notificationsShown = false;
     let settingsShown = false;
     let passwordMessage = false;
@@ -275,7 +274,7 @@
         socket.onerror = socketErrorListener;
     }
 
-    $: node && ((shown = false), connectSocket("172.16.1.16:5252"));
+    $: node && ((shown = false), connectSocket(node));
 </script>
 
 <main class="min-h-screen flex overflow-x-hidden{darkMode ? ' dark' : ''}">
