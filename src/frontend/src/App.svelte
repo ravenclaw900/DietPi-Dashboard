@@ -238,13 +238,6 @@
         );
     }
 
-    function onPasswordEnter(e: KeyboardEvent) {
-        // when enter key pressed
-        if (e.key == 'Enter') {
-            getToken();
-        }
-    }
-
     function socketSend(cmd: string, args: string[]) {
         let json;
         if (login) {
@@ -287,17 +280,19 @@
                 class="bg-white dark:bg-black w-1/2 h-1/3 rounded-md flex items-center flex-col justify-center text-xl z-40 gap-5 dark:text-white"
             >
                 <h6>Please login:</h6>
-                <input
-                    type="password"
-                    class="outline-none bg-gray-100 border border-gray-400 dark:border-gray-700 rounded focus:bg-gray-200 dark:bg-gray-900 dark:focus:bg-gray-800"
-                    on:keypress="{onPasswordEnter}"
-                    bind:value={password}
-                />
-                <button
-                    on:click={getToken}
-                    class="border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none border p-2 rounded active:bg-gray-200 dark:active:bg-gray-800"
-                    >Login</button
+                <form
+                    on:submit|preventDefault="{getToken}"
                 >
+                    <input
+                        type="password"
+                        class="outline-none bg-gray-100 border border-gray-400 dark:border-gray-700 rounded focus:bg-gray-200 dark:bg-gray-900 dark:focus:bg-gray-800"
+                        bind:value={password}
+                    />
+                    <button
+                        type="submit"
+                        class="border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none border p-2 rounded active:bg-gray-200 dark:active:bg-gray-800"
+                    >Login</button>
+                </form> 
                 {#if passwordMessage}
                     <h6 class="text-red-500" transition:fade>
                         Incorrect password
