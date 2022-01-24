@@ -103,15 +103,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sveltejs/vite-plugin-svelte@npm:^1.0.0-next.34":
-  version: 1.0.0-next.34
-  resolution: "@sveltejs/vite-plugin-svelte@npm:1.0.0-next.34"
+"@sveltejs/vite-plugin-svelte@npm:^1.0.0-next.35":
+  version: 1.0.0-next.35
+  resolution: "@sveltejs/vite-plugin-svelte@npm:1.0.0-next.35"
   dependencies:
     "@rollup/pluginutils": ^4.1.2
     debug: ^4.3.3
     kleur: ^4.1.4
     magic-string: ^0.25.7
-    require-relative: ^0.8.7
     svelte-hmr: ^0.14.9
   peerDependencies:
     diff-match-patch: ^1.0.5
@@ -120,7 +119,7 @@ __metadata:
   peerDependenciesMeta:
     diff-match-patch:
       optional: true
-  checksum: 90ec65c63b6534922761e29e5c3d0fefe5a75ca048c0704cd51a014325a173a818e641dece4b5384fefb2209a9db51baab945107be9b4983fc19190186cb2b6b
+  checksum: d194d9634f53c24f8b84e9557e838b4076b3a0304fc8ccda296d98b0052bf5ccf302b304929b0bb9b7f12b587c0427a960b710c0ddb37d6c5306b2898dfcac38
   languageName: node
   linkType: hard
 
@@ -473,7 +472,7 @@ __metadata:
   dependencies:
     "@fortawesome/free-brands-svg-icons": ^5.15.4
     "@fortawesome/free-solid-svg-icons": ^5.15.4
-    "@sveltejs/vite-plugin-svelte": ^1.0.0-next.34
+    "@sveltejs/vite-plugin-svelte": ^1.0.0-next.35
     "@tsconfig/svelte": ^3.0.0
     "@types/autosize": ^4.0.1
     autosize: ^5.0.1
@@ -1501,13 +1500,6 @@ fsevents@~2.3.2:
   dependencies:
     picomatch: ^2.2.1
   checksum: 1ced032e6e45670b6d7352d71d21ce7edf7b9b928494dcaba6f11fba63180d9da6cd7061ebc34175ffda6ff529f481818c962952004d273178acd70f7059b320
-  languageName: node
-  linkType: hard
-
-"require-relative@npm:^0.8.7":
-  version: 0.8.7
-  resolution: "require-relative@npm:0.8.7"
-  checksum: f1c3be06977823bba43600344d9ea6fbf8a55bdb81ec76533126849ab4024e6c31c6666f37fa4b5cfeda9c41dee89b8e19597cac02bdefaab42255c6708661ab
   languageName: node
   linkType: hard
 
