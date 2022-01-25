@@ -280,8 +280,8 @@
                 class="bg-white dark:bg-black w-1/2 h-1/3 rounded-md flex items-center flex-col justify-center text-xl z-40 gap-5 dark:text-white"
             >
                 <h6>Please login:</h6>
-                <form
-                    on:submit|preventDefault="{getToken}"
+                <form class="flex flex-col gap-5 items-center"
+                    on:submit|preventDefault={getToken}
                 >
                     <input
                         type="password"
