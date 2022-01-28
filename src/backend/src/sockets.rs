@@ -23,10 +23,10 @@ async fn main_handler(
             let _send = (*socket_send)
                 .send(Message::text(SerJson::serialize_json(&shared::SysData {
                     cpu: systemdata::cpu().await,
-                    ram: systemdata::ram().await,
-                    swap: systemdata::swap().await,
-                    disk: systemdata::disk().await,
-                    network: systemdata::network().await,
+                    ram: systemdata::ram(),
+                    swap: systemdata::swap(),
+                    disk: systemdata::disk(),
+                    network: systemdata::network(),
                 })))
                 .await;
         }
@@ -63,19 +63,18 @@ async fn process_handler(
                 break;
             }
             Some(Some(data)) => {
-                let process = heim::process::get(data.args[0].parse::<i32>().unwrap())
-                    .await
-                    .unwrap();
+                let process =
+                    psutil::process::Process::new(data.args[0].parse::<u32>().unwrap()).unwrap();
                 log::info!(
                     "{}ing process {}",
                     data.cmd.trim_end_matches('e'),
                     process.pid()
                 );
                 match data.cmd.as_str() {
-                    "terminate" => process.terminate().await.unwrap(),
-                    "kill" => process.kill().await.unwrap(),
-                    "suspend" => process.suspend().await.unwrap(),
-                    "resume" => process.resume().await.unwrap(),
+                    "terminate" => process.terminate().unwrap(),
+                    "kill" => process.kill().unwrap(),
+                    "suspend" => process.suspend().unwrap(),
+                    "resume" => process.resume().unwrap(),
                     _ => (),
                 }
             }
@@ -139,9 +138,7 @@ async fn management_handler(
 ) {
     let mut socket_send = socket_ptr.lock().await;
     let _send = (*socket_send)
-        .send(Message::text(SerJson::serialize_json(
-            &systemdata::host().await,
-        )))
+        .send(Message::text(SerJson::serialize_json(&systemdata::host())))
         .await;
     loop {
         match data_recv.recv().await {

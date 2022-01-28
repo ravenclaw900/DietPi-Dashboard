@@ -64,7 +64,7 @@ pub struct Request {
 
 #[derive(SerJson)]
 pub struct ProcessData {
-    pub pid: i32,
+    pub pid: u32,
     pub name: String,
     pub cpu: f32,
     pub ram: u64,
