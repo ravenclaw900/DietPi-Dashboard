@@ -12,8 +12,9 @@ mod systemdata;
 
 #[allow(clippy::too_many_lines)]
 fn main() {
+    #[allow(clippy::cast_possible_truncation)]
     tokio::runtime::Builder::new_multi_thread()
-        .worker_threads(num_cpus::get().max(2)) // We have to use num_cpus because heim is async, and the runtime hasn't been started yet. Minimum of 2 threads.
+        .worker_threads(psutil::cpu::cpu_count().max(2) as usize)
         .enable_all()
         .build()
         .unwrap()
@@ -96,7 +97,8 @@ fn main() {
                     "*",
                 ));
 
-            let terminal_route = warp::path!("ws" / "term")
+            let terminal_route = warp::path("ws")
+                .and(warp::path("term"))
                 .and(warp::ws())
                 .map(|ws: warp::ws::Ws| ws.on_upgrade(socket_handlers::term_handler));
 
