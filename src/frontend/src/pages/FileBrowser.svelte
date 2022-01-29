@@ -1,6 +1,5 @@
 <script lang="ts">
     import microlight from "microlight";
-    import autosize from "autosize";
     import {
         faFile,
         faFileAlt,
@@ -42,18 +41,17 @@
         size: 0,
     };
 
-    $: autosize(fileText), autosize.update(fileText);
     // Skip first array element (empty string)
     $: pathArray = currentPath.split("/").slice(1);
     $: socketData.textdata != undefined &&
         !fileDataSet &&
         ((fileData = socketData.textdata), (fileDataSet = true));
-    // Set innerText manually to avoid issues with highlighting
+    // Set innerHTML manually to avoid issues with highlighting
     $: fileDiv != undefined &&
-        ((fileDiv.innerHTML = fileData
+        (fileDiv.innerHTML = fileData
             .replace(new RegExp("&", "g"), "&amp;")
             .replace(new RegExp("<", "g"), "&lt;")),
-        microlight.reset());
+        microlight.reset();
 
     interface broserList {
         contents?: browser[];
@@ -271,12 +269,17 @@
                         bind:this={fileText}
                         on:scroll={syncScroll}
                         on:keydown={checkTab}
+                        on:input={() => {
+                            this.style.height = "auto";
+                            this.style.height = `${this.scrollHeight}px`;
+                        }}
                         spellcheck="false"
-                        class="w-full font-mono text-sm bg-transparent text-transparent whitespace-pre tab-4 !overflow-x-scroll caret-black dark:caret-white z-20 focus:outline-none p-px"
+                        class="w-full font-mono text-sm bg-transparent text-transparent whitespace-pre tab-4 caret-black dark:caret-white z-20 focus:outline-none p-px resize-none"
+                        style="height:{this.scrollHeight}px;overflow-y:hidden;"
                     />
                     <div
                         bind:this={fileDiv}
-                        class="w-full microlight -ml-[100%] font-mono whitespace-pre bg-white dark:bg-black text-sm z-10 tab-4 !overflow-x-scroll p-px"
+                        class="w-full microlight font-mono whitespace-pre bg-white dark:bg-black text-sm z-10 tab-4 p-px -ml-[100%]"
                     />
                 </div>
             {:else if binData != ""}

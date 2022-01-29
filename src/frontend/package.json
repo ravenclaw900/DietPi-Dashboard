@@ -28,7 +28,6 @@
     "windicss": "^3.4.3"
   },
   "dependencies": {
-    "autosize": "^5.0.1",
     "chart.js": "^3.7.0",
     "microlight": "^0.0.7",
     "pretty-bytes": "^5.6.0",
