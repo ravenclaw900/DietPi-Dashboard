@@ -25,5 +25,8 @@ assignees: ''
 3. Scroll down to '....'
 4. See error
 
+**Error log**
+<!-- Run `journalctl -u dietpi-dashboard` to get -->
+
 **Additional context**
 <!-- Add any other context about the problem here. -->
