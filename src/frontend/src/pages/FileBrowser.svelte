@@ -17,6 +17,8 @@
         faICursor,
         faSyncAlt,
         faHighlighter,
+        faEyeSlash,
+        faEye,
     } from "@fortawesome/free-solid-svg-icons";
     import Fa from "svelte-fa";
     import prettyBytes from "pretty-bytes";
@@ -26,6 +28,7 @@
     export let node: string;
     export let login: boolean;
     let fileDataSet = false;
+    let showHidden = false;
 
     const fileSocket = new WebSocket(
         `${
@@ -287,7 +290,10 @@
                         <tr
                             class="select-none{selPath == contents
                                 ? ' !bg-dplime-dark'
-                                : ''} even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800"
+                                : ''} even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800{!showHidden &&
+                            contents.name[0] == '.'
+                                ? ' hidden'
+                                : ''}"
                             on:dblclick={() => {
                                 switch (contents.maintype) {
                                     case "dir":
@@ -383,6 +389,16 @@
                             sendCmd(`${currentPath}/${name}`, "mkfile");
                         }
                     }}><Fa icon={faFileMedical} size="lg" /></span
+                >
+                <span
+                    title="{showHidden ? 'Hide' : 'Show'} Hidden Files"
+                    on:click={() => {
+                        showHidden = !showHidden;
+                    }}
+                    ><Fa
+                        icon={showHidden ? faEyeSlash : faEye}
+                        size="lg"
+                    /></span
                 >
                 {#if selPath.path != ""}
                     <span
