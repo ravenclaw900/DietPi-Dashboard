@@ -219,10 +219,9 @@
                     </tr>
                     {#each socketData.contents as contents}
                         <tr
-                            class="even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800 select-none{selPath ==
-                            contents
-                                ? ' !bg-blue-400 dark:!bg-blue-600'
-                                : ''}"
+                            class="select-none{selPath == contents
+                                ? ' !bg-dplime-dark'
+                                : ''} even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800"
                             on:dblclick={() => {
                                 switch (contents.maintype) {
                                     case "dir":
@@ -259,7 +258,7 @@
                             <td class="px-2">{contents.prettytype}</td>
                             <td class="px-2"
                                 >{contents.maintype == "dir"
-                                    ? "--"
+                                    ? "-"
                                     : prettyBytes(contents.size)}</td
                             >
                         </tr>
