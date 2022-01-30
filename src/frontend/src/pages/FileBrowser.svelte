@@ -16,6 +16,7 @@
         faFileMedical,
         faICursor,
         faSyncAlt,
+        faHighlighter,
     } from "@fortawesome/free-solid-svg-icons";
     import Fa from "svelte-fa";
     import prettyBytes from "pretty-bytes";
@@ -40,6 +41,8 @@
         prettytype: "",
         size: 0,
     };
+
+    let highlighting = false;
 
     // Skip first array element (empty string)
     $: pathArray = currentPath.split("/").slice(1);
@@ -274,12 +277,16 @@
                             this.style.height = `${this.scrollHeight}px`;
                         }}
                         spellcheck="false"
-                        class="w-full font-mono text-sm bg-transparent text-transparent whitespace-pre tab-4 caret-black dark:caret-white z-20 focus:outline-none p-px resize-none"
+                        class="w-full font-mono text-sm{highlighting
+                            ? ' bg-transparent text-transparent'
+                            : ''} whitespace-pre tab-4 caret-black dark:caret-white z-20 focus:outline-none p-px resize-none"
                         style="height:{this.scrollHeight}px;overflow-y:hidden;"
                     />
                     <div
                         bind:this={fileDiv}
-                        class="w-full microlight font-mono whitespace-pre bg-white dark:bg-black text-sm z-10 tab-4 p-px -ml-[100%]"
+                        class="w-full microlight font-mono whitespace-pre bg-white dark:bg-black text-sm z-10 tab-4 p-px -ml-[100%]{highlighting
+                            ? ''
+                            : ' invisible'}"
                     />
                 </div>
             {:else if binData != ""}
@@ -372,6 +379,17 @@
                     >
                 {/if}
             {:else if socketData.textdata != undefined}
+                <span
+                    title="Syntax Highlighting"
+                    on:click={() => {
+                        highlighting = !highlighting;
+                    }}
+                    ><Fa
+                        icon={faHighlighter}
+                        class={highlighting ? "" : "opacity-50"}
+                        size="lg"
+                    /></span
+                >
                 <span
                     class="cursor-pointer"
                     on:click={() => socketSend("save", [currentPath, fileData])}
