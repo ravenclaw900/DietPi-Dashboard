@@ -12,7 +12,11 @@ assignees: ''
 
 **Version of DietPi-Dashboard**: 0.0.0
 
+**Nightly or stable**: Nightly | Stable
+
 **Version of DietPi**: 0.0.0
+
+**Device architecture**: <!-- e.g. x86_64, armv6, armv8 -->
 
 **To Reproduce**
 <!-- Steps to reproduce the behavior -->
