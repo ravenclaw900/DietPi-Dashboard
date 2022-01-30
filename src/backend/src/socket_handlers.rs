@@ -12,6 +12,30 @@ use warp::ws::Message;
 
 use crate::{page_handlers::*, shared, systemdata, CONFIG};
 
+fn validate_token(token: &str) -> bool {
+    let key = jwts::jws::Key::new(&crate::CONFIG.secret, jwts::jws::Algorithm::HS256);
+    let verified: jwts::jws::Token<jwts::Claims>;
+    if let Ok(token) = jwts::jws::Token::verify_with_key(token, &key) {
+        verified = token;
+    } else {
+        log::error!("Couldn't verify token");
+        return false;
+    };
+    let config = jwts::ValidationConfig {
+        iat_validation: false,
+        nbf_validation: false,
+        exp_validation: true,
+        expected_iss: Some("DietPi Dashboard".to_string()),
+        expected_sub: None,
+        expected_aud: None,
+        expected_jti: None,
+    };
+    if verified.validate_claims(&config).is_err() {
+        return false;
+    }
+    true
+}
+
 #[allow(clippy::too_many_lines)]
 pub async fn socket_handler(socket: warp::ws::WebSocket) {
     let (mut socket_send, mut socket_recv) = socket.split();
@@ -38,7 +62,7 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                     continue;
                 }
             };
-            if CONFIG.pass && !shared::validate_token(&req.token) {
+            if CONFIG.pass && !validate_token(&req.token) {
                 if !first_message {
                     if data_send.send(None).await.is_err() {
                         break;
@@ -122,7 +146,7 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
         let token = socket_recv.next().await.unwrap().unwrap();
         let token = token.to_str().unwrap();
         if token.get(..5) == Some("token") {
-            if !crate::shared::validate_token(&token[5..]) {
+            if !validate_token(&token[5..]) {
                 return;
             }
         } else {
@@ -194,4 +218,48 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
     log::info!("Closed terminal");
 }
 
-pub async fn file_handler(socket: warp::ws::WebSocket) {}
+pub async fn file_handler(mut socket: warp::ws::WebSocket) {
+    let mut req: shared::FileRequest;
+    while let Some(Ok(data)) = socket.next().await {
+        if data.is_close() {
+            break;
+        }
+        let data_str;
+        match data.to_str() {
+            Ok(data_string) => data_str = data_string,
+            Err(_) => {
+                log::error!("Couldn't convert received data to text");
+                continue;
+            }
+        }
+        req = match DeJson::deserialize_json(data_str) {
+            Ok(json) => json,
+            Err(_) => {
+                log::error!("Couldn't parse JSON");
+                continue;
+            }
+        };
+        if CONFIG.pass && !validate_token(&req.token) {
+            continue;
+        }
+
+        match req.cmd.as_str() {
+            "open" => {
+                socket
+                    .send(Message::text(
+                        std::fs::read_to_string(std::path::Path::new(&req.path)).unwrap(),
+                    ))
+                    .await;
+            }
+            "bin" => {
+                socket
+                    .send(Message::binary(
+                        std::fs::read(std::path::Path::new(&req.path)).unwrap(),
+                    ))
+                    .await;
+            }
+            "save" => std::fs::write(std::path::Path::new(&req.path), &req.arg).unwrap(),
+            _ => {}
+        }
+    }
+}

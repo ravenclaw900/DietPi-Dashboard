@@ -229,25 +229,10 @@ pub async fn browser_handler(
                         )))
                         .await;
                 }
-                "open" => {
-                    let _send = (*socket_send)
-                        .send(Message::text(SerJson::serialize_json(
-                            &shared::BrowserFileData {
-                                textdata: std::fs::read_to_string(std::path::Path::new(
-                                    &data.args[0],
-                                ))
-                                .unwrap(),
-                            },
-                        )))
-                        .await;
-                }
                 "img" => {
                     let _send = (*socket_send)
                         .send(Message::binary(std::fs::read(&data.args[0]).unwrap()))
                         .await;
-                }
-                "save" => {
-                    std::fs::write(std::path::Path::new(&data.args[0]), &data.args[1]).unwrap();
                 }
                 "copy" => {
                     let mut num = 2;

@@ -111,7 +111,6 @@
 
     let socket: WebSocket;
     let socketData: Partial<socketData> = {};
-    let binData = "";
     let shown = false;
     let menu = window.innerWidth > 768;
     let update = "";
@@ -123,7 +122,7 @@
     let login = false;
     let loginDialog = false;
     let nodes: string[] = [];
-    let node = `${window.location.hostname}:${window.location.port}`;
+    let node = `${window.location.hostname}:${5252}`;
     let notificationsShown = false;
     let settingsShown = false;
     let passwordMessage = false;
@@ -136,13 +135,7 @@
     }
 
     const socketMessageListener = (e: MessageEvent) => {
-        if (typeof e.data === "string") {
-            socketData = JSON.parse(e.data);
-            binData = "";
-        } else {
-            socketData = {};
-            binData = URL.createObjectURL(e.data);
-        }
+        socketData = JSON.parse(e.data);
         if (socketData.update != undefined) {
             update = socketData.update;
             login = socketData.login;
@@ -285,7 +278,8 @@
                 class="bg-white dark:bg-black w-1/2 h-1/3 rounded-md flex items-center flex-col justify-center text-xl z-40 gap-5 dark:text-white"
             >
                 <h6>Please login:</h6>
-                <form class="flex flex-col gap-5 items-center"
+                <form
+                    class="flex flex-col gap-5 items-center"
                     on:submit|preventDefault={getToken}
                 >
                     <input
@@ -296,8 +290,9 @@
                     <button
                         type="submit"
                         class="border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none border p-2 rounded active:bg-gray-200 dark:active:bg-gray-800"
-                    >Login</button>
-                </form> 
+                        >Login</button
+                    >
+                </form>
                 {#if passwordMessage}
                     <h6 class="text-red-500" transition:fade>
                         Incorrect password
@@ -353,9 +348,8 @@
             <div class="flex justify-around">
                 {#if nodes.length != 0}
                     <select bind:value={node} class="hidden md:inline-block">
-                        <option
-                            value={`${window.location.hostname}:${window.location.port}`}
-                            >{`${window.location.hostname}:${window.location.port}`}
+                        <option value={`${window.location.hostname}:${5252}`}
+                            >{`${window.location.hostname}:${5252}`}
                         </option>
                         {#each nodes as node}
                             <option value={node}>
@@ -410,8 +404,8 @@
                     <table class="w-full">
                         <select bind:value={node} class="w-full">
                             <option
-                                value={`${window.location.hostname}:${window.location.port}`}
-                                >{`${window.location.hostname}:${window.location.port}`}
+                                value={`${window.location.hostname}:${5252}`}
+                                >{`${window.location.hostname}:${5252}`}
                             </option>
                             {#each nodes as node}
                                 <option value={node}>
@@ -447,7 +441,8 @@
                         ><FileBrowser
                             {socketSend}
                             {socketData}
-                            {binData}
+                            {node}
+                            {login}
                         /></Route
                     >
                     <Route path="service"

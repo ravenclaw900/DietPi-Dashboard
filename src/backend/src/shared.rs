@@ -4,30 +4,6 @@ lazy_static::lazy_static! {
     pub static ref CONFIG: crate::config::Config = crate::config::config();
 }
 
-pub fn validate_token(token: &str) -> bool {
-    let key = jwts::jws::Key::new(&crate::CONFIG.secret, jwts::jws::Algorithm::HS256);
-    let verified: jwts::jws::Token<jwts::Claims>;
-    if let Ok(token) = jwts::jws::Token::verify_with_key(token, &key) {
-        verified = token;
-    } else {
-        log::error!("Couldn't verify token");
-        return false;
-    };
-    let config = jwts::ValidationConfig {
-        iat_validation: false,
-        nbf_validation: false,
-        exp_validation: true,
-        expected_iss: Some("DietPi Dashboard".to_string()),
-        expected_sub: None,
-        expected_aud: None,
-        expected_jti: None,
-    };
-    if verified.validate_claims(&config).is_err() {
-        return false;
-    }
-    true
-}
-
 #[derive(SerJson)]
 pub struct SysData {
     pub cpu: f32,
@@ -149,4 +125,16 @@ pub struct BrowserList {
 #[derive(SerJson)]
 pub struct TokenError {
     pub error: bool,
+}
+
+#[derive(DeJson)]
+pub struct FileRequest {
+    #[nserde(default)]
+    pub cmd: String,
+    #[nserde(default)]
+    pub path: String,
+    #[nserde(default)]
+    pub token: String,
+    #[nserde(default)]
+    pub arg: String,
 }

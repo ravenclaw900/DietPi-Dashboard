@@ -22,16 +22,32 @@
     import prettyBytes from "pretty-bytes";
 
     export let socketSend: (cmd: string, args: string[]) => void;
-    export let socketData: broserList;
-    export let binData: string;
-
+    export let socketData: browserList;
+    export let node: string;
+    export let login: boolean;
     let fileDataSet = false;
+
+    const fileSocket = new WebSocket(
+        `${
+            window.location.protocol == "https:" ? "wss" : "ws"
+        }://${node}/ws/file`
+    );
+    fileSocket.onmessage = (e: MessageEvent) => {
+        if (typeof e.data == "string") {
+            fileData = e.data;
+            fileDataSet = true;
+        } else {
+            binURL = URL.createObjectURL(e.data);
+        }
+    };
+
     let pathArray: string[];
-    let fileData: string;
+    let fileData = "";
     let fileText: HTMLTextAreaElement;
     let fileDiv: HTMLDivElement;
     // TODO: better solution than just assuming dashboard is being run by root
     let currentPath = "/root";
+    let binURL = "";
 
     let selPath: browser = {
         name: "",
@@ -46,19 +62,18 @@
 
     // Skip first array element (empty string)
     $: pathArray = currentPath.split("/").slice(1);
-    $: socketData.textdata != undefined &&
-        !fileDataSet &&
-        ((fileData = socketData.textdata), (fileDataSet = true));
     // Set innerHTML manually to avoid issues with highlighting
     $: fileDiv != undefined &&
-        (fileDiv.innerHTML = fileData
-            .replace(new RegExp("&", "g"), "&amp;")
-            .replace(new RegExp("<", "g"), "&lt;")),
+        (fileDiv.innerHTML =
+            fileData[fileData.length - 1] == "\n"
+                ? fileData + " "
+                : fileData
+                      .replace(new RegExp("&", "g"), "&amp;")
+                      .replace(new RegExp("<", "g"), "&lt;")),
         microlight.reset();
 
-    interface broserList {
+    interface browserList {
         contents?: browser[];
-        textdata?: string;
         currentpath?: string;
     }
 
@@ -82,6 +97,26 @@
         };
         socketSend(cmd, [path]);
         fileDataSet = false;
+        binURL = "";
+    }
+
+    function fileSend(path: string, cmd: string, arg: string) {
+        let json;
+        if (login) {
+            json = JSON.stringify({
+                cmd,
+                path,
+                arg,
+                token: JSON.parse(localStorage.getItem("tokens"))[node],
+            });
+        } else {
+            json = JSON.stringify({
+                cmd,
+                path,
+                arg,
+            });
+        }
+        fileSocket.send(json);
     }
 
     function rename(oldname: string, newname: string) {
@@ -94,7 +129,6 @@
             size: 0,
         };
         socketSend("rename", [oldname, newname]);
-        fileDataSet = false;
     }
 
     function syncScroll() {
@@ -208,7 +242,39 @@
                     {/if}
                 {/each}
             </div>
-            {#if socketData.contents != undefined}
+            {#if fileDataSet}
+                <div class="flex">
+                    <textarea
+                        bind:value={fileData}
+                        bind:this={fileText}
+                        on:scroll={syncScroll}
+                        on:keydown={checkTab}
+                        on:input={() => {
+                            if (fileText) {
+                                fileText.style.height = "auto";
+                                fileText.style.height = `${
+                                    fileText.scrollHeight + 10
+                                }px`;
+                                fileDiv.style.height = "auto";
+                            }
+                        }}
+                        spellcheck="false"
+                        class="w-full font-mono text-sm{highlighting
+                            ? ' bg-transparent text-transparent'
+                            : ''} whitespace-pre tab-4 caret-black z-20 dark:caret-white focus:outline-none p-px resize-none overflow-y-hidden"
+                    />
+                    <div
+                        bind:this={fileDiv}
+                        class="w-full microlight font-mono whitespace-pre bg-white dark:bg-black text-sm z-10 tab-4 p-px -ml-[100%] overflow-y-hidden{highlighting
+                            ? ''
+                            : ' invisible'}"
+                    />
+                </div>
+            {:else if binURL != ""}
+                <div>
+                    <img src={binURL} alt="Unknown" />
+                </div>
+            {:else if socketData.contents != undefined}
                 <table
                     class="bg-white w-full dark:bg-black table-fixed min-w-50"
                 >
@@ -229,11 +295,11 @@
                                         currentPath = contents.path;
                                         break;
                                     case "text":
-                                        sendCmd(contents.path, "open");
+                                        fileSend(contents.path, "open", "");
                                         currentPath = contents.path;
                                         break;
                                     case "image":
-                                        sendCmd(contents.path, "img");
+                                        fileSend(contents.path, "bin", "");
                                         currentPath = contents.path;
                                         break;
                                     default:
@@ -264,40 +330,29 @@
                         </tr>
                     {/each}
                 </table>
-            {:else if socketData.textdata != undefined}
-                <div class="flex">
-                    <textarea
-                        bind:value={fileData}
-                        bind:this={fileText}
-                        on:scroll={syncScroll}
-                        on:keydown={checkTab}
-                        on:input={() => {
-                            this.style.height = "auto";
-                            this.style.height = `${this.scrollHeight}px`;
-                        }}
-                        spellcheck="false"
-                        class="w-full font-mono text-sm{highlighting
-                            ? ' bg-transparent text-transparent'
-                            : ''} whitespace-pre tab-4 caret-black dark:caret-white z-20 focus:outline-none p-px resize-none"
-                        style="height:{this.scrollHeight}px;overflow-y:hidden;"
-                    />
-                    <div
-                        bind:this={fileDiv}
-                        class="w-full microlight font-mono whitespace-pre bg-white dark:bg-black text-sm z-10 tab-4 p-px -ml-[100%]{highlighting
-                            ? ''
-                            : ' invisible'}"
-                    />
-                </div>
-            {:else if binData != ""}
-                <div>
-                    <img src={binData} alt="Unknown" />
-                </div>
             {/if}
         </div>
         <div
             class="min-w-16 bg-gray-300 dark:bg-gray-800 flex flex-col items-center ml-4 justify-center sticky top-10 p-4 h-min gap-2"
         >
-            {#if socketData.contents != undefined}
+            {#if fileData}
+                <span
+                    title="Syntax Highlighting"
+                    on:click={() => {
+                        highlighting = !highlighting;
+                    }}
+                    ><Fa
+                        icon={faHighlighter}
+                        class={highlighting ? "" : "opacity-50"}
+                        size="lg"
+                    /></span
+                >
+                <span
+                    class="cursor-pointer"
+                    on:click={() => fileSend(currentPath, "save", fileData)}
+                    ><Fa icon={faSave} size="lg" /></span
+                >
+            {:else if socketData.contents != undefined}
                 <span
                     class="cursor-pointer"
                     title="Refresh"
@@ -377,23 +432,7 @@
                         }}><Fa icon={faTrash} size="lg" /></span
                     >
                 {/if}
-            {:else if socketData.textdata != undefined}
-                <span
-                    title="Syntax Highlighting"
-                    on:click={() => {
-                        highlighting = !highlighting;
-                    }}
-                    ><Fa
-                        icon={faHighlighter}
-                        class={highlighting ? "" : "opacity-50"}
-                        size="lg"
-                    /></span
-                >
-                <span
-                    class="cursor-pointer"
-                    on:click={() => socketSend("save", [currentPath, fileData])}
-                    ><Fa icon={faSave} size="lg" /></span
-                >{/if}
+            {/if}
         </div>
     </div>
 </main>
