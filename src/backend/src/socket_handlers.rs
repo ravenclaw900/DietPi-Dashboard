@@ -10,7 +10,7 @@ use tokio::sync::RwLock;
 use tokio::sync::{mpsc, Mutex};
 use warp::ws::Message;
 
-use crate::{page_handlers::*, shared, systemdata, CONFIG};
+use crate::{page_handlers, shared, systemdata, CONFIG};
 
 fn validate_token(token: &str) -> bool {
     let key = jwts::jws::Key::new(&crate::CONFIG.secret, jwts::jws::Algorithm::HS256);
@@ -48,25 +48,21 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                 break;
             }
             let data_str;
-            match data.to_str() {
-                Ok(data_string) => data_str = data_string,
-                Err(_) => {
-                    log::error!("Couldn't convert received data to text");
-                    continue;
-                }
+            if let Ok(data_string) = data.to_str() {
+                data_str = data_string;
+            } else {
+                log::error!("Couldn't convert received data to text");
+                continue;
             }
-            req = match DeJson::deserialize_json(data_str) {
-                Ok(json) => json,
-                Err(_) => {
-                    log::error!("Couldn't parse JSON");
-                    continue;
-                }
+            req = if let Ok(json) = DeJson::deserialize_json(data_str) {
+                json
+            } else {
+                log::error!("Couldn't parse JSON");
+                continue;
             };
-            if CONFIG.pass && !validate_token(&req.token) {
-                if !first_message {
-                    if data_send.send(None).await.is_err() {
-                        break;
-                    }
+            if CONFIG.pass && !validate_token(&req.token) && !first_message {
+                if data_send.send(None).await.is_err() {
+                    break;
                 }
                 data_send
                     .send(Some(shared::Request {
@@ -104,21 +100,21 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
     let socket_ptr = Arc::new(Mutex::new(socket_send));
     while let Some(Some(message)) = data_recv.recv().await {
         match message.page.as_str() {
-            "/" => main_handler(Arc::clone(&socket_ptr), &mut data_recv).await,
+            "/" => page_handlers::main_handler(Arc::clone(&socket_ptr), &mut data_recv).await,
             "/process" => {
-                process_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
+                page_handlers::process_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
             }
             "/software" => {
-                software_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
+                page_handlers::software_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
             }
             "/management" => {
-                management_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
+                page_handlers::management_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
             }
             "/service" => {
-                service_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
+                page_handlers::service_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
             }
             "/browser" => {
-                browser_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
+                page_handlers::browser_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
             }
             "/login" => {
                 // Internal poll, see other thread
@@ -193,9 +189,8 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
         loop {
             let mut data = [0; 256];
             let lock = cmd_read.read().await;
-            match (*lock).pty().read(&mut data) {
-                Ok(_) => {}
-                Err(_) => break,
+            if (*lock).pty().read(&mut data).is_err() {
+                break;
             };
             if stop_thread_read.load(Relaxed) {
                 break;
@@ -225,19 +220,17 @@ pub async fn file_handler(mut socket: warp::ws::WebSocket) {
             break;
         }
         let data_str;
-        match data.to_str() {
-            Ok(data_string) => data_str = data_string,
-            Err(_) => {
-                log::error!("Couldn't convert received data to text");
-                continue;
-            }
+        if let Ok(data_string) = data.to_str() {
+            data_str = data_string;
+        } else {
+            log::error!("Couldn't convert received data to text");
+            continue;
         }
-        req = match DeJson::deserialize_json(data_str) {
-            Ok(json) => json,
-            Err(_) => {
-                log::error!("Couldn't parse JSON");
-                continue;
-            }
+        req = if let Ok(json) = DeJson::deserialize_json(data_str) {
+            json
+        } else {
+            log::error!("Couldn't parse JSON");
+            continue;
         };
         if CONFIG.pass && !validate_token(&req.token) {
             continue;
@@ -245,14 +238,14 @@ pub async fn file_handler(mut socket: warp::ws::WebSocket) {
 
         match req.cmd.as_str() {
             "open" => {
-                socket
+                let _send = socket
                     .send(Message::text(
                         std::fs::read_to_string(std::path::Path::new(&req.path)).unwrap(),
                     ))
                     .await;
             }
             "bin" => {
-                socket
+                let _send = socket
                     .send(Message::binary(
                         std::fs::read(std::path::Path::new(&req.path)).unwrap(),
                     ))
