@@ -335,7 +335,7 @@
         <div
             class="min-w-16 bg-gray-300 dark:bg-gray-800 flex flex-col items-center ml-4 justify-center sticky top-10 p-4 h-min gap-2"
         >
-            {#if fileData}
+            {#if fileDataSet}
                 <span
                     title="Syntax Highlighting"
                     on:click={() => {
