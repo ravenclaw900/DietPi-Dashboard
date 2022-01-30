@@ -24,7 +24,6 @@ fn main() {
 
             SimpleLogger::new()
                 .with_level(log::LevelFilter::Info)
-                .with_utc_timestamps()
                 .env()
                 .init()
                 .unwrap();
