@@ -294,25 +294,21 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                 break;
             }
             let data_str;
-            match data.to_str() {
-                Ok(data_string) => data_str = data_string,
-                Err(_) => {
-                    log::error!("Couldn't convert received data to text");
-                    continue;
-                }
+            if let Ok(data_string) = data.to_str() {
+                data_str = data_string;
+            } else {
+                log::error!("Couldn't convert received data to text");
+                continue;
             }
-            req = match DeJson::deserialize_json(data_str) {
-                Ok(json) => json,
-                Err(_) => {
-                    log::error!("Couldn't parse JSON");
-                    continue;
-                }
+            req = if let Ok(json) = DeJson::deserialize_json(data_str) {
+                json
+            } else {
+                log::error!("Couldn't parse JSON");
+                continue;
             };
             if CONFIG.pass && !shared::validate_token(&req.token) {
-                if !first_message {
-                    if data_send.send(None).await.is_err() {
-                        break;
-                    }
+                if !first_message && data_send.send(None).await.is_err() {
+                    break;
                 }
                 data_send
                     .send(Some(shared::Request {
