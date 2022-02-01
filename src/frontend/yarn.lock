@@ -481,7 +481,7 @@ __metadata:
     pretty-bytes: ^5.6.0
     pretty-ms: ^7.0.1
     svelte: ^3.46.3
-    svelte-check: ^2.4.0
+    svelte-check: ^2.4.1
     svelte-fa: ^2.4.0
     svelte-preprocess: ^4.10.2
     svelte-routing: ^1.6.0
@@ -1787,9 +1787,9 @@ resolve@^1.20.0:
   languageName: node
   linkType: hard
 
-"svelte-check@npm:^2.4.0":
-  version: 2.4.0
-  resolution: "svelte-check@npm:2.4.0"
+"svelte-check@npm:^2.4.1":
+  version: 2.4.1
+  resolution: "svelte-check@npm:2.4.1"
   dependencies:
     chokidar: ^3.4.1
     fast-glob: ^3.2.7
@@ -1804,7 +1804,7 @@ resolve@^1.20.0:
     svelte: ^3.24.0
   bin:
     svelte-check: bin/svelte-check
-  checksum: 76290e32c2b6179d62e238d9814e7d234147a360d92cf6f7bf1f5ac5f0a0b524614492c773f4e95df8bf46f557819a9367781db6eb8ee9558da6391d02151365
+  checksum: d09e3eef47c9c6dbe266b3da0557b7d0a1ae3c552fc80af7a45177829077299a0c461441b85d3f815b358bbc5b1f07c49bdc05b8aae2a4772ac904e83f2acbed
   languageName: node
   linkType: hard
 
