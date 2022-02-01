@@ -19,6 +19,7 @@
         faHighlighter,
         faEyeSlash,
         faEye,
+        faFileDownload,
     } from "@fortawesome/free-solid-svg-icons";
     import Fa from "svelte-fa";
     import prettyBytes from "pretty-bytes";
@@ -275,7 +276,12 @@
                 </div>
             {:else if binURL != ""}
                 <div>
-                    <img src={binURL} alt="Unknown" />
+                    <a
+                        href={binURL}
+                        target="_blank"
+                        download={`${selPath.name.split(".")[0]}.zip`}
+                        >Click to Download</a
+                    >
                 </div>
             {:else if socketData.contents != undefined}
                 <table
@@ -304,14 +310,15 @@
                                         fileSend(contents.path, "open", "");
                                         currentPath = contents.path;
                                         break;
-                                    case "image":
-                                        fileSend(contents.path, "bin", "");
-                                        currentPath = contents.path;
-                                        break;
                                     default:
-                                        alert(
-                                            "ERROR: can't view that type of file"
-                                        );
+                                        if (
+                                            confirm(
+                                                "Can't view that type of file, would you like to download instead?"
+                                            )
+                                        ) {
+                                            fileSend(selPath.path, "dl", "");
+                                            currentPath = selPath.path;
+                                        }
                                 }
                             }}
                             on:click={() => (selPath = contents)}
@@ -446,6 +453,14 @@
                                 );
                             }
                         }}><Fa icon={faTrash} size="lg" /></span
+                    >
+                    <span
+                        class="cursor-pointer"
+                        title="Download"
+                        on:click={() => {
+                            fileSend(selPath.path, "dl", "");
+                            currentPath = selPath.path;
+                        }}><Fa icon={faFileDownload} size="lg" /></span
                     >
                 {/if}
             {/if}

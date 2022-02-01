@@ -244,10 +244,44 @@ pub async fn file_handler(mut socket: warp::ws::WebSocket) {
                     ))
                     .await;
             }
-            "bin" => {
+            // Technically works for both files and directories
+            "dl" => {
+                let mut buf = Vec::new();
+                let src_path = std::path::Path::new(&req.path);
+                {
+                    let mut zip_file = zip::ZipWriter::new(std::io::Cursor::new(&mut buf));
+                    let mut file_buf = Vec::new();
+                    for entry in walkdir::WalkDir::new(&req.path) {
+                        let entry = entry.unwrap();
+                        let path = entry.path();
+                        let name = std::path::Path::new(src_path.file_name().unwrap())
+                            .join(path.strip_prefix(src_path).unwrap());
+                        if path.is_file() {
+                            zip_file
+                                .start_file(
+                                    name.to_str().unwrap(),
+                                    zip::write::FileOptions::default(),
+                                )
+                                .unwrap();
+                            let mut f = std::fs::File::open(path).unwrap();
+                            f.read_to_end(&mut file_buf).unwrap();
+                            zip_file.write_all(&file_buf).unwrap();
+                            file_buf.clear();
+                        } else if !name.as_os_str().is_empty() {
+                            zip_file
+                                .add_directory(
+                                    name.to_str().unwrap(),
+                                    zip::write::FileOptions::default(),
+                                )
+                                .unwrap();
+                        }
+                    }
+                    zip_file.finish().unwrap();
+                }
                 let _send = socket
                     .send(Message::binary(
-                        std::fs::read(std::path::Path::new(&req.path)).unwrap(),
+                        //std::fs::read(std::path::Path::new(&req.path)).unwrap(),
+                        buf,
                     ))
                     .await;
             }
