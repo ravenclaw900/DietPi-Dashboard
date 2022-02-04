@@ -62,6 +62,7 @@
     let fileData = "";
     let fileText: HTMLTextAreaElement;
     let fileDiv: HTMLDivElement;
+    let saved = true;
     // TODO: better solution than just assuming dashboard is being run by root
     let currentPath = "/root";
     let binURL = "";
@@ -237,8 +238,18 @@
                 <button
                     class="btn px-2 focus:outline-none"
                     on:click={() => {
-                        sendCmd("/", "cd");
-                        currentPath = "/";
+                        if (
+                            !saved &&
+                            !confirm(
+                                "You have not saved the file! Are you sure you want to continue?"
+                            )
+                        ) {
+                            return;
+                        } else {
+                            saved = true;
+                            sendCmd("/", "cd");
+                            currentPath = "/";
+                        }
                     }}>/</button
                 >
                 {#each pathArray as path}
@@ -258,8 +269,18 @@
                                         break;
                                     }
                                 }
-                                sendCmd(fullPath, "cd");
-                                currentPath = fullPath;
+                                if (
+                                    !saved &&
+                                    !confirm(
+                                        "You have not saved the file! Are you sure you want to continue?"
+                                    )
+                                ) {
+                                    return;
+                                } else {
+                                    saved = true;
+                                    sendCmd(fullPath, "cd");
+                                    currentPath = fullPath;
+                                }
                             }}>{path}</button
                         >
                     {/if}
@@ -273,6 +294,7 @@
                         on:scroll={syncScroll}
                         on:keydown={checkTab}
                         on:input={() => {
+                            saved = false;
                             if (fileText) {
                                 fileText.style.height = "auto";
                                 fileText.style.height = `${
@@ -390,8 +412,9 @@
                 >
                 <span
                     class="cursor-pointer"
-                    on:click={() => fileSend(currentPath, "save", fileData)}
-                    ><Fa icon={faSave} size="lg" /></span
+                    on:click={() => {
+                        fileSend(currentPath, "save", fileData), (saved = true);
+                    }}><Fa icon={faSave} size="lg" /></span
                 >
             {:else if socketData.contents != undefined}
                 <span
