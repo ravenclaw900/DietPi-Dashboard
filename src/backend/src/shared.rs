@@ -143,3 +143,8 @@ pub struct FileRequest {
 pub struct FileSize {
     pub size: usize,
 }
+
+#[derive(SerJson)]
+pub struct FileUploadFinished {
+    pub finished: bool,
+}

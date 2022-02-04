@@ -20,6 +20,7 @@
         faEyeSlash,
         faEye,
         faFileDownload,
+        faFileUpload,
     } from "@fortawesome/free-solid-svg-icons";
     import Fa from "svelte-fa";
     import prettyBytes from "pretty-bytes";
@@ -35,6 +36,8 @@
     let binData: BlobPart[] = [];
     let downloading = false;
 
+    let fileDialog: HTMLInputElement;
+
     const fileSocket = new WebSocket(
         `${
             window.location.protocol == "https:" ? "wss" : "ws"
@@ -43,7 +46,12 @@
     fileSocket.onmessage = (e: MessageEvent) => {
         if (typeof e.data == "string") {
             try {
-                maxSlices = JSON.parse(e.data).size;
+                let msg = JSON.parse(e.data);
+                if (msg.finished) {
+                    sendCmd(`${currentPath}/.`, "refresh");
+                } else if (msg.size) {
+                    maxSlices = msg.size;
+                }
             } catch {
                 fileData = e.data;
                 fileDataSet = true;
@@ -54,6 +62,8 @@
             if (currentSlices == maxSlices) {
                 binURL = URL.createObjectURL(new Blob(binData));
                 maxSlices = 0;
+                currentSlices = 0;
+                console.log(binURL);
             }
         }
     };
@@ -457,6 +467,39 @@
                         icon={showHidden ? faEyeSlash : faEye}
                         size="lg"
                     /></span
+                >
+                <span
+                    class="cursor-pointer"
+                    title="Upload File"
+                    on:click={() => {
+                        fileDialog.click();
+                    }}
+                    ><input
+                        type="file"
+                        class="hidden"
+                        bind:this={fileDialog}
+                        on:input={() => {
+                            let size = Math.ceil(
+                                fileDialog.files[0].size / (1000 * 1000)
+                            );
+                            fileSend(
+                                `${currentPath}/${fileDialog.files[0].name}`,
+                                "up",
+                                `${size}`
+                            );
+                            for (let i = 0; i < size; i++) {
+                                fileSocket.send(
+                                    fileDialog.files[0].slice(
+                                        i * 1000 * 1000,
+                                        Math.min(
+                                            (i + 1) * 1000 * 1000,
+                                            fileDialog.files[0].size
+                                        )
+                                    )
+                                );
+                            }
+                        }}
+                    /><Fa icon={faFileUpload} size="lg" /></span
                 >
                 {#if selPath.path != ""}
                     <span

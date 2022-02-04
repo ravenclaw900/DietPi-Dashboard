@@ -213,11 +213,35 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
     log::info!("Closed terminal");
 }
 
+#[allow(clippy::too_many_lines)]
 pub async fn file_handler(mut socket: warp::ws::WebSocket) {
     let mut req: shared::FileRequest;
+
+    let mut upload_buf = Vec::new();
+    let mut upload_max_size = 0;
+    let mut upload_current_size = 0;
+    let mut upload_path = String::new();
     while let Some(Ok(data)) = socket.next().await {
         if data.is_close() {
             break;
+        }
+        if data.is_binary() {
+            upload_buf.append(&mut data.into_bytes());
+            upload_current_size += 1;
+            log::debug!(
+                "Received {}MB out of {}MB",
+                upload_current_size,
+                upload_max_size
+            );
+            if upload_current_size == upload_max_size {
+                std::fs::write(&upload_path, &upload_buf).unwrap();
+                let _send = socket
+                    .send(Message::text(SerJson::serialize_json(
+                        &shared::FileUploadFinished { finished: true },
+                    )))
+                    .await;
+            }
+            continue;
         }
         let data_str;
         if let Ok(data_string) = data.to_str() {
@@ -296,7 +320,12 @@ pub async fn file_handler(mut socket: warp::ws::WebSocket) {
                             &buf[i * 1000 * 1000..((i + 1) * 1000 * 1000).min(buf.len())],
                         ))
                         .await;
+                    log::debug!("Sent {}MB out of {}MB", i, size);
                 }
+            }
+            "up" => {
+                upload_path = req.path;
+                upload_max_size = req.arg.parse::<usize>().unwrap();
             }
             "save" => std::fs::write(std::path::Path::new(&req.path), &req.arg).unwrap(),
             _ => {}
