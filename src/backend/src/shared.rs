@@ -138,3 +138,8 @@ pub struct FileRequest {
     #[nserde(default)]
     pub arg: String,
 }
+
+#[derive(SerJson)]
+pub struct FileSize {
+    pub size: usize,
+}

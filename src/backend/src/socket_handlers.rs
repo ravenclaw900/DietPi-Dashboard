@@ -278,12 +278,25 @@ pub async fn file_handler(mut socket: warp::ws::WebSocket) {
                     }
                     zip_file.finish().unwrap();
                 }
+                #[allow(
+                    clippy::cast_lossless,
+                    clippy::cast_sign_loss,
+                    clippy::cast_precision_loss,
+                    clippy::cast_possible_truncation
+                )]
+                let size = (buf.len() as f64 / f64::from(1000 * 1000)).ceil() as usize;
                 let _send = socket
-                    .send(Message::binary(
-                        //std::fs::read(std::path::Path::new(&req.path)).unwrap(),
-                        buf,
-                    ))
+                    .send(Message::text(SerJson::serialize_json(&shared::FileSize {
+                        size,
+                    })))
                     .await;
+                for i in 0..size {
+                    let _send = socket
+                        .send(Message::binary(
+                            &buf[i * 1000 * 1000..((i + 1) * 1000 * 1000).min(buf.len())],
+                        ))
+                        .await;
+                }
             }
             "save" => std::fs::write(std::path::Path::new(&req.path), &req.arg).unwrap(),
             _ => {}

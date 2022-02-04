@@ -30,6 +30,10 @@
     export let login: boolean;
     let fileDataSet = false;
     let showHidden = false;
+    let maxSlices = 0;
+    let currentSlices = 0;
+    let binData: BlobPart[] = [];
+    let downloading = false;
 
     const fileSocket = new WebSocket(
         `${
@@ -38,10 +42,21 @@
     );
     fileSocket.onmessage = (e: MessageEvent) => {
         if (typeof e.data == "string") {
-            fileData = e.data;
-            fileDataSet = true;
+            try {
+                maxSlices = JSON.parse(e.data).size;
+            } catch {
+                fileData = e.data;
+                fileDataSet = true;
+            }
         } else {
-            binURL = URL.createObjectURL(e.data);
+            currentSlices += 1;
+            binData.push(e.data);
+            if (currentSlices == maxSlices) {
+                binURL = URL.createObjectURL(new Blob(binData));
+                maxSlices = 0;
+            }
+            console.log(currentSlices, maxSlices);
+            console.log(binData);
         }
     };
 
@@ -61,6 +76,8 @@
         prettytype: "",
         size: 0,
     };
+
+    $: console.log(currentSlices, maxSlices, binURL, downloading);
 
     let highlighting = false;
 
@@ -101,7 +118,11 @@
         };
         socketSend(cmd, [path]);
         fileDataSet = false;
-        binURL = "";
+        if (downloading) {
+            downloading = false;
+            URL.revokeObjectURL(binURL);
+            binURL = "";
+        }
     }
 
     function fileSend(path: string, cmd: string, arg: string) {
@@ -274,15 +295,23 @@
                             : ' invisible'}"
                     />
                 </div>
-            {:else if binURL != ""}
-                <div>
+            {:else if downloading}
+                {#if binURL != ""}
                     <a
                         href={binURL}
                         target="_blank"
                         download={`${selPath.name.split(".")[0]}.zip`}
                         >Click to Download</a
                     >
-                </div>
+                {:else if maxSlices == 0}
+                    <h2>
+                        Zipping {selPath.maintype == "dir"
+                            ? "directory"
+                            : "file"}...
+                    </h2>
+                {:else}
+                    <h2>Receiving {currentSlices}MB out of {maxSlices}MB</h2>
+                {/if}
             {:else if socketData.contents != undefined}
                 <table
                     class="bg-white w-full dark:bg-black table-fixed min-w-50"
@@ -318,6 +347,7 @@
                                         ) {
                                             fileSend(selPath.path, "dl", "");
                                             currentPath = selPath.path;
+                                            downloading = true;
                                         }
                                 }
                             }}
@@ -460,6 +490,7 @@
                         on:click={() => {
                             fileSend(selPath.path, "dl", "");
                             currentPath = selPath.path;
+                            downloading = true;
                         }}><Fa icon={faFileDownload} size="lg" /></span
                     >
                 {/if}
