@@ -480,7 +480,7 @@ __metadata:
     microlight: ^0.0.7
     pretty-bytes: ^5.6.0
     pretty-ms: ^7.0.1
-    svelte: ^3.46.3
+    svelte: ^3.46.4
     svelte-check: ^2.4.2
     svelte-fa: ^2.4.0
     svelte-preprocess: ^4.10.2
@@ -1897,10 +1897,10 @@ resolve@^1.20.0:
   languageName: node
   linkType: hard
 
-"svelte@npm:^3.46.3":
-  version: 3.46.3
-  resolution: "svelte@npm:3.46.3"
-  checksum: 58659dd03edaf7f4e21e029bb92babe53c26b727d8e1d2beb61baebb360131829016f2ff4c222fa23d789dbbb3e1d092ece79178f441fa385378456b425044f7
+"svelte@npm:^3.46.4":
+  version: 3.46.4
+  resolution: "svelte@npm:3.46.4"
+  checksum: 929e6790cdd6d94c123b4b8a7b5a541164dbea6d4f4ed311f4e65cde60caa1c704e531bbf2e63519d1a96163cd3f812c6e5be5b2fd05f72d0177af5fd8ca8637
   languageName: node
   linkType: hard
 
