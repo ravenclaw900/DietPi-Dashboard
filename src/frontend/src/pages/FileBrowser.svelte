@@ -36,6 +36,11 @@
     let binData: BlobPart[] = [];
     let downloading = false;
 
+    $: socketData.contents &&
+        socketData.contents.sort((a, b) => {
+            return a.name < b.name ? -1 : 1;
+        });
+
     let fileDialog: HTMLInputElement;
 
     const fileSocket = new WebSocket(
