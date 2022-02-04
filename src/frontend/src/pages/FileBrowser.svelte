@@ -55,8 +55,6 @@
                 binURL = URL.createObjectURL(new Blob(binData));
                 maxSlices = 0;
             }
-            console.log(currentSlices, maxSlices);
-            console.log(binData);
         }
     };
 
@@ -76,8 +74,6 @@
         prettytype: "",
         size: 0,
     };
-
-    $: console.log(currentSlices, maxSlices, binURL, downloading);
 
     let highlighting = false;
 
@@ -108,14 +104,16 @@
     }
 
     function sendCmd(path: string, cmd: string) {
-        selPath = {
-            name: "",
-            path: "",
-            maintype: "",
-            subtype: "",
-            prettytype: "",
-            size: 0,
-        };
+        if (cmd == "rm" || cmd == "rmdir" || cmd == "cd") {
+            selPath = {
+                name: "",
+                path: "",
+                maintype: "",
+                subtype: "",
+                prettytype: "",
+                size: 0,
+            };
+        }
         socketSend(cmd, [path]);
         fileDataSet = false;
         if (downloading) {
@@ -323,7 +321,7 @@
                     </tr>
                     {#each socketData.contents as contents}
                         <tr
-                            class="select-none{selPath == contents
+                            class="select-none{selPath.path == contents.path
                                 ? ' !bg-dplime-dark'
                                 : ''} even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800{!showHidden &&
                             contents.name[0] == '.'

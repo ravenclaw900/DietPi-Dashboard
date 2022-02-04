@@ -229,11 +229,6 @@ pub async fn browser_handler(
                         )))
                         .await;
                 }
-                "img" => {
-                    let _send = (*socket_send)
-                        .send(Message::binary(std::fs::read(&data.args[0]).unwrap()))
-                        .await;
-                }
                 "copy" => {
                     let mut num = 2;
                     while std::path::Path::new(&format!("{} {}", &data.args[0], num)).exists() {
