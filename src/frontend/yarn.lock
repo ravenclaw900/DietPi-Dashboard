@@ -472,8 +472,8 @@ __metadata:
     microlight: ^0.0.7
     pretty-bytes: ^5.6.0
     pretty-ms: ^7.0.1
-    svelte: ^3.46.3
-    svelte-check: ^2.3.0
+    svelte: ^3.46.4
+    svelte-check: ^2.4.2
     svelte-fa: ^2.4.0
     svelte-preprocess: ^4.10.2
     svelte-routing: ^1.6.0
@@ -483,7 +483,7 @@ __metadata:
     vite-plugin-replace: ^0.1.1
     vite-plugin-windicss: ^1.6.3
     windicss: ^3.4.3
-    xterm: ^4.16.0
+    xterm: ^4.17.0
     xterm-addon-attach: ^0.6.0
     xterm-addon-fit: ^0.5.0
   languageName: unknown
@@ -1779,9 +1779,9 @@ resolve@^1.20.0:
   languageName: node
   linkType: hard
 
-"svelte-check@npm:^2.3.0":
-  version: 2.3.0
-  resolution: "svelte-check@npm:2.3.0"
+"svelte-check@npm:^2.4.2":
+  version: 2.4.2
+  resolution: "svelte-check@npm:2.4.2"
   dependencies:
     chokidar: ^3.4.1
     fast-glob: ^3.2.7
@@ -1796,7 +1796,7 @@ resolve@^1.20.0:
     svelte: ^3.24.0
   bin:
     svelte-check: bin/svelte-check
-  checksum: 81e957b0b32c4f07e0787e36a89756035f52aa2a04b6e18e579ae9abadbbd6e8c1ac601bc916b0c1361288860e36dfd59796df89e7750e96cddfa4ee7f8e331c
+  checksum: 4db8b9add92e1da0f6dc93b36f516952f7096378c2fd8e7b8177fb599dbb35465e1e7f66a63b55b5bbccf21b5d97ff4e2e0f99945803a46831d6ef9e52f4f1ac
   languageName: node
   linkType: hard
 
@@ -1889,10 +1889,10 @@ resolve@^1.20.0:
   languageName: node
   linkType: hard
 
-"svelte@npm:^3.46.3":
-  version: 3.46.3
-  resolution: "svelte@npm:3.46.3"
-  checksum: 58659dd03edaf7f4e21e029bb92babe53c26b727d8e1d2beb61baebb360131829016f2ff4c222fa23d789dbbb3e1d092ece79178f441fa385378456b425044f7
+"svelte@npm:^3.46.4":
+  version: 3.46.4
+  resolution: "svelte@npm:3.46.4"
+  checksum: 929e6790cdd6d94c123b4b8a7b5a541164dbea6d4f4ed311f4e65cde60caa1c704e531bbf2e63519d1a96163cd3f812c6e5be5b2fd05f72d0177af5fd8ca8637
   languageName: node
   linkType: hard
 
@@ -2077,10 +2077,10 @@ resolve@^1.20.0:
   languageName: node
   linkType: hard
 
-"xterm@npm:^4.16.0":
-  version: 4.16.0
-  resolution: "xterm@npm:4.16.0"
-  checksum: 11243a5b01aa71266e14c7ce920bdcf4268089bd1d923731d9e5f016567d699e08f95f50e5691a06aec90e6f71429e9a148ba9997d10f9dbf4f0d4cce653b91d
+"xterm@npm:^4.17.0":
+  version: 4.17.0
+  resolution: "xterm@npm:4.17.0"
+  checksum: 81e902ecbda0c99642dd01af84cfb7fd7a88060d030b9412cb80a43dc8996be50fda8ff4d2af0f1a64d47910b061b5a992cccbf00c40b2b15e8e6e5326462494
   languageName: node
   linkType: hard
 
