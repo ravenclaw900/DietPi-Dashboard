@@ -10,7 +10,31 @@ use tokio::sync::RwLock;
 use tokio::sync::{mpsc, Mutex};
 use warp::ws::Message;
 
-use crate::{page_handlers::*, shared, systemdata, CONFIG};
+use crate::{page_handlers, shared, systemdata, CONFIG};
+
+fn validate_token(token: &str) -> bool {
+    let key = jwts::jws::Key::new(&crate::CONFIG.secret, jwts::jws::Algorithm::HS256);
+    let verified: jwts::jws::Token<jwts::Claims>;
+    if let Ok(token) = jwts::jws::Token::verify_with_key(token, &key) {
+        verified = token;
+    } else {
+        log::error!("Couldn't verify token");
+        return false;
+    };
+    let config = jwts::ValidationConfig {
+        iat_validation: false,
+        nbf_validation: false,
+        exp_validation: true,
+        expected_iss: Some("DietPi Dashboard".to_string()),
+        expected_sub: None,
+        expected_aud: None,
+        expected_jti: None,
+    };
+    if verified.validate_claims(&config).is_err() {
+        return false;
+    }
+    true
+}
 
 #[allow(clippy::too_many_lines)]
 pub async fn socket_handler(socket: warp::ws::WebSocket) {
@@ -23,10 +47,22 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
             if data.is_close() {
                 break;
             }
-            req = DeJson::deserialize_json(data.to_str().unwrap()).unwrap();
-            if CONFIG.pass && !shared::validate_token(&req.token) {
-                if !first_message {
-                    data_send.send(None).await.unwrap();
+            let data_str;
+            if let Ok(data_string) = data.to_str() {
+                data_str = data_string;
+            } else {
+                log::error!("Couldn't convert received data to text");
+                continue;
+            }
+            req = if let Ok(json) = DeJson::deserialize_json(data_str) {
+                json
+            } else {
+                log::error!("Couldn't parse JSON");
+                continue;
+            };
+            if CONFIG.pass && !validate_token(&req.token) && !first_message {
+                if data_send.send(None).await.is_err() {
+                    break;
                 }
                 data_send
                     .send(Some(shared::Request {
@@ -64,21 +100,21 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
     let socket_ptr = Arc::new(Mutex::new(socket_send));
     while let Some(Some(message)) = data_recv.recv().await {
         match message.page.as_str() {
-            "/" => main_handler(Arc::clone(&socket_ptr), &mut data_recv).await,
+            "/" => page_handlers::main_handler(Arc::clone(&socket_ptr), &mut data_recv).await,
             "/process" => {
-                process_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
+                page_handlers::process_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
             }
             "/software" => {
-                software_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
+                page_handlers::software_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
             }
             "/management" => {
-                management_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
+                page_handlers::management_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
             }
             "/service" => {
-                service_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
+                page_handlers::service_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
             }
             "/browser" => {
-                browser_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
+                page_handlers::browser_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
             }
             "/login" => {
                 // Internal poll, see other thread
@@ -106,7 +142,7 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
         let token = socket_recv.next().await.unwrap().unwrap();
         let token = token.to_str().unwrap();
         if token.get(..5) == Some("token") {
-            if !crate::shared::validate_token(&token[5..]) {
+            if !validate_token(&token[5..]) {
                 return;
             }
         } else {
@@ -156,7 +192,6 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
                     };
             } => {}
         }
-        (*cmd.read().await).pty().write(&[0]);
     }
 
     // Wait for threads to exit
@@ -168,4 +203,122 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
     log::info!("Closed terminal");
 }
 
-pub async fn file_handler(socket: warp::ws::WebSocket) {}
+#[allow(clippy::too_many_lines)]
+pub async fn file_handler(mut socket: warp::ws::WebSocket) {
+    let mut req: shared::FileRequest;
+
+    let mut upload_buf = Vec::new();
+    let mut upload_max_size = 0;
+    let mut upload_current_size = 0;
+    let mut upload_path = String::new();
+    while let Some(Ok(data)) = socket.next().await {
+        if data.is_close() {
+            break;
+        }
+        if data.is_binary() {
+            upload_buf.append(&mut data.into_bytes());
+            upload_current_size += 1;
+            log::debug!(
+                "Received {}MB out of {}MB",
+                upload_current_size,
+                upload_max_size
+            );
+            if upload_current_size == upload_max_size {
+                std::fs::write(&upload_path, &upload_buf).unwrap();
+                let _send = socket
+                    .send(Message::text(SerJson::serialize_json(
+                        &shared::FileUploadFinished { finished: true },
+                    )))
+                    .await;
+            }
+            continue;
+        }
+        let data_str;
+        if let Ok(data_string) = data.to_str() {
+            data_str = data_string;
+        } else {
+            log::error!("Couldn't convert received data to text");
+            continue;
+        }
+        req = if let Ok(json) = DeJson::deserialize_json(data_str) {
+            json
+        } else {
+            log::error!("Couldn't parse JSON");
+            continue;
+        };
+        if CONFIG.pass && !validate_token(&req.token) {
+            continue;
+        }
+
+        match req.cmd.as_str() {
+            "open" => {
+                let _send = socket
+                    .send(Message::text(
+                        std::fs::read_to_string(std::path::Path::new(&req.path)).unwrap(),
+                    ))
+                    .await;
+            }
+            // Technically works for both files and directories
+            "dl" => {
+                let mut buf = Vec::new();
+                let src_path = std::path::Path::new(&req.path);
+                {
+                    let mut zip_file = zip::ZipWriter::new(std::io::Cursor::new(&mut buf));
+                    let mut file_buf = Vec::new();
+                    for entry in walkdir::WalkDir::new(&req.path) {
+                        let entry = entry.unwrap();
+                        let path = entry.path();
+                        let name = std::path::Path::new(src_path.file_name().unwrap())
+                            .join(path.strip_prefix(src_path).unwrap());
+                        if path.is_file() {
+                            zip_file
+                                .start_file(
+                                    name.to_str().unwrap(),
+                                    zip::write::FileOptions::default(),
+                                )
+                                .unwrap();
+                            let mut f = std::fs::File::open(path).unwrap();
+                            f.read_to_end(&mut file_buf).unwrap();
+                            zip_file.write_all(&file_buf).unwrap();
+                            file_buf.clear();
+                        } else if !name.as_os_str().is_empty() {
+                            zip_file
+                                .add_directory(
+                                    name.to_str().unwrap(),
+                                    zip::write::FileOptions::default(),
+                                )
+                                .unwrap();
+                        }
+                    }
+                    zip_file.finish().unwrap();
+                }
+                #[allow(
+                    clippy::cast_lossless,
+                    clippy::cast_sign_loss,
+                    clippy::cast_precision_loss,
+                    clippy::cast_possible_truncation
+                )]
+                let size = (buf.len() as f64 / f64::from(1000 * 1000)).ceil() as usize;
+                let _send = socket
+                    .send(Message::text(SerJson::serialize_json(&shared::FileSize {
+                        size,
+                    })))
+                    .await;
+                for i in 0..size {
+                    let _send = socket
+                        .send(Message::binary(
+                            &buf[i * 1000 * 1000..((i + 1) * 1000 * 1000).min(buf.len())],
+                        ))
+                        .await;
+                    log::debug!("Sent {}MB out of {}MB", i, size);
+                }
+            }
+            "up" => {
+                upload_path = req.path;
+                upload_max_size = req.arg.parse::<usize>().unwrap();
+            }
+            "save" => std::fs::write(std::path::Path::new(&req.path), &req.arg).unwrap(),
+            _ => {}
+        }
+    }
+}

@@ -1,6 +1,5 @@
 <script lang="ts">
     import microlight from "microlight";
-    import autosize from "autosize";
     import {
         faFile,
         faFileAlt,
@@ -16,21 +15,72 @@
         faFolderPlus,
         faFileMedical,
         faICursor,
+        faSyncAlt,
+        faHighlighter,
+        faEyeSlash,
+        faEye,
+        faFileDownload,
+        faFileUpload,
     } from "@fortawesome/free-solid-svg-icons";
     import Fa from "svelte-fa";
     import prettyBytes from "pretty-bytes";
 
     export let socketSend: (cmd: string, args: string[]) => void;
-    export let socketData: broserList;
-    export let binData: string;
-
+    export let socketData: browserList;
+    export let node: string;
+    export let login: boolean;
     let fileDataSet = false;
+    let showHidden = false;
+    let maxSlices = 0;
+    let currentSlices = 0;
+    let binData: BlobPart[] = [];
+    let downloading = false;
+
+    $: socketData.contents &&
+        socketData.contents.sort((a, b) => {
+            return a.name < b.name ? -1 : 1;
+        });
+
+    let fileDialog: HTMLInputElement;
+
+    const fileSocket = new WebSocket(
+        `${
+            window.location.protocol == "https:" ? "wss" : "ws"
+        }://${node}/ws/file`
+    );
+    fileSocket.onmessage = (e: MessageEvent) => {
+        if (typeof e.data == "string") {
+            try {
+                let msg = JSON.parse(e.data);
+                if (msg.finished) {
+                    sendCmd(`${currentPath}/.`, "refresh");
+                } else if (msg.size) {
+                    maxSlices = msg.size;
+                }
+            } catch {
+                fileData = e.data;
+                fileDataSet = true;
+            }
+        } else {
+            currentSlices += 1;
+            binData.push(e.data);
+            if (currentSlices == maxSlices) {
+                binURL = URL.createObjectURL(new Blob(binData));
+                maxSlices = 0;
+                currentSlices = 0;
+                console.log(binURL);
+            }
+        }
+    };
+
     let pathArray: string[];
-    let fileData: string;
+    let fileData = "";
     let fileText: HTMLTextAreaElement;
     let fileDiv: HTMLDivElement;
+    let saved = true;
     // TODO: better solution than just assuming dashboard is being run by root
     let currentPath = "/root";
+    let binURL = "";
 
     let selPath: browser = {
         name: "",
@@ -41,22 +91,22 @@
         size: 0,
     };
 
-    $: autosize(fileText), autosize.update(fileText);
+    let highlighting = false;
+
     // Skip first array element (empty string)
     $: pathArray = currentPath.split("/").slice(1);
-    $: socketData.textdata != undefined &&
-        !fileDataSet &&
-        ((fileData = socketData.textdata), (fileDataSet = true));
-    // Set innerText manually to avoid issues with highlighting
+    // Set innerHTML manually to avoid issues with highlighting
     $: fileDiv != undefined &&
-        ((fileDiv.innerHTML = fileData
-            .replace(new RegExp("&", "g"), "&amp;")
-            .replace(new RegExp("<", "g"), "&lt;")),
-        microlight.reset());
+        (fileDiv.innerHTML =
+            fileData[fileData.length - 1] == "\n"
+                ? fileData + " "
+                : fileData
+                      .replace(new RegExp("&", "g"), "&amp;")
+                      .replace(new RegExp("<", "g"), "&lt;")),
+        microlight.reset();
 
-    interface broserList {
+    interface browserList {
         contents?: browser[];
-        textdata?: string;
         currentpath?: string;
     }
 
@@ -70,16 +120,42 @@
     }
 
     function sendCmd(path: string, cmd: string) {
-        selPath = {
-            name: "",
-            path: "",
-            maintype: "",
-            subtype: "",
-            prettytype: "",
-            size: 0,
-        };
+        if (cmd == "rm" || cmd == "rmdir" || cmd == "cd") {
+            selPath = {
+                name: "",
+                path: "",
+                maintype: "",
+                subtype: "",
+                prettytype: "",
+                size: 0,
+            };
+        }
         socketSend(cmd, [path]);
         fileDataSet = false;
+        if (downloading) {
+            downloading = false;
+            URL.revokeObjectURL(binURL);
+            binURL = "";
+        }
+    }
+
+    function fileSend(path: string, cmd: string, arg: string) {
+        let json;
+        if (login) {
+            json = JSON.stringify({
+                cmd,
+                path,
+                arg,
+                token: JSON.parse(localStorage.getItem("tokens"))[node],
+            });
+        } else {
+            json = JSON.stringify({
+                cmd,
+                path,
+                arg,
+            });
+        }
+        fileSocket.send(json);
     }
 
     function rename(oldname: string, newname: string) {
@@ -92,7 +168,6 @@
             size: 0,
         };
         socketSend("rename", [oldname, newname]);
-        fileDataSet = false;
     }
 
     function syncScroll() {
@@ -139,6 +214,36 @@
                 return faFile;
         }
     }
+
+    function validateInput(name: string) {
+        if (name) {
+            for (let element of socketData.contents) {
+                if (element.name == name) {
+                    if (
+                        confirm(
+                            `This will overwrite the ${
+                                element.maintype == "dir" ? "directory" : "file"
+                            } ${name}${
+                                element.maintype == "dir"
+                                    ? ", and delete everything in it"
+                                    : ""
+                            }. Are you sure you want to continue?`
+                        )
+                    ) {
+                        sendCmd(
+                            `${currentPath}/${name}`,
+                            `rm${element.maintype == "dir" ? "dir" : ""}`
+                        );
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
+    }
 </script>
 
 <main class="min-h-full">
@@ -148,8 +253,18 @@
                 <button
                     class="btn px-2 focus:outline-none"
                     on:click={() => {
-                        sendCmd("/", "cd");
-                        currentPath = "/";
+                        if (
+                            !saved &&
+                            !confirm(
+                                "You have not saved the file! Are you sure you want to continue?"
+                            )
+                        ) {
+                            return;
+                        } else {
+                            saved = true;
+                            sendCmd("/", "cd");
+                            currentPath = "/";
+                        }
                     }}>/</button
                 >
                 {#each pathArray as path}
@@ -169,15 +284,73 @@
                                         break;
                                     }
                                 }
-                                sendCmd(fullPath, "cd");
-                                currentPath = fullPath;
+                                if (
+                                    !saved &&
+                                    !confirm(
+                                        "You have not saved the file! Are you sure you want to continue?"
+                                    )
+                                ) {
+                                    return;
+                                } else {
+                                    saved = true;
+                                    sendCmd(fullPath, "cd");
+                                    currentPath = fullPath;
+                                }
                             }}>{path}</button
                         >
                     {/if}
                 {/each}
             </div>
-            {#if socketData.contents != undefined}
-                <table class="bg-white w-full dark:bg-black">
+            {#if fileDataSet}
+                <div class="flex">
+                    <textarea
+                        bind:value={fileData}
+                        bind:this={fileText}
+                        on:scroll={syncScroll}
+                        on:keydown={checkTab}
+                        on:input={() => {
+                            saved = false;
+                            if (fileText) {
+                                fileText.style.height = "auto";
+                                fileText.style.height = `${
+                                    fileText.scrollHeight + 10
+                                }px`;
+                                fileDiv.style.height = "auto";
+                            }
+                        }}
+                        spellcheck="false"
+                        class="w-full font-mono text-sm{highlighting
+                            ? ' bg-transparent text-transparent'
+                            : ''} whitespace-pre tab-4 caret-black z-20 dark:caret-white focus:outline-none p-px resize-none overflow-y-hidden"
+                    />
+                    <div
+                        bind:this={fileDiv}
+                        class="w-full microlight font-mono whitespace-pre bg-white dark:bg-black text-sm z-10 tab-4 p-px -ml-[100%] overflow-y-hidden{highlighting
+                            ? ''
+                            : ' invisible'}"
+                    />
+                </div>
+            {:else if downloading}
+                {#if binURL != ""}
+                    <a
+                        href={binURL}
+                        target="_blank"
+                        download={`${selPath.name.split(".")[0]}.zip`}
+                        >Click to Download</a
+                    >
+                {:else if maxSlices == 0}
+                    <h2>
+                        Zipping {selPath.maintype == "dir"
+                            ? "directory"
+                            : "file"}...
+                    </h2>
+                {:else}
+                    <h2>Receiving {currentSlices}MB out of {maxSlices}MB</h2>
+                {/if}
+            {:else if socketData.contents != undefined}
+                <table
+                    class="bg-white w-full dark:bg-black table-fixed min-w-50"
+                >
                     <tr>
                         <th class="px-2">Name</th>
                         <th class="px-2">Kind</th>
@@ -185,9 +358,11 @@
                     </tr>
                     {#each socketData.contents as contents}
                         <tr
-                            class="even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800 select-none{selPath ==
-                            contents
-                                ? ' !bg-blue-400 dark:!bg-blue-600'
+                            class="select-none{selPath.path == contents.path
+                                ? ' !bg-dplime-dark'
+                                : ''} even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800{!showHidden &&
+                            contents.name[0] == '.'
+                                ? ' hidden'
                                 : ''}"
                             on:dblclick={() => {
                                 switch (contents.maintype) {
@@ -196,17 +371,19 @@
                                         currentPath = contents.path;
                                         break;
                                     case "text":
-                                        sendCmd(contents.path, "open");
-                                        currentPath = contents.path;
-                                        break;
-                                    case "image":
-                                        sendCmd(contents.path, "img");
+                                        fileSend(contents.path, "open", "");
                                         currentPath = contents.path;
                                         break;
                                     default:
-                                        alert(
-                                            "ERROR: can't view that type of file"
-                                        );
+                                        if (
+                                            confirm(
+                                                "Can't view that type of file, would you like to download instead?"
+                                            )
+                                        ) {
+                                            fileSend(selPath.path, "dl", "");
+                                            currentPath = selPath.path;
+                                            downloading = true;
+                                        }
                                 }
                             }}
                             on:click={() => (selPath = contents)}
@@ -218,42 +395,50 @@
                                         contents.subtype
                                     )}
                                     class="mr-2"
-                                />{contents.name}</td
+                                /><span class="break-words"
+                                    >{contents.name}</span
+                                ></td
                             >
                             <td class="px-2">{contents.prettytype}</td>
                             <td class="px-2"
                                 >{contents.maintype == "dir"
-                                    ? "--"
+                                    ? "-"
                                     : prettyBytes(contents.size)}</td
                             >
                         </tr>
                     {/each}
                 </table>
-            {:else if socketData.textdata != undefined}
-                <div class="flex">
-                    <textarea
-                        bind:value={fileData}
-                        bind:this={fileText}
-                        on:scroll={syncScroll}
-                        on:keydown={checkTab}
-                        spellcheck="false"
-                        class="w-full font-mono text-sm bg-transparent text-transparent whitespace-pre tab-4 !overflow-x-scroll caret-black dark:caret-white z-20 focus:outline-none p-px"
-                    />
-                    <div
-                        bind:this={fileDiv}
-                        class="w-full microlight -ml-[100%] font-mono whitespace-pre bg-white dark:bg-black text-sm z-10 tab-4 !overflow-x-scroll p-px"
-                    />
-                </div>
-            {:else if binData != ""}
-                <div>
-                    <img src={binData} alt="Unknown" />
-                </div>
             {/if}
         </div>
         <div
-            class="min-w-16 bg-gray-300 dark:bg-gray-800 ml-4 min-h-full max-h-full flex flex-col gap-2 items-center justify-center"
+            class="min-w-16 bg-gray-300 dark:bg-gray-800 flex flex-col items-center ml-4 justify-center sticky top-10 p-4 h-min gap-2"
         >
-            {#if socketData.contents != undefined}
+            {#if fileDataSet}
+                <span
+                    title="Syntax Highlighting"
+                    on:click={() => {
+                        highlighting = !highlighting;
+                    }}
+                    ><Fa
+                        icon={faHighlighter}
+                        class={highlighting ? "" : "opacity-50"}
+                        size="lg"
+                    /></span
+                >
+                <span
+                    class="cursor-pointer"
+                    on:click={() => {
+                        fileSend(currentPath, "save", fileData), (saved = true);
+                    }}><Fa icon={faSave} size="lg" /></span
+                >
+            {:else if socketData.contents != undefined}
+                <span
+                    class="cursor-pointer"
+                    title="Refresh"
+                    on:click={() => {
+                        sendCmd(`${currentPath}/.`, "refresh");
+                    }}><Fa icon={faSyncAlt} size="lg" /></span
+                >
                 <span
                     class="cursor-pointer"
                     title="New Directory"
@@ -261,7 +446,9 @@
                         let name = prompt(
                             "Please enter the name of the new directory"
                         );
-                        sendCmd(currentPath + "/" + name, "mkdir");
+                        if (validateInput(name)) {
+                            sendCmd(`${currentPath}/${name}`, "mkdir");
+                        }
                     }}><Fa icon={faFolderPlus} size="lg" /></span
                 >
                 <span
@@ -271,8 +458,53 @@
                         let name = prompt(
                             "Please enter the name of the new file"
                         );
-                        sendCmd(currentPath + "/" + name, "mkfile");
+                        if (validateInput(name)) {
+                            sendCmd(`${currentPath}/${name}`, "mkfile");
+                        }
                     }}><Fa icon={faFileMedical} size="lg" /></span
+                >
+                <span
+                    title="{showHidden ? 'Hide' : 'Show'} Hidden Files"
+                    on:click={() => {
+                        showHidden = !showHidden;
+                    }}
+                    ><Fa
+                        icon={showHidden ? faEyeSlash : faEye}
+                        size="lg"
+                    /></span
+                >
+                <span
+                    class="cursor-pointer"
+                    title="Upload File"
+                    on:click={() => {
+                        fileDialog.click();
+                    }}
+                    ><input
+                        type="file"
+                        class="hidden"
+                        bind:this={fileDialog}
+                        on:input={() => {
+                            let size = Math.ceil(
+                                fileDialog.files[0].size / (1000 * 1000)
+                            );
+                            fileSend(
+                                `${currentPath}/${fileDialog.files[0].name}`,
+                                "up",
+                                `${size}`
+                            );
+                            for (let i = 0; i < size; i++) {
+                                fileSocket.send(
+                                    fileDialog.files[0].slice(
+                                        i * 1000 * 1000,
+                                        Math.min(
+                                            (i + 1) * 1000 * 1000,
+                                            fileDialog.files[0].size
+                                        )
+                                    )
+                                );
+                            }
+                        }}
+                    /><Fa icon={faFileUpload} size="lg" /></span
                 >
                 {#if selPath.path != ""}
                     <span
@@ -282,37 +514,56 @@
                             let name = prompt(
                                 "Please enter the new name of the file"
                             );
-                            rename(selPath.path, currentPath + "/" + name);
+                            if (validateInput(name)) {
+                                rename(selPath.path, `${currentPath}/${name}`);
+                            }
                         }}><Fa icon={faICursor} size="lg" /></span
                     >
-                    {#if selPath.maintype == "dir"}
-                        <span
-                            class="cursor-pointer"
-                            title="Delete"
-                            on:click={() => sendCmd(selPath.path, "rmdir")}
-                            ><Fa icon={faTrash} size="lg" /></span
-                        >
-                    {:else}
+                    {#if selPath.maintype != "dir"}
                         <span
                             class="cursor-pointer"
                             title="Copy"
                             on:click={() => sendCmd(selPath.path, "copy")}
                             ><Fa icon={faCopy} size="lg" /></span
                         >
-                        <span
-                            class="cursor-pointer"
-                            title="Delete"
-                            on:click={() => sendCmd(selPath.path, "rm")}
-                            ><Fa icon={faTrash} size="lg" /></span
-                        >
                     {/if}
+                    <span
+                        class="cursor-pointer"
+                        title="Delete"
+                        on:click={() => {
+                            if (
+                                confirm(
+                                    `Are you sure you want to delete the ${
+                                        selPath.maintype == "dir"
+                                            ? "directory"
+                                            : "file"
+                                    } ${selPath.name}?${
+                                        selPath.maintype == "dir"
+                                            ? " This will delete everything in it!"
+                                            : ""
+                                    }`
+                                )
+                            ) {
+                                sendCmd(
+                                    selPath.path,
+                                    `rm${
+                                        selPath.maintype == "dir" ? "dir" : ""
+                                    }`
+                                );
+                            }
+                        }}><Fa icon={faTrash} size="lg" /></span
+                    >
+                    <span
+                        class="cursor-pointer"
+                        title="Download"
+                        on:click={() => {
+                            fileSend(selPath.path, "dl", "");
+                            currentPath = selPath.path;
+                            downloading = true;
+                        }}><Fa icon={faFileDownload} size="lg" /></span
+                    >
                 {/if}
-            {:else if socketData.textdata != undefined}
-                <span
-                    class="cursor-pointer"
-                    on:click={() => socketSend("save", [currentPath, fileData])}
-                    ><Fa icon={faSave} size="lg" /></span
-                >{/if}
+            {/if}
         </div>
     </div>
 </main>

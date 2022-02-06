@@ -21,6 +21,8 @@ jwts = "0.2.4"
 sha2 = "0.10.1"
 toml = "0.5.8"
 if-addrs = "0.7.0"
+zip = { version = "0.5.13", default-features = false, features = ["deflate", "time"] }
+walkdir = "2.3.2"
 
 [patch.crates-io]
 psutil = { git = "https://github.com/mygnu/rust-psutil", branch = "update-dependencies" }

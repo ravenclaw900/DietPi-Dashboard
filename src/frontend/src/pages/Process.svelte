@@ -227,7 +227,7 @@
 <main>
     {#if socketData.processes}
         <table
-            class="border border-gray-300 dark:border-gray-700 w-full table-fixed break-words overflow-x-scroll"
+            class="border border-gray-300 dark:border-gray-700 w-full table-fixed break-words min-w-50"
         >
             <tr class="table-header">
                 <th
