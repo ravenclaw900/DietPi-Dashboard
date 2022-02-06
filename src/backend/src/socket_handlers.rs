@@ -2,10 +2,7 @@ use futures::{SinkExt, StreamExt};
 use nanoserde::{DeJson, SerJson};
 use pty_process::Command;
 use std::io::{Read, Write};
-use std::sync::{
-    atomic::{AtomicBool, Ordering::Relaxed},
-    Arc,
-};
+use std::sync::Arc;
 use tokio::sync::RwLock;
 use tokio::sync::{mpsc, Mutex};
 use warp::ws::Message;
@@ -156,46 +153,73 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
             .spawn_pty(None)
             .unwrap(),
     ));
-    let cmd_read = Arc::clone(&cmd);
     let cmd_write = Arc::clone(&cmd);
+    let cmd_clone = Arc::clone(&cmd);
 
-    let stop_thread_write = Arc::new(AtomicBool::new(false));
-    let stop_thread_read = Arc::clone(&stop_thread_write);
+    let quit_send = Arc::new(tokio::sync::Notify::new());
+    let quit_recv = Arc::clone(&quit_send);
+
+    let (send, mut recv) = mpsc::channel(2);
+
+    tokio::spawn(async move {
+        loop {
+            let cmd_read = Arc::clone(&cmd_clone);
+            let lock = cmd_read.read_owned().await;
+            #[allow(clippy::unused_io_amount)]
+            let result = tokio::task::spawn_blocking(move || {
+                let mut data = [0; 256];
+                let res = (*lock).pty().read(&mut data);
+                (res, data)
+            })
+            .await
+            .unwrap();
+            match result.0 {
+                Ok(_) => send.send(result.1).await.unwrap(),
+                Err(_) => {
+                    quit_send.notify_one();
+                    break;
+                }
+            }
+        }
+    });
 
     loop {
-        println!("new loop");
         tokio::select! {
-            Some(Ok(data)) = socket_recv.next() => {
-                println!("received message");
+            Some(data) = recv.recv() => {
+                if socket_send
+                    .send(Message::binary(data.split(|num| num == &0).next().unwrap()))
+                    .await
+                    .is_err() {
+                        break;
+                    }
+            }
+            data_msg = socket_recv.next() => {
+                let data;
                 let lock = cmd_write.read().await;
+                if let Some(Ok(data_unwrapped)) = data_msg {
+                    data = data_unwrapped;
+                } else {
+                    (*cmd_write.read().await)
+                        .pty()
+                        .write_all("exit\n".as_bytes())
+                        .unwrap();
+                    continue;
+                }
                 if data.is_text() && data.to_str().unwrap().get(..4) == Some("size") {
                     let json: TTYSize =
                         DeJson::deserialize_json(&data.to_str().unwrap()[4..]).unwrap();
                     (*lock)
                         .resize_pty(&pty_process::Size::new(json.rows, json.cols))
                         .unwrap();
-                } else {
-                    (*lock).pty().write_all(data.as_bytes()).unwrap();
-                    println!("wrote to pty");
+                } else if (*lock).pty().write_all(data.as_bytes()).is_err() {
+                    break;
                 }
             }
-            _ = async {
-                    println!("reading");
-                    let mut data = [0; 256];
-                    let lock = cmd_read.read().await;
-                    if (*lock).pty().read(&mut data).is_ok() {
-                        println!("read");
-                        socket_send
-                            .send(Message::binary(data.split(|num| num == &0).next().unwrap()))
-                            .await
-                            .unwrap();
-                    };
-            } => {}
+            _ = quit_recv.notified() => {
+                break;
+            }
         }
     }
-
-    // Wait for threads to exit
-    //tokio::try_join!(pty_writer, pty_reader).unwrap();
 
     // Reap PID
     (*cmd.write().await).wait().unwrap();
