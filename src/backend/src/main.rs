@@ -121,7 +121,7 @@ fn main() {
                 .or(main_route)
                 .with(warp::compression::gzip());
 
-            let socket_routes = terminal_route.or(socket_route).or(file_route);
+            let socket_routes = terminal_route.or(file_route).or(socket_route);
 
             let routes = socket_routes
                 .or(login_route)

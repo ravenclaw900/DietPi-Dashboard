@@ -229,28 +229,12 @@ pub async fn browser_handler(
                         )))
                         .await;
                 }
-                "open" => {
-                    let _send = (*socket_send)
-                        .send(Message::text(SerJson::serialize_json(
-                            &shared::BrowserFileData {
-                                textdata: std::fs::read_to_string(std::path::Path::new(
-                                    &data.args[0],
-                                ))
-                                .unwrap(),
-                            },
-                        )))
-                        .await;
-                }
-                "img" => {
-                    let _send = (*socket_send)
-                        .send(Message::binary(std::fs::read(&data.args[0]).unwrap()))
-                        .await;
-                }
-                "save" => {
-                    std::fs::write(std::path::Path::new(&data.args[0]), &data.args[1]).unwrap();
-                }
                 "copy" => {
-                    std::fs::copy(&data.args[0], format!("{} {}", &data.args[0], 2)).unwrap();
+                    let mut num = 2;
+                    while std::path::Path::new(&format!("{} {}", &data.args[0], num)).exists() {
+                        num += 1;
+                    }
+                    std::fs::copy(&data.args[0], format!("{} {}", &data.args[0], num)).unwrap();
                     browser_refresh(&mut *socket_send, &data.args[0]).await;
                 }
                 "rm" => {
@@ -271,6 +255,9 @@ pub async fn browser_handler(
                 }
                 "rename" => {
                     std::fs::rename(&data.args[0], &data.args[1]).unwrap();
+                    browser_refresh(&mut *socket_send, &data.args[0]).await;
+                }
+                "refresh" => {
                     browser_refresh(&mut *socket_send, &data.args[0]).await;
                 }
                 _ => {}
