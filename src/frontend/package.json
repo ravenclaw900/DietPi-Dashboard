@@ -1,6 +1,6 @@
 {
   "name": "dietpi-dashboard",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "type": "module",
   "license": "GPL-3.0",
   "scripts": {

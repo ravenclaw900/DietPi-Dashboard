@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.5.0](https://github.com/ravenclaw900/DietPi-Dashboard/compare/v0.4.1...v0.5.0) (2022-02-06)
+
+
+### Features
+
+* **filebrowser:** quality-of-life improvements ([#123](https://github.com/ravenclaw900/DietPi-Dashboard/issues/123)) ([8e2e404](https://github.com/ravenclaw900/DietPi-Dashboard/commit/8e2e40433d3ca543af3a086adb33d992976ad16e))
+* **frontend:** allow clicking 'Enter' to send passwords ([#130](https://github.com/ravenclaw900/DietPi-Dashboard/issues/130)) ([0de4bbf](https://github.com/ravenclaw900/DietPi-Dashboard/commit/0de4bbff163972bac75c45bc83c9ad256c2d9ff5))
+* **frontend:** store passwords for multiple backend nodes in localStorage ([8dceedc](https://github.com/ravenclaw900/DietPi-Dashboard/commit/8dceedc94c973bc419cd6d38de477aea15601ad6)), closes [#105](https://github.com/ravenclaw900/DietPi-Dashboard/issues/105)
+* **processes:** use resident memory instead of virtual memory ([9d96c90](https://github.com/ravenclaw900/DietPi-Dashboard/commit/9d96c9087a5b4ef8653b7c04a81053bd78732ae8))
+
+
+### Bug Fixes
+
+* **backend:** add more error handling in socket_handler ([172a6e0](https://github.com/ravenclaw900/DietPi-Dashboard/commit/172a6e031ffccc61e8327654ad7d01745804b814))
+* **frontend:** fix misspelling of "available" ([00e8703](https://github.com/ravenclaw900/DietPi-Dashboard/commit/00e8703b535f2dbd154a6317bc8cc2d94cf0c7b2))
+* **frontend:** stop using deprecated `substr` method ([1a4c79b](https://github.com/ravenclaw900/DietPi-Dashboard/commit/1a4c79bcd6062a9fdf1c4f87980e8fc8ede180a5))
+* **terminal:** add more error handling ([7b1c051](https://github.com/ravenclaw900/DietPi-Dashboard/commit/7b1c051e96c513da593765131e7a73fc8853b790))
+* **terminal:** allow terminal to work with multi-node passwords ([7a47661](https://github.com/ravenclaw900/DietPi-Dashboard/commit/7a476614d34cce3649545597430f550543bd9505))
+* **terminal:** stop from freezing when typed into really quickly ([#144](https://github.com/ravenclaw900/DietPi-Dashboard/issues/144)) ([c5ebc71](https://github.com/ravenclaw900/DietPi-Dashboard/commit/c5ebc7170b48318dc25615f3940be3b195718178))
+
 ### [0.4.1](https://github.com/ravenclaw900/DietPi-Dashboard/compare/v0.4.0...v0.4.1) (2021-12-30)
 
 
