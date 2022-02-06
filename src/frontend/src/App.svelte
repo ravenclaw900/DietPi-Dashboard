@@ -182,18 +182,21 @@
     };
 
     function pollServer(page: string) {
-        let json: string;
-        if (login) {
-            json = JSON.stringify({
-                page,
-                token,
-            });
-        } else {
-            json = JSON.stringify({
-                page,
-            });
+        if (page != "/terminal") {
+            // Terminal doesn't work if sent
+            let json: string;
+            if (login) {
+                json = JSON.stringify({
+                    page,
+                    token,
+                });
+            } else {
+                json = JSON.stringify({
+                    page,
+                });
+            }
+            socket.send(json);
         }
-        socket.send(json);
     }
 
     function changePage(page: string) {

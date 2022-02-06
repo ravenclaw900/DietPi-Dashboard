@@ -121,7 +121,9 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                     )))
                     .await;
             }
-            _ => {}
+            _ => {
+                log::debug!("Got page {}, not handling", message.page);
+            }
         }
     }
 }
@@ -174,7 +176,9 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
             .await
             .unwrap();
             if result.0.is_ok() {
-                send.send(result.1).await.unwrap();
+                if send.send(result.1).await.is_err() {
+                    break;
+                }
             } else {
                 quit_send.notify_one();
                 break;
@@ -198,10 +202,9 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
                 if let Some(Ok(data_unwrapped)) = data_msg {
                     data = data_unwrapped;
                 } else {
-                    (*cmd_write.read().await)
+                    let _write = (*cmd_write.read().await)
                         .pty()
-                        .write_all("exit\n".as_bytes())
-                        .unwrap();
+                        .write_all("exit\n".as_bytes());
                     continue;
                 }
                 if data.is_text() && data.to_str().unwrap().get(..4) == Some("size") {
