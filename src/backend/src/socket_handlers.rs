@@ -126,51 +126,41 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
     let stop_thread_write = Arc::new(AtomicBool::new(false));
     let stop_thread_read = Arc::clone(&stop_thread_write);
 
-    let pty_writer = tokio::spawn(async move {
-        while let Some(Ok(data)) = socket_recv.next().await {
-            let lock = cmd_write.read().await;
-            if stop_thread_write.load(Relaxed) {
-                break;
+    loop {
+        println!("new loop");
+        tokio::select! {
+            Some(Ok(data)) = socket_recv.next() => {
+                println!("received message");
+                let lock = cmd_write.read().await;
+                if data.is_text() && data.to_str().unwrap().get(..4) == Some("size") {
+                    let json: TTYSize =
+                        DeJson::deserialize_json(&data.to_str().unwrap()[4..]).unwrap();
+                    (*lock)
+                        .resize_pty(&pty_process::Size::new(json.rows, json.cols))
+                        .unwrap();
+                } else {
+                    (*lock).pty().write_all(data.as_bytes()).unwrap();
+                    println!("wrote to pty");
+                }
             }
-            if data.is_text() && data.to_str().unwrap().get(..4) == Some("size") {
-                let json: TTYSize = DeJson::deserialize_json(&data.to_str().unwrap()[4..]).unwrap();
-                (*lock)
-                    .resize_pty(&pty_process::Size::new(json.rows, json.cols))
-                    .unwrap();
-                continue;
-            }
-            (*lock).pty().write_all(data.as_bytes()).unwrap();
+            _ = async {
+                    println!("reading");
+                    let mut data = [0; 256];
+                    let lock = cmd_read.read().await;
+                    if (*lock).pty().read(&mut data).is_ok() {
+                        println!("read");
+                        socket_send
+                            .send(Message::binary(data.split(|num| num == &0).next().unwrap()))
+                            .await
+                            .unwrap();
+                    };
+            } => {}
         }
-        stop_thread_write.store(true, Relaxed);
-        // Stop reader
-        (*cmd_write.read().await)
-            .pty()
-            .write_all("exit\n".as_bytes())
-            .unwrap();
-    });
-
-    let pty_reader = tokio::spawn(async move {
-        loop {
-            let mut data = [0; 256];
-            let lock = cmd_read.read().await;
-            match (*lock).pty().read(&mut data) {
-                Ok(_) => {}
-                Err(_) => break,
-            };
-            if stop_thread_read.load(Relaxed) {
-                break;
-            }
-            socket_send
-                .send(Message::binary(data.split(|num| num == &0).next().unwrap()))
-                .await
-                .unwrap();
-        }
-        stop_thread_read.store(true, Relaxed);
-        // Writer won't exit until page is changed/closed
-    });
+        (*cmd.read().await).pty().write(&[0]);
+    }
 
     // Wait for threads to exit
-    tokio::try_join!(pty_writer, pty_reader).unwrap();
+    //tokio::try_join!(pty_writer, pty_reader).unwrap();
 
     // Reap PID
     (*cmd.write().await).wait().unwrap();
