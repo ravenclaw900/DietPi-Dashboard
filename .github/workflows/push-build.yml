@@ -39,7 +39,9 @@ jobs:
         run: yarn install
       - name: Change version to commit hash
         working-directory: src/frontend
-        run: npm version $(git describe --tags)
+        run: |
+          git fetch --tags
+          npm version $(git describe --tags)
       - name: Build frontend
         working-directory: src/frontend
         run: yarn build
