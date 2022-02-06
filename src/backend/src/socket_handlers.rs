@@ -173,12 +173,11 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
             })
             .await
             .unwrap();
-            match result.0 {
-                Ok(_) => send.send(result.1).await.unwrap(),
-                Err(_) => {
-                    quit_send.notify_one();
-                    break;
-                }
+            if result.0.is_ok() {
+                send.send(result.1).await.unwrap();
+            } else {
+                quit_send.notify_one();
+                break;
             }
         }
     });
