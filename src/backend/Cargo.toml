@@ -12,7 +12,7 @@ simple_logger = { version = "2.1.0", default-features = false, features = ["colo
 log = "0.4.14"
 include_dir = {version = "0.7.2", optional = true}
 lazy_static = "1.4.0"
-futures = "0.3.19"
+futures = "0.3.21"
 nanoserde = "0.1.29"
 pty-process = "0.2.0"
 psutil = "3.2.1"
