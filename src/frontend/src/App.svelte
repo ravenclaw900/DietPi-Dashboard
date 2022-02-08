@@ -107,25 +107,25 @@
         received: number;
     }
 
-    let url = "";
-
     let socket: WebSocket;
     let socketData: Partial<socketData> = {};
+    let nodes: string[] = [];
     let shown = false;
-    let menu = window.innerWidth > 768;
-    let update = "";
     let darkMode = false;
     let blur = false;
-    let navPage = "";
-    let token = "";
-    let password = "";
     let login = false;
     let loginDialog = false;
-    let nodes: string[] = [];
-    let node = `${window.location.hostname}:${window.location.port}`;
     let notificationsShown = false;
     let settingsShown = false;
     let passwordMessage = false;
+    let menu = window.innerWidth > 768;
+    let update = "";
+    let navPage = "";
+    let token = "";
+    let password = "";
+    let node = `${window.location.hostname}:${window.location.port}`;
+
+    $: node && ((shown = false), connectSocket(node));
 
     // Get dark mode
     if (localStorage.getItem("darkMode") != null) {
@@ -263,8 +263,6 @@
         socket.onclose = socketCloseListener;
         socket.onerror = socketErrorListener;
     }
-
-    $: node && ((shown = false), connectSocket(node));
 </script>
 
 <main
@@ -427,7 +425,7 @@
                 : ''}"
         >
             {#if shown}
-                <Router {url}>
+                <Router>
                     <Route path="process"
                         ><Process {socketData} {socketSend} /></Route
                     >

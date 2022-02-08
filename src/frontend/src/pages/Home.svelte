@@ -6,22 +6,6 @@
     import { tweened } from "svelte/motion";
     import prettyBytes from "pretty-bytes";
 
-    const cpuAnimate = tweened(0, {
-        duration: 200,
-    });
-
-    const ramAnimate = tweened(0, {
-        duration: 200,
-    });
-
-    const swapAnimate = tweened(0, {
-        duration: 200,
-    });
-
-    const diskAnimate = tweened(0, {
-        duration: 200,
-    });
-
     interface statData {
         cpu?: number;
         ram?: usage;
@@ -44,6 +28,29 @@
     export let socketData: statData;
     export let darkMode: boolean;
     let canvas: HTMLCanvasElement;
+
+    let portrait: boolean;
+    $: portrait = window.innerHeight > window.innerWidth;
+
+    const cpuAnimate = tweened(0, {
+        duration: 200,
+    });
+
+    const ramAnimate = tweened(0, {
+        duration: 200,
+    });
+
+    const swapAnimate = tweened(0, {
+        duration: 200,
+    });
+
+    const diskAnimate = tweened(0, {
+        duration: 200,
+    });
+
+    let ramData: (string | number)[],
+        swapData: (string | number)[],
+        diskData: (string | number)[];
 
     const chartData: ChartData = {
         labels: [],
@@ -138,13 +145,6 @@
             maintainAspectRatio: false,
         },
     };
-
-    let portrait: boolean;
-    $: portrait = window.innerHeight > window.innerWidth;
-
-    let ramData: (string | number)[],
-        swapData: (string | number)[],
-        diskData: (string | number)[];
 
     $: socketData.cpu != undefined &&
         (cpuAnimate.set(socketData.cpu),

@@ -6,9 +6,6 @@
     } from "@fortawesome/free-solid-svg-icons";
     import Fa from "svelte-fa";
 
-    export let socketSend: (cmd: string, args: string[]) => void;
-    export let socketData: serviceData;
-
     interface serviceData {
         services?: services[];
     }
@@ -19,6 +16,9 @@
         log: string;
         start: string;
     }
+
+    export let socketSend: (cmd: string, args: string[]) => void;
+    export let socketData: serviceData;
 </script>
 
 <main>

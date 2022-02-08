@@ -25,23 +25,50 @@
     import Fa from "svelte-fa";
     import prettyBytes from "pretty-bytes";
 
+    interface browserList {
+        contents?: browser[];
+        currentpath?: string;
+    }
+
+    interface browser {
+        name: string;
+        path: string;
+        maintype: string;
+        subtype: string;
+        prettytype: string;
+        size: number;
+    }
+
+    let selPath: browser = {
+        name: "",
+        path: "",
+        maintype: "",
+        subtype: "",
+        prettytype: "",
+        size: 0,
+    };
+
     export let socketSend: (cmd: string, args: string[]) => void;
     export let socketData: browserList;
     export let node: string;
     export let login: boolean;
-    let fileDataSet = false;
-    let showHidden = false;
-    let maxSlices = 0;
-    let currentSlices = 0;
-    let binData: BlobPart[] = [];
-    let downloading = false;
-
-    $: socketData.contents &&
-        socketData.contents.sort((a, b) => {
-            return a.name < b.name ? -1 : 1;
-        });
 
     let fileDialog: HTMLInputElement;
+    let fileText: HTMLTextAreaElement;
+    let fileDiv: HTMLDivElement;
+    let binData: BlobPart[] = [];
+    let pathArray: string[];
+    let fileDataSet = false;
+    let showHidden = false;
+    let highlighting = false;
+    let downloading = false;
+    let saved = true;
+    let maxSlices = 0;
+    let currentSlices = 0;
+    let fileData = "";
+    // TODO: better solution than just assuming dashboard is being run by root
+    let currentPath = "/root";
+    let binURL = "";
 
     const fileSocket = new WebSocket(
         `${
@@ -73,26 +100,6 @@
         }
     };
 
-    let pathArray: string[];
-    let fileData = "";
-    let fileText: HTMLTextAreaElement;
-    let fileDiv: HTMLDivElement;
-    let saved = true;
-    // TODO: better solution than just assuming dashboard is being run by root
-    let currentPath = "/root";
-    let binURL = "";
-
-    let selPath: browser = {
-        name: "",
-        path: "",
-        maintype: "",
-        subtype: "",
-        prettytype: "",
-        size: 0,
-    };
-
-    let highlighting = false;
-
     // Skip first array element (empty string)
     $: pathArray = currentPath.split("/").slice(1);
     // Set innerHTML manually to avoid issues with highlighting
@@ -104,20 +111,10 @@
                       .replace(new RegExp("&", "g"), "&amp;")
                       .replace(new RegExp("<", "g"), "&lt;")),
         microlight.reset();
-
-    interface browserList {
-        contents?: browser[];
-        currentpath?: string;
-    }
-
-    interface browser {
-        name: string;
-        path: string;
-        maintype: string;
-        subtype: string;
-        prettytype: string;
-        size: number;
-    }
+    $: socketData.contents &&
+        socketData.contents.sort((a, b) => {
+            return a.name < b.name ? -1 : 1;
+        });
 
     function sendCmd(path: string, cmd: string) {
         if (cmd == "rm" || cmd == "rmdir" || cmd == "cd") {

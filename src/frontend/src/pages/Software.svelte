@@ -2,9 +2,6 @@
     import Fa from "svelte-fa";
     import { faCircleNotch } from "@fortawesome/free-solid-svg-icons";
 
-    export let socketData: softwareData;
-    export let socketSend: (cmd: string, args: string[]) => void;
-
     interface softwareData {
         uninstalled?: software[];
         installed?: software[];
@@ -19,12 +16,23 @@
         docs: string;
     }
 
+    export let socketData: softwareData;
+    export let socketSend: (cmd: string, args: string[]) => void;
+
     let installTemp: boolean[] = [];
     let installArray: number[] = [];
-    let nameList = "";
     let installTable = false;
     let needInstallTemp = true;
     let running = false;
+    let nameList = "";
+
+    // Runs once data is received or table is changed
+    $: socketData.uninstalled && installTempCreate();
+    $: (installTable == true || installTable == false) &&
+        ((needInstallTemp = true), installTempCreate());
+
+    // Runs every time installTemp array is changed
+    $: socketData.uninstalled && installTemp && (checkButton(), getNameList());
 
     const installTempCreate = () => {
         if (needInstallTemp) {
@@ -81,14 +89,6 @@
         );
         running = true;
     }
-
-    // Runs once data is received or table is changed
-    $: socketData.uninstalled && installTempCreate();
-    $: (installTable == true || installTable == false) &&
-        ((needInstallTemp = true), installTempCreate());
-
-    // Runs every time installTemp array is changed
-    $: socketData.uninstalled && installTemp && (checkButton(), getNameList());
 </script>
 
 <main>

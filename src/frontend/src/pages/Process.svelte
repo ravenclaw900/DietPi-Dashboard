@@ -11,9 +11,6 @@
     } from "@fortawesome/free-solid-svg-icons";
     import prettyBytes from "pretty-bytes";
 
-    export let socketData: processData;
-    export let socketSend: (cmd: string, args: string[]) => void;
-
     interface processData {
         processes?: processes[];
     }
@@ -26,17 +23,20 @@
         status: string;
     }
 
-    let pidSort = true;
-    let pidIcon = faSortUp;
-    let nameSort = false;
-    let nameIcon = faSort;
-    let cpuSort = false;
-    let cpuIcon = faSort;
-    let ramSort = false;
-    let ramIcon = faSort;
-    let statusSort = false;
-    let statusIcon = faSort;
+    export let socketData: processData;
+    export let socketSend: (cmd: string, args: string[]) => void;
+
     let reverse = false;
+    let pidSort = true;
+    let nameSort = false;
+    let cpuSort = false;
+    let ramSort = false;
+    let statusSort = false;
+    let pidIcon = faSortUp;
+    let nameIcon = faSort;
+    let cpuIcon = faSort;
+    let ramIcon = faSort;
+    let statusIcon = faSort;
 
     $: cpuSort && socketData.processes && sortCPU(reverse);
     $: pidSort && socketData.processes && sortPid(reverse);
@@ -66,16 +66,16 @@
                 cpuIcon = faSortUp;
             }
         } else {
+            reverse = false;
             cpuSort = true;
             pidSort = false;
             nameSort = false;
             ramSort = false;
-            reverse = false;
+            statusSort = false;
             cpuIcon = faSortUp;
             ramIcon = faSort;
             pidIcon = faSort;
             nameIcon = faSort;
-            statusSort = false;
             statusIcon = faSort;
         }
     }
@@ -102,16 +102,16 @@
                 nameIcon = faSortUp;
             }
         } else {
+            reverse = false;
             pidSort = false;
             cpuSort = false;
             ramSort = false;
             nameSort = true;
-            reverse = false;
+            statusSort = false;
             nameIcon = faSortUp;
             pidIcon = faSort;
             cpuIcon = faSort;
             ramIcon = faSort;
-            statusSort = false;
             statusIcon = faSort;
         }
     }
@@ -138,16 +138,16 @@
                 pidIcon = faSortUp;
             }
         } else {
+            reverse = false;
             cpuSort = false;
             ramSort = false;
             nameSort = false;
             pidSort = true;
-            reverse = false;
+            statusSort = false;
             pidIcon = faSortUp;
             cpuIcon = faSort;
             ramIcon = faSort;
             nameIcon = faSort;
-            statusSort = false;
             statusIcon = faSort;
         }
     }
@@ -174,16 +174,16 @@
                 ramIcon = faSortUp;
             }
         } else {
+            reverse = false;
             pidSort = false;
             cpuSort = false;
             nameSort = false;
             ramSort = true;
-            reverse = false;
+            statusSort = false;
             ramIcon = faSortUp;
             cpuIcon = faSort;
             nameIcon = faSort;
             pidIcon = faSort;
-            statusSort = false;
             statusIcon = faSort;
         }
     }
@@ -210,11 +210,11 @@
                 statusIcon = faSortUp;
             }
         } else {
+            reverse = false;
             pidSort = false;
             cpuSort = false;
             nameSort = false;
             statusSort = true;
-            reverse = false;
             ramIcon = faSort;
             cpuIcon = faSort;
             nameIcon = faSort;
