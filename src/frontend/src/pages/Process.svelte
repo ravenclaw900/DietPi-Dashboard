@@ -287,7 +287,7 @@
                         })}</td
                     >
                     <td class="p-2 space-x-2">
-                        {#if process.name != "dietpi-dashboard"}
+                        {#if process.name != "dietpi-dashboar"}
                             <span
                                 on:click={() =>
                                     socketSend("terminate", [

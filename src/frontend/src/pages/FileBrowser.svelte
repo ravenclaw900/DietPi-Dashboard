@@ -316,15 +316,14 @@
                             }
                         }}
                         spellcheck="false"
-                        class="w-full font-mono text-sm{highlighting
-                            ? ' bg-transparent text-transparent'
-                            : ''} whitespace-pre tab-4 caret-black z-20 dark:caret-white focus:outline-none p-px resize-none overflow-y-hidden"
+                        class="w-full font-mono text-sm whitespace-pre tab-4 caret-black z-20 dark:caret-white focus:outline-none p-px resize-none overflow-y-hidden"
+                        class:bg-transparent={highlighting}
+                        class:text-transparent={highlighting}
                     />
                     <div
                         bind:this={fileDiv}
-                        class="w-full microlight font-mono whitespace-pre bg-white dark:bg-black text-sm z-10 tab-4 p-px -ml-[100%] overflow-y-hidden{highlighting
-                            ? ''
-                            : ' invisible'}"
+                        class="w-full microlight font-mono whitespace-pre bg-white dark:bg-black text-sm z-10 tab-4 p-px -ml-[100%] overflow-y-hidden"
+                        class:invisible={highlighting}
                     />
                 </div>
             {:else if downloading}
@@ -355,12 +354,11 @@
                     </tr>
                     {#each socketData.contents as contents}
                         <tr
-                            class="select-none{selPath.path == contents.path
-                                ? ' !bg-dplime-dark'
-                                : ''} even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800{!showHidden &&
-                            contents.name[0] == '.'
-                                ? ' hidden'
-                                : ''}"
+                            class="select-none even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800"
+                            class:!bg-dplime-dark={selPath.path ==
+                                contents.path}
+                            class:hidden={!showHidden &&
+                                contents.name[0] == "."}
                             on:dblclick={() => {
                                 switch (contents.maintype) {
                                     case "dir":

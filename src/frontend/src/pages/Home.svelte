@@ -202,9 +202,8 @@
 </script>
 
 <main
-    class="flex gap-5 flex-wrap min-h-full flex-col{portrait
-        ? ''
-        : ' md:flex-row'} flex-grow"
+    class="flex gap-5 flex-wrap min-h-full flex-col flex-grow"
+    class:md:flex-row={portrait}
 >
     <Card header="System Diagnostics">
         <div

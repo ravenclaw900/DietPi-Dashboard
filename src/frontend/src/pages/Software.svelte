@@ -95,16 +95,16 @@
     {#if socketData.uninstalled}
         <div class="border-b-2 border-gray-500">
             <button
-                class="border-1 border-b-0 border-gray-500 p-1 focus:outline-none{installTable
-                    ? ''
-                    : ' bg-gray-200 dark:bg-gray-700'}"
-                on:click={() => (installTable = false)}>Not installed</button
+                class="border-1 border-b-0 border-gray-500 p-1 focus:outline-none"
+                on:click={() => (installTable = false)}
+                class:bg-gray-200={installTable}
+                class:dark:bg-gray-700={installTable}>Not installed</button
             >
             <button
-                class="border-1 border-b-0 border-gray-500 p-1 focus:outline-none{installTable
-                    ? ' bg-gray-200 dark:bg-gray-700'
-                    : ''}"
-                on:click={() => (installTable = true)}>Installed</button
+                class="border-1 border-b-0 border-gray-500 p-1 focus:outline-none"
+                on:click={() => (installTable = true)}
+                class:bg-gray-200={installTable}
+                class:dark:bg-gray-700={installTable}>Installed</button
             >
         </div>
         <table
