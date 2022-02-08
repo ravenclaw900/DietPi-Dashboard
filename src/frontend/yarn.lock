@@ -21,12 +21,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fortawesome/free-brands-svg-icons@npm:^5.15.4":
-  version: 5.15.4
-  resolution: "@fortawesome/free-brands-svg-icons@npm:5.15.4"
+"@fortawesome/fontawesome-common-types@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "@fortawesome/fontawesome-common-types@npm:0.3.0"
+  checksum: f08280e2e6c7df5cf2c80c88092828b367bb824ec21a6ba0e5d290ebf86038de166622152c8845a0aeaeff70bd54df7af17f1ef26dea7b832fdebdcc37412c37
+  languageName: node
+  linkType: hard
+
+"@fortawesome/free-brands-svg-icons@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "@fortawesome/free-brands-svg-icons@npm:6.0.0"
   dependencies:
-    "@fortawesome/fontawesome-common-types": ^0.2.36
-  checksum: 06e38132fbdf04d8677cf6e47e73cd566f68256f542d68d354e26f5ca7536c714b56f5f3dc6c670065b888ee08bc913bb4f213ab08225faf955d893a6a86ed02
+    "@fortawesome/fontawesome-common-types": ^0.3.0
+  checksum: 020e006dafafb5acd6428b50f23f8d52f8d684840b6494c6a7d4e90aebd7e8fc3dc0d839252ed1ff74eb431299e7970fed4cfc1085be14253566b9cd75eb2c74
   languageName: node
   linkType: hard
 
@@ -463,7 +470,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "dietpi-dashboard@workspace:."
   dependencies:
-    "@fortawesome/free-brands-svg-icons": ^5.15.4
+    "@fortawesome/free-brands-svg-icons": ^6.0.0
     "@fortawesome/free-solid-svg-icons": ^5.15.4
     "@sveltejs/vite-plugin-svelte": ^1.0.0-next.37
     "@tsconfig/svelte": ^3.0.0
