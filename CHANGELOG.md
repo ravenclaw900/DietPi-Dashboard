@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.5.1](https://github.com/ravenclaw900/DietPi-Dashboard/compare/v0.5.0...v0.5.1) (2022-02-13)
+
+
+### Bug Fixes
+
+* **security:** fix token not being checked on first load ([aed47d9](https://github.com/ravenclaw900/DietPi-Dashboard/commit/aed47d9726349cabb7ab128ec699f4b5cf80e814))
+
 ## [0.5.0](https://github.com/ravenclaw900/DietPi-Dashboard/compare/v0.4.1...v0.5.0) (2022-02-06)
 
 
