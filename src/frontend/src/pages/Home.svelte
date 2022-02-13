@@ -250,5 +250,5 @@
 </main>
 
 <style>
-    @import "uplot/dist/uplot.min.css";
+    @import "uplot/dist/uPlot.min.css";
 </style>
