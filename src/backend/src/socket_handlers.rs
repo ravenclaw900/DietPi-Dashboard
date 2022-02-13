@@ -57,8 +57,8 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                 log::error!("Couldn't parse JSON");
                 continue;
             };
-            if CONFIG.pass && !validate_token(&req.token) && !first_message {
-                if data_send.send(None).await.is_err() {
+            if CONFIG.pass && !validate_token(&req.token) {
+                if !first_message && data_send.send(None).await.is_err() {
                     break;
                 }
                 data_send
