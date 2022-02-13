@@ -817,8 +817,9 @@ dependencies = [
 
 [[package]]
 name = "psutil"
-version = "3.2.1"
-source = "git+https://github.com/mygnu/rust-psutil?branch=update-dependencies#c065bcc2a604d8ca0cd7ec481f2fc66cbdf819d0"
+version = "3.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f866af2b0f8e4b0d2d00aad8a9c5fc48fad33466cd99a64cbb3a4c1505f1a62d"
 dependencies = [
  "cfg-if",
  "darwin-libproc",
