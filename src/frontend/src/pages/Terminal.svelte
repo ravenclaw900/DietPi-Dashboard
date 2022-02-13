@@ -5,8 +5,6 @@
 
     import { onDestroy } from "svelte";
 
-    import "xterm/css/xterm.css";
-
     export let loginDialog: boolean;
     export let node: string;
 
@@ -48,3 +46,7 @@
 </script>
 
 <div bind:this={termDiv} class="h-full{loginDialog ? ' hidden' : ''}" />
+
+<style>
+    @import "xterm/css/xterm.css";
+</style>

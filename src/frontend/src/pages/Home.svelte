@@ -3,7 +3,6 @@
     import { tweened } from "svelte/motion";
     import prettyBytes from "pretty-bytes";
     import uPlot from "uplot";
-    import "uplot/dist/uplot.min.css";
     import { onMount, onDestroy } from "svelte";
 
     interface statData {
@@ -202,7 +201,6 @@
 
     let handle2 = setInterval(() => {
         let oldSize = getSize();
-        console.log("e");
         setTimeout(() => {
             let newSize = getSize();
             if (oldSize != newSize) {
@@ -250,3 +248,7 @@
         {/if}
     </Card>
 </main>
+
+<style>
+    @import "uplot/dist/uplot.min.css";
+</style>
