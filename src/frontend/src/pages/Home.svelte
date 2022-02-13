@@ -1,10 +1,10 @@
 <script lang="ts">
     import Card from "../components/Card.svelte";
-    import Chart from "chart.js/auto";
-    import type { ChartConfiguration, ChartData } from "chart.js";
-    import { onMount } from "svelte";
     import { tweened } from "svelte/motion";
     import prettyBytes from "pretty-bytes";
+    import uPlot from "uplot";
+    import "uplot/dist/uplot.min.css";
+    import { onMount, onDestroy } from "svelte";
 
     interface statData {
         cpu?: number;
@@ -27,10 +27,10 @@
 
     export let socketData: statData;
     export let darkMode: boolean;
-    let canvas: HTMLCanvasElement;
 
-    let portrait: boolean;
-    $: portrait = window.innerHeight > window.innerWidth;
+    let portrait = window.innerHeight > window.innerWidth;
+
+    let chart: HTMLDivElement;
 
     const cpuAnimate = tweened(0, {
         duration: 200,
@@ -52,99 +52,7 @@
         swapData: (string | number)[],
         diskData: (string | number)[];
 
-    const chartData: ChartData = {
-        labels: [],
-        datasets: [
-            {
-                label: "CPU",
-                backgroundColor: "#10B981",
-                borderColor: "#10B981",
-                data: [],
-                yAxisID: "cpuScale",
-                hidden: false,
-            },
-            {
-                label: "RAM",
-                backgroundColor: "#EF4444",
-                borderColor: "#EF4444",
-                data: [],
-                yAxisID: "usageScale",
-                hidden: false,
-            },
-            {
-                label: "Swap",
-                backgroundColor: "#3B82F6",
-                borderColor: "#3B82F6",
-                data: [],
-                yAxisID: "usageScale",
-                hidden: false,
-            },
-            {
-                label: "Disk",
-                backgroundColor: "#F59E0B",
-                borderColor: "#F59E0B",
-                data: [],
-                yAxisID: "usageScale",
-                hidden: false,
-            },
-            {
-                label: "Network (sent)",
-                backgroundColor: "#8B5CF6",
-                borderColor: "#8B5CF6",
-                data: [],
-                yAxisID: "usageScale",
-                hidden: false,
-            },
-            {
-                label: "Network (received)",
-                backgroundColor: "#EC4899",
-                borderColor: "#EC4899",
-                data: [],
-                yAxisID: "usageScale",
-                hidden: false,
-            },
-        ],
-    };
-
-    const config: ChartConfiguration = {
-        type: "line",
-        data: chartData,
-        options: {
-            scales: {
-                cpuScale: {
-                    position: "right",
-                    type: "linear",
-                    ticks: {
-                        callback: (value) => {
-                            return value + "%";
-                        },
-                    },
-                    grid: {
-                        color: darkMode ? "#4B5563" : "#D1D5DB",
-                    },
-                },
-                usageScale: {
-                    position: "left",
-                    type: "linear",
-                    ticks: {
-                        callback: (value) => {
-                            return value + "MiB";
-                        },
-                    },
-                    grid: {
-                        color: darkMode ? "#4B5563" : "#D1D5DB",
-                    },
-                },
-                x: {
-                    grid: {
-                        color: darkMode ? "#4B5563" : "#D1D5DB",
-                    },
-                },
-            },
-            responsive: true,
-            maintainAspectRatio: false,
-        },
-    };
+    let data: uPlot.AlignedData = [[], [], [], [], [], [], []];
 
     $: socketData.cpu != undefined &&
         (cpuAnimate.set(socketData.cpu),
@@ -161,62 +69,168 @@
             prettyBytes(socketData.swap.used, { binary: true }),
             prettyBytes(socketData.swap.total, { binary: true }),
         ]),
-        (chartData.datasets[2].hidden = socketData.swap.total == 0),
         (diskData = [
             prettyBytes(socketData.disk.used),
             prettyBytes(socketData.disk.total),
         ]));
 
-    onMount(() => {
-        let chart = new Chart(canvas.getContext("2d"), config);
+    function getSize() {
+        if (portrait) {
+            return {
+                width: Math.max(
+                    (window.innerWidth / 100) * 70,
+                    document.getElementById("chart").getBoundingClientRect()
+                        .width - 20
+                ),
+                height: (window.innerHeight / 100) * 50,
+            };
+        } else {
+            return {
+                height: (window.innerHeight / 100) * 70,
+                width:
+                    document.getElementById("chart").getBoundingClientRect()
+                        .width - 20,
+            };
+        }
+    }
 
-        setInterval(() => {
-            chart.options.scales.cpuScale.grid.color = darkMode
-                ? "#4B5563"
-                : "#D1D5DB";
-            chart.options.scales.usageScale.grid.color = darkMode
-                ? "#4B5563"
-                : "#D1D5DB";
-            chart.options.scales.x.grid.color = darkMode
-                ? "#4B5563"
-                : "#D1D5DB";
-            if (socketData.ram.used != undefined) {
-                let currenttime = new Date();
-                chartData.labels.push(
-                    `${currenttime.getHours()}:${currenttime.getMinutes()}:${currenttime.getSeconds()}`
-                );
-                chartData.datasets[0].data.push(socketData.cpu);
-                chartData.datasets[1].data.push(socketData.ram.used / 1048576);
-                chartData.datasets[2].data.push(socketData.swap.used / 1048576);
-                chartData.datasets[3].data.push(socketData.disk.used / 1048576);
-                chartData.datasets[4].data.push(
-                    socketData.network.sent / 1048576
-                );
-                chartData.datasets[5].data.push(
-                    socketData.network.received / 1048576
-                );
+    let uplot: uPlot;
+
+    onMount(() => {
+        let opts = {
+            ...getSize(),
+            series: [
+                {},
+                {
+                    spanGaps: false,
+                    label: "CPU",
+                    stroke: "#10b981",
+                    width: 3,
+                    scale: "%",
+                    value: (_: any, val: number) => val.toFixed(2) + "%",
+                },
+                {
+                    spanGaps: false,
+                    label: "RAM",
+                    stroke: "#ef4444",
+                    width: 3,
+                    scale: "mb",
+                    value: (_: any, val: number) =>
+                        (val * 0.9536743).toFixed(2) + " MiB",
+                },
+                {
+                    show: true,
+                    spanGaps: false,
+                    label: "Swap",
+                    stroke: "#3b82f6",
+                    width: 3,
+                    scale: "mb",
+                    value: (_: any, val: number) =>
+                        (val * 0.9536743).toFixed(2) + " MiB",
+                },
+                {
+                    spanGaps: false,
+                    label: "Disk",
+                    stroke: "#eab308",
+                    width: 2,
+                    scale: "mb",
+                    value: (_: any, val: number) =>
+                        (val / 1000).toFixed(2) + " GB",
+                },
+                {
+                    spanGaps: false,
+                    label: "Network (sent)",
+                    stroke: "#a855f7",
+                    width: 3,
+                    scale: "mb",
+                    value: (_: any, val: number) =>
+                        (val * 1000).toFixed(2) + " KB",
+                },
+                {
+                    spanGaps: false,
+                    label: "Network (received)",
+                    stroke: "#ec4899",
+                    width: 3,
+                    scale: "mb",
+                    value: (_: any, val: number) =>
+                        (val * 1000).toFixed(2) + " KB",
+                },
+            ],
+            axes: [
+                {
+                    grid: { show: false },
+                    stroke: () => (darkMode ? "#fff" : "#000"),
+                },
+                {
+                    scale: "mb",
+                    values: (_: any, vals: number[]) =>
+                        vals.map((v: number) => +v.toFixed(2) + " MB"),
+                    size: 75,
+                    grid: { stroke: () => (darkMode ? "#4b5563" : "#ededed") },
+                    stroke: () => (darkMode ? "#fff" : "#000"),
+                },
+                {
+                    side: 1,
+                    scale: "%",
+                    values: (_: any, vals: number[]) =>
+                        vals.map((v: number) => +v.toFixed(2) + "%"),
+                    grid: { show: false },
+                    stroke: () => (darkMode ? "#fff" : "#000"),
+                },
+            ],
+        };
+
+        uplot = new uPlot(opts, data, chart);
+
+        if (socketData.swap != undefined && socketData.swap.total == 0) {
+            uplot.setSeries(3, { show: false });
+        }
+    });
+
+    let handle1 = setInterval(() => {
+        if (socketData.ram.used != undefined) {
+            data[0].push(Math.round(Date.now() / 1000));
+            data[1].push(socketData.cpu);
+            data[2].push(socketData.ram.used / 1000000);
+            data[3].push(socketData.swap.used / 1000000);
+            data[4].push(socketData.disk.used / 1000000);
+            data[5].push(socketData.network.sent / 1000000);
+            data[6].push(socketData.network.received / 1000000);
+        }
+        uplot.setData(data);
+    }, 2000);
+
+    let handle2 = setInterval(() => {
+        let oldSize = getSize();
+        console.log("e");
+        setTimeout(() => {
+            let newSize = getSize();
+            if (oldSize != newSize) {
+                uplot.setSize(newSize);
             }
-            chart.update();
-        }, 2000);
+        }, 100);
+    }, 100);
+
+    onDestroy(() => {
+        uplot = undefined;
+        clearInterval(handle1);
+        clearInterval(handle2);
     });
 </script>
 
+<svelte:window
+    on:resize={() => (portrait = window.innerHeight > window.innerWidth)}
+/>
+
 <main
     class="flex gap-5 flex-wrap min-h-full flex-col flex-grow"
-    class:md:flex-row={portrait}
+    class:md:flex-row={!portrait}
 >
-    <Card header="System Diagnostics">
-        <div
-            id="chartWrapper"
-            class={portrait
-                ? "w-70vw min-w-full h-50vh"
-                : "max-w-full h-70vh max-h-95%"}
-        >
-            <canvas bind:this={canvas} />
-        </div>
+    <Card header="System Diagnostics" id="chart">
+        <div bind:this={chart} />
     </Card>
-    {#if ramData != undefined}
-        <Card header="System Stats">
+    <Card header="System Stats">
+        {#if ramData != undefined}
             CPU:<span class="float-right">{socketData.cpu}/100%</span>
             <div class="bg-gray-200 dark:bg-gray-800 w-full h-3 my-1">
                 <div class="bg-green-500 h-3" style="width:{$cpuAnimate}%" />
@@ -233,6 +247,6 @@
             <div class="bg-gray-200 dark:bg-gray-800 w-full h-3 my-1">
                 <div class="bg-yellow-500 h-3" style="width:{$diskAnimate}%" />
             </div>
-        </Card>
-    {/if}
+        {/if}
+    </Card>
 </main>
