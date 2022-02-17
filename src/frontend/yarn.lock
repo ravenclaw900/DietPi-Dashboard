@@ -728,10 +728,10 @@ supports-preserve-symlinks-flag@^1.0.0:
   resolved "https://registry.yarnpkg.com/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz#6eda4bd344a3c94aea376d4cc31bc77311039e09"
   integrity sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==
 
-svelte-check@^2.4.4:
-  version "2.4.4"
-  resolved "https://registry.yarnpkg.com/svelte-check/-/svelte-check-2.4.4.tgz#207b2fbc0054873ec51e7b2766ff65e5531e9709"
-  integrity sha512-HIteHYYLipob5xtcpBSbkc6Qm7ig95U6Xyku4APQUUY5pZNY6+YuNchF+umw/kCZYy14qY6traRmKBCUo1geEA==
+svelte-check@^2.4.5:
+  version "2.4.5"
+  resolved "https://registry.yarnpkg.com/svelte-check/-/svelte-check-2.4.5.tgz#a2001993034d495118980bd95577fb3e7980661a"
+  integrity sha512-nRft8BbG2wcxyCdHDZ7X43xLcvDzua3xLwq6wzHGcAF3ka3Jyhv2rvgq0+SF9NwHLMefp9C2XkM6etzsxK/cMQ==
   dependencies:
     chokidar "^3.4.1"
     fast-glob "^3.2.7"
