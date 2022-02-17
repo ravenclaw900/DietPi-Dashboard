@@ -18,7 +18,7 @@ pty-process = "0.2.0"
 psutil = "3.2.2"
 infer = { version = "0.7.0", default-features = false }
 jwts = "0.2.4"
-sha2 = "0.10.1"
+sha2 = "0.10.2"
 toml = "0.5.8"
 if-addrs = "0.7.0"
 zip = { version = "0.5.13", default-features = false, features = ["deflate", "time"] }
