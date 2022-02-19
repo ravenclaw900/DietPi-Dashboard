@@ -272,7 +272,7 @@
 >
     {#if loginDialog}
         <div
-            class="fixed inset-0 bg-gray-600/50 h-screen w-screen flex items-center justify-center"
+            class="fixed inset-0 bg-gray-600/50 h-screen w-screen flex items-center justify-center z-20"
             transition:fade
         >
             <div
