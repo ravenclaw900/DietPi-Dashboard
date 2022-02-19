@@ -115,7 +115,7 @@
                     width: 3,
                     scale: "mb",
                     value: (_: any, val: number) =>
-                        (val * 0.9536743).toFixed(2) + " MiB",
+                        prettyBytes(val * 1000000, { binary: true }),
                 },
                 {
                     show: true,
@@ -125,7 +125,7 @@
                     width: 3,
                     scale: "mb",
                     value: (_: any, val: number) =>
-                        (val * 0.9536743).toFixed(2) + " MiB",
+                        prettyBytes(val * 1000000, { binary: true }),
                 },
                 {
                     spanGaps: false,
@@ -133,8 +133,7 @@
                     stroke: "#eab308",
                     width: 2,
                     scale: "mb",
-                    value: (_: any, val: number) =>
-                        (val / 1000).toFixed(2) + " GB",
+                    value: (_: any, val: number) => prettyBytes(val * 1000000),
                 },
                 {
                     spanGaps: false,
@@ -142,8 +141,7 @@
                     stroke: "#a855f7",
                     width: 3,
                     scale: "mb",
-                    value: (_: any, val: number) =>
-                        (val * 1000).toFixed(2) + " KB",
+                    value: (_: any, val: number) => prettyBytes(val * 1000000),
                 },
                 {
                     spanGaps: false,
@@ -151,8 +149,7 @@
                     stroke: "#ec4899",
                     width: 3,
                     scale: "mb",
-                    value: (_: any, val: number) =>
-                        (val * 1000).toFixed(2) + " KB",
+                    value: (_: any, val: number) => prettyBytes(val * 1000000),
                 },
             ],
             axes: [
