@@ -3,10 +3,22 @@
     import prettyMilliseconds from "pretty-ms";
     import { fade } from "svelte/transition";
 
-    export let socketSend = (cmd, args) => {};
-    export let socketData;
+    interface hostData {
+        hostname?: String;
+        uptime?: number;
+        arch?: string;
+        kernel?: string;
+        version?: string;
+        packages?: number;
+        upgrades?: number;
+        nic?: string;
+        ip?: string;
+    }
 
-    let uptime;
+    export let socketSend: (cmd: string, args: string[]) => void;
+    export let socketData: hostData;
+
+    let uptime: string;
     let dialog = false;
     let msg = "";
 
@@ -16,7 +28,7 @@
         })),
         (dialog = false));
 
-    function sendData(data) {
+    function sendData(data: string) {
         socketSend(data, []);
         // Give backend an extra second to loop again
         setTimeout(() => {

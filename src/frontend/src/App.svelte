@@ -30,22 +30,38 @@
     import logo from "./assets/dietpi.png";
 
     interface socketData {
+        // Statistics page
+        cpu: number;
+        ram: usage;
+        swap: usage;
+        disk: usage;
+        network: net;
         // Software page
-        uninstalled?: software[];
-        installed?: software[];
-        response?: string;
+        uninstalled: software[];
+        installed: software[];
+        response: string;
         // Process page
-        processes?: processes[];
+        processes: processes[];
         // Services page
-        services?: services[];
+        services: services[];
         // File browser page
-        contents?: browser[];
-        textdata?: string;
+        contents: browser[];
+        textdata: string;
+        // Management page
+        hostname: String;
+        uptime: number;
+        arch: string;
+        kernel: string;
+        version: string;
+        packages: number;
+        upgrades: number;
+        nic: string;
+        ip: string;
         // Global
-        update?: string;
-        login?: boolean;
-        error?: boolean;
-        nodes?: string[];
+        update: string;
+        login: boolean;
+        error: boolean;
+        nodes: string[];
     }
 
     interface software {
@@ -80,26 +96,36 @@
         size: number;
     }
 
-    let url = "";
+    interface usage {
+        used: number;
+        total: number;
+        percent: number;
+    }
+
+    interface net {
+        sent: number;
+        received: number;
+    }
 
     let socket: WebSocket;
-    let socketData: socketData = {};
-    let binData = "";
+    let socketData: Partial<socketData> = {};
+    let nodes: string[] = [];
     let shown = false;
-    let menu = window.innerWidth > 768;
-    let update = "";
     let darkMode = false;
     let blur = false;
-    let navPage = "";
-    let token = "";
-    let password = "";
     let login = false;
     let loginDialog = false;
-    let nodes = [];
-    let node = `${window.location.hostname}:${window.location.port}`;
     let notificationsShown = false;
     let settingsShown = false;
     let passwordMessage = false;
+    let menu = window.innerWidth > 768;
+    let update = "";
+    let navPage = "";
+    let token = "";
+    let password = "";
+    let node = `${window.location.hostname}:${window.location.port}`;
+
+    $: node && ((shown = false), connectSocket(node));
 
     // Get dark mode
     if (localStorage.getItem("darkMode") != null) {
@@ -108,14 +134,8 @@
         darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
     }
 
-    const socketMessageListener = (e) => {
-        if (typeof e.data === "string") {
-            socketData = JSON.parse(e.data);
-            binData = "";
-        } else {
-            socketData = {};
-            binData = URL.createObjectURL(e.data);
-        }
+    const socketMessageListener = (e: MessageEvent) => {
+        socketData = JSON.parse(e.data);
         if (socketData.update != undefined) {
             update = socketData.update;
             login = socketData.login;
@@ -124,15 +144,19 @@
             }
             // Get token
             if (login) {
-                if (localStorage.getItem("token") != null) {
-                    token = localStorage.getItem("token");
-                    pollServer(window.location.pathname);
-                } else {
-                    // Or login
+                let obj = JSON.parse(localStorage.getItem("tokens"));
+                if (obj == null || obj[node] == null) {
+                    // Login
                     loginDialog = true;
+                } else {
+                    // Or use stored token
+                    token = obj[node];
+                    pollServer(window.location.pathname);
                 }
             } else {
+                // Remove legacy "token" setting
                 localStorage.removeItem("token");
+                localStorage.removeItem("tokens");
                 pollServer(window.location.pathname);
             }
         }
@@ -149,7 +173,7 @@
         console.log("Connected");
         shown = true;
     };
-    const socketErrorListener = (e) => {
+    const socketErrorListener = (e: ErrorEvent) => {
         console.error(e);
         connectSocket(node);
     };
@@ -158,18 +182,21 @@
     };
 
     function pollServer(page: string) {
-        let json: string;
-        if (login) {
-            json = JSON.stringify({
-                page,
-                token,
-            });
-        } else {
-            json = JSON.stringify({
-                page,
-            });
+        if (page != "/terminal") {
+            // Terminal doesn't work if sent
+            let json: string;
+            if (login) {
+                json = JSON.stringify({
+                    page,
+                    token,
+                });
+            } else {
+                json = JSON.stringify({
+                    page,
+                });
+            }
+            socket.send(json);
         }
-        socket.send(json);
     }
 
     function changePage(page: string) {
@@ -194,16 +221,21 @@
                         passwordMessage = true;
                         setTimeout(() => (passwordMessage = false), 2000);
                     } else {
-                        (token = body),
-                            localStorage.setItem("token", body),
-                            (loginDialog = false),
-                            pollServer(window.location.pathname);
+                        token = body;
+                        let obj =
+                            localStorage.getItem("tokens") == null
+                                ? {}
+                                : JSON.parse(localStorage.getItem("tokens"));
+                        obj[node] = body;
+                        localStorage.setItem("tokens", JSON.stringify(obj));
+                        loginDialog = false;
+                        pollServer(window.location.pathname);
                     }
                 })
         );
     }
 
-    function socketSend(cmd, args) {
+    function socketSend(cmd: string, args: string[]) {
         let json;
         if (login) {
             json = JSON.stringify({
@@ -231,30 +263,37 @@
         socket.onclose = socketCloseListener;
         socket.onerror = socketErrorListener;
     }
-
-    $: node && ((shown = false), connectSocket(node));
 </script>
 
-<main class="min-h-screen flex overflow-x-hidden{darkMode ? ' dark' : ''}">
+<main
+    class="min-h-screen flex{menu ? ' <sm:overflow-x-hidden' : ''}{darkMode
+        ? ' dark'
+        : ''}"
+>
     {#if loginDialog}
         <div
-            class="fixed inset-0 bg-gray-600/50 h-screen w-screen flex items-center justify-center"
+            class="fixed inset-0 bg-gray-600/50 h-screen w-screen flex items-center justify-center z-20"
             transition:fade
         >
             <div
                 class="bg-white dark:bg-black w-1/2 h-1/3 rounded-md flex items-center flex-col justify-center text-xl z-40 gap-5 dark:text-white"
             >
                 <h6>Please login:</h6>
-                <input
-                    type="password"
-                    class="outline-none bg-gray-100 border border-gray-400 dark:border-gray-700 rounded focus:bg-gray-200 dark:bg-gray-900 dark:focus:bg-gray-800"
-                    bind:value={password}
-                />
-                <button
-                    on:click={getToken}
-                    class="border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none border p-2 rounded active:bg-gray-200 dark:active:bg-gray-800"
-                    >Login</button
+                <form
+                    class="flex flex-col gap-5 items-center"
+                    on:submit|preventDefault={getToken}
                 >
+                    <input
+                        type="password"
+                        class="outline-none bg-gray-100 border border-gray-400 dark:border-gray-700 rounded focus:bg-gray-200 dark:bg-gray-900 dark:focus:bg-gray-800"
+                        bind:value={password}
+                    />
+                    <button
+                        type="submit"
+                        class="border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none border p-2 rounded active:bg-gray-200 dark:active:bg-gray-800"
+                        >Login</button
+                    >
+                </form>
                 {#if passwordMessage}
                     <h6 class="text-red-500" transition:fade>
                         Incorrect password
@@ -354,7 +393,7 @@
                     <table class="w-full">
                         {#if update}
                             <tr class="border-b border-gray-300 border-gray-600"
-                                >DietPi update avalible: {update}</tr
+                                >DietPi update available: {update}</tr
                             >
                         {/if}
                     </table>
@@ -386,7 +425,7 @@
                 : ''}"
         >
             {#if shown}
-                <Router {url}>
+                <Router>
                     <Route path="process"
                         ><Process {socketData} {socketSend} /></Route
                     >
@@ -404,7 +443,8 @@
                         ><FileBrowser
                             {socketSend}
                             {socketData}
-                            {binData}
+                            {node}
+                            {login}
                         /></Route
                     >
                     <Route path="service"

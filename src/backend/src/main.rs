@@ -5,15 +5,16 @@ use simple_logger::SimpleLogger;
 use warp::Filter;
 
 mod config;
+mod page_handlers;
 mod shared;
-mod sockets;
+mod socket_handlers;
 mod systemdata;
-mod terminal;
 
 #[allow(clippy::too_many_lines)]
 fn main() {
+    #[allow(clippy::cast_possible_truncation)]
     tokio::runtime::Builder::new_multi_thread()
-        .worker_threads(num_cpus::get().max(2)) // We have to use num_cpus because heim is async, and the runtime hasn't been started yet. Minimum of 2 threads.
+        .worker_threads(psutil::cpu::cpu_count().max(2) as usize)
         .enable_all()
         .build()
         .unwrap()
@@ -23,7 +24,6 @@ fn main() {
 
             SimpleLogger::new()
                 .with_level(log::LevelFilter::Info)
-                .with_utc_timestamps()
                 .env()
                 .init()
                 .unwrap();
@@ -96,13 +96,19 @@ fn main() {
                     "*",
                 ));
 
-            let terminal_route = warp::path!("ws" / "term")
+            let terminal_route = warp::path("ws")
+                .and(warp::path("term"))
                 .and(warp::ws())
-                .map(|ws: warp::ws::Ws| ws.on_upgrade(terminal::term_handler));
+                .map(|ws: warp::ws::Ws| ws.on_upgrade(socket_handlers::term_handler));
 
             let socket_route = warp::path("ws")
                 .and(warp::ws())
-                .map(|ws: warp::ws::Ws| ws.on_upgrade(sockets::socket_handler));
+                .map(|ws: warp::ws::Ws| ws.on_upgrade(socket_handlers::socket_handler));
+
+            let file_route = warp::path("ws")
+                .and(warp::path("file"))
+                .and(warp::ws())
+                .map(|ws: warp::ws::Ws| ws.on_upgrade(socket_handlers::file_handler));
 
             #[cfg(feature = "frontend")]
             let main_route = warp::any().map(|| {
@@ -115,7 +121,7 @@ fn main() {
                 .or(main_route)
                 .with(warp::compression::gzip());
 
-            let socket_routes = terminal_route.or(socket_route);
+            let socket_routes = terminal_route.or(file_route).or(socket_route);
 
             let routes = socket_routes
                 .or(login_route)

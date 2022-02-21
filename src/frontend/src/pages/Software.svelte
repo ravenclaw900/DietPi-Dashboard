@@ -2,9 +2,6 @@
     import Fa from "svelte-fa";
     import { faCircleNotch } from "@fortawesome/free-solid-svg-icons";
 
-    export let socketData: softwareData;
-    export let socketSend = (cmd, args) => {};
-
     interface softwareData {
         uninstalled?: software[];
         installed?: software[];
@@ -19,12 +16,23 @@
         docs: string;
     }
 
+    export let socketData: softwareData;
+    export let socketSend: (cmd: string, args: string[]) => void;
+
     let installTemp: boolean[] = [];
-    let installArray = [];
-    let nameList = "";
+    let installArray: number[] = [];
     let installTable = false;
     let needInstallTemp = true;
     let running = false;
+    let nameList = "";
+
+    // Runs once data is received or table is changed
+    $: socketData.uninstalled && installTempCreate();
+    $: (installTable == true || installTable == false) &&
+        ((needInstallTemp = true), installTempCreate());
+
+    // Runs every time installTemp array is changed
+    $: socketData.uninstalled && installTemp && (checkButton(), getNameList());
 
     const installTempCreate = () => {
         if (needInstallTemp) {
@@ -81,30 +89,22 @@
         );
         running = true;
     }
-
-    // Runs once data is received or table is changed
-    $: socketData.uninstalled && installTempCreate();
-    $: (installTable == true || installTable == false) &&
-        ((needInstallTemp = true), installTempCreate());
-
-    // Runs every time installTemp array is changed
-    $: socketData.uninstalled && installTemp && (checkButton(), getNameList());
 </script>
 
 <main>
     {#if socketData.uninstalled}
         <div class="border-b-2 border-gray-500">
             <button
-                class="border-1 border-b-0 border-gray-500 p-1 focus:outline-none{installTable
-                    ? ''
-                    : ' bg-gray-200 dark:bg-gray-700'}"
-                on:click={() => (installTable = false)}>Not installed</button
+                class="border-1 border-b-0 border-gray-500 p-1 focus:outline-none"
+                on:click={() => (installTable = false)}
+                class:bg-gray-200={installTable}
+                class:dark:bg-gray-700={installTable}>Not installed</button
             >
             <button
-                class="border-1 border-b-0 border-gray-500 p-1 focus:outline-none{installTable
-                    ? ' bg-gray-200 dark:bg-gray-700'
-                    : ''}"
-                on:click={() => (installTable = true)}>Installed</button
+                class="border-1 border-b-0 border-gray-500 p-1 focus:outline-none"
+                on:click={() => (installTable = true)}
+                class:bg-gray-200={installTable}
+                class:dark:bg-gray-700={installTable}>Installed</button
             >
         </div>
         <table
@@ -138,7 +138,7 @@
                         <td class="p-2">{software.description}</td>
                         <td class="p-2">{software.dependencies}</td>
                         <td class="p-2">
-                            {#if software.docs.substr(0, 5) == "https"}
+                            {#if software.docs.substring(0, 5) == "https"}
                                 <a
                                     href={software.docs}
                                     class="text-blue-500 underline"

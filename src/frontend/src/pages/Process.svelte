@@ -9,9 +9,7 @@
         faPause,
         faPlay,
     } from "@fortawesome/free-solid-svg-icons";
-
-    export let socketData: processData;
-    export let socketSend = (cmd, args) => {};
+    import prettyBytes from "pretty-bytes";
 
     interface processData {
         processes?: processes[];
@@ -25,17 +23,20 @@
         status: string;
     }
 
-    let pidSort = true;
-    let pidIcon = faSortUp;
-    let nameSort = false;
-    let nameIcon = faSort;
-    let cpuSort = false;
-    let cpuIcon = faSort;
-    let ramSort = false;
-    let ramIcon = faSort;
-    let statusSort = false;
-    let statusIcon = faSort;
+    export let socketData: processData;
+    export let socketSend: (cmd: string, args: string[]) => void;
+
     let reverse = false;
+    let pidSort = true;
+    let nameSort = false;
+    let cpuSort = false;
+    let ramSort = false;
+    let statusSort = false;
+    let pidIcon = faSortUp;
+    let nameIcon = faSort;
+    let cpuIcon = faSort;
+    let ramIcon = faSort;
+    let statusIcon = faSort;
 
     $: cpuSort && socketData.processes && sortCPU(reverse);
     $: pidSort && socketData.processes && sortPid(reverse);
@@ -43,7 +44,7 @@
     $: ramSort && socketData.processes && sortRAM(reverse);
     $: statusSort && socketData.processes && sortStatus(reverse);
 
-    function sortCPU(reverse) {
+    function sortCPU(reverse: boolean) {
         socketData.processes.sort((a, b) => {
             if (a.cpu < b.cpu) {
                 return reverse ? -1 : 1;
@@ -65,21 +66,21 @@
                 cpuIcon = faSortUp;
             }
         } else {
+            reverse = false;
             cpuSort = true;
             pidSort = false;
             nameSort = false;
             ramSort = false;
-            reverse = false;
+            statusSort = false;
             cpuIcon = faSortUp;
             ramIcon = faSort;
             pidIcon = faSort;
             nameIcon = faSort;
-            statusSort = false;
             statusIcon = faSort;
         }
     }
 
-    function sortName(reverse) {
+    function sortName(reverse: boolean) {
         socketData.processes.sort((a, b) => {
             if (a.name < b.name) {
                 return reverse ? 1 : -1;
@@ -101,21 +102,21 @@
                 nameIcon = faSortUp;
             }
         } else {
+            reverse = false;
             pidSort = false;
             cpuSort = false;
             ramSort = false;
             nameSort = true;
-            reverse = false;
+            statusSort = false;
             nameIcon = faSortUp;
             pidIcon = faSort;
             cpuIcon = faSort;
             ramIcon = faSort;
-            statusSort = false;
             statusIcon = faSort;
         }
     }
 
-    function sortPid(reverse) {
+    function sortPid(reverse: boolean) {
         socketData.processes.sort((a, b) => {
             if (a.pid < b.pid) {
                 return reverse ? 1 : -1;
@@ -137,21 +138,21 @@
                 pidIcon = faSortUp;
             }
         } else {
+            reverse = false;
             cpuSort = false;
             ramSort = false;
             nameSort = false;
             pidSort = true;
-            reverse = false;
+            statusSort = false;
             pidIcon = faSortUp;
             cpuIcon = faSort;
             ramIcon = faSort;
             nameIcon = faSort;
-            statusSort = false;
             statusIcon = faSort;
         }
     }
 
-    function sortRAM(reverse) {
+    function sortRAM(reverse: boolean) {
         socketData.processes.sort((a, b) => {
             if (a.ram < b.ram) {
                 return reverse ? -1 : 1;
@@ -173,21 +174,21 @@
                 ramIcon = faSortUp;
             }
         } else {
+            reverse = false;
             pidSort = false;
             cpuSort = false;
             nameSort = false;
             ramSort = true;
-            reverse = false;
+            statusSort = false;
             ramIcon = faSortUp;
             cpuIcon = faSort;
             nameIcon = faSort;
             pidIcon = faSort;
-            statusSort = false;
             statusIcon = faSort;
         }
     }
 
-    function sortStatus(reverse) {
+    function sortStatus(reverse: boolean) {
         socketData.processes.sort((a, b) => {
             if (a.status < b.status) {
                 return reverse ? -1 : 1;
@@ -209,11 +210,11 @@
                 statusIcon = faSortUp;
             }
         } else {
+            reverse = false;
             pidSort = false;
             cpuSort = false;
             nameSort = false;
             statusSort = true;
-            reverse = false;
             ramIcon = faSort;
             cpuIcon = faSort;
             nameIcon = faSort;
@@ -226,7 +227,7 @@
 <main>
     {#if socketData.processes}
         <table
-            class="border border-gray-300 dark:border-gray-700 w-full table-fixed break-words overflow-x-scroll"
+            class="border border-gray-300 dark:border-gray-700 w-full table-fixed break-words min-w-50"
         >
             <tr class="table-header">
                 <th
@@ -279,9 +280,14 @@
                     <td class="p-2">{process.name}</td>
                     <td class="p-2">{process.status}</td>
                     <td class="p-2">{process.cpu}%</td>
-                    <td class="p-2">{process.ram}MiB</td>
+                    <td class="p-2"
+                        >{prettyBytes(process.ram, {
+                            binary: true,
+                            maximumFractionDigits: 0,
+                        })}</td
+                    >
                     <td class="p-2 space-x-2">
-                        {#if process.name != "dietpi-dashboard"}
+                        {#if process.name != "dietpi-dashboar"}
                             <span
                                 on:click={() =>
                                     socketSend("terminate", [
