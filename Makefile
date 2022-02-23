@@ -27,7 +27,11 @@ publicdelete:
 
 fmt:
 	cd src/backend; cargo fmt
+ifdef TARGET
+	cd src/backend; cargo clippy --target $(TARGET)
+else
 	cd src/backend; cargo clippy
+endif
 
 rustdev: publiccopy fmt
 	cd src/backend; cargo build --target $(TARGET)
