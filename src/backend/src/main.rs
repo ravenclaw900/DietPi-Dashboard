@@ -65,6 +65,7 @@ fn main() {
                         let shasum = format!("{:x}", hasher.finalize());
                         if shasum == CONFIG.hash {
                             let secret = biscuit::jws::Secret::bytes_from_str(&CONFIG.secret);
+                            #[allow(clippy::cast_possible_wrap)]
                             let claims = biscuit::ClaimsSet {
                                 registered: biscuit::RegisteredClaims {
                                     issuer: Some("DietPi Dashboard".to_string()),
