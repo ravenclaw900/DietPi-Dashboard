@@ -354,9 +354,10 @@
                     </tr>
                     {#each socketData.contents as contents}
                         <tr
-                            class="select-none even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800"
-                            class:!bg-dplime-dark={selPath.path ==
-                                contents.path}
+                            class="select-none even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800{selPath.path ==
+                            contents.path
+                                ? ' !bg-dplime-dark'
+                                : ''}"
                             class:hidden={!showHidden &&
                                 contents.name[0] == "."}
                             on:dblclick={() => {
