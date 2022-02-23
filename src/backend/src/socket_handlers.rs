@@ -10,24 +10,34 @@ use warp::ws::Message;
 use crate::{page_handlers, shared, systemdata, CONFIG};
 
 fn validate_token(token: &str) -> bool {
-    let key = jwts::jws::Key::new(&crate::CONFIG.secret, jwts::jws::Algorithm::HS256);
-    let verified: jwts::jws::Token<jwts::Claims>;
-    if let Ok(token) = jwts::jws::Token::verify_with_key(token, &key) {
-        verified = token;
-    } else {
-        log::error!("Couldn't verify token");
+    let secret = biscuit::jws::Secret::bytes_from_str(&CONFIG.secret);
+    let encoded: biscuit::jws::Compact<biscuit::ClaimsSet<biscuit::Empty>, biscuit::Empty> =
+        biscuit::JWT::new_encoded(token);
+    let decoded = match encoded.into_decoded(&secret, biscuit::jwa::SignatureAlgorithm::HS256) {
+        Err(_) => return false,
+        Ok(unwrapped) => unwrapped,
+    };
+    let payload = &decoded.payload().unwrap().registered;
+    if payload
+        .validate_claim_presence(biscuit::ClaimPresenceOptions {
+            issued_at: biscuit::Presence::Optional,
+            expiry: biscuit::Presence::Required,
+            not_before: biscuit::Presence::Optional,
+            issuer: biscuit::Presence::Required,
+            audience: biscuit::Presence::Optional,
+            subject: biscuit::Presence::Optional,
+            id: biscuit::Presence::Optional,
+        })
+        .is_err()
+    {
         return false;
-    };
-    let config = jwts::ValidationConfig {
-        iat_validation: false,
-        nbf_validation: false,
-        exp_validation: true,
-        expected_iss: Some("DietPi Dashboard".to_string()),
-        expected_sub: None,
-        expected_aud: None,
-        expected_jti: None,
-    };
-    if verified.validate_claims(&config).is_err() {
+    }
+    if payload
+        .validate_exp(biscuit::Validation::Validate(
+            biscuit::TemporalOptions::default(),
+        ))
+        .is_err()
+    {
         return false;
     }
     true

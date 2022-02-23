@@ -64,22 +64,37 @@ fn main() {
                         hasher.update(pass);
                         let shasum = format!("{:x}", hasher.finalize());
                         if shasum == CONFIG.hash {
-                            let mut claims = jwts::Claims::new();
-                            claims.exp = Some(
-                                (std::time::SystemTime::now()
-                                    + std::time::Duration::from_secs(3600))
-                                .duration_since(std::time::UNIX_EPOCH)
+                            let secret = biscuit::jws::Secret::bytes_from_str(&CONFIG.secret);
+                            let claims = biscuit::ClaimsSet {
+                                registered: biscuit::RegisteredClaims {
+                                    issuer: Some("DietPi Dashboard".to_string()),
+                                    expiry: Some(biscuit::Timestamp::from(
+                                        (std::time::SystemTime::now()
+                                            + std::time::Duration::from_secs(3600))
+                                        .duration_since(std::time::UNIX_EPOCH)
+                                        .unwrap()
+                                        .as_secs() as i64,
+                                    )),
+                                    audience: None,
+                                    id: None,
+                                    issued_at: None,
+                                    not_before: None,
+                                    subject: None,
+                                },
+                                private: biscuit::Empty {},
+                            };
+                            let decoded = biscuit::JWT::new_decoded(
+                                biscuit::jws::Header::from_registered_header(
+                                    biscuit::jws::RegisteredHeader::default(),
+                                ),
+                                claims,
+                            );
+                            let token = decoded
+                                .into_encoded(&secret)
                                 .unwrap()
-                                .as_secs(),
-                            );
-                            claims.iss = Some("DietPi Dashboard".to_string());
-                            let mut token = jwts::jws::Token::with_payload(claims);
-                            let key =
-                                jwts::jws::Key::new(&CONFIG.secret, jwts::jws::Algorithm::HS256);
-                            return warp::reply::with_status(
-                                token.sign(&key).unwrap(),
-                                warp::http::StatusCode::OK,
-                            );
+                                .unwrap_encoded()
+                                .to_string();
+                            return warp::reply::with_status(token, warp::http::StatusCode::OK);
                         }
                         return warp::reply::with_status(
                             "Unauthorized".to_string(),
