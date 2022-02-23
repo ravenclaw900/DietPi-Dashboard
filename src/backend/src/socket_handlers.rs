@@ -37,8 +37,9 @@ fn validate_token(token: &str) -> bool {
 pub async fn socket_handler(socket: warp::ws::WebSocket) {
     let (mut socket_send, mut socket_recv) = socket.split();
     let (data_send, mut data_recv) = mpsc::channel(1);
+    let quit = Arc::new(tokio::sync::Notify::new());
+    let quit_send = Arc::clone(&quit);
     tokio::task::spawn(async move {
-        let mut first_message = true;
         let mut req: shared::Request;
         while let Some(Ok(data)) = socket_recv.next().await {
             if data.is_close() {
@@ -58,32 +59,23 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                 continue;
             };
             if CONFIG.pass && !validate_token(&req.token) {
-                if !first_message && data_send.send(None).await.is_err() {
-                    break;
-                }
                 data_send
-                    .send(Some(shared::Request {
+                    .send(shared::Request {
                         page: "/login".to_string(),
                         token: String::new(),
                         cmd: String::new(),
                         args: Vec::new(),
-                    }))
+                    })
                     .await
                     .unwrap();
                 continue;
             }
             if req.cmd.is_empty() {
-                if first_message {
-                    first_message = false;
-                } else {
-                    // Quit out of handler
-                    if data_send.send(None).await.is_err() {
-                        break;
-                    }
-                }
+                // Quit out of handler
+                quit_send.notify_waiters();
             }
             // Send new page/data
-            if data_send.send(Some(req.clone())).await.is_err() {
+            if data_send.send(req.clone()).await.is_err() {
                 break;
             }
         }
@@ -95,23 +87,28 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
         ))
         .await;
     let socket_ptr = Arc::new(Mutex::new(socket_send));
-    while let Some(Some(message)) = data_recv.recv().await {
+    while let Some(message) = data_recv.recv().await {
         match message.page.as_str() {
-            "/" => page_handlers::main_handler(Arc::clone(&socket_ptr), &mut data_recv).await,
+            "/" => page_handlers::main_handler(Arc::clone(&socket_ptr), &quit).await,
             "/process" => {
-                page_handlers::process_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
+                page_handlers::process_handler(Arc::clone(&socket_ptr), &mut data_recv, &quit)
+                    .await;
             }
             "/software" => {
-                page_handlers::software_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
+                page_handlers::software_handler(Arc::clone(&socket_ptr), &mut data_recv, &quit)
+                    .await;
             }
             "/management" => {
-                page_handlers::management_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
+                page_handlers::management_handler(Arc::clone(&socket_ptr), &mut data_recv, &quit)
+                    .await;
             }
             "/service" => {
-                page_handlers::service_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
+                page_handlers::service_handler(Arc::clone(&socket_ptr), &mut data_recv, &quit)
+                    .await;
             }
             "/browser" => {
-                page_handlers::browser_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
+                page_handlers::browser_handler(Arc::clone(&socket_ptr), &mut data_recv, &quit)
+                    .await;
             }
             "/login" => {
                 // Internal poll, see other thread
