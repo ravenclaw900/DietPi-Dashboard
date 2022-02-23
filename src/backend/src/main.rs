@@ -71,7 +71,7 @@ fn main() {
                                     issuer: Some("DietPi Dashboard".to_string()),
                                     expiry: Some(biscuit::Timestamp::from(
                                         (std::time::SystemTime::now()
-                                            + std::time::Duration::from_secs(3600))
+                                            + std::time::Duration::from_secs(CONFIG.expiry))
                                         .duration_since(std::time::UNIX_EPOCH)
                                         .unwrap()
                                         .as_secs() as i64,

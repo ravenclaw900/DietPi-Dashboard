@@ -13,6 +13,9 @@
 #hash = "SHA512 hash of password"
 # To get random secret: "openssl rand -hex 32" 
 #secret = "64-character secret"
+# Token expiry time in seconds
+# - Default: 3600
+#expiry = 3600
 # Other nodes viewable on frontend page
 # - Default: []
 # Please insert the IP addresses/domains and ports of these nodes

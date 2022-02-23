@@ -10,6 +10,7 @@ pub struct Config {
     pub pass: bool,
     pub hash: String,
     pub secret: String,
+    pub expiry: u64,
 
     #[cfg(feature = "frontend")]
     pub nodes: Vec<String>,
@@ -84,6 +85,13 @@ pub fn config() -> Config {
             .to_string();
     }
 
+    #[allow(clippy::cast_sign_loss)]
+    let expiry = cfg
+        .get("expiry")
+        .unwrap_or(&Value::Integer(3600))
+        .as_integer()
+        .unwrap() as u64;
+
     #[cfg(feature = "frontend")]
     let mut nodes = Vec::new();
 
@@ -105,6 +113,7 @@ pub fn config() -> Config {
         pass,
         hash,
         secret,
+        expiry,
         #[cfg(feature = "frontend")]
         nodes,
     }
