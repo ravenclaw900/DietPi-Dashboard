@@ -109,7 +109,7 @@ pub async fn software_handler(
                 let out =
                     std::string::String::from_utf8(cmd.args(arg_list).output().unwrap().stdout)
                         .unwrap()
-                        .replace("", "");
+                        .replace('', "");
                 let software = systemdata::dpsoftware();
                 let _send = socket_send
                     .send(Message::text(SerJson::serialize_json(

@@ -55,13 +55,12 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
             if data.is_close() {
                 break;
             }
-            let data_str;
-            if let Ok(data_string) = data.to_str() {
-                data_str = data_string;
+            let data_str = if let Ok(data_string) = data.to_str() {
+                data_string
             } else {
                 log::error!("Couldn't convert received data to text");
                 continue;
-            }
+            };
             req = if let Ok(json) = DeJson::deserialize_json(data_str) {
                 json
             } else {
@@ -205,16 +204,15 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
                     }
             }
             data_msg = socket_recv.next() => {
-                let data;
                 let lock = cmd_write.read().await;
-                if let Some(Ok(data_unwrapped)) = data_msg {
-                    data = data_unwrapped;
+                let data = if let Some(Ok(data_unwrapped)) = data_msg {
+                    data_unwrapped
                 } else {
                     let _write = (*cmd_write.read().await)
                         .pty()
                         .write_all("exit\n".as_bytes());
                     continue;
-                }
+                };
                 if data.is_text() && data.to_str().unwrap().get(..4) == Some("size") {
                     let json: TTYSize =
                         DeJson::deserialize_json(&data.to_str().unwrap()[4..]).unwrap();
@@ -267,13 +265,12 @@ pub async fn file_handler(mut socket: warp::ws::WebSocket) {
             }
             continue;
         }
-        let data_str;
-        if let Ok(data_string) = data.to_str() {
-            data_str = data_string;
+        let data_str = if let Ok(data_string) = data.to_str() {
+            data_string
         } else {
             log::error!("Couldn't convert received data to text");
             continue;
-        }
+        };
         req = if let Ok(json) = DeJson::deserialize_json(data_str) {
             json
         } else {
