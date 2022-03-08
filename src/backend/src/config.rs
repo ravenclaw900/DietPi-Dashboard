@@ -1,6 +1,8 @@
 use toml::Value;
 
 pub struct Config {
+    pub loglevel: String,
+
     pub port: u16,
 
     pub tls: bool,
@@ -31,6 +33,12 @@ pub fn config() -> Config {
     }
     .parse::<Value>()
     .expect("Invalid config file");
+
+    let loglevel = std::env::var("RUST_LOG").unwrap_or_else(|_| {
+        cfg.get("loglevel")
+            .to_string()
+            .unwrap_or_else(|| String::from("info"))
+    });
 
     #[allow(clippy::cast_sign_loss)]
     #[allow(clippy::cast_possible_truncation)]
@@ -106,6 +114,7 @@ pub fn config() -> Config {
     }
 
     Config {
+        loglevel,
         port,
         tls,
         cert,

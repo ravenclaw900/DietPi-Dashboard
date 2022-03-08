@@ -2,6 +2,7 @@
 use crate::shared::CONFIG;
 use sha2::{Digest, Sha512};
 use simple_logger::SimpleLogger;
+use std::str::FromStr;
 use warp::Filter;
 
 mod config;
@@ -23,8 +24,7 @@ fn main() {
             const DIR: include_dir::Dir = include_dir::include_dir!("dist");
 
             SimpleLogger::new()
-                .with_level(log::LevelFilter::Info)
-                .env()
+                .with_level(log::LevelFilter::from_str(CONFIG.loglevel.as_str()).unwrap())
                 .init()
                 .unwrap();
 
