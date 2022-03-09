@@ -1,7 +1,8 @@
+use std::str::FromStr;
 use toml::Value;
 
 pub struct Config {
-    pub loglevel: String,
+    pub loglevel: log::LevelFilter,
 
     pub port: u16,
 
@@ -34,11 +35,13 @@ pub fn config() -> Config {
     .parse::<Value>()
     .expect("Invalid config file");
 
-    let loglevel = std::env::var("RUST_LOG").unwrap_or_else(|_| {
+    let loglevel = log::LevelFilter::from_str(
         cfg.get("loglevel")
-            .to_string()
-            .unwrap_or_else(|| String::from("info"))
-    });
+            .unwrap_or(&Value::String("info".to_string()))
+            .as_str()
+            .unwrap(),
+    )
+    .unwrap();
 
     #[allow(clippy::cast_sign_loss)]
     #[allow(clippy::cast_possible_truncation)]
