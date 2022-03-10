@@ -37,7 +37,7 @@ pub fn config() -> Config {
 
     let loglevel = log::LevelFilter::from_str(
         cfg.get("loglevel")
-            .unwrap_or(&Value::String("info".to_string()))
+            .unwrap_or_else(|| &Value::String("info".to_string()))
             .as_str()
             .unwrap(),
     )
@@ -47,13 +47,13 @@ pub fn config() -> Config {
     #[allow(clippy::cast_possible_truncation)]
     let port: u16 = cfg
         .get("port")
-        .unwrap_or(&Value::Integer(5252))
+        .unwrap_or_else(|| &Value::Integer(5252))
         .as_integer()
         .unwrap() as u16;
 
     let tls = cfg
         .get("tls")
-        .unwrap_or(&Value::Boolean(false))
+        .unwrap_or_else(|| &Value::Boolean(false))
         .as_bool()
         .unwrap();
     let mut cert = String::new();
@@ -61,13 +61,13 @@ pub fn config() -> Config {
     if tls {
         cert = cfg
             .get("cert")
-            .unwrap_or(&Value::String(String::new()))
+            .unwrap_or_else(|| &Value::String(String::new()))
             .as_str()
             .unwrap()
             .to_string();
         key = cfg
             .get("key")
-            .unwrap_or(&Value::String(String::new()))
+            .unwrap_or_else(|| &Value::String(String::new()))
             .as_str()
             .unwrap()
             .to_string();
@@ -75,7 +75,7 @@ pub fn config() -> Config {
 
     let pass = cfg
         .get("pass")
-        .unwrap_or(&Value::Boolean(false))
+        .unwrap_or_else(|| &Value::Boolean(false))
         .as_bool()
         .unwrap();
 
@@ -84,13 +84,13 @@ pub fn config() -> Config {
     if pass {
         hash = cfg
             .get("hash")
-            .unwrap_or(&Value::String(String::new()))
+            .unwrap_or_else(|| &Value::String(String::new()))
             .as_str()
             .unwrap()
             .to_string();
         secret = cfg
             .get("secret")
-            .unwrap_or(&Value::String(String::new()))
+            .unwrap_or_else(|| &Value::String(String::new()))
             .as_str()
             .unwrap()
             .to_string();
@@ -99,7 +99,7 @@ pub fn config() -> Config {
     #[allow(clippy::cast_sign_loss)]
     let expiry = cfg
         .get("expiry")
-        .unwrap_or(&Value::Integer(3600))
+        .unwrap_or_else(|| &Value::Integer(3600))
         .as_integer()
         .unwrap() as u64;
 
@@ -109,7 +109,7 @@ pub fn config() -> Config {
     #[cfg(feature = "frontend")]
     for i in cfg
         .get("nodes")
-        .unwrap_or(&Value::Array(Vec::new()))
+        .unwrap_or_else(|| &Value::Array(Vec::new()))
         .as_array()
         .unwrap()
     {
