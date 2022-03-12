@@ -2,7 +2,7 @@ use std::str::FromStr;
 use toml::Value;
 
 pub struct Config {
-    pub loglevel: log::LevelFilter,
+    pub log_level: log::LevelFilter,
 
     pub port: u16,
 
@@ -35,8 +35,8 @@ pub fn config() -> Config {
     .parse::<Value>()
     .expect("Invalid config file");
 
-    let loglevel = log::LevelFilter::from_str(
-        cfg.get("loglevel")
+    let log_level = log::LevelFilter::from_str(
+        cfg.get("log_level")
             .unwrap_or(&Value::String("info".to_string()))
             .as_str()
             .unwrap(),
@@ -117,7 +117,7 @@ pub fn config() -> Config {
     }
 
     Config {
-        loglevel,
+        log_level,
         port,
         tls,
         cert,

@@ -1,7 +1,7 @@
 # Log level
 # - Options: "off", "error", "warn", "info", "debug", "trace"
 # - Default: "info"
-#loglevel = "info"
+#log_level = "info"
 
 # TCP network port
 # - Default: 5252

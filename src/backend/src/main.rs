@@ -23,7 +23,7 @@ fn main() {
             const DIR: include_dir::Dir = include_dir::include_dir!("dist");
 
             SimpleLogger::new()
-                .with_level(CONFIG.loglevel)
+                .with_level(CONFIG.log_level)
                 .env()
                 .init()
                 .unwrap();
