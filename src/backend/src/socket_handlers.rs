@@ -68,7 +68,7 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                 continue;
             };
             if CONFIG.pass && !validate_token(&req.token) {
-                quit_send.notify_one();
+                quit_send.notify_waiters();
                 data_send
                     .send(shared::Request {
                         page: "/login".to_string(),
@@ -82,7 +82,7 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
             }
             if req.cmd.is_empty() {
                 // Quit out of handler
-                quit_send.notify_one();
+                quit_send.notify_waiters();
             }
             // Send new page/data
             if data_send.send(req.clone()).await.is_err() {
