@@ -1,6 +1,9 @@
+use std::str::FromStr;
 use toml::Value;
 
 pub struct Config {
+    pub log_level: log::LevelFilter,
+
     pub port: u16,
 
     pub tls: bool,
@@ -31,6 +34,14 @@ pub fn config() -> Config {
     }
     .parse::<Value>()
     .expect("Invalid config file");
+
+    let log_level = log::LevelFilter::from_str(
+        cfg.get("log_level")
+            .unwrap_or(&Value::String("info".to_string()))
+            .as_str()
+            .unwrap(),
+    )
+    .unwrap();
 
     #[allow(clippy::cast_sign_loss)]
     #[allow(clippy::cast_possible_truncation)]
@@ -106,6 +117,7 @@ pub fn config() -> Config {
     }
 
     Config {
+        log_level,
         port,
         tls,
         cert,

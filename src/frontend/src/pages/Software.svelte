@@ -28,7 +28,8 @@
 
     // Runs once data is received or table is changed
     $: socketData.uninstalled && installTempCreate();
-    $: (installTable == true || installTable == false) &&
+    $: socketData.uninstalled &&
+        installTable != undefined &&
         ((needInstallTemp = true), installTempCreate());
 
     // Runs every time installTemp array is changed
