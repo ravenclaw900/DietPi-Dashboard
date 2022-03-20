@@ -1,4 +1,5 @@
 use nanoserde::{DeJson, SerJson};
+use serde::{Deserialize, Serialize};
 
 lazy_static::lazy_static! {
     pub static ref CONFIG: crate::config::Config = crate::config::config();
@@ -147,4 +148,11 @@ pub struct FileSize {
 #[derive(SerJson)]
 pub struct FileUploadFinished {
     pub finished: bool,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct JWTClaims {
+    pub iss: String,
+    pub exp: u64,
+    pub iat: u64,
 }

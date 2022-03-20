@@ -10,33 +10,15 @@ use warp::ws::Message;
 use crate::{page_handlers, shared, systemdata, CONFIG};
 
 fn validate_token(token: &str) -> bool {
-    let secret = biscuit::jws::Secret::bytes_from_str(&CONFIG.secret);
-    let encoded: biscuit::jws::Compact<biscuit::ClaimsSet<biscuit::Empty>, biscuit::Empty> =
-        biscuit::JWT::new_encoded(token);
-    let decoded = match encoded.into_decoded(&secret, biscuit::jwa::SignatureAlgorithm::HS256) {
-        Err(_) => return false,
-        Ok(unwrapped) => unwrapped,
-    };
-    let payload = &decoded.payload().unwrap().registered;
-    if payload
-        .validate_claim_presence(biscuit::ClaimPresenceOptions {
-            issued_at: biscuit::Presence::Optional,
-            expiry: biscuit::Presence::Required,
-            not_before: biscuit::Presence::Optional,
-            issuer: biscuit::Presence::Required,
-            audience: biscuit::Presence::Optional,
-            subject: biscuit::Presence::Optional,
-            id: biscuit::Presence::Optional,
-        })
-        .is_err()
-    {
-        return false;
-    }
-    if payload
-        .validate_exp(biscuit::Validation::Validate(
-            biscuit::TemporalOptions::default(),
-        ))
-        .is_err()
+    let mut validator = jsonwebtoken::Validation::new(jsonwebtoken::Algorithm::HS256);
+    validator.set_issuer(&["DietPi Dashboard"]);
+    validator.set_required_spec_claims(&["exp", "iat"]);
+    if jsonwebtoken::decode::<shared::JWTClaims>(
+        token,
+        &jsonwebtoken::DecodingKey::from_secret(CONFIG.secret.as_ref()),
+        &validator,
+    )
+    .is_err()
     {
         return false;
     }

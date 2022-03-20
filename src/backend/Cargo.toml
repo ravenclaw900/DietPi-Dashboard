@@ -18,11 +18,12 @@ pty-process = "0.2.0"
 psutil = "3.2.2"
 infer = { version = "0.7.0", default-features = false }
 sha2 = "0.10.2"
-toml = "0.5.8"
+figment = { version = "0.10", features = ["toml", "env"] }
 if-addrs = "0.7.0"
 zip = { version = "0.5.13", default-features = false, features = ["deflate", "time"] }
 walkdir = "2.3.2"
-biscuit = "0.5.0"
+jsonwebtoken = { version = "8.0.0", default-features = false }
+serde = { version = "1.0.0", features = ["derive"] }
 
 [features]
 default = ["frontend"]
@@ -32,3 +33,15 @@ frontend = ["include_dir", "warp/compression"]
 lto = "fat"
 panic = "abort"
 codegen-units = 1
+
+[profile.release.package.nanoserde]
+opt-level = 3
+
+[profile.release.package.psutil]
+opt-level = 3
+
+[profile.release.package.zip]
+opt-level = 3
+
+[profile.release.package."*"]
+opt-level = "s"
