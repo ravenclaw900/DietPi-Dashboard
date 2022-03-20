@@ -1,7 +1,23 @@
-use std::str::FromStr;
-use toml::Value;
+use figment::{
+    providers::{Env, Format, Serialized, Toml},
+    Figment,
+};
+use serde::{Deserialize, Serialize};
 
+#[derive(Serialize, Deserialize)]
+#[serde(remote = "log::LevelFilter")]
+pub enum LevelFilterWrap {
+    Off,
+    Error,
+    Warn,
+    Info,
+    Debug,
+    Trace,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Config {
+    #[serde(with = "LevelFilterWrap")]
     pub log_level: log::LevelFilter,
 
     pub port: u16,
@@ -19,114 +35,32 @@ pub struct Config {
     pub nodes: Vec<String>,
 }
 
+impl Default for Config {
+    fn default() -> Config {
+        Config {
+            log_level: log::LevelFilter::Info,
+
+            port: 5252,
+
+            tls: false,
+            cert: String::new(),
+            key: String::new(),
+
+            pass: false,
+            hash: String::new(),
+            secret: String::new(),
+            expiry: 3600,
+
+            #[cfg(feature = "frontend")]
+            nodes: Vec::new(),
+        }
+    }
+}
+
 pub fn config() -> Config {
-    let mut cfgpath = std::env::current_exe().unwrap();
-    cfgpath.set_file_name("config.toml");
-    let cfg = &match std::fs::read_to_string(cfgpath) {
-        Err(ref e) if e.kind() == std::io::ErrorKind::NotFound => {
-            std::fs::write("config.toml", "").unwrap();
-            String::new()
-        }
-        Ok(cfg) => cfg,
-        Err(e) => {
-            panic!("Config file could not be read: {}", e);
-        }
-    }
-    .parse::<Value>()
-    .expect("Invalid config file");
-
-    let log_level = log::LevelFilter::from_str(
-        cfg.get("log_level")
-            .unwrap_or(&Value::String("info".to_string()))
-            .as_str()
-            .unwrap(),
-    )
-    .unwrap();
-
-    #[allow(clippy::cast_sign_loss)]
-    #[allow(clippy::cast_possible_truncation)]
-    let port: u16 = cfg
-        .get("port")
-        .unwrap_or(&Value::Integer(5252))
-        .as_integer()
-        .unwrap() as u16;
-
-    let tls = cfg
-        .get("tls")
-        .unwrap_or(&Value::Boolean(false))
-        .as_bool()
-        .unwrap();
-    let mut cert = String::new();
-    let mut key = String::new();
-    if tls {
-        cert = cfg
-            .get("cert")
-            .unwrap_or(&Value::String(String::new()))
-            .as_str()
-            .unwrap()
-            .to_string();
-        key = cfg
-            .get("key")
-            .unwrap_or(&Value::String(String::new()))
-            .as_str()
-            .unwrap()
-            .to_string();
-    }
-
-    let pass = cfg
-        .get("pass")
-        .unwrap_or(&Value::Boolean(false))
-        .as_bool()
-        .unwrap();
-
-    let mut hash = String::new();
-    let mut secret = String::new();
-    if pass {
-        hash = cfg
-            .get("hash")
-            .unwrap_or(&Value::String(String::new()))
-            .as_str()
-            .unwrap()
-            .to_string();
-        secret = cfg
-            .get("secret")
-            .unwrap_or(&Value::String(String::new()))
-            .as_str()
-            .unwrap()
-            .to_string();
-    }
-
-    #[allow(clippy::cast_sign_loss)]
-    let expiry = cfg
-        .get("expiry")
-        .unwrap_or(&Value::Integer(3600))
-        .as_integer()
-        .unwrap() as u64;
-
-    #[cfg(feature = "frontend")]
-    let mut nodes = Vec::new();
-
-    #[cfg(feature = "frontend")]
-    for i in cfg
-        .get("nodes")
-        .unwrap_or(&Value::Array(Vec::new()))
-        .as_array()
-        .unwrap()
-    {
-        nodes.push(i.as_str().unwrap().to_string());
-    }
-
-    Config {
-        log_level,
-        port,
-        tls,
-        cert,
-        key,
-        pass,
-        hash,
-        secret,
-        expiry,
-        #[cfg(feature = "frontend")]
-        nodes,
-    }
+    Figment::from(Serialized::defaults(Config::default()))
+        .merge(Toml::file("config.toml"))
+        .merge(Env::prefixed("DP_DASHBOARD_").ignore(&["hash", "secret"]))
+        .extract()
+        .expect("Error reading config")
 }

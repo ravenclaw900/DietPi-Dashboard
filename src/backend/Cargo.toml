@@ -18,7 +18,7 @@ pty-process = "0.2.0"
 psutil = "3.2.2"
 infer = { version = "0.7.0", default-features = false }
 sha2 = "0.10.2"
-toml = "0.5.8"
+figment = { version = "0.10", features = ["toml", "env"] }
 if-addrs = "0.7.0"
 zip = { version = "0.5.13", default-features = false, features = ["deflate", "time"] }
 walkdir = "2.3.2"
