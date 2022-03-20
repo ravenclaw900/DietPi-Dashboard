@@ -64,37 +64,21 @@ fn main() {
                         hasher.update(pass);
                         let shasum = format!("{:x}", hasher.finalize());
                         if shasum == CONFIG.hash {
-                            let secret = biscuit::jws::Secret::bytes_from_str(&CONFIG.secret);
-                            #[allow(clippy::cast_possible_wrap)]
-                            let claims = biscuit::ClaimsSet {
-                                registered: biscuit::RegisteredClaims {
-                                    issuer: Some("DietPi Dashboard".to_string()),
-                                    expiry: Some(biscuit::Timestamp::from(
-                                        (std::time::SystemTime::now()
-                                            + std::time::Duration::from_secs(CONFIG.expiry))
-                                        .duration_since(std::time::UNIX_EPOCH)
-                                        .unwrap()
-                                        .as_secs() as i64,
-                                    )),
-                                    audience: None,
-                                    id: None,
-                                    issued_at: None,
-                                    not_before: None,
-                                    subject: None,
-                                },
-                                private: biscuit::Empty {},
+                            let timestamp = jsonwebtoken::get_current_timestamp();
+
+                            let claims = crate::shared::JWTClaims {
+                                iss: "DietPi Dashboard".to_string(),
+                                iat: timestamp,
+                                exp: timestamp + CONFIG.expiry,
                             };
-                            let decoded = biscuit::JWT::new_decoded(
-                                biscuit::jws::Header::from_registered_header(
-                                    biscuit::jws::RegisteredHeader::default(),
-                                ),
-                                claims,
-                            );
-                            let token = decoded
-                                .into_encoded(&secret)
-                                .unwrap()
-                                .unwrap_encoded()
-                                .to_string();
+
+                            let token = jsonwebtoken::encode(
+                                &jsonwebtoken::Header::default(),
+                                &claims,
+                                &jsonwebtoken::EncodingKey::from_secret(CONFIG.secret.as_ref()),
+                            )
+                            .expect("Error creating login token");
+
                             return warp::reply::with_status(token, warp::http::StatusCode::OK);
                         }
                         return warp::reply::with_status(
