@@ -33,3 +33,15 @@ frontend = ["include_dir", "warp/compression"]
 lto = "fat"
 panic = "abort"
 codegen-units = 1
+
+[profile.release.package.nanoserde]
+opt-level = 3
+
+[profile.release.package.psutil]
+opt-level = 3
+
+[profile.release.package.zip]
+opt-level = 3
+
+[profile.release.package."*"]
+opt-level = "s"
