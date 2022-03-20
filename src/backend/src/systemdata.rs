@@ -457,35 +457,35 @@ mod tests {
         assert!(used <= total);
         if total != 0 {
             assert_eq!(
-                round_percent((used as f64 / total as f64) * 100.0),
+                round_percent((used as f32 / total as f32) * 100.0),
                 percent_test
             );
         }
     }
 
-    #[tokio::test]
+    #[test]
     async fn validate_ram() {
-        let output = ram().await;
+        let output = ram();
         assert!(output.total > 0);
         usage_test(output.used, output.total, output.percent);
     }
 
-    #[tokio::test]
+    #[test]
     async fn validate_swap() {
-        let output = swap().await;
+        let output = swap();
         usage_test(output.used, output.total, output.percent);
     }
 
-    // The disk function gets the percentage used from Heim, not calculated here, so we can't use usage_test
+    // The disk function gets the percentage used from psutil, not calculated here, so we can't use usage_test
     #[tokio::test]
     async fn validate_disk() {
-        let output = disk().await;
+        let output = disk();
         assert!(output.used <= output.total);
     }
 
     #[tokio::test]
     async fn validate_network() {
-        let mut output = network().await;
+        let mut output = network();
         assert_eq!(output.sent, 0);
         assert_eq!(output.received, 0);
         // Just make sure that it works
@@ -493,7 +493,7 @@ mod tests {
             sleep(Duration::from_millis(100)).await;
             let old_sent = BYTES_SENT.load(Relaxed);
             let old_recv = BYTES_RECV.load(Relaxed);
-            output = network().await;
+            output = network();
             assert_eq!(BYTES_SENT.load(Relaxed), output.sent + old_sent);
             assert_eq!(BYTES_RECV.load(Relaxed), output.received + old_recv);
         }
@@ -537,9 +537,9 @@ mod tests {
         assert_eq!(install_counter, output.1.len());
     }
 
-    #[tokio::test]
-    async fn validate_host() {
-        let output = host().await;
+    #[test]
+    fn validate_host() {
+        let output = host();
 
         assert_eq!(
             output.kernel,
