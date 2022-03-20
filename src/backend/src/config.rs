@@ -4,21 +4,9 @@ use figment::{
 };
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
-#[serde(remote = "log::LevelFilter")]
-pub enum LevelFilterWrap {
-    Off,
-    Error,
-    Warn,
-    Info,
-    Debug,
-    Trace,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize)]
 pub struct Config {
-    #[serde(with = "LevelFilterWrap")]
-    pub log_level: log::LevelFilter,
+    pub log_level: String,
 
     pub port: u16,
 
@@ -38,7 +26,7 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Config {
         Config {
-            log_level: log::LevelFilter::Info,
+            log_level: "info".to_string(),
 
             port: 5252,
 
