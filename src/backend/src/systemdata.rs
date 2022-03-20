@@ -464,14 +464,14 @@ mod tests {
     }
 
     #[test]
-    async fn validate_ram() {
+    fn validate_ram() {
         let output = ram();
         assert!(output.total > 0);
         usage_test(output.used, output.total, output.percent);
     }
 
     #[test]
-    async fn validate_swap() {
+    fn validate_swap() {
         let output = swap();
         usage_test(output.used, output.total, output.percent);
     }
