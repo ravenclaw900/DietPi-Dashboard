@@ -28,7 +28,8 @@
 
     // Runs once data is received or table is changed
     $: socketData.uninstalled && installTempCreate();
-    $: (installTable == true || installTable == false) &&
+    $: socketData.uninstalled &&
+        installTable != undefined &&
         ((needInstallTemp = true), installTempCreate());
 
     // Runs every time installTemp array is changed
@@ -97,8 +98,8 @@
             <button
                 class="border-1 border-b-0 border-gray-500 p-1 focus:outline-none"
                 on:click={() => (installTable = false)}
-                class:bg-gray-200={installTable}
-                class:dark:bg-gray-700={installTable}>Not installed</button
+                class:bg-gray-200={!installTable}
+                class:dark:bg-gray-700={!installTable}>Not installed</button
             >
             <button
                 class="border-1 border-b-0 border-gray-500 p-1 focus:outline-none"

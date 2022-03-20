@@ -109,24 +109,23 @@ pub async fn processes() -> Vec<shared::ProcessData> {
         match element {
             Ok(mut unwrapped) => {
                 // Everything could fail if the process terminates, if so skip the process
-                let name;
-                match unwrapped.name() {
-                    Ok(unwrapped_name) => name = unwrapped_name,
+                let name = match unwrapped.name() {
+                    Ok(unwrapped_name) => unwrapped_name,
                     Err(_) => continue,
-                }
+                };
                 if unwrapped.cmdline().unwrap().is_none() {
                     continue;
                 }
-                let status: String;
-                match unwrapped.status().unwrap() {
+                let status = match unwrapped.status().unwrap() {
                     // The processes that are running show up as sleeping, for some reason
-                    process::Status::Sleeping => status = "running".to_string(),
-                    process::Status::Idle => status = "idle".to_string(),
-                    process::Status::Stopped => status = "stopped".to_string(),
-                    process::Status::Zombie => status = "zombie".to_string(),
-                    process::Status::Dead => status = "dead".to_string(),
-                    _ => status = String::new(),
+                    process::Status::Sleeping => "running",
+                    process::Status::Idle => "idle",
+                    process::Status::Stopped => "stopped",
+                    process::Status::Zombie => "zombie",
+                    process::Status::Dead => "dead",
+                    _ => "",
                 }
+                .to_string();
                 process_list.push(shared::ProcessData {
                     pid: unwrapped.pid(),
                     name,
@@ -154,15 +153,13 @@ pub fn dpsoftware() -> (Vec<shared::DPSoftwareData>, Vec<shared::DPSoftwareData>
         .nth(4)
         .unwrap()
         .trim_start_matches("Free software ID(s): ");
-    let free_list: Vec<i16>;
-    if &free[..4] == "None" {
-        free_list = Vec::new();
+    let free_list = if &free[..4] == "None" {
+        Vec::new()
     } else {
-        free_list = free
-            .split(' ')
+        free.split(' ')
             .map(|id| id.parse::<i16>().unwrap())
-            .collect();
-    }
+            .collect()
+    };
     let out = Command::new("/boot/dietpi/dietpi-software")
         .arg("list")
         .output()
@@ -374,9 +371,8 @@ pub fn browser_dir(path: &std::path::Path) -> Vec<shared::BrowserDirData> {
             subtype = String::new();
             prettytype = "Directory".to_string();
         } else {
-            let buf;
-            if let Ok(val) = fs::read(path) {
-                buf = val;
+            let buf = if let Ok(val) = fs::read(path) {
+                val
             } else {
                 log::error!("Could not read directory");
                 return vec![shared::BrowserDirData {
@@ -387,7 +383,7 @@ pub fn browser_dir(path: &std::path::Path) -> Vec<shared::BrowserDirData> {
                     prettytype: "Could not read directory".to_string(),
                     size: 0,
                 }];
-            }
+            };
             if let Some(infertype) = infer::get(&buf) {
                 subtype = infertype.mime_type().split_once('/').unwrap().1.to_string();
                 maintype = {

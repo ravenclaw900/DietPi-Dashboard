@@ -1,6 +1,9 @@
+use std::str::FromStr;
 use toml::Value;
 
 pub struct Config {
+    pub log_level: log::LevelFilter,
+
     pub port: u16,
 
     pub tls: bool,
@@ -10,6 +13,7 @@ pub struct Config {
     pub pass: bool,
     pub hash: String,
     pub secret: String,
+    pub expiry: u64,
 
     #[cfg(feature = "frontend")]
     pub nodes: Vec<String>,
@@ -30,6 +34,14 @@ pub fn config() -> Config {
     }
     .parse::<Value>()
     .expect("Invalid config file");
+
+    let log_level = log::LevelFilter::from_str(
+        cfg.get("log_level")
+            .unwrap_or(&Value::String("info".to_string()))
+            .as_str()
+            .unwrap(),
+    )
+    .unwrap();
 
     #[allow(clippy::cast_sign_loss)]
     #[allow(clippy::cast_possible_truncation)]
@@ -84,6 +96,13 @@ pub fn config() -> Config {
             .to_string();
     }
 
+    #[allow(clippy::cast_sign_loss)]
+    let expiry = cfg
+        .get("expiry")
+        .unwrap_or(&Value::Integer(3600))
+        .as_integer()
+        .unwrap() as u64;
+
     #[cfg(feature = "frontend")]
     let mut nodes = Vec::new();
 
@@ -98,6 +117,7 @@ pub fn config() -> Config {
     }
 
     Config {
+        log_level,
         port,
         tls,
         cert,
@@ -105,6 +125,7 @@ pub fn config() -> Config {
         pass,
         hash,
         secret,
+        expiry,
         #[cfg(feature = "frontend")]
         nodes,
     }

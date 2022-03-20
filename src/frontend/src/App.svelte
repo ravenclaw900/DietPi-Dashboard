@@ -7,7 +7,6 @@
     import Terminal from "./pages/Terminal.svelte";
     import NavbarLink from "./components/NavbarLink.svelte";
     import Fa from "svelte-fa";
-    import { faGithub } from "@fortawesome/free-brands-svg-icons";
     import {
         faTachometerAlt,
         faMicrochip,
@@ -28,6 +27,7 @@
     import Service from "./pages/Service.svelte";
 
     import logo from "./assets/dietpi.png";
+    import github from "./assets/github-mark.svg";
 
     interface socketData {
         // Statistics page
@@ -475,10 +475,11 @@
             <a
                 href="https://github.com/ravenclaw900/DietPi-Dashboard"
                 target="_blank"
-                ><Fa
-                    icon={faGithub}
+                ><img
+                    src={github}
+                    width="30px"
                     class="hover:opacity-75 dark:hover:opacity-60"
-                    size="2x"
+                    alt="GitHub icon"
                 /></a
             >
         </footer>

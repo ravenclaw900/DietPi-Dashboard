@@ -4,6 +4,7 @@ use nanoserde::SerJson;
 use std::process::Command;
 use std::sync::Arc;
 use std::time::Duration;
+use tokio::sync::Notify;
 use tokio::sync::{mpsc::Receiver, Mutex};
 use tokio::time::sleep;
 use warp::ws::Message;
@@ -12,12 +13,15 @@ use crate::{shared, systemdata};
 
 pub async fn main_handler(
     socket_ptr: Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>,
-    data_recv: &mut Receiver<Option<shared::Request>>,
+    quit: &Arc<Notify>,
 ) {
-    let handle = tokio::spawn(async move {
-        let mut socket_send = socket_ptr.lock().await;
-        loop {
-            let _send = (*socket_send)
+    let mut socket_send = socket_ptr.lock().await;
+    loop {
+        tokio::select! {
+            biased;
+            _ = quit.notified() => {break}
+            _ = async {
+                let _send = (*socket_send)
                 .send(Message::text(SerJson::serialize_json(&shared::SysData {
                     cpu: systemdata::cpu().await,
                     ram: systemdata::ram(),
@@ -26,40 +30,32 @@ pub async fn main_handler(
                     network: systemdata::network(),
                 })))
                 .await;
+            } => {}
         }
-    });
-    match data_recv.recv().await {
-        Some(None) | None => {
-            handle.abort();
-        }
-        Some(Some(_)) => {}
     }
 }
 
 pub async fn process_handler(
     socket_ptr: Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>,
-    data_recv: &mut Receiver<Option<shared::Request>>,
+    data_recv: &mut Receiver<shared::Request>,
+    quit: &Arc<Notify>,
 ) {
-    let handle = tokio::spawn(async move {
-        loop {
-            let mut socket_send = socket_ptr.lock().await;
-            let _send = (*socket_send)
+    let mut socket_send = socket_ptr.lock().await;
+    loop {
+        tokio::select! {
+            biased;
+            _ = quit.notified() => {break}
+            _ = async {
+                let _send = (*socket_send)
                 .send(Message::text(SerJson::serialize_json(
                     &shared::ProcessList {
                         processes: systemdata::processes().await,
                     },
                 )))
                 .await;
-            sleep(Duration::from_secs(1)).await;
-        }
-    });
-    loop {
-        match data_recv.recv().await {
-            Some(None) | None => {
-                handle.abort();
-                break;
-            }
-            Some(Some(data)) => {
+                sleep(Duration::from_secs(1)).await;
+            } => {}
+            Some(data) = data_recv.recv() => {
                 let process =
                     psutil::process::Process::new(data.args[0].parse::<u32>().unwrap()).unwrap();
                 log::info!(
@@ -81,7 +77,8 @@ pub async fn process_handler(
 
 pub async fn software_handler(
     socket_ptr: Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>,
-    data_recv: &mut Receiver<Option<shared::Request>>,
+    data_recv: &mut Receiver<shared::Request>,
+    quit: &Arc<Notify>,
 ) {
     let mut socket_send = socket_ptr.lock().await;
     let software = systemdata::dpsoftware();
@@ -95,11 +92,10 @@ pub async fn software_handler(
         )))
         .await;
     loop {
-        match data_recv.recv().await {
-            Some(None) | None => {
-                break;
-            }
-            Some(Some(data)) => {
+        tokio::select! {
+            biased;
+            _ = quit.notified() => {break}
+            Some(data) = data_recv.recv() => {
                 // We don't just want to run dietpi-software without args
                 if data.args.is_empty() {
                     continue;
@@ -113,7 +109,7 @@ pub async fn software_handler(
                 let out =
                     std::string::String::from_utf8(cmd.args(arg_list).output().unwrap().stdout)
                         .unwrap()
-                        .replace("", "");
+                        .replace('', "");
                 let software = systemdata::dpsoftware();
                 let _send = socket_send
                     .send(Message::text(SerJson::serialize_json(
@@ -131,18 +127,18 @@ pub async fn software_handler(
 
 pub async fn management_handler(
     socket_ptr: Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>,
-    data_recv: &mut Receiver<Option<shared::Request>>,
+    data_recv: &mut Receiver<shared::Request>,
+    quit: &Arc<Notify>,
 ) {
     let mut socket_send = socket_ptr.lock().await;
     let _send = (*socket_send)
         .send(Message::text(SerJson::serialize_json(&systemdata::host())))
         .await;
     loop {
-        match data_recv.recv().await {
-            Some(None) | None => {
-                break;
-            }
-            Some(Some(data)) => {
+        tokio::select! {
+            biased;
+            _ = quit.notified() => {break}
+            Some(data) = data_recv.recv() => {
                 Command::new(data.cmd).spawn().unwrap();
             }
         }
@@ -151,7 +147,8 @@ pub async fn management_handler(
 
 pub async fn service_handler(
     socket_ptr: Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>,
-    data_recv: &mut Receiver<Option<shared::Request>>,
+    data_recv: &mut Receiver<shared::Request>,
+    quit: &Arc<Notify>,
 ) {
     let mut socket_send = socket_ptr.lock().await;
     let _send = (*socket_send)
@@ -162,11 +159,10 @@ pub async fn service_handler(
         )))
         .await;
     loop {
-        match data_recv.recv().await {
-            Some(None) | None => {
-                break;
-            }
-            Some(Some(data)) => {
+        tokio::select! {
+            biased;
+            _ = quit.notified() => {break}
+            Some(data) = data_recv.recv() =>  {
                 Command::new("systemctl")
                     .args([data.cmd, (&*data.args[0]).to_string()])
                     .spawn()
@@ -199,7 +195,8 @@ async fn browser_refresh(
 
 pub async fn browser_handler(
     socket_ptr: Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>,
-    data_recv: &mut Receiver<Option<shared::Request>>,
+    data_recv: &mut Receiver<shared::Request>,
+    quit: &Arc<Notify>,
 ) {
     let mut socket_send = socket_ptr.lock().await;
     // Get initial listing of $HOME
@@ -213,11 +210,10 @@ pub async fn browser_handler(
         )))
         .await;
     loop {
-        match data_recv.recv().await {
-            Some(None) | None => {
-                break;
-            }
-            Some(Some(data)) => match data.cmd.as_str() {
+        tokio::select! {
+            biased;
+            _ = quit.notified() => {break}
+            Some(data) = data_recv.recv() => match data.cmd.as_str() {
                 "cd" => {
                     let _send = (*socket_send)
                         .send(Message::text(SerJson::serialize_json(

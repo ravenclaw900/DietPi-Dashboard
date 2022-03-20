@@ -10,24 +10,34 @@ use warp::ws::Message;
 use crate::{page_handlers, shared, systemdata, CONFIG};
 
 fn validate_token(token: &str) -> bool {
-    let key = jwts::jws::Key::new(&crate::CONFIG.secret, jwts::jws::Algorithm::HS256);
-    let verified: jwts::jws::Token<jwts::Claims>;
-    if let Ok(token) = jwts::jws::Token::verify_with_key(token, &key) {
-        verified = token;
-    } else {
-        log::error!("Couldn't verify token");
+    let secret = biscuit::jws::Secret::bytes_from_str(&CONFIG.secret);
+    let encoded: biscuit::jws::Compact<biscuit::ClaimsSet<biscuit::Empty>, biscuit::Empty> =
+        biscuit::JWT::new_encoded(token);
+    let decoded = match encoded.into_decoded(&secret, biscuit::jwa::SignatureAlgorithm::HS256) {
+        Err(_) => return false,
+        Ok(unwrapped) => unwrapped,
+    };
+    let payload = &decoded.payload().unwrap().registered;
+    if payload
+        .validate_claim_presence(biscuit::ClaimPresenceOptions {
+            issued_at: biscuit::Presence::Optional,
+            expiry: biscuit::Presence::Required,
+            not_before: biscuit::Presence::Optional,
+            issuer: biscuit::Presence::Required,
+            audience: biscuit::Presence::Optional,
+            subject: biscuit::Presence::Optional,
+            id: biscuit::Presence::Optional,
+        })
+        .is_err()
+    {
         return false;
-    };
-    let config = jwts::ValidationConfig {
-        iat_validation: false,
-        nbf_validation: false,
-        exp_validation: true,
-        expected_iss: Some("DietPi Dashboard".to_string()),
-        expected_sub: None,
-        expected_aud: None,
-        expected_jti: None,
-    };
-    if verified.validate_claims(&config).is_err() {
+    }
+    if payload
+        .validate_exp(biscuit::Validation::Validate(
+            biscuit::TemporalOptions::default(),
+        ))
+        .is_err()
+    {
         return false;
     }
     true
@@ -37,20 +47,20 @@ fn validate_token(token: &str) -> bool {
 pub async fn socket_handler(socket: warp::ws::WebSocket) {
     let (mut socket_send, mut socket_recv) = socket.split();
     let (data_send, mut data_recv) = mpsc::channel(1);
+    let quit = Arc::new(tokio::sync::Notify::new());
+    let quit_send = Arc::clone(&quit);
     tokio::task::spawn(async move {
-        let mut first_message = true;
         let mut req: shared::Request;
         while let Some(Ok(data)) = socket_recv.next().await {
             if data.is_close() {
                 break;
             }
-            let data_str;
-            if let Ok(data_string) = data.to_str() {
-                data_str = data_string;
+            let data_str = if let Ok(data_string) = data.to_str() {
+                data_string
             } else {
                 log::error!("Couldn't convert received data to text");
                 continue;
-            }
+            };
             req = if let Ok(json) = DeJson::deserialize_json(data_str) {
                 json
             } else {
@@ -58,32 +68,24 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                 continue;
             };
             if CONFIG.pass && !validate_token(&req.token) {
-                if !first_message && data_send.send(None).await.is_err() {
-                    break;
-                }
+                quit_send.notify_waiters();
                 data_send
-                    .send(Some(shared::Request {
+                    .send(shared::Request {
                         page: "/login".to_string(),
                         token: String::new(),
                         cmd: String::new(),
                         args: Vec::new(),
-                    }))
+                    })
                     .await
                     .unwrap();
                 continue;
             }
             if req.cmd.is_empty() {
-                if first_message {
-                    first_message = false;
-                } else {
-                    // Quit out of handler
-                    if data_send.send(None).await.is_err() {
-                        break;
-                    }
-                }
+                // Quit out of handler
+                quit_send.notify_waiters();
             }
             // Send new page/data
-            if data_send.send(Some(req.clone())).await.is_err() {
+            if data_send.send(req.clone()).await.is_err() {
                 break;
             }
         }
@@ -95,23 +97,28 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
         ))
         .await;
     let socket_ptr = Arc::new(Mutex::new(socket_send));
-    while let Some(Some(message)) = data_recv.recv().await {
+    while let Some(message) = data_recv.recv().await {
         match message.page.as_str() {
-            "/" => page_handlers::main_handler(Arc::clone(&socket_ptr), &mut data_recv).await,
+            "/" => page_handlers::main_handler(Arc::clone(&socket_ptr), &quit).await,
             "/process" => {
-                page_handlers::process_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
+                page_handlers::process_handler(Arc::clone(&socket_ptr), &mut data_recv, &quit)
+                    .await;
             }
             "/software" => {
-                page_handlers::software_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
+                page_handlers::software_handler(Arc::clone(&socket_ptr), &mut data_recv, &quit)
+                    .await;
             }
             "/management" => {
-                page_handlers::management_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
+                page_handlers::management_handler(Arc::clone(&socket_ptr), &mut data_recv, &quit)
+                    .await;
             }
             "/service" => {
-                page_handlers::service_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
+                page_handlers::service_handler(Arc::clone(&socket_ptr), &mut data_recv, &quit)
+                    .await;
             }
             "/browser" => {
-                page_handlers::browser_handler(Arc::clone(&socket_ptr), &mut data_recv).await;
+                page_handlers::browser_handler(Arc::clone(&socket_ptr), &mut data_recv, &quit)
+                    .await;
             }
             "/login" => {
                 // Internal poll, see other thread
@@ -197,16 +204,15 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
                     }
             }
             data_msg = socket_recv.next() => {
-                let data;
                 let lock = cmd_write.read().await;
-                if let Some(Ok(data_unwrapped)) = data_msg {
-                    data = data_unwrapped;
+                let data = if let Some(Ok(data_unwrapped)) = data_msg {
+                    data_unwrapped
                 } else {
                     let _write = (*cmd_write.read().await)
                         .pty()
                         .write_all("exit\n".as_bytes());
                     continue;
-                }
+                };
                 if data.is_text() && data.to_str().unwrap().get(..4) == Some("size") {
                     let json: TTYSize =
                         DeJson::deserialize_json(&data.to_str().unwrap()[4..]).unwrap();
@@ -259,13 +265,12 @@ pub async fn file_handler(mut socket: warp::ws::WebSocket) {
             }
             continue;
         }
-        let data_str;
-        if let Ok(data_string) = data.to_str() {
-            data_str = data_string;
+        let data_str = if let Ok(data_string) = data.to_str() {
+            data_string
         } else {
             log::error!("Couldn't convert received data to text");
             continue;
-        }
+        };
         req = if let Ok(json) = DeJson::deserialize_json(data_str) {
             json
         } else {
