@@ -12,7 +12,7 @@ use crate::{page_handlers, shared, systemdata, CONFIG};
 fn validate_token(token: &str) -> bool {
     let mut validator = jsonwebtoken::Validation::new(jsonwebtoken::Algorithm::HS256);
     validator.set_issuer(&["DietPi Dashboard"]);
-    validator.set_required_spec_claims(&["exp", "nbf"]);
+    validator.set_required_spec_claims(&["exp", "iat"]);
     if jsonwebtoken::decode::<shared::JWTClaims>(
         token,
         &jsonwebtoken::DecodingKey::from_secret(CONFIG.secret.as_ref()),
