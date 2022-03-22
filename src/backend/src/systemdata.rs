@@ -51,7 +51,7 @@ pub fn ram() -> shared::UsageData {
     shared::UsageData {
         used: ram.used(),
         total: ram.total(),
-        percent: ram.percent(),
+        percent: round_percent((ram.used() as f32 / ram.total() as f32) * 100.0),
     }
 }
 
@@ -61,7 +61,7 @@ pub fn swap() -> shared::UsageData {
     shared::UsageData {
         used: swap.used(),
         total: swap.total(),
-        percent: swap.percent(),
+        percent: round_percent(swap.percent()),
     }
 }
 
@@ -71,7 +71,7 @@ pub fn disk() -> shared::UsageData {
     shared::UsageData {
         used: disk.used(),
         total: disk.total(),
-        percent: disk.percent(),
+        percent: round_percent(disk.percent()),
     }
 }
 
@@ -476,11 +476,12 @@ mod tests {
         usage_test(output.used, output.total, output.percent);
     }
 
-    // The disk function gets the percentage used from psutil, not calculated here, so we can't use usage_test
+    // Disk percent is actually a measure of user space used, so we can't validate here
     #[tokio::test]
     async fn validate_disk() {
         let output = disk();
         assert!(output.used <= output.total);
+        assert!(output.used < output.total);
     }
 
     #[tokio::test]
