@@ -353,3 +353,49 @@ pub async fn file_handler(mut socket: warp::ws::WebSocket) {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use nanoserde::SerJson;
+    use shared::FileRequest;
+    use std::io::Write;
+    use tempfile::NamedTempFile;
+    use warp::Filter;
+
+    #[tokio::test]
+    async fn file_socket_test() {
+        let file_route = warp::ws().map(|ws: warp::ws::Ws| ws.on_upgrade(file_handler));
+
+        let (mut file, path) = NamedTempFile::new().unwrap().into_parts();
+        let path = path.to_str().unwrap().to_string();
+        file.write_all(b"dietpi dashboard, hello file!").unwrap();
+        let mut socket = warp::test::ws().handshake(file_route).await.unwrap();
+        socket
+            .send_text(SerJson::serialize_json(&FileRequest {
+                cmd: "open".to_string(),
+                path: path.clone(),
+                token: String::new(),
+                arg: String::new(),
+            }))
+            .await;
+        assert_eq!(
+            socket.recv().await.unwrap().to_str().unwrap(),
+            "dietpi dashboard, hello file!"
+        );
+        socket
+            .send_text(SerJson::serialize_json(&FileRequest {
+                cmd: "save".to_string(),
+                path: path.clone(),
+                token: String::new(),
+                arg: "dietpi dashboard, writing test".to_string(),
+            }))
+            .await;
+        // Wait for writing to complete
+        tokio::time::sleep(std::time::Duration::from_millis(500)).await;
+
+        // Yes, .read_to_string() on the file should work, but it doesn't for some reason
+        let contents = std::fs::read_to_string(path).unwrap();
+        assert_eq!(contents, "dietpi dashboard, writing test");
+    }
+}

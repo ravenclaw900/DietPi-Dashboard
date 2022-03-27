@@ -128,6 +128,7 @@ pub struct TokenError {
 }
 
 #[derive(DeJson)]
+#[cfg_attr(test, derive(SerJson))]
 pub struct FileRequest {
     #[nserde(default)]
     pub cmd: String,
