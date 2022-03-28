@@ -367,7 +367,17 @@
                                         currentPath = contents.path;
                                         break;
                                     case "text":
-                                        fileSend(contents.path, "open", "");
+                                        if (
+                                            contents.subtype == "large" &&
+                                            confirm(
+                                                "Can't view files above 2MB, would you like to download instead?"
+                                            )
+                                        ) {
+                                            fileSend(selPath.path, "dl", "");
+                                            downloading = true;
+                                        } else {
+                                            fileSend(contents.path, "open", "");
+                                        }
                                         currentPath = contents.path;
                                         break;
                                     default:

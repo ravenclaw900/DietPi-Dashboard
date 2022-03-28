@@ -413,8 +413,12 @@ pub fn browser_dir(path: &std::path::Path) -> Vec<shared::BrowserDirData> {
                 subtype = "unknown".to_string();
                 prettytype = "Binary file".to_string();
             } else {
+                if metadata.len() > 2 * 1000 * 1000 {
+                    subtype = "large".to_string()
+                } else {
+                    subtype = "plain".to_string();
+                }
                 maintype = "text".to_string();
-                subtype = "plain".to_string();
                 prettytype = "Plain Text File".to_string();
             }
         }

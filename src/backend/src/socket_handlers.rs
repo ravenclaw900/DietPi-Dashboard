@@ -266,9 +266,7 @@ pub async fn file_handler(mut socket: warp::ws::WebSocket) {
         match req.cmd.as_str() {
             "open" => {
                 let _send = socket
-                    .send(Message::text(
-                        std::fs::read_to_string(std::path::Path::new(&req.path)).unwrap(),
-                    ))
+                    .send(Message::text(std::fs::read_to_string(&req.path).unwrap()))
                     .await;
             }
             // Technically works for both files and directories
@@ -330,7 +328,7 @@ pub async fn file_handler(mut socket: warp::ws::WebSocket) {
                 upload_path = req.path;
                 upload_max_size = req.arg.parse::<usize>().unwrap();
             }
-            "save" => std::fs::write(std::path::Path::new(&req.path), &req.arg).unwrap(),
+            "save" => std::fs::write(&req.path, &req.arg).unwrap(),
             _ => {}
         }
     }
