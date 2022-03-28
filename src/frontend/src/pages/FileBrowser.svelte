@@ -104,12 +104,11 @@
     $: pathArray = currentPath.split("/").slice(1);
     // Set innerHTML manually to avoid issues with highlighting
     $: fileDiv != undefined &&
-        (fileDiv.innerHTML =
-            fileData[fileData.length - 1] == "\n"
-                ? fileData + " "
-                : fileData
-                      .replace(new RegExp("&", "g"), "&amp;")
-                      .replace(new RegExp("<", "g"), "&lt;")),
+        (fileDiv.innerHTML = (
+            fileData[fileData.length - 1] == "\n" ? fileData + " " : fileData
+        )
+            .replace(new RegExp("&", "g"), "&amp;")
+            .replace(new RegExp("<", "g"), "&lt;")),
         microlight.reset();
     $: socketData.contents &&
         socketData.contents.sort((a, b) => {
