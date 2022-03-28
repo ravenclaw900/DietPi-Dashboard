@@ -323,7 +323,7 @@
                     <div
                         bind:this={fileDiv}
                         class="w-full microlight font-mono whitespace-pre bg-white dark:bg-black text-sm z-10 tab-4 p-px -ml-[100%] overflow-y-hidden"
-                        class:invisible={highlighting}
+                        class:invisible={!highlighting}
                     />
                 </div>
             {:else if downloading}
