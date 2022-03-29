@@ -10,33 +10,15 @@ use warp::ws::Message;
 use crate::{page_handlers, shared, systemdata, CONFIG};
 
 fn validate_token(token: &str) -> bool {
-    let secret = biscuit::jws::Secret::bytes_from_str(&CONFIG.secret);
-    let encoded: biscuit::jws::Compact<biscuit::ClaimsSet<biscuit::Empty>, biscuit::Empty> =
-        biscuit::JWT::new_encoded(token);
-    let decoded = match encoded.into_decoded(&secret, biscuit::jwa::SignatureAlgorithm::HS256) {
-        Err(_) => return false,
-        Ok(unwrapped) => unwrapped,
-    };
-    let payload = &decoded.payload().unwrap().registered;
-    if payload
-        .validate_claim_presence(biscuit::ClaimPresenceOptions {
-            issued_at: biscuit::Presence::Optional,
-            expiry: biscuit::Presence::Required,
-            not_before: biscuit::Presence::Optional,
-            issuer: biscuit::Presence::Required,
-            audience: biscuit::Presence::Optional,
-            subject: biscuit::Presence::Optional,
-            id: biscuit::Presence::Optional,
-        })
-        .is_err()
-    {
-        return false;
-    }
-    if payload
-        .validate_exp(biscuit::Validation::Validate(
-            biscuit::TemporalOptions::default(),
-        ))
-        .is_err()
+    let mut validator = jsonwebtoken::Validation::new(jsonwebtoken::Algorithm::HS256);
+    validator.set_issuer(&["DietPi Dashboard"]);
+    validator.set_required_spec_claims(&["exp", "iat"]);
+    if jsonwebtoken::decode::<shared::JWTClaims>(
+        token,
+        &jsonwebtoken::DecodingKey::from_secret(CONFIG.secret.as_ref()),
+        &validator,
+    )
+    .is_err()
     {
         return false;
     }
@@ -284,9 +266,7 @@ pub async fn file_handler(mut socket: warp::ws::WebSocket) {
         match req.cmd.as_str() {
             "open" => {
                 let _send = socket
-                    .send(Message::text(
-                        std::fs::read_to_string(std::path::Path::new(&req.path)).unwrap(),
-                    ))
+                    .send(Message::text(std::fs::read_to_string(&req.path).unwrap()))
                     .await;
             }
             // Technically works for both files and directories
@@ -348,7 +328,7 @@ pub async fn file_handler(mut socket: warp::ws::WebSocket) {
                 upload_path = req.path;
                 upload_max_size = req.arg.parse::<usize>().unwrap();
             }
-            "save" => std::fs::write(std::path::Path::new(&req.path), &req.arg).unwrap(),
+            "save" => std::fs::write(&req.path, &req.arg).unwrap(),
             _ => {}
         }
     }

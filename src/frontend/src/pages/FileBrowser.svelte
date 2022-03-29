@@ -104,12 +104,11 @@
     $: pathArray = currentPath.split("/").slice(1);
     // Set innerHTML manually to avoid issues with highlighting
     $: fileDiv != undefined &&
-        (fileDiv.innerHTML =
-            fileData[fileData.length - 1] == "\n"
-                ? fileData + " "
-                : fileData
-                      .replace(new RegExp("&", "g"), "&amp;")
-                      .replace(new RegExp("<", "g"), "&lt;")),
+        (fileDiv.innerHTML = (
+            fileData[fileData.length - 1] == "\n" ? fileData + " " : fileData
+        )
+            .replace(new RegExp("&", "g"), "&amp;")
+            .replace(new RegExp("<", "g"), "&lt;")),
         microlight.reset();
     $: socketData.contents &&
         socketData.contents.sort((a, b) => {
@@ -323,7 +322,7 @@
                     <div
                         bind:this={fileDiv}
                         class="w-full microlight font-mono whitespace-pre bg-white dark:bg-black text-sm z-10 tab-4 p-px -ml-[100%] overflow-y-hidden"
-                        class:invisible={highlighting}
+                        class:invisible={!highlighting}
                     />
                 </div>
             {:else if downloading}
@@ -367,7 +366,17 @@
                                         currentPath = contents.path;
                                         break;
                                     case "text":
-                                        fileSend(contents.path, "open", "");
+                                        if (
+                                            contents.subtype == "large" &&
+                                            confirm(
+                                                "Can't view files above 2MB, would you like to download instead?"
+                                            )
+                                        ) {
+                                            fileSend(selPath.path, "dl", "");
+                                            downloading = true;
+                                        } else {
+                                            fileSend(contents.path, "open", "");
+                                        }
                                         currentPath = contents.path;
                                         break;
                                     default:
