@@ -125,7 +125,7 @@
     let password = "";
     let node = `${window.location.hostname}:${window.location.port}`;
 
-    $: node && (shown = false), connectSocket(node);
+    $: node && ((shown = false), connectSocket(node));
 
     // Get dark mode
     if (localStorage.getItem("darkMode") != null) {
