@@ -46,8 +46,10 @@ impl Default for Config {
 }
 
 pub fn config() -> Config {
+    let mut cfgpath = std::env::current_exe().expect("Couldn't get config path");
+    cfgpath.set_file_name("config.toml");
     Figment::from(Serialized::defaults(Config::default()))
-        .merge(Toml::file("config.toml"))
+        .merge(Toml::file(cfgpath))
         .merge(Env::prefixed("DP_DASHBOARD_").ignore(&["hash", "secret"]))
         .extract()
         .expect("Error reading config")
