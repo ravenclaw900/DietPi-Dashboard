@@ -44,17 +44,17 @@ fn main() {
             let assets_route = warp::path("assets")
                 .and(warp::path::param())
                 .map(|path: String| {
+                    let ext = path.rsplit('.').next().unwrap();
                     warp::reply::with_header(
                         DIR.get_file(format!("assets/{}", path)).unwrap().contents(),
                         "content-type",
-                        format!(
-                            "text/{}",
-                            if path.rsplit('.').next().unwrap() == "js" {
-                                "javascript"
-                            } else {
-                                path.rsplit('.').next().unwrap()
-                            }
-                        ),
+                        if ext == "js" {
+                            "text/javascript".to_string()
+                        } else if ext == "svg" {
+                            "image/svg+xml".to_string()
+                        } else {
+                            format!("text/{}", ext)
+                        },
                     )
                 });
 
