@@ -1,6 +1,6 @@
 #![warn(clippy::pedantic)]
 use crate::shared::CONFIG;
-use sha2::{Digest, Sha512};
+use ring::digest;
 use simple_logger::SimpleLogger;
 use std::str::FromStr;
 use warp::{http::header, Filter};
@@ -73,11 +73,9 @@ fn main() {
             let login_route = warp::path("login")
                 .and(warp::post())
                 .and(warp::body::bytes())
-                .map(|pass| {
+                .map(|pass: warp::hyper::body::Bytes| {
                     if CONFIG.pass {
-                        let mut hasher = Sha512::new();
-                        hasher.update(pass);
-                        let shasum = format!("{:x}", hasher.finalize());
+                        let shasum = digest::digest(&digest::SHA512, &pass).as_ref().iter().map(|b| format!("{:02x}", b)).collect::<Vec<String>>().join("");
                         if shasum == CONFIG.hash {
                             let timestamp = jsonwebtoken::get_current_timestamp();
 
