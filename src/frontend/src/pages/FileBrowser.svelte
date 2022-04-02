@@ -245,9 +245,9 @@
 <main class="min-h-full">
     <div class="flex">
         <div class="w-11/12">
-            <div class="mb-2 p bg-white dark:bg-black">
+            <div class="mb-2 bg-white p dark:bg-black">
                 <button
-                    class="btn px-2 focus:outline-none"
+                    class="px-2 btn focus:outline-none"
                     on:click={() => {
                         if (
                             !saved &&
@@ -315,7 +315,7 @@
                             }
                         }}
                         spellcheck="false"
-                        class="w-full font-mono text-sm whitespace-pre tab-4 caret-black z-20 dark:caret-white focus:outline-none p-px resize-none overflow-y-hidden"
+                        class="overflow-y-hidden z-20 p-px w-full font-mono text-sm whitespace-pre resize-none tab-4 caret-black dark:caret-white focus:outline-none"
                         class:bg-transparent={highlighting}
                         class:text-transparent={highlighting}
                     />
@@ -344,7 +344,7 @@
                 {/if}
             {:else if socketData.contents != undefined}
                 <table
-                    class="bg-white w-full dark:bg-black table-fixed min-w-50"
+                    class="w-full bg-white table-fixed dark:bg-black min-w-50"
                 >
                     <tr>
                         <th class="px-2">Name</th>
@@ -416,7 +416,7 @@
             {/if}
         </div>
         <div
-            class="min-w-16 bg-gray-300 dark:bg-gray-800 flex flex-col items-center ml-4 justify-center sticky top-10 p-4 h-min gap-2"
+            class="flex sticky top-10 flex-col gap-2 justify-center items-center p-4 ml-4 bg-gray-300 min-w-16 dark:bg-gray-800 h-min"
         >
             {#if fileDataSet}
                 <span
@@ -474,7 +474,7 @@
                         showHidden = !showHidden;
                     }}
                     ><Fa
-                        icon={showHidden ? faEyeSlash : faEye}
+                        icon={showHidden ? faEye : faEyeSlash}
                         size="lg"
                     /></span
                 >
