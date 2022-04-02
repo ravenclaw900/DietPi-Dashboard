@@ -3,7 +3,7 @@ use crate::shared::CONFIG;
 use sha2::{Digest, Sha512};
 use simple_logger::SimpleLogger;
 use std::str::FromStr;
-use warp::Filter;
+use warp::{http::header, Filter};
 
 mod config;
 mod page_handlers;
@@ -30,6 +30,18 @@ fn main() {
                 .env()
                 .init()
                 .unwrap();
+
+            #[cfg(feature = "frontend")]
+            let mut headers = header::HeaderMap::new();
+            #[cfg(feature = "frontend")]
+            {
+            headers.insert(header::X_CONTENT_TYPE_OPTIONS, header::HeaderValue::from_static("nosniff"));
+            headers.insert(header::X_FRAME_OPTIONS, header::HeaderValue::from_static("sameorigin"));
+            headers.insert("X-Robots-Tag", header::HeaderValue::from_static("none"));
+            headers.insert("X-Permitted-Cross-Domain_Policies", header::HeaderValue::from_static("none"));
+            headers.insert(header::REFERRER_POLICY, header::HeaderValue::from_static("no-referrer"));
+            headers.insert("Content-Security-Policy", header::HeaderValue::from_static("default-src 'self'; font-src 'self'; img-src 'self' blob:; script-src 'self'; style-src 'unsafe-inline' 'self'; connect-src * ws:;"));
+            }
 
             #[cfg(feature = "frontend")]
             let favicon_route = warp::path("favicon.png").map(|| {
@@ -116,7 +128,7 @@ fn main() {
             #[cfg(feature = "frontend")]
             let main_route = warp::any().map(|| {
                 warp::reply::html(DIR.get_file("index.html").unwrap().contents_utf8().unwrap())
-            });
+            }).with(warp::reply::with::headers(headers));
 
             #[cfg(feature = "frontend")]
             let page_routes = favicon_route
