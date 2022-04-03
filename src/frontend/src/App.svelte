@@ -148,8 +148,9 @@
     const updateCheck = () => {
         if (
             localStorage.getItem("update-check") == null ||
-            JSON.parse(localStorage.getItem("update-check")).lastChecked >
-                Math.round(Date.now() / 1000) + 86400
+            JSON.parse(localStorage.getItem("update-check")).lastChecked +
+                86400 <
+                Math.round(Date.now() / 1000)
         ) {
             fetch(
                 "https://api.github.com/repos/ravenclaw900/DietPi-Dashboard/releases/latest"
