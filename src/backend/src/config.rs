@@ -21,6 +21,8 @@ pub struct Config {
 
     #[cfg(feature = "frontend")]
     pub nodes: Vec<String>,
+
+    pub update_check: bool,
 }
 
 impl Default for Config {
@@ -41,6 +43,8 @@ impl Default for Config {
 
             #[cfg(feature = "frontend")]
             nodes: Vec::new(),
+
+            update_check: true,
         }
     }
 }

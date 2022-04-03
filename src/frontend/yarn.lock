@@ -690,6 +690,11 @@ sander@^0.5.0:
     mkdirp "^0.5.1"
     rimraf "^2.5.2"
 
+semver-compare-multi@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/semver-compare-multi/-/semver-compare-multi-1.0.3.tgz#3e1695b4bd8c4adbd01ac1c46fa08466d369dd48"
+  integrity sha1-PhaVtL2MStvQGsHEb6CEZtNp3Ug=
+
 sorcery@^0.10.0:
   version "0.10.0"
   resolved "https://registry.yarnpkg.com/sorcery/-/sorcery-0.10.0.tgz#8ae90ad7d7cb05fc59f1ab0c637845d5c15a52b7"

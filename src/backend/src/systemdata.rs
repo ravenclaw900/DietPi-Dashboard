@@ -282,7 +282,7 @@ pub fn host() -> shared::HostData {
         uptime,
         arch: arch.to_string(),
         kernel: info.release().to_string(),
-        version: format!("{}.{}.{}", dp_version[1], dp_version[3], dp_version[5]),
+        dp_version: format!("{}.{}.{}", dp_version[1], dp_version[3], dp_version[5]),
         packages: installed_pkgs,
         upgrades: upgradable_pkgs,
         ip: addr.ip().to_string(),
@@ -350,6 +350,7 @@ pub fn global() -> shared::GlobalData {
     shared::GlobalData {
         update,
         login: crate::CONFIG.pass,
+        version: env!("CARGO_PKG_VERSION").to_string(),
         #[cfg(feature = "frontend")]
         nodes: crate::CONFIG.nodes.clone(),
     }
