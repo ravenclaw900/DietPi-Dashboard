@@ -128,7 +128,7 @@
     let password = "";
     let frontendVersion = "__PACKAGE_VERSION__";
     let backendVersion = "";
-    let node = `${window.location.hostname}:${5252}`;
+    let node = `${window.location.hostname}:${window.location.port}`;
 
     $: node && ((shown = false), connectSocket(node));
     $: notify = dpUpdate != "" || cmp(frontendVersion, backendVersion) != 0;
@@ -356,8 +356,9 @@
             <div class="flex justify-around">
                 {#if nodes.length != 0}
                     <select bind:value={node} class="hidden md:inline-block">
-                        <option value={`${window.location.hostname}:${5252}`}
-                            >{`${window.location.hostname}:${5252}`}
+                        <option
+                            value={`${window.location.hostname}:${window.location.port}`}
+                            >{`${window.location.hostname}:${window.location.port}`}
                         </option>
                         {#each nodes as node}
                             <option value={node}>
@@ -424,8 +425,8 @@
                     <table class="w-full">
                         <select bind:value={node} class="w-full">
                             <option
-                                value={`${window.location.hostname}:${5252}`}
-                                >{`${window.location.hostname}:${5252}`}
+                                value={`${window.location.hostname}:${window.location.port}`}
+                                >{`${window.location.hostname}:${window.location.port}`}
                             </option>
                             {#each nodes as node}
                                 <option value={node}>
