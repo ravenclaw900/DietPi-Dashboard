@@ -29,3 +29,8 @@
 # Please insert the IP addresses/domains and ports of these nodes
 # For example: ["example.com:5252", "192.168.1.60:4386"]
 #nodes = []
+
+# User to login to on the terminal
+# Use "manual" to show a login prompt instead of auto-login
+# - Default: "root"
+#terminal_user = "root"
