@@ -351,6 +351,7 @@ pub fn global() -> shared::GlobalData {
         update,
         login: crate::CONFIG.pass,
         version: env!("CARGO_PKG_VERSION").to_string(),
+        update_check: crate::CONFIG.update_check,
         #[cfg(feature = "frontend")]
         nodes: crate::CONFIG.nodes.clone(),
     }

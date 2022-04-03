@@ -64,6 +64,7 @@
         error: boolean;
         nodes: string[];
         version: string;
+        update_check: boolean;
     }
 
     interface software {
@@ -128,10 +129,14 @@
     let password = "";
     let frontendVersion = "__PACKAGE_VERSION__";
     let backendVersion = "";
-    let node = `${window.location.hostname}:${window.location.port}`;
+    let updateAvailable = "";
+    let node = `${window.location.hostname}:${5252}`;
 
     $: node && ((shown = false), connectSocket(node));
-    $: notify = dpUpdate != "" || cmp(frontendVersion, backendVersion) != 0;
+    $: notify =
+        dpUpdate != "" ||
+        cmp(frontendVersion, backendVersion) != 0 ||
+        updateAvailable != "";
 
     // Get dark mode
     if (localStorage.getItem("darkMode") != null) {
@@ -139,6 +144,39 @@
     } else {
         darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
     }
+
+    const updateCheck = () => {
+        if (
+            localStorage.getItem("update-check") == null ||
+            JSON.parse(localStorage.getItem("update-check")).lastChecked >
+                Math.round(Date.now() / 1000) + 86400
+        ) {
+            fetch(
+                "https://api.github.com/repos/ravenclaw900/DietPi-Dashboard/releases/latest"
+            ).then((response) =>
+                response.text().then((body) => {
+                    let version = JSON.parse(body).name.substring(1);
+                    if (cmp(version, backendVersion) > 0) {
+                        updateAvailable = version;
+                    }
+                    localStorage.setItem(
+                        "update-check",
+                        JSON.stringify({
+                            version,
+                            lastChecked: Math.round(Date.now() / 1000),
+                        })
+                    );
+                })
+            );
+        } else if (localStorage.getItem("update-check") != null) {
+            let version = JSON.parse(
+                localStorage.getItem("update-check")
+            ).version;
+            if (cmp(version, backendVersion) > 0) {
+                updateAvailable = version;
+            }
+        }
+    };
 
     const socketMessageListener = (e: MessageEvent) => {
         socketData = JSON.parse(e.data);
@@ -165,6 +203,9 @@
                 localStorage.removeItem("token");
                 localStorage.removeItem("tokens");
                 pollServer(window.location.pathname);
+            }
+            if (socketData.update_check) {
+                updateCheck();
             }
         }
         if (socketData.error == true) {
@@ -356,9 +397,8 @@
             <div class="flex justify-around">
                 {#if nodes.length != 0}
                     <select bind:value={node} class="hidden md:inline-block">
-                        <option
-                            value={`${window.location.hostname}:${window.location.port}`}
-                            >{`${window.location.hostname}:${window.location.port}`}
+                        <option value={`${window.location.hostname}:${5252}`}
+                            >{`${window.location.hostname}:${5252}`}
                         </option>
                         {#each nodes as node}
                             <option value={node}>
@@ -415,6 +455,11 @@
                                 node: {backendVersion})</tr
                             >
                         {/if}
+                        {#if updateAvailable}
+                            <tr class="border-b border-gray-300 border-gray-600"
+                                >DietPi-Dashboard update available: {updateAvailable}</tr
+                            >
+                        {/if}
                     </table>
                 </div>
             </div>
@@ -425,8 +470,8 @@
                     <table class="w-full">
                         <select bind:value={node} class="w-full">
                             <option
-                                value={`${window.location.hostname}:${window.location.port}`}
-                                >{`${window.location.hostname}:${window.location.port}`}
+                                value={`${window.location.hostname}:${5252}`}
+                                >{`${window.location.hostname}:${5252}`}
                             </option>
                             {#each nodes as node}
                                 <option value={node}>

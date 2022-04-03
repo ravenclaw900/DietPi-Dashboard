@@ -100,6 +100,7 @@ pub struct GlobalData {
     pub update: String,
     pub version: String,
     pub login: bool,
+    pub update_check: bool,
     #[cfg(feature = "frontend")]
     pub nodes: Vec<String>,
 }
