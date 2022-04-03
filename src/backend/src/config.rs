@@ -22,6 +22,8 @@ pub struct Config {
     #[cfg(feature = "frontend")]
     pub nodes: Vec<String>,
 
+    pub terminal_user: String,
+
     pub update_check: bool,
 }
 
@@ -43,6 +45,8 @@ impl Default for Config {
 
             #[cfg(feature = "frontend")]
             nodes: Vec::new(),
+
+            terminal_user: "root".to_string(),
 
             update_check: true,
         }
