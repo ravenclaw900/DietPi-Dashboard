@@ -128,7 +128,8 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
 
     if crate::CONFIG.pass {
         let token = socket_recv.next().await.unwrap().unwrap();
-        let token = token.to_str().unwrap();
+        // Stop from panicking, return from function with invalid token instead
+        let token = token.to_str().unwrap_or("");
         if token.get(..5) == Some("token") {
             if !validate_token(&token[5..]) {
                 return;
