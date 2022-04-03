@@ -438,7 +438,10 @@
             </div>
         </header>
         {#if notificationsShown}
-            <div class="p-2 bg-gray-50 dark:bg-gray-800" transition:slide>
+            <div
+                class="p-2 bg-gray-50 dark:bg-gray-800 dark:text-white"
+                transition:slide
+            >
                 <div class="min-h-10">
                     <table class="w-full">
                         {#if dpUpdate}
