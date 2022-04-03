@@ -202,6 +202,7 @@
                 // Remove legacy "token" setting
                 localStorage.removeItem("token");
                 localStorage.removeItem("tokens");
+                token = "";
                 pollServer(window.location.pathname);
             }
             if (socketData.update_check) {
@@ -320,11 +321,11 @@
 >
     {#if loginDialog}
         <div
-            class="fixed inset-0 bg-gray-600/50 h-screen w-screen flex items-center justify-center z-20"
+            class="flex fixed inset-0 z-20 justify-center items-center w-screen h-screen bg-gray-600/50"
             transition:fade
         >
             <div
-                class="bg-white dark:bg-black w-1/2 h-1/3 rounded-md flex items-center flex-col justify-center text-xl z-40 gap-5 dark:text-white"
+                class="flex z-40 flex-col gap-5 justify-center items-center w-1/2 h-1/3 text-xl bg-white rounded-md dark:bg-black dark:text-white"
             >
                 <h6>Please login:</h6>
                 <form
@@ -333,12 +334,12 @@
                 >
                     <input
                         type="password"
-                        class="outline-none bg-gray-100 border border-gray-400 dark:border-gray-700 rounded focus:bg-gray-200 dark:bg-gray-900 dark:focus:bg-gray-800"
+                        class="bg-gray-100 rounded border border-gray-400 outline-none dark:border-gray-700 focus:bg-gray-200 dark:bg-gray-900 dark:focus:bg-gray-800"
                         bind:value={password}
                     />
                     <button
                         type="submit"
-                        class="border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none border p-2 rounded active:bg-gray-200 dark:active:bg-gray-800"
+                        class="p-2 rounded border border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none active:bg-gray-200 dark:active:bg-gray-800"
                         >Login</button
                     >
                 </form>
@@ -357,7 +358,7 @@
         id="sidebarMenu"
     >
         <div
-            class="hidden lg:flex whitespace-nowrap h-12 bg-dplime-dark text-2xl items-center justify-center"
+            class="hidden justify-center items-center h-12 text-2xl whitespace-nowrap lg:flex bg-dplime-dark"
         >
             DietPi Dashboard
         </div>
@@ -383,10 +384,10 @@
             ><NavbarLink icon={faFolder}>File Browser</NavbarLink></span
         >
     </div>
-    <div class="w-5/6 flex flex-col flex-grow min-h-full">
-        <header class="bg-dplime h-12 grid grid-cols-3 items-center">
+    <div class="flex flex-col flex-grow w-5/6 min-h-full">
+        <header class="grid grid-cols-3 items-center h-12 bg-dplime">
             <span on:click={() => (menu = !menu)} class="justify-self-start"
-                ><Fa icon={faBars} class="btn ml-1 p-1" size="3x" /></span
+                ><Fa icon={faBars} class="p-1 ml-1 btn" size="3x" /></span
             >
             <a
                 href="https://dietpi.com"
@@ -436,7 +437,7 @@
             </div>
         </header>
         {#if notificationsShown}
-            <div class="bg-gray-50 dark:bg-gray-800 p-2" transition:slide>
+            <div class="p-2 bg-gray-50 dark:bg-gray-800" transition:slide>
                 <div class="min-h-10">
                     <table class="w-full">
                         {#if dpUpdate}
@@ -466,7 +467,7 @@
             </div>
         {/if}
         {#if settingsShown}
-            <div class="bg-gray-50 dark:bg-gray-800 p-2" transition:slide>
+            <div class="p-2 bg-gray-50 dark:bg-gray-800" transition:slide>
                 <div class="min-h-10">
                     <table class="w-full">
                         <select bind:value={node} class="w-full">
@@ -498,9 +499,7 @@
                     <Route path="software"
                         ><Software {socketData} {socketSend} /></Route
                     >
-                    <Route path="terminal"
-                        ><Terminal {loginDialog} {node} /></Route
-                    >
+                    <Route path="terminal"><Terminal {node} {token} /></Route>
                     <Route path="management"
                         ><Management {socketSend} {socketData} /></Route
                     >
@@ -522,7 +521,7 @@
             {/if}
         </div>
         <footer
-            class="border-t bg-gray-200 dark:bg-gray-800 dark:border-gray-700 border-gray-300 min-h-16 flex flex-col justify-center items-center dark:text-white"
+            class="flex flex-col justify-center items-center bg-gray-200 border-t border-gray-300 dark:bg-gray-800 dark:border-gray-700 min-h-16 dark:text-white"
         >
             <div>
                 DietPi-Dashboard <a
