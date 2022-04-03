@@ -291,12 +291,12 @@ pub fn host() -> shared::HostData {
 }
 
 pub fn services() -> Vec<shared::ServiceData> {
-    let services = &Command::new("/boot/dietpi/dietpi-services")
+    let services = &mut Command::new("/boot/dietpi/dietpi-services")
         .arg("status")
         .output()
-        .unwrap()
-        .stdout;
-    let services_str = from_utf8(services).unwrap();
+        .unwrap();
+    services.stdout.extend(&services.stderr);
+    let services_str = from_utf8(&services.stdout).unwrap();
     let mut services_list = Vec::new();
     for element in services_str
         .replace("[FAILED] DietPi-Services | \u{25cf} ", "dpdashboardtemp")
