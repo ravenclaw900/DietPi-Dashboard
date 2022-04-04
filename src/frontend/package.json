@@ -17,7 +17,7 @@
     "svelte": "^3.46.6",
     "svelte-check": "^2.4.6",
     "svelte-fa": "^2.4.0",
-    "svelte-preprocess": "^4.10.4",
+    "svelte-preprocess": "^4.10.5",
     "svelte-routing": "^1.6.0",
     "tslib": "^2.2.0",
     "typescript": "^4.6.3",
