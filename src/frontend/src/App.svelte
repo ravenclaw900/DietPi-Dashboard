@@ -1,6 +1,7 @@
 <script lang="ts">
     import { navigate, Route, Router } from "svelte-routing";
     import { fade, slide } from "svelte/transition";
+    import { cmp } from "semver-compare-multi";
     import Home from "./pages/Home.svelte";
     import Process from "./pages/Process.svelte";
     import Software from "./pages/Software.svelte";
@@ -52,7 +53,7 @@
         uptime: number;
         arch: string;
         kernel: string;
-        version: string;
+        dp_version: string;
         packages: number;
         upgrades: number;
         nic: string;
@@ -62,6 +63,8 @@
         login: boolean;
         error: boolean;
         nodes: string[];
+        version: string;
+        update_check: boolean;
     }
 
     interface software {
@@ -118,14 +121,22 @@
     let notificationsShown = false;
     let settingsShown = false;
     let passwordMessage = false;
+    let notify = false;
     let menu = window.innerWidth > 768;
-    let update = "";
+    let dpUpdate = "";
     let navPage = "";
     let token = "";
     let password = "";
+    let frontendVersion = "__PACKAGE_VERSION__";
+    let backendVersion = "";
+    let updateAvailable = "";
     let node = `${window.location.hostname}:${window.location.port}`;
 
     $: node && ((shown = false), connectSocket(node));
+    $: notify =
+        dpUpdate != "" ||
+        cmp(frontendVersion, backendVersion) != 0 ||
+        updateAvailable != "";
 
     // Get dark mode
     if (localStorage.getItem("darkMode") != null) {
@@ -134,14 +145,49 @@
         darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
     }
 
+    const updateCheck = () => {
+        if (
+            localStorage.getItem("update-check") == null ||
+            JSON.parse(localStorage.getItem("update-check")).lastChecked +
+                86400 <
+                Math.round(Date.now() / 1000)
+        ) {
+            fetch(
+                "https://api.github.com/repos/ravenclaw900/DietPi-Dashboard/releases/latest"
+            ).then((response) =>
+                response.text().then((body) => {
+                    let version = JSON.parse(body).name.substring(1);
+                    if (cmp(version, backendVersion) > 0) {
+                        updateAvailable = version;
+                    }
+                    localStorage.setItem(
+                        "update-check",
+                        JSON.stringify({
+                            version,
+                            lastChecked: Math.round(Date.now() / 1000),
+                        })
+                    );
+                })
+            );
+        } else if (localStorage.getItem("update-check") != null) {
+            let version = JSON.parse(
+                localStorage.getItem("update-check")
+            ).version;
+            if (cmp(version, backendVersion) > 0) {
+                updateAvailable = version;
+            }
+        }
+    };
+
     const socketMessageListener = (e: MessageEvent) => {
         socketData = JSON.parse(e.data);
         if (socketData.update != undefined) {
-            update = socketData.update;
+            dpUpdate = socketData.update;
             login = socketData.login;
             if (socketData.nodes) {
                 nodes = socketData.nodes;
             }
+            backendVersion = socketData.version;
             // Get token
             if (login) {
                 let obj = JSON.parse(localStorage.getItem("tokens"));
@@ -159,6 +205,9 @@
                 localStorage.removeItem("tokens");
                 token = "";
                 pollServer(window.location.pathname);
+            }
+            if (socketData.update_check) {
+                updateCheck();
             }
         }
         if (socketData.error == true) {
@@ -367,7 +416,7 @@
                         on:click={() =>
                             (notificationsShown = !notificationsShown)}
                         ><Fa
-                            icon={update ? faEnvelopeOpenText : faEnvelope}
+                            icon={notify ? faEnvelopeOpenText : faEnvelope}
                             size="lg"
                         />
                     </span>
@@ -389,12 +438,32 @@
             </div>
         </header>
         {#if notificationsShown}
-            <div class="p-2 bg-gray-50 dark:bg-gray-800" transition:slide>
+            <div
+                class="p-2 bg-gray-50 dark:bg-gray-800 dark:text-white"
+                transition:slide
+            >
                 <div class="min-h-10">
                     <table class="w-full">
-                        {#if update}
+                        {#if dpUpdate}
                             <tr class="border-b border-gray-300 border-gray-600"
-                                >DietPi update available: {update}</tr
+                                >DietPi update available: {dpUpdate}</tr
+                            >
+                        {/if}
+                        {#if cmp(frontendVersion, backendVersion) != 0}
+                            <tr class="border-b border-gray-300 border-gray-600"
+                                >Warning: Current node is running a version of
+                                DietPi-Dashboard {cmp(
+                                    frontendVersion,
+                                    backendVersion
+                                ) < 0
+                                    ? "greater"
+                                    : "lower"} than the main node (main: {frontendVersion},
+                                node: {backendVersion})</tr
+                            >
+                        {/if}
+                        {#if updateAvailable}
+                            <tr class="border-b border-gray-300 border-gray-600"
+                                >DietPi-Dashboard update available: {updateAvailable}</tr
                             >
                         {/if}
                     </table>
@@ -461,8 +530,8 @@
             <div>
                 DietPi-Dashboard <a
                     class="text-blue-500 dark:text-blue-600"
-                    href="https://github.com/ravenclaw900/DietPi-Dashboard/releases/tag/v{'__PACKAGE_VERSION__'}"
-                    target="_blank">v{"__PACKAGE_VERSION__"}</a
+                    href="https://github.com/ravenclaw900/DietPi-Dashboard/releases/tag/v{frontendVersion}"
+                    target="_blank">v{frontendVersion}</a
                 >
                 created by ravenclaw900.
                 <a

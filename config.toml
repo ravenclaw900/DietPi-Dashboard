@@ -34,3 +34,8 @@
 # Use "manual" to show a login prompt instead of auto-login
 # - Default: "root"
 #terminal_user = "root"
+
+# Check for updates
+# This will do 1 GitHub API call per day
+# - Default: true
+#update_check = true

@@ -23,6 +23,8 @@ pub struct Config {
     pub nodes: Vec<String>,
 
     pub terminal_user: String,
+
+    pub update_check: bool,
 }
 
 impl Default for Config {
@@ -45,6 +47,8 @@ impl Default for Config {
             nodes: Vec::new(),
 
             terminal_user: "root".to_string(),
+
+            update_check: true,
         }
     }
 }
