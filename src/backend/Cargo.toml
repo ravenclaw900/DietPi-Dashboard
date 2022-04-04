@@ -20,7 +20,7 @@ infer = { version = "0.7.0", default-features = false }
 ring = "0.16.20"
 figment = { version = "0.10", features = ["toml", "env"] }
 if-addrs = "0.7.0"
-zip = { version = "0.6.0", default-features = false, features = ["deflate", "time"] }
+zip = { version = "0.6.2", default-features = false, features = ["deflate", "time"] }
 walkdir = "2.3.2"
 jsonwebtoken = { version = "8.0.0", default-features = false }
 serde = { version = "1.0.0", features = ["derive"] }
