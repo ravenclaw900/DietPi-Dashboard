@@ -2,6 +2,7 @@
 use crate::shared::CONFIG;
 use ring::digest;
 use simple_logger::SimpleLogger;
+use std::net::IpAddr;
 use std::str::FromStr;
 use warp::{http::header, Filter};
 
@@ -151,16 +152,17 @@ fn main() {
 
             #[cfg(feature = "frontend")]
             let routes = routes.or(page_routes);
+            let addr = IpAddr::from_str("::0").unwrap();
 
             if CONFIG.tls {
                 warp::serve(routes)
                     .tls()
                     .cert_path(&CONFIG.cert)
                     .key_path(&CONFIG.key)
-                    .run(([0, 0, 0, 0], CONFIG.port))
+                    .run((addr, CONFIG.port))
                     .await;
             } else {
-                warp::serve(routes).run(([0, 0, 0, 0], CONFIG.port)).await;
+                warp::serve(routes).run((addr, CONFIG.port)).await;
             }
         });
 }
