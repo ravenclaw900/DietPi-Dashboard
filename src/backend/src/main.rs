@@ -3,7 +3,6 @@ use crate::shared::CONFIG;
 use ring::digest;
 use simple_logger::SimpleLogger;
 use std::net::IpAddr;
-use std::str::FromStr;
 use warp::{http::header, Filter};
 
 mod config;
@@ -26,7 +25,7 @@ fn main() {
 
             SimpleLogger::new()
                 .with_level(
-                    log::LevelFilter::from_str(&CONFIG.log_level).expect("Invalid log level"),
+                    CONFIG.log_level.parse::<log::LevelFilter>().expect("Invalid log level"),
                 )
                 .env()
                 .init()
@@ -152,6 +151,7 @@ fn main() {
 
             #[cfg(feature = "frontend")]
             let routes = routes.or(page_routes);
+
             let addr = IpAddr::from([0; 8]);
 
             if CONFIG.tls {
