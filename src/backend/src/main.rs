@@ -152,7 +152,7 @@ fn main() {
 
             #[cfg(feature = "frontend")]
             let routes = routes.or(page_routes);
-            let addr = IpAddr::from_str("::0").unwrap();
+            let addr = IpAddr::from([0; 8]);
 
             if CONFIG.tls {
                 warp::serve(routes)
