@@ -318,6 +318,7 @@
                         class="overflow-y-hidden z-20 p-px w-full font-mono text-sm whitespace-pre resize-none tab-4 caret-black dark:caret-white focus:outline-none"
                         class:bg-transparent={highlighting}
                         class:text-transparent={highlighting}
+                        class:dark:bg-black={!highlighting}
                     />
                     <div
                         bind:this={fileDiv}
