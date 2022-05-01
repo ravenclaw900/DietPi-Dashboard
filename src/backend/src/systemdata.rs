@@ -282,7 +282,7 @@ pub fn host() -> shared::HostData {
         uptime,
         arch: arch.to_string(),
         kernel: info.release().to_string(),
-        version: format!("{}.{}.{}", dp_version[1], dp_version[3], dp_version[5]),
+        dp_version: format!("{}.{}.{}", dp_version[1], dp_version[3], dp_version[5]),
         packages: installed_pkgs,
         upgrades: upgradable_pkgs,
         ip: addr.ip().to_string(),
@@ -291,12 +291,12 @@ pub fn host() -> shared::HostData {
 }
 
 pub fn services() -> Vec<shared::ServiceData> {
-    let services = &Command::new("/boot/dietpi/dietpi-services")
+    let services = &mut Command::new("/boot/dietpi/dietpi-services")
         .arg("status")
         .output()
-        .unwrap()
-        .stdout;
-    let services_str = from_utf8(services).unwrap();
+        .unwrap();
+    services.stdout.extend(&services.stderr);
+    let services_str = from_utf8(&services.stdout).unwrap();
     let mut services_list = Vec::new();
     for element in services_str
         .replace("[FAILED] DietPi-Services | \u{25cf} ", "dpdashboardtemp")
@@ -350,6 +350,8 @@ pub fn global() -> shared::GlobalData {
     shared::GlobalData {
         update,
         login: crate::CONFIG.pass,
+        version: env!("CARGO_PKG_VERSION").to_string(),
+        update_check: crate::CONFIG.update_check,
         #[cfg(feature = "frontend")]
         nodes: crate::CONFIG.nodes.clone(),
     }

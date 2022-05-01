@@ -128,7 +128,8 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
 
     if crate::CONFIG.pass {
         let token = socket_recv.next().await.unwrap().unwrap();
-        let token = token.to_str().unwrap();
+        // Stop from panicking, return from function with invalid token instead
+        let token = token.to_str().unwrap_or("");
         if token.get(..5) == Some("token") {
             if !validate_token(&token[5..]) {
                 return;
@@ -138,11 +139,17 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
         }
     }
 
+    let mut pre_cmd = std::process::Command::new("/bin/login");
+    let pre_cmd = pre_cmd.env("TERM", "xterm");
+
     let cmd = Arc::new(RwLock::new(
-        // Use hardcoded bash here until we have better support for other shells
-        std::process::Command::new("/bin/bash")
-            .spawn_pty(None)
-            .unwrap(),
+        if crate::CONFIG.terminal_user == "manual" {
+            pre_cmd
+        } else {
+            pre_cmd.args(&["-f", &crate::CONFIG.terminal_user])
+        }
+        .spawn_pty(None)
+        .unwrap(),
     ));
     let cmd_write = Arc::clone(&cmd);
     let cmd_clone = Arc::clone(&cmd);

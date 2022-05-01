@@ -1,9 +1,9 @@
 #![warn(clippy::pedantic)]
 use crate::shared::CONFIG;
-use sha2::{Digest, Sha512};
+use ring::digest;
 use simple_logger::SimpleLogger;
-use std::str::FromStr;
-use warp::Filter;
+use std::net::IpAddr;
+use warp::{http::header, Filter};
 
 mod config;
 mod page_handlers;
@@ -25,11 +25,23 @@ fn main() {
 
             SimpleLogger::new()
                 .with_level(
-                    log::LevelFilter::from_str(&CONFIG.log_level).expect("Invalid log level"),
+                    CONFIG.log_level.parse::<log::LevelFilter>().expect("Invalid log level"),
                 )
                 .env()
                 .init()
                 .unwrap();
+
+            #[cfg(feature = "frontend")]
+            let mut headers = header::HeaderMap::new();
+            #[cfg(feature = "frontend")]
+            {
+            headers.insert(header::X_CONTENT_TYPE_OPTIONS, header::HeaderValue::from_static("nosniff"));
+            headers.insert(header::X_FRAME_OPTIONS, header::HeaderValue::from_static("sameorigin"));
+            headers.insert("X-Robots-Tag", header::HeaderValue::from_static("none"));
+            headers.insert("X-Permitted-Cross-Domain_Policies", header::HeaderValue::from_static("none"));
+            headers.insert(header::REFERRER_POLICY, header::HeaderValue::from_static("no-referrer"));
+            headers.insert("Content-Security-Policy", header::HeaderValue::from_static("default-src 'self'; font-src 'self'; img-src 'self' blob:; script-src 'self'; style-src 'unsafe-inline' 'self'; connect-src * ws:;"));
+            }
 
             #[cfg(feature = "frontend")]
             let favicon_route = warp::path("favicon.png").map(|| {
@@ -44,28 +56,26 @@ fn main() {
             let assets_route = warp::path("assets")
                 .and(warp::path::param())
                 .map(|path: String| {
+                    let ext = path.rsplit('.').next().unwrap();
                     warp::reply::with_header(
                         DIR.get_file(format!("assets/{}", path)).unwrap().contents(),
                         "content-type",
-                        format!(
-                            "text/{}",
-                            if path.rsplit('.').next().unwrap() == "js" {
-                                "javascript"
-                            } else {
-                                path.rsplit('.').next().unwrap()
-                            }
-                        ),
+                        if ext == "js" {
+                            "text/javascript".to_string()
+                        } else if ext == "svg" {
+                            "image/svg+xml".to_string()
+                        } else {
+                            format!("text/{}", ext)
+                        },
                     )
                 });
 
             let login_route = warp::path("login")
                 .and(warp::post())
                 .and(warp::body::bytes())
-                .map(|pass| {
+                .map(|pass: warp::hyper::body::Bytes| {
                     if CONFIG.pass {
-                        let mut hasher = Sha512::new();
-                        hasher.update(pass);
-                        let shasum = format!("{:x}", hasher.finalize());
+                        let shasum = digest::digest(&digest::SHA512, &pass).as_ref().iter().map(|b| format!("{:02x}", b)).collect::<Vec<String>>().join("");
                         if shasum == CONFIG.hash {
                             let timestamp = jsonwebtoken::get_current_timestamp();
 
@@ -116,7 +126,7 @@ fn main() {
             #[cfg(feature = "frontend")]
             let main_route = warp::any().map(|| {
                 warp::reply::html(DIR.get_file("index.html").unwrap().contents_utf8().unwrap())
-            });
+            }).with(warp::reply::with::headers(headers));
 
             #[cfg(feature = "frontend")]
             let page_routes = favicon_route
@@ -142,15 +152,17 @@ fn main() {
             #[cfg(feature = "frontend")]
             let routes = routes.or(page_routes);
 
+            let addr = IpAddr::from([0; 8]);
+
             if CONFIG.tls {
                 warp::serve(routes)
                     .tls()
                     .cert_path(&CONFIG.cert)
                     .key_path(&CONFIG.key)
-                    .run(([0, 0, 0, 0], CONFIG.port))
+                    .run((addr, CONFIG.port))
                     .await;
             } else {
-                warp::serve(routes).run(([0, 0, 0, 0], CONFIG.port)).await;
+                warp::serve(routes).run((addr, CONFIG.port)).await;
             }
         });
 }

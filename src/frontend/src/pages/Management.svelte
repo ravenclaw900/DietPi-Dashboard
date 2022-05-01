@@ -8,7 +8,7 @@
         uptime?: number;
         arch?: string;
         kernel?: string;
-        version?: string;
+        dp_version?: string;
         packages?: number;
         upgrades?: number;
         nic?: string;
@@ -99,7 +99,7 @@
                 class="even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800"
             >
                 <td class="p-1 font-semibold">Version:</td>
-                <td class="p-1">{socketData.version}</td>
+                <td class="p-1">{socketData.dp_version}</td>
             </tr>
             <tr
                 class="even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800"

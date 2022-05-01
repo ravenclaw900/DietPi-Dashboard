@@ -5,20 +5,23 @@
 
     import { onDestroy } from "svelte";
 
-    export let loginDialog: boolean;
     export let node: string;
+    export let token: string;
 
     let termDiv: HTMLDivElement;
 
     let proto = window.location.protocol == "https:" ? "wss" : "ws";
-    const socket = new WebSocket(`${proto}://${node}/ws/term`);
+    let socket = new WebSocket(`${proto}://${node}/ws/term`);
 
-    const attachAddon = new AttachAddon(socket);
+    $: token,
+        node,
+        (socket.onopen = () => {}),
+        ((socket = new WebSocket(`${proto}://${node}/ws/term`)),
+        (socket.onopen = socketOpen));
 
     const fitAddon = new FitAddon();
 
     let terminal = new Terminal();
-    terminal.loadAddon(attachAddon);
     terminal.loadAddon(fitAddon);
 
     const sendSize = (e: ITerminalDimensions) => {
@@ -32,20 +35,23 @@
         fitAddon.fit();
     };
 
-    socket.onopen = () => {
-        let obj = JSON.parse(localStorage.getItem("tokens"));
-        if (obj != null && obj[node] != null) {
-            socket.send(`token${obj[node]}`);
+    let socketOpen = () => {
+        if (token) {
+            socket.send(`token${token}`);
         }
+        termDiv.replaceChildren();
+        const attachAddon = new AttachAddon(socket);
+        terminal.loadAddon(attachAddon);
         terminal.open(termDiv);
         fitAddon.fit();
+
         sendSize({ cols: terminal.cols, rows: terminal.rows });
     };
 
     onDestroy(() => socket.close(1000));
 </script>
 
-<div bind:this={termDiv} class="h-full{loginDialog ? ' hidden' : ''}" />
+<div bind:this={termDiv} class="h-full" />
 
 <style>
     @import "xterm/css/xterm.css";

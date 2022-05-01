@@ -21,6 +21,10 @@ pub struct Config {
 
     #[cfg(feature = "frontend")]
     pub nodes: Vec<String>,
+
+    pub terminal_user: String,
+
+    pub update_check: bool,
 }
 
 impl Default for Config {
@@ -41,13 +45,19 @@ impl Default for Config {
 
             #[cfg(feature = "frontend")]
             nodes: Vec::new(),
+
+            terminal_user: "root".to_string(),
+
+            update_check: true,
         }
     }
 }
 
 pub fn config() -> Config {
+    let mut cfgpath = std::env::current_exe().expect("Couldn't get config path");
+    cfgpath.set_file_name("config.toml");
     Figment::from(Serialized::defaults(Config::default()))
-        .merge(Toml::file("config.toml"))
+        .merge(Toml::file(cfgpath))
         .merge(Env::prefixed("DP_DASHBOARD_").ignore(&["hash", "secret"]))
         .extract()
         .expect("Error reading config")

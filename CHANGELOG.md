@@ -2,6 +2,41 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.6.0](https://github.com/ravenclaw900/DietPi-Dashboard/compare/v0.5.0...v0.6.0) (2022-04-08)
+
+
+### Features
+
+* **backend:** add customizable token timeout ([30a3477](https://github.com/ravenclaw900/DietPi-Dashboard/commit/30a3477ba017c01417033d81e51215fbe1d5132d))
+* **backend:** add privacy HTTP headers ([52f8e16](https://github.com/ravenclaw900/DietPi-Dashboard/commit/52f8e1643858e479b29b46e44acf4bcb8b056e36))
+* **backend:** allow to set log level via config file ([#182](https://github.com/ravenclaw900/DietPi-Dashboard/issues/182)) ([5643d51](https://github.com/ravenclaw900/DietPi-Dashboard/commit/5643d5194734f8fd2bacd062d7c5f2c1ca852973))
+* **backend:** allow using environment variables to set settings ([#186](https://github.com/ravenclaw900/DietPi-Dashboard/issues/186)) ([9b80ade](https://github.com/ravenclaw900/DietPi-Dashboard/commit/9b80ade5211ac247ecd43419d592fa807b1281c2))
+* **frontend:** check for updates ([3abb628](https://github.com/ravenclaw900/DietPi-Dashboard/commit/3abb6285299c4778ce484474e2e0c5c18841b9b5))
+* **frontend:** warn if backend and frontend nodes have different versions ([c9eaba6](https://github.com/ravenclaw900/DietPi-Dashboard/commit/c9eaba621e8df919dcd70b09745fb4a98e9f00d8))
+* **terminal:** allow setting login user ([#202](https://github.com/ravenclaw900/DietPi-Dashboard/issues/202)) ([fdb4891](https://github.com/ravenclaw900/DietPi-Dashboard/commit/fdb48913886614018ad0638aa1df4fd628cd1db7))
+
+
+### Bug Fixes
+
+* **backend:** fix clippy errors ([bb5b9cc](https://github.com/ravenclaw900/DietPi-Dashboard/commit/bb5b9cc9b0badd5bb9f9973c9dbf8f19b53cd5a7))
+* **backend:** fix clippy lints ([b00ca1c](https://github.com/ravenclaw900/DietPi-Dashboard/commit/b00ca1c6e73a226c95ac359d48ee8da0028e56e6))
+* **backend:** fix github svg not showing up ([169467d](https://github.com/ravenclaw900/DietPi-Dashboard/commit/169467d2a06314387a5ff47ca30fe9514cd63fe8))
+* **backend:** fix login dialog not showing up on page change ([979655b](https://github.com/ravenclaw900/DietPi-Dashboard/commit/979655bb0594d8a6fbb6273c8fd25d75882643c7))
+* **backend:** notify only waiting pages to quit ([d074ca1](https://github.com/ravenclaw900/DietPi-Dashboard/commit/d074ca188ce0fe4512c911c946bfeeef6cc46540))
+* **config:** use correct config file path ([f08fabe](https://github.com/ravenclaw900/DietPi-Dashboard/commit/f08fabe2f457ae0bce59d2577026d890a93125cd))
+* **filebrowser:** don't allow viewing text files larger than 2MB ([63c8527](https://github.com/ravenclaw900/DietPi-Dashboard/commit/63c852703e56a4a03ec4b8d890cf46608781db24))
+* **filebrowser:** fix angle brackets and ampersands with syntax highlighting ([f850397](https://github.com/ravenclaw900/DietPi-Dashboard/commit/f8503978151b4f090b39a7fda1ea6a8a03ba38e1))
+* **filebrowser:** fix syntax highlighting ([3742917](https://github.com/ravenclaw900/DietPi-Dashboard/commit/37429171ad88e97749af65f305dca400ca864640))
+* **filebrowser:** highlight files and directories when clicked ([7ce6eba](https://github.com/ravenclaw900/DietPi-Dashboard/commit/7ce6ebaa19a3fe50dc92f3b6db3ec87db8afb3ae))
+* **frontend:** capitalize 'P' in uPlot ([3213cf2](https://github.com/ravenclaw900/DietPi-Dashboard/commit/3213cf285e22c02aa8b1b2282ba8ebb0d69c00b5))
+* **frontend:** fix notification text on dark mode ([24e226d](https://github.com/ravenclaw900/DietPi-Dashboard/commit/24e226dfe1efce712a682c20beafa097d22beafc))
+* **frontend:** fix update check timer ([523087e](https://github.com/ravenclaw900/DietPi-Dashboard/commit/523087e03fa19ec93de2d710b78eb841246797cd))
+* **frontend:** increase z-index on login dialog ([4cf65af](https://github.com/ravenclaw900/DietPi-Dashboard/commit/4cf65af4846fee234ff1838d2ee2a4488addf78f))
+* **frontend:** use [@import](https://github.com/import) for importing css ([824efbf](https://github.com/ravenclaw900/DietPi-Dashboard/commit/824efbfd66d29c87e743cfcf14a25b1a2b678c4e))
+* **software:** fix software page not working with password prompt ([d592538](https://github.com/ravenclaw900/DietPi-Dashboard/commit/d592538cd9a8147e62e175016a0dc3eff2b24194))
+* **software:** fix tab colors ([a808c17](https://github.com/ravenclaw900/DietPi-Dashboard/commit/a808c17d4fd64bc39aa8fcbbac7c6b9c8db1f2bc))
+* **terminal:** fix password dialog on terminal page ([#198](https://github.com/ravenclaw900/DietPi-Dashboard/issues/198)) ([807f954](https://github.com/ravenclaw900/DietPi-Dashboard/commit/807f954c91139e3378a48f94609494d7342f45e9))
+
 ### [0.5.1](https://github.com/ravenclaw900/DietPi-Dashboard/compare/v0.5.0...v0.5.1) (2022-02-13)
 
 

@@ -75,7 +75,7 @@ pub struct HostData {
     pub uptime: u64,
     pub arch: String,
     pub kernel: String,
-    pub version: String,
+    pub dp_version: String,
     pub packages: usize,
     pub upgrades: u32,
     pub nic: String,
@@ -98,7 +98,9 @@ pub struct ServiceList {
 #[derive(SerJson)]
 pub struct GlobalData {
     pub update: String,
+    pub version: String,
     pub login: bool,
+    pub update_check: bool,
     #[cfg(feature = "frontend")]
     pub nodes: Vec<String>,
 }

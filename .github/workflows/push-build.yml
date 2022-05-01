@@ -1,5 +1,9 @@
 name: Build
-on: push
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
   build:
@@ -34,14 +38,16 @@ jobs:
         run: |
           mkdir dist
           cargo clippy --all-targets --all-features -- -D warnings
-      - name: Install Cross-compiler
-        run: cargo install cross
+      - name: Install Rust dependencies
+        run: cargo install cross set-cargo-version
       - name: Install Yarn Dependencies
         working-directory: src/frontend
         run: yarn install
-      - name: Change version to commit hash
+      - name: Change frontend version to commit hash
         working-directory: src/frontend
         run: npm version $(git describe --tags) --allow-same-version
+      - name: Change backend version to commit hash
+        run: set-cargo-version src/backend/Cargo.toml $(git describe --tags | cut -c 2-)
       - name: Build frontend
         working-directory: src/frontend
         run: yarn build

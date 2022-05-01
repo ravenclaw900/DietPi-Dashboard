@@ -1,6 +1,7 @@
 <script lang="ts">
     import { navigate, Route, Router } from "svelte-routing";
     import { fade, slide } from "svelte/transition";
+    import { cmp } from "semver-compare-multi";
     import Home from "./pages/Home.svelte";
     import Process from "./pages/Process.svelte";
     import Software from "./pages/Software.svelte";
@@ -52,7 +53,7 @@
         uptime: number;
         arch: string;
         kernel: string;
-        version: string;
+        dp_version: string;
         packages: number;
         upgrades: number;
         nic: string;
@@ -62,6 +63,8 @@
         login: boolean;
         error: boolean;
         nodes: string[];
+        version: string;
+        update_check: boolean;
     }
 
     interface software {
@@ -118,14 +121,22 @@
     let notificationsShown = false;
     let settingsShown = false;
     let passwordMessage = false;
+    let notify = false;
     let menu = window.innerWidth > 768;
-    let update = "";
+    let dpUpdate = "";
     let navPage = "";
     let token = "";
     let password = "";
+    let frontendVersion = "__PACKAGE_VERSION__";
+    let backendVersion = "";
+    let updateAvailable = "";
     let node = `${window.location.hostname}:${window.location.port}`;
 
     $: node && ((shown = false), connectSocket(node));
+    $: notify =
+        dpUpdate != "" ||
+        cmp(frontendVersion, backendVersion) != 0 ||
+        updateAvailable != "";
 
     // Get dark mode
     if (localStorage.getItem("darkMode") != null) {
@@ -134,14 +145,49 @@
         darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
     }
 
+    const updateCheck = () => {
+        if (
+            localStorage.getItem("update-check") == null ||
+            JSON.parse(localStorage.getItem("update-check")).lastChecked +
+                86400 <
+                Math.round(Date.now() / 1000)
+        ) {
+            fetch(
+                "https://api.github.com/repos/ravenclaw900/DietPi-Dashboard/releases/latest"
+            ).then((response) =>
+                response.text().then((body) => {
+                    let version = JSON.parse(body).name.substring(1);
+                    if (cmp(version, backendVersion) > 0) {
+                        updateAvailable = version;
+                    }
+                    localStorage.setItem(
+                        "update-check",
+                        JSON.stringify({
+                            version,
+                            lastChecked: Math.round(Date.now() / 1000),
+                        })
+                    );
+                })
+            );
+        } else if (localStorage.getItem("update-check") != null) {
+            let version = JSON.parse(
+                localStorage.getItem("update-check")
+            ).version;
+            if (cmp(version, backendVersion) > 0) {
+                updateAvailable = version;
+            }
+        }
+    };
+
     const socketMessageListener = (e: MessageEvent) => {
         socketData = JSON.parse(e.data);
         if (socketData.update != undefined) {
-            update = socketData.update;
+            dpUpdate = socketData.update;
             login = socketData.login;
             if (socketData.nodes) {
                 nodes = socketData.nodes;
             }
+            backendVersion = socketData.version;
             // Get token
             if (login) {
                 let obj = JSON.parse(localStorage.getItem("tokens"));
@@ -157,7 +203,11 @@
                 // Remove legacy "token" setting
                 localStorage.removeItem("token");
                 localStorage.removeItem("tokens");
+                token = "";
                 pollServer(window.location.pathname);
+            }
+            if (socketData.update_check) {
+                updateCheck();
             }
         }
         if (socketData.error == true) {
@@ -272,11 +322,11 @@
 >
     {#if loginDialog}
         <div
-            class="fixed inset-0 bg-gray-600/50 h-screen w-screen flex items-center justify-center z-20"
+            class="flex fixed inset-0 z-20 justify-center items-center w-screen h-screen bg-gray-600/50"
             transition:fade
         >
             <div
-                class="bg-white dark:bg-black w-1/2 h-1/3 rounded-md flex items-center flex-col justify-center text-xl z-40 gap-5 dark:text-white"
+                class="flex z-40 flex-col gap-5 justify-center items-center w-1/2 h-1/3 text-xl bg-white rounded-md dark:bg-black dark:text-white"
             >
                 <h6>Please login:</h6>
                 <form
@@ -285,12 +335,12 @@
                 >
                     <input
                         type="password"
-                        class="outline-none bg-gray-100 border border-gray-400 dark:border-gray-700 rounded focus:bg-gray-200 dark:bg-gray-900 dark:focus:bg-gray-800"
+                        class="bg-gray-100 rounded border border-gray-400 outline-none dark:border-gray-700 focus:bg-gray-200 dark:bg-gray-900 dark:focus:bg-gray-800"
                         bind:value={password}
                     />
                     <button
                         type="submit"
-                        class="border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none border p-2 rounded active:bg-gray-200 dark:active:bg-gray-800"
+                        class="p-2 rounded border border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none active:bg-gray-200 dark:active:bg-gray-800"
                         >Login</button
                     >
                 </form>
@@ -309,7 +359,7 @@
         id="sidebarMenu"
     >
         <div
-            class="hidden lg:flex whitespace-nowrap h-12 bg-dplime-dark text-2xl items-center justify-center"
+            class="hidden justify-center items-center h-12 text-2xl whitespace-nowrap lg:flex bg-dplime-dark"
         >
             DietPi Dashboard
         </div>
@@ -335,10 +385,10 @@
             ><NavbarLink icon={faFolder}>File Browser</NavbarLink></span
         >
     </div>
-    <div class="w-5/6 flex flex-col flex-grow min-h-full">
-        <header class="bg-dplime h-12 grid grid-cols-3 items-center">
+    <div class="flex flex-col flex-grow w-5/6 min-h-full">
+        <header class="grid grid-cols-3 items-center h-12 bg-dplime">
             <span on:click={() => (menu = !menu)} class="justify-self-start"
-                ><Fa icon={faBars} class="btn ml-1 p-1" size="3x" /></span
+                ><Fa icon={faBars} class="p-1 ml-1 btn" size="3x" /></span
             >
             <a
                 href="https://dietpi.com"
@@ -366,7 +416,7 @@
                         on:click={() =>
                             (notificationsShown = !notificationsShown)}
                         ><Fa
-                            icon={update ? faEnvelopeOpenText : faEnvelope}
+                            icon={notify ? faEnvelopeOpenText : faEnvelope}
                             size="lg"
                         />
                     </span>
@@ -388,12 +438,32 @@
             </div>
         </header>
         {#if notificationsShown}
-            <div class="bg-gray-50 dark:bg-gray-800 p-2" transition:slide>
+            <div
+                class="p-2 bg-gray-50 dark:bg-gray-800 dark:text-white"
+                transition:slide
+            >
                 <div class="min-h-10">
                     <table class="w-full">
-                        {#if update}
+                        {#if dpUpdate}
                             <tr class="border-b border-gray-300 border-gray-600"
-                                >DietPi update available: {update}</tr
+                                >DietPi update available: {dpUpdate}</tr
+                            >
+                        {/if}
+                        {#if cmp(frontendVersion, backendVersion) != 0}
+                            <tr class="border-b border-gray-300 border-gray-600"
+                                >Warning: Current node is running a version of
+                                DietPi-Dashboard {cmp(
+                                    frontendVersion,
+                                    backendVersion
+                                ) < 0
+                                    ? "greater"
+                                    : "lower"} than the main node (main: {frontendVersion},
+                                node: {backendVersion})</tr
+                            >
+                        {/if}
+                        {#if updateAvailable}
+                            <tr class="border-b border-gray-300 border-gray-600"
+                                >DietPi-Dashboard update available: {updateAvailable}</tr
                             >
                         {/if}
                     </table>
@@ -401,7 +471,7 @@
             </div>
         {/if}
         {#if settingsShown}
-            <div class="bg-gray-50 dark:bg-gray-800 p-2" transition:slide>
+            <div class="p-2 bg-gray-50 dark:bg-gray-800" transition:slide>
                 <div class="min-h-10">
                     <table class="w-full">
                         <select bind:value={node} class="w-full">
@@ -433,9 +503,7 @@
                     <Route path="software"
                         ><Software {socketData} {socketSend} /></Route
                     >
-                    <Route path="terminal"
-                        ><Terminal {loginDialog} {node} /></Route
-                    >
+                    <Route path="terminal"><Terminal {node} {token} /></Route>
                     <Route path="management"
                         ><Management {socketSend} {socketData} /></Route
                     >
@@ -457,13 +525,13 @@
             {/if}
         </div>
         <footer
-            class="border-t bg-gray-200 dark:bg-gray-800 dark:border-gray-700 border-gray-300 min-h-16 flex flex-col justify-center items-center dark:text-white"
+            class="flex flex-col justify-center items-center bg-gray-200 border-t border-gray-300 dark:bg-gray-800 dark:border-gray-700 min-h-16 dark:text-white"
         >
             <div>
                 DietPi-Dashboard <a
                     class="text-blue-500 dark:text-blue-600"
-                    href="https://github.com/ravenclaw900/DietPi-Dashboard/releases/tag/v{'__PACKAGE_VERSION__'}"
-                    target="_blank">v{"__PACKAGE_VERSION__"}</a
+                    href="https://github.com/ravenclaw900/DietPi-Dashboard/releases/tag/v{frontendVersion}"
+                    target="_blank">v{frontendVersion}</a
                 >
                 created by ravenclaw900.
                 <a
