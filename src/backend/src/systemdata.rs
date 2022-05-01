@@ -319,7 +319,10 @@ pub fn services() -> Vec<shared::ServiceData> {
                 }
             }
         } else {
-            let (el1, el2) = element.split_once('\t').unwrap();
+            let (el1, el2) = match element.split_once('\t') {
+                Some(els) => els,
+                None => continue,
+            };
             name = el1.trim().to_string();
             match el2.split_once(" since ") {
                 Some(statusdate) => {
