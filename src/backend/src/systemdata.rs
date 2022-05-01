@@ -45,6 +45,7 @@ pub async fn cpu() -> f32 {
     round_percent(CPUCOLLECTOR.lock().unwrap().cpu_percent().unwrap())
 }
 
+#[allow(clippy::cast_precision_loss)]
 pub fn ram() -> shared::UsageData {
     let ram = memory::virtual_memory().unwrap();
 
