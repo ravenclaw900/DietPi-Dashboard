@@ -75,7 +75,7 @@ fn main() {
                 .and(warp::body::bytes())
                 .map(|pass: warp::hyper::body::Bytes| {
                     if CONFIG.pass {
-                        let shasum = digest::digest(&digest::SHA512, &pass).as_ref().iter().map(|b| format!("{:02x}", b)).collect::<Vec<String>>().join("");
+                        let shasum = digest::digest(&digest::SHA512, &pass).as_ref().iter().map(|b| format!("{:02x}", b)).collect::<String>();
                         if shasum == CONFIG.hash {
                             let timestamp = jsonwebtoken::get_current_timestamp();
 
