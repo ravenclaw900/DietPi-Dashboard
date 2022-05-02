@@ -23,7 +23,7 @@ if-addrs = "0.7.0"
 zip = { version = "0.6.2", default-features = false, features = ["deflate", "time"] }
 walkdir = "2.3.2"
 jsonwebtoken = { version = "8.1.0", default-features = false }
-serde = { version = "1.0.0", features = ["derive"] }
+serde = { version = "1.0.137", features = ["derive"] }
 
 [features]
 default = ["frontend"]
