@@ -813,10 +813,10 @@ typescript@*, typescript@^4.6.4:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.6.4.tgz#caa78bbc3a59e6a5c510d35703f6a09877ce45e9"
   integrity sha512-9ia/jWHIEbo49HfjrLGfKbZSuWo9iTMwXO+Ca3pRsSpbsMbc7/IU8NKdCZVRRBafVPGnoJeFL76ZOAA84I9fEg==
 
-uplot@^1.6.19:
-  version "1.6.19"
-  resolved "https://registry.yarnpkg.com/uplot/-/uplot-1.6.19.tgz#98f461992a3f7f3bda7a62f4a028b8afa8da7942"
-  integrity sha512-s5Oab13s8zUzuZ/KiSV0GRhEvuKptAg2831fkt2PFsginIP1NSsiNrcozlc+tTPuUEAt+4rAXqX521I1DrZwEg==
+uplot@^1.6.20:
+  version "1.6.20"
+  resolved "https://registry.yarnpkg.com/uplot/-/uplot-1.6.20.tgz#a4137d2ee22196915dac0088d3cf3dbc1009f4a6"
+  integrity sha512-Jl4Z51Sns4xKLLQeBeiGdcgv4eW1UkKwukSTndIP3YcnlU4za9qGhejlX+XzRbvjaB32C0pxRsdq8m8Gwbq1Eg==
 
 vite-plugin-replace@^0.1.1:
   version "0.1.1"
