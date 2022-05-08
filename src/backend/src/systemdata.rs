@@ -327,14 +327,13 @@ pub fn services() -> Vec<shared::ServiceData> {
             match el2.split_once(" since ") {
                 Some(statusdate) => {
                     match statusdate.0.trim() {
-                        "active (running)" => status = "running".to_string(),
-                        "active (exited)" => status = "exited".to_string(),
-                        "inactive (dead)" => status = "dead".to_string(),
+                        "active (running)" | "active (exited)" => status = "active".to_string(),
+                        "inactive (dead)" => status = "inactive".to_string(),
                         _ => status = "unknown".to_string(),
                     }
                     start = statusdate.1.trim().to_string();
                 }
-                None => status = "dead".to_string(),
+                None => status = "inactive".to_string(),
             }
         }
         services_list.push(shared::ServiceData {

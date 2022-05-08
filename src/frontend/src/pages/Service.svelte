@@ -49,7 +49,7 @@
                     >
                     <td class="p-2">{service.start}</td>
                     <td class="p-2 space-x-2">
-                        {#if service.status == "dead" || service.status == "failed"}
+                        {#if service.status == "inactive" || service.status == "failed"}
                             <span
                                 on:click={() =>
                                     socketSend("start", [service.name])}
