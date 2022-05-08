@@ -37,6 +37,7 @@
         swap: usage;
         disk: usage;
         network: net;
+        temp: temp;
         // Software page
         uninstalled: software[];
         installed: software[];
@@ -108,6 +109,12 @@
     interface net {
         sent: number;
         received: number;
+    }
+
+    interface temp {
+        available: boolean;
+        celsius: number;
+        fahrenheit: number;
     }
 
     let socket: WebSocket;

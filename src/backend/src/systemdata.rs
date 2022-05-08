@@ -1,5 +1,5 @@
 use lazy_static::lazy_static;
-use psutil::{cpu, disk, host, memory, network, process};
+use psutil::{cpu, disk, host, memory, network, process, sensors};
 use std::fs;
 use std::process::Command;
 use std::str::from_utf8;
@@ -436,4 +436,23 @@ pub fn browser_dir(path: &std::path::Path) -> Vec<shared::BrowserDirData> {
         });
     }
     file_list
+}
+
+#[allow(clippy::cast_possible_truncation)]
+pub fn temp() -> shared::CPUTemp {
+    match &sensors::temperatures().get(0) {
+        Some(Ok(temp)) => {
+            let temp = temp.current();
+            shared::CPUTemp {
+                available: true,
+                celsius: temp.celsius().round() as i16,
+                fahrenheit: temp.fahrenheit().round() as i16,
+            }
+        }
+        None | Some(Err(_)) => shared::CPUTemp {
+            available: false,
+            celsius: 0,
+            fahrenheit: 0,
+        },
+    }
 }

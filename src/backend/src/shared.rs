@@ -12,6 +12,7 @@ pub struct SysData {
     pub swap: UsageData,
     pub disk: UsageData,
     pub network: NetData,
+    pub temp: CPUTemp,
 }
 
 #[derive(SerJson)]
@@ -157,4 +158,11 @@ pub struct JWTClaims {
     pub iss: String,
     pub exp: u64,
     pub iat: u64,
+}
+
+#[derive(SerJson)]
+pub struct CPUTemp {
+    pub available: bool,
+    pub celsius: i16,
+    pub fahrenheit: i16,
 }

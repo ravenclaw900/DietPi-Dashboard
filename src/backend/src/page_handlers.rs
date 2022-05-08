@@ -28,6 +28,7 @@ pub async fn main_handler(
                     swap: systemdata::swap(),
                     disk: systemdata::disk(),
                     network: systemdata::network(),
+                    temp: systemdata::temp(),
                 })))
                 .await;
             } => {}

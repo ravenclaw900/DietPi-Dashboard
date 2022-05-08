@@ -11,6 +11,7 @@
         swap?: usage;
         disk?: usage;
         network?: net;
+        temp?: temp;
     }
 
     interface usage {
@@ -22,6 +23,12 @@
     interface net {
         sent: number;
         received: number;
+    }
+
+    interface temp {
+        available: boolean;
+        celsius: number;
+        fahrenheit: number;
     }
 
     export let socketData: statData;
@@ -90,6 +97,36 @@
                     document.getElementById("chart").getBoundingClientRect()
                         .width - 20,
             };
+        }
+    }
+
+    function getTempMsg(temp: number) {
+        if (temp >= 70) {
+            return "WARNING: Reducing the life of your device";
+        } else if (temp >= 60) {
+            return "Running hot, not recommended";
+        } else if (temp >= 50) {
+            return "Running warm, but safe";
+        } else if (temp >= 40) {
+            return "Optimal temperature";
+        } else if (temp >= 30) {
+            return "Cool runnings";
+        } else {
+            return "Who put me in the freezer!";
+        }
+    }
+
+    function getTempClass(temp: number) {
+        if (temp >= 70) {
+            return "font-semibold text-red-500";
+        } else if (temp >= 60) {
+            return "text-red-500";
+        } else if (temp >= 50) {
+            return "text-yellow-500";
+        } else if (temp >= 40) {
+            return "text-green-500";
+        } else {
+            return "text-blue-500";
         }
     }
 
@@ -226,6 +263,13 @@
     </Card>
     <Card header="System Stats">
         {#if ramData != undefined}
+            {#if socketData.temp.available}
+                <span class={getTempClass(socketData.temp.celsius)}
+                    >{socketData.temp.celsius}ºC/{socketData.temp.fahrenheit}ºF: {getTempMsg(
+                        socketData.temp.celsius
+                    )}
+                </span>
+            {/if}
             CPU:<span class="float-right">{socketData.cpu}/100%</span>
             <div class="bg-gray-200 dark:bg-gray-800 w-full h-3 my-1">
                 <div class="bg-green-500 h-3" style="width:{$cpuAnimate}%" />
