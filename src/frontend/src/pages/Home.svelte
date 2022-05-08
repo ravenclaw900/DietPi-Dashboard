@@ -264,11 +264,12 @@
     <Card header="System Stats">
         {#if ramData != undefined}
             {#if socketData.temp.available}
-                <span class={getTempClass(socketData.temp.celsius)}
-                    >{socketData.temp.celsius}ºC/{socketData.temp.fahrenheit}ºF: {getTempMsg(
-                        socketData.temp.celsius
-                    )}
-                </span>
+                <div class="text-center">
+                    <span class={getTempClass(socketData.temp.celsius)}>
+                        {socketData.temp.celsius}ºC/{socketData.temp
+                            .fahrenheit}ºF</span
+                    >: {getTempMsg(socketData.temp.celsius)}
+                </div>
             {/if}
             CPU:<span class="float-right">{socketData.cpu}/100%</span>
             <div class="bg-gray-200 dark:bg-gray-800 w-full h-3 my-1">
