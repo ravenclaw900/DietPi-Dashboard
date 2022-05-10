@@ -58,7 +58,7 @@
         swapData: (string | number)[],
         diskData: (string | number)[];
 
-    let data: uPlot.AlignedData = [[], [], [], [], [], [], []];
+    let data: uPlot.AlignedData = [[], [], [], [], [], [], [], []];
 
     $: socketData.cpu != undefined &&
         (cpuAnimate.set(socketData.cpu),
@@ -133,7 +133,7 @@
     let uplot: uPlot;
 
     onMount(() => {
-        let opts = {
+        let opts: uPlot.Options = {
             ...getSize(),
             series: [
                 {},
@@ -228,17 +228,6 @@
         if (socketData.swap != undefined && socketData.swap.total == 0) {
             uplot.setSeries(3, { show: false });
         }
-        if (socketData.temp != undefined && socketData.temp.available) {
-            uplot.addSeries({
-                spanGaps: false,
-                label: "CPU Temperature",
-                stroke: "#78716c",
-                width: 3,
-                scale: "deg",
-                value: (_: any, val: number) => val + "ºC",
-            });
-            data.push([]);
-        }
     });
 
     let handle1 = setInterval(() => {
@@ -252,6 +241,16 @@
             data[6].push(socketData.network.received / 1000000);
         }
         if (socketData.temp != undefined && socketData.temp.available) {
+            if (uplot.series[7] == undefined) {
+                uplot.addSeries({
+                    spanGaps: false,
+                    label: "CPU Temperature",
+                    stroke: "#78716c",
+                    width: 3,
+                    scale: "deg",
+                    value: (_: any, val: number) => val + "ºC",
+                });
+            }
             data[7].push(socketData.temp.celsius);
         }
         uplot.setData(data);
