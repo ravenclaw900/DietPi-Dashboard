@@ -220,6 +220,7 @@
                     size: 75,
                 },
             ],
+            scales: { "%": { auto: false, range: [0, 100] } },
         };
 
         uplot = new uPlot(opts, data, chart);
