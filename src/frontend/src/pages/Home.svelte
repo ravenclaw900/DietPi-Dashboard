@@ -213,6 +213,25 @@
             ],
         };
 
+        if (socketData.temp != undefined && socketData.temp.available) {
+            opts.axes.push({
+                side: 1,
+                scale: "deg",
+                values: (_: any, vals: number[]) =>
+                    vals.map((v: number) => +v + "º C"),
+                grid: { show: false },
+                stroke: () => (darkMode ? "#fff" : "#000"),
+            });
+            opts.series.push({
+                spanGaps: false,
+                label: "CPU Temperature",
+                stroke: "#78716c",
+                width: 3,
+                scale: "deg",
+            });
+            data.push([]);
+        }
+
         uplot = new uPlot(opts, data, chart);
 
         if (socketData.swap != undefined && socketData.swap.total == 0) {
@@ -229,6 +248,9 @@
             data[4].push(socketData.disk.used / 1000000);
             data[5].push(socketData.network.sent / 1000000);
             data[6].push(socketData.network.received / 1000000);
+        }
+        if (socketData.temp != undefined && socketData.temp.available) {
+            data[7].push(socketData.temp.celsius);
         }
         uplot.setData(data);
     }, 2000);
