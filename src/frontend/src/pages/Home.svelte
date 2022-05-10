@@ -210,32 +210,33 @@
                     grid: { show: false },
                     stroke: () => (darkMode ? "#fff" : "#000"),
                 },
+                {
+                    side: 1,
+                    scale: "deg",
+                    values: (_: any, vals: number[]) =>
+                        vals.map((v: number) => +v + "ºC"),
+                    grid: { show: false },
+                    stroke: () => (darkMode ? "#fff" : "#000"),
+                    size: 75,
+                },
             ],
         };
-
-        if (socketData.temp != undefined && socketData.temp.available) {
-            opts.axes.push({
-                side: 1,
-                scale: "deg",
-                values: (_: any, vals: number[]) =>
-                    vals.map((v: number) => +v + "º C"),
-                grid: { show: false },
-                stroke: () => (darkMode ? "#fff" : "#000"),
-            });
-            opts.series.push({
-                spanGaps: false,
-                label: "CPU Temperature",
-                stroke: "#78716c",
-                width: 3,
-                scale: "deg",
-            });
-            data.push([]);
-        }
 
         uplot = new uPlot(opts, data, chart);
 
         if (socketData.swap != undefined && socketData.swap.total == 0) {
             uplot.setSeries(3, { show: false });
+        }
+        if (socketData.temp != undefined && socketData.temp.available) {
+            uplot.addSeries({
+                spanGaps: false,
+                label: "CPU Temperature",
+                stroke: "#78716c",
+                width: 3,
+                scale: "deg",
+                value: (_: any, val: number) => val + "ºC",
+            });
+            data.push([]);
         }
     });
 
