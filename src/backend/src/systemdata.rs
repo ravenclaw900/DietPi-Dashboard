@@ -12,35 +12,17 @@ use tokio::time::sleep;
 
 use crate::shared;
 
-lazy_static! {
-    static ref CPUCOLLECTOR: Mutex<cpu::CpuPercentCollector> =
-        Mutex::new(cpu::CpuPercentCollector::new().unwrap());
-    static ref NETCOLLECTOR: Mutex<network::NetIoCountersCollector> =
-        Mutex::new(network::NetIoCountersCollector::default());
-    static ref BYTES_SENT: AtomicU64 = AtomicU64::new(
-        NETCOLLECTOR
-            .lock()
-            .unwrap()
-            .net_io_counters()
-            .unwrap()
-            .bytes_sent()
-    );
-    static ref BYTES_RECV: AtomicU64 = AtomicU64::new(
-        NETCOLLECTOR
-            .lock()
-            .unwrap()
-            .net_io_counters()
-            .unwrap()
-            .bytes_recv()
-    );
-}
-
 #[allow(clippy::cast_possible_truncation)]
 fn round_percent(unrounded: f32) -> f32 {
     (unrounded * 100.0).round() / 100.0
 }
 
 pub async fn cpu() -> f32 {
+    lazy_static! {
+        static ref CPUCOLLECTOR: Mutex<cpu::CpuPercentCollector> =
+            Mutex::new(cpu::CpuPercentCollector::new().unwrap());
+    }
+
     sleep(Duration::from_secs(1)).await;
     round_percent(CPUCOLLECTOR.lock().unwrap().cpu_percent().unwrap())
 }
@@ -76,6 +58,27 @@ pub fn disk() -> shared::UsageData {
 }
 
 pub fn network() -> shared::NetData {
+    lazy_static! {
+        static ref NETCOLLECTOR: Mutex<network::NetIoCountersCollector> =
+            Mutex::new(network::NetIoCountersCollector::default());
+        static ref BYTES_SENT: AtomicU64 = AtomicU64::new(
+            NETCOLLECTOR
+                .lock()
+                .unwrap()
+                .net_io_counters()
+                .unwrap()
+                .bytes_sent()
+        );
+        static ref BYTES_RECV: AtomicU64 = AtomicU64::new(
+            NETCOLLECTOR
+                .lock()
+                .unwrap()
+                .net_io_counters()
+                .unwrap()
+                .bytes_recv()
+        );
+    }
+
     let network = NETCOLLECTOR.lock().unwrap().net_io_counters().unwrap();
     let recv = network.bytes_recv();
     let sent = network.bytes_sent();
