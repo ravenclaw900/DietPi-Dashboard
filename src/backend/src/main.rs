@@ -18,7 +18,7 @@ fn main() {
         .worker_threads(psutil::cpu::cpu_count().max(2) as usize)
         .enable_all()
         .build()
-        .unwrap()
+        .expect("Couldn't start tokio runtime")
         .block_on(async {
             #[cfg(feature = "frontend")]
             const DIR: include_dir::Dir = include_dir::include_dir!("dist");
@@ -29,7 +29,7 @@ fn main() {
                 )
                 .env()
                 .init()
-                .unwrap();
+                .expect("Couldn't start logger");
 
             #[cfg(feature = "frontend")]
             let mut headers = header::HeaderMap::new();
@@ -58,7 +58,13 @@ fn main() {
                 .map(|path: String| {
                     let ext = path.rsplit('.').next().unwrap();
                     warp::reply::with_header(
-                        DIR.get_file(format!("assets/{}", path)).unwrap().contents(),
+                        match DIR.get_file(format!("assets/{}", path)) {
+                            Some(file) => file.contents(),
+                            None => {
+                                log::warn!("Couldn't get asset {}", path);
+                                &[]
+                            }
+                        },
                         "content-type",
                         if ext == "js" {
                             "text/javascript".to_string()
