@@ -48,10 +48,10 @@
     estree-walker "^2.0.1"
     picomatch "^2.2.2"
 
-"@sveltejs/vite-plugin-svelte@^1.0.0-next.43":
-  version "1.0.0-next.43"
-  resolved "https://registry.yarnpkg.com/@sveltejs/vite-plugin-svelte/-/vite-plugin-svelte-1.0.0-next.43.tgz#015d2b261c5dbbccd96c14be9c6f4df86ded67ca"
-  integrity sha512-MzeczqGrnDmbAldw/LfXV/dhpLC2bdUzuMhcx0C2j79V2uNzQERHDinxXnG2AVTCTjSpbQxzQwMMmYflnI7W1g==
+"@sveltejs/vite-plugin-svelte@^1.0.0-next.44":
+  version "1.0.0-next.44"
+  resolved "https://registry.yarnpkg.com/@sveltejs/vite-plugin-svelte/-/vite-plugin-svelte-1.0.0-next.44.tgz#619a16a2f352452e4a45ebcef34d54616a31596c"
+  integrity sha512-n+sssEWbzykPS447FmnNyU5GxEhrBPDVd0lxNZnxRGz9P6651LjjwAnISKr3CKgT9v8IybP8VD0n2i5XzbqExg==
   dependencies:
     "@rollup/pluginutils" "^4.2.1"
     debug "^4.3.4"
