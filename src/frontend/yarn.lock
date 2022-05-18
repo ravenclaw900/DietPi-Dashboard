@@ -864,10 +864,10 @@ vite@^2.9.9:
   optionalDependencies:
     fsevents "~2.3.2"
 
-windicss@^3.5.1, windicss@^3.5.3:
-  version "3.5.3"
-  resolved "https://registry.yarnpkg.com/windicss/-/windicss-3.5.3.tgz#3d331f1e6359966b0846ef03737e8707dd6c4bd5"
-  integrity sha512-Zsb38RscfZJa218GUREJyFu6EF1xD5DZ+b0XL1Kac3BGDtYwVmXJMmOahMK4mZSEy3gWO8aqUQMny0nbJFG6yA==
+windicss@^3.5.1, windicss@^3.5.4:
+  version "3.5.4"
+  resolved "https://registry.yarnpkg.com/windicss/-/windicss-3.5.4.tgz#e55b9e1803d63c2256ddb94e60af8f582489b402"
+  integrity sha512-x2Iu0a69dtNiKHMkR886lx0WKbZI5GqvXyvGBCJ2VA6rcjKYjnzCA/Ljd6hNQBfqlkSum8J+qAVcCfLzQFI4rQ==
 
 wrappy@1:
   version "1.0.2"
