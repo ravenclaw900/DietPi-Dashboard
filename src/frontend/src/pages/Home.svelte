@@ -5,26 +5,9 @@
     import uPlot from "uplot";
     import { onMount, onDestroy } from "svelte";
 
-    interface statData {
-        cpu?: number;
-        ram?: usage;
-        swap?: usage;
-        disk?: usage;
-        network?: net;
-    }
+    import type { socketData } from "../types";
 
-    interface usage {
-        used: number;
-        total: number;
-        percent: number;
-    }
-
-    interface net {
-        sent: number;
-        received: number;
-    }
-
-    export let socketData: statData;
+    export let socketData: Partial<socketData>;
     export let darkMode: boolean;
 
     let portrait = window.innerHeight > window.innerWidth;

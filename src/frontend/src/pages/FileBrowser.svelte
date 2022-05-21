@@ -25,19 +25,7 @@
     import Fa from "svelte-fa";
     import prettyBytes from "pretty-bytes";
 
-    interface browserList {
-        contents?: browser[];
-        currentpath?: string;
-    }
-
-    interface browser {
-        name: string;
-        path: string;
-        maintype: string;
-        subtype: string;
-        prettytype: string;
-        size: number;
-    }
+    import type { socketData, browser } from "../types";
 
     let selPath: browser = {
         name: "",
@@ -49,7 +37,7 @@
     };
 
     export let socketSend: (cmd: string, args: string[]) => void;
-    export let socketData: browserList;
+    export let socketData: Partial<socketData>;
     export let node: string;
     export let login: boolean;
 
