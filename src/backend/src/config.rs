@@ -18,13 +18,6 @@ enum LevelFilterDef {
 }
 
 #[derive(Deserialize, Serialize)]
-#[serde(rename_all = "lowercase")]
-pub enum TempUnit {
-    Fahrenheit,
-    Celsius,
-}
-
-#[derive(Deserialize, Serialize)]
 pub struct Config {
     #[serde(with = "LevelFilterDef")]
     pub log_level: log::LevelFilter,
