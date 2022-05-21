@@ -25,6 +25,8 @@ pub struct Config {
     pub terminal_user: String,
 
     pub update_check: bool,
+
+    pub temp_unit: TempUnit,
 }
 
 impl Default for Config {
@@ -49,6 +51,8 @@ impl Default for Config {
             terminal_user: "root".to_string(),
 
             update_check: true,
+
+            temp_unit: TempUnit::Celsius,
         }
     }
 }
