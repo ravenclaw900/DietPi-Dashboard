@@ -184,14 +184,15 @@
     });
 
     let handle1 = setInterval(() => {
+        let dataPush = data as number[][];
         if (socketData.ram.used != undefined) {
-            data[0].push(Math.round(Date.now() / 1000));
-            data[1].push(socketData.cpu);
-            data[2].push(socketData.ram.used / 1000000);
-            data[3].push(socketData.swap.used / 1000000);
-            data[4].push(socketData.disk.used / 1000000);
-            data[5].push(socketData.network.sent / 1000000);
-            data[6].push(socketData.network.received / 1000000);
+            dataPush[0].push(Math.round(Date.now() / 1000));
+            dataPush[1].push(socketData.cpu);
+            dataPush[2].push(socketData.ram.used / 1000000);
+            dataPush[3].push(socketData.swap.used / 1000000);
+            dataPush[4].push(socketData.disk.used / 1000000);
+            dataPush[5].push(socketData.network.sent / 1000000);
+            dataPush[6].push(socketData.network.received / 1000000);
         }
         uplot.setData(data);
     }, 2000);
