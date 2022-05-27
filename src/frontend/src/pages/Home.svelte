@@ -222,13 +222,13 @@
                 uplot.addSeries({
                     spanGaps: false,
                     label: "CPU Temperature",
-                    stroke: "#78716c",
+                    stroke: "#94A3B8",
                     width: 3,
                     scale: "deg",
                     value: (_: any, val: number) => val + "ºC",
                 });
             }
-            data[7].push(socketData.temp.celsius);
+            dataPush[7].push(socketData.temp.celsius);
         }
         uplot.setData(data);
     }, 2000);
