@@ -17,7 +17,7 @@ interface socketData {
     contents: browser[];
     textdata: string;
     // Management page
-    hostname: String;
+    hostname: string;
     uptime: number;
     arch: string;
     kernel: string;
