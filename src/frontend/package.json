@@ -11,20 +11,20 @@
   },
   "devDependencies": {
     "@fortawesome/free-solid-svg-icons": "^6.1.1",
-    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.42",
+    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.44",
     "@tsconfig/svelte": "^3.0.0",
     "@types/autosize": "^4.0.1",
     "svelte": "^3.48.0",
-    "svelte-check": "^2.7.0",
+    "svelte-check": "^2.7.1",
     "svelte-fa": "^2.4.0",
     "svelte-preprocess": "^4.10.6",
     "svelte-routing": "^1.6.0",
     "tslib": "^2.4.0",
     "typescript": "^4.6.4",
-    "vite": "^2.9.8",
+    "vite": "^2.9.9",
     "vite-plugin-replace": "^0.1.1",
     "vite-plugin-windicss": "^1.8.4",
-    "windicss": "^3.4.4"
+    "windicss": "^3.5.4"
   },
   "dependencies": {
     "microlight": "^0.0.7",

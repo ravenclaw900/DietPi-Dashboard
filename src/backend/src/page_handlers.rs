@@ -11,10 +11,9 @@ use warp::ws::Message;
 
 use crate::{shared, systemdata};
 
-pub async fn main_handler(
-    socket_ptr: Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>,
-    quit: &Arc<Notify>,
-) {
+type SocketPtr = Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>;
+
+pub async fn main_handler(socket_ptr: SocketPtr, quit: &Arc<Notify>) {
     let mut socket_send = socket_ptr.lock().await;
     loop {
         tokio::select! {
@@ -37,7 +36,7 @@ pub async fn main_handler(
 }
 
 pub async fn process_handler(
-    socket_ptr: Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>,
+    socket_ptr: SocketPtr,
     data_recv: &mut Receiver<shared::Request>,
     quit: &Arc<Notify>,
 ) {
@@ -77,7 +76,7 @@ pub async fn process_handler(
 }
 
 pub async fn software_handler(
-    socket_ptr: Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>,
+    socket_ptr: SocketPtr,
     data_recv: &mut Receiver<shared::Request>,
     quit: &Arc<Notify>,
 ) {
@@ -127,7 +126,7 @@ pub async fn software_handler(
 }
 
 pub async fn management_handler(
-    socket_ptr: Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>,
+    socket_ptr: SocketPtr,
     data_recv: &mut Receiver<shared::Request>,
     quit: &Arc<Notify>,
 ) {
@@ -147,7 +146,7 @@ pub async fn management_handler(
 }
 
 pub async fn service_handler(
-    socket_ptr: Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>,
+    socket_ptr: SocketPtr,
     data_recv: &mut Receiver<shared::Request>,
     quit: &Arc<Notify>,
 ) {
@@ -195,7 +194,7 @@ async fn browser_refresh(
 }
 
 pub async fn browser_handler(
-    socket_ptr: Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>,
+    socket_ptr: SocketPtr,
     data_recv: &mut Receiver<shared::Request>,
     quit: &Arc<Notify>,
 ) {

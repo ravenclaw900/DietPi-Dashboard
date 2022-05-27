@@ -5,33 +5,9 @@
     import uPlot from "uplot";
     import { onMount, onDestroy } from "svelte";
 
-    interface statData {
-        cpu?: number;
-        ram?: usage;
-        swap?: usage;
-        disk?: usage;
-        network?: net;
-        temp?: temp;
-    }
+    import type { socketData } from "../types";
 
-    interface usage {
-        used: number;
-        total: number;
-        percent: number;
-    }
-
-    interface net {
-        sent: number;
-        received: number;
-    }
-
-    interface temp {
-        available: boolean;
-        celsius: number;
-        fahrenheit: number;
-    }
-
-    export let socketData: statData;
+    export let socketData: Partial<socketData>;
     export let darkMode: boolean;
 
     let portrait = window.innerHeight > window.innerWidth;
@@ -231,14 +207,15 @@
     });
 
     let handle1 = setInterval(() => {
+        let dataPush = data as number[][];
         if (socketData.ram.used != undefined) {
-            data[0].push(Math.round(Date.now() / 1000));
-            data[1].push(socketData.cpu);
-            data[2].push(socketData.ram.used / 1000000);
-            data[3].push(socketData.swap.used / 1000000);
-            data[4].push(socketData.disk.used / 1000000);
-            data[5].push(socketData.network.sent / 1000000);
-            data[6].push(socketData.network.received / 1000000);
+            dataPush[0].push(Math.round(Date.now() / 1000));
+            dataPush[1].push(socketData.cpu);
+            dataPush[2].push(socketData.ram.used / 1000000);
+            dataPush[3].push(socketData.swap.used / 1000000);
+            dataPush[4].push(socketData.disk.used / 1000000);
+            dataPush[5].push(socketData.network.sent / 1000000);
+            dataPush[6].push(socketData.network.received / 1000000);
         }
         if (socketData.temp != undefined && socketData.temp.available) {
             if (uplot.series[7] == undefined) {

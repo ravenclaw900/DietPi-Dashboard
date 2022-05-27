@@ -3,20 +3,10 @@
     import prettyMilliseconds from "pretty-ms";
     import { fade } from "svelte/transition";
 
-    interface hostData {
-        hostname?: String;
-        uptime?: number;
-        arch?: string;
-        kernel?: string;
-        dp_version?: string;
-        packages?: number;
-        upgrades?: number;
-        nic?: string;
-        ip?: string;
-    }
+    import type { socketData } from "../types";
 
     export let socketSend: (cmd: string, args: string[]) => void;
-    export let socketData: hostData;
+    export let socketData: Partial<socketData>;
 
     let uptime: string;
     let dialog = false;
