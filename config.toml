@@ -39,3 +39,9 @@
 # This will do 1 GitHub API call per day
 # - Default: true
 #update_check = true
+
+# Preferred temperature unit
+# - Default: celsius
+# The unit to use when showing temperature
+# Options: fahrenheit, celsius
+# temp_unit = celsius
