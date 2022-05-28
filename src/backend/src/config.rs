@@ -1,3 +1,4 @@
+use crate::shared::TempUnit;
 use figment::{
     providers::{Env, Format, Serialized, Toml},
     Figment,
@@ -15,13 +16,6 @@ enum LevelFilterDef {
     Info,
     Debug,
     Trace,
-}
-
-#[derive(Deserialize, Serialize)]
-#[serde(rename_all = "lowercase")]
-pub enum TempUnit {
-    Fahrenheit,
-    Celsius,
 }
 
 #[derive(Deserialize, Serialize)]

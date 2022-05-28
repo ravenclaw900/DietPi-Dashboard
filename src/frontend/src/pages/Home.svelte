@@ -9,6 +9,7 @@
 
     export let socketData: Partial<socketData>;
     export let darkMode: boolean;
+    export let tempUnit: "fahrenheit" | "celsius";
 
     let portrait = window.innerHeight > window.innerWidth;
 
@@ -190,7 +191,10 @@
                     side: 1,
                     scale: "deg",
                     values: (_: any, vals: number[]) =>
-                        vals.map((v: number) => +v + "ºC"),
+                        vals.map(
+                            (v: number) =>
+                                +v + (tempUnit == "celsius" ? "ºC" : "ºF")
+                        ),
                     grid: { show: false },
                     stroke: () => (darkMode ? "#fff" : "#000"),
                     size: 75,
@@ -225,10 +229,16 @@
                     stroke: "#94A3B8",
                     width: 3,
                     scale: "deg",
-                    value: (_: any, val: number) => val + "ºC",
+                    value: (_: any, val: number) =>
+                        val + (tempUnit == "celsius" ? "ºC" : "ºF"),
                 });
             }
-            dataPush[7].push(socketData.temp.celsius);
+            console.log(tempUnit);
+            if (tempUnit == "celsius") {
+                dataPush[7].push(socketData.temp.celsius);
+            } else if (tempUnit == "fahrenheit") {
+                dataPush[7].push(socketData.temp.fahrenheit);
+            }
         }
         uplot.setData(data);
     }, 2000);

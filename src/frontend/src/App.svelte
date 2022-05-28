@@ -45,6 +45,7 @@
     let notify = false;
     let menu = window.innerWidth > 768;
     let dpUpdate = "";
+    let tempUnit: "fahrenheit" | "celsius";
     let navPage = "";
     let token = "";
     let password = "";
@@ -109,6 +110,7 @@
                 nodes = socketData.nodes;
             }
             backendVersion = socketData.version;
+            tempUnit = socketData.temp_unit;
             // Get token
             if (login) {
                 let obj = JSON.parse(localStorage.getItem("tokens"));
@@ -420,7 +422,9 @@
                     <Route path="process"
                         ><Process {socketData} {socketSend} /></Route
                     >
-                    <Route path="/"><Home {socketData} {darkMode} /></Route>
+                    <Route path="/"
+                        ><Home {socketData} {darkMode} {tempUnit} /></Route
+                    >
                     <Route path="software"
                         ><Software {socketData} {socketSend} /></Route
                     >

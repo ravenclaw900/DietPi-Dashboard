@@ -350,15 +350,18 @@ pub fn services() -> Vec<shared::ServiceData> {
 }
 
 pub fn global() -> shared::GlobalData {
+    use crate::CONFIG;
+
     let update =
         fs::read_to_string("/run/dietpi/.update_available").unwrap_or_else(|_| String::new());
     shared::GlobalData {
         update,
-        login: crate::CONFIG.pass,
+        login: CONFIG.pass,
         version: env!("CARGO_PKG_VERSION").to_string(),
-        update_check: crate::CONFIG.update_check,
+        update_check: CONFIG.update_check,
         #[cfg(feature = "frontend")]
-        nodes: crate::CONFIG.nodes.clone(),
+        nodes: CONFIG.nodes.clone(),
+        temp_unit: CONFIG.temp_unit.clone(),
     }
 }
 

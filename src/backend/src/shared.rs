@@ -104,6 +104,7 @@ pub struct GlobalData {
     pub update_check: bool,
     #[cfg(feature = "frontend")]
     pub nodes: Vec<String>,
+    pub temp_unit: TempUnit,
 }
 
 #[derive(SerJson, Debug)]
@@ -165,4 +166,13 @@ pub struct CPUTemp {
     pub available: bool,
     pub celsius: i16,
     pub fahrenheit: i16,
+}
+
+#[derive(Deserialize, Serialize, SerJson, Clone)]
+#[serde(rename_all = "lowercase")]
+pub enum TempUnit {
+    #[nserde(rename = "fahrenheit")]
+    Fahrenheit,
+    #[nserde(rename = "celsius")]
+    Celsius,
 }

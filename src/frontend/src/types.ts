@@ -34,6 +34,7 @@ interface socketData {
     nodes: string[];
     version: string;
     update_check: boolean;
+    temp_unit: "fahrenheit" | "celsius";
 }
 
 interface software {
