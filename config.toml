@@ -41,7 +41,6 @@
 #update_check = true
 
 # Preferred temperature unit
+# - Options: fahrenheit, celsius
 # - Default: celsius
-# The unit to use when showing temperature
-# Options: fahrenheit, celsius
 # temp_unit = celsius
