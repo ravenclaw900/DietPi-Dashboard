@@ -185,7 +185,7 @@
                     values: (_: any, vals: number[]) =>
                         vals.map((v: number) => +v.toFixed(2) + "%"),
                     grid: { show: false },
-                    stroke: () => (darkMode ? "#fff" : "#000"),
+                    stroke: "#10b981",
                 },
                 {
                     side: 1,
@@ -196,7 +196,7 @@
                                 +v + (tempUnit == "celsius" ? "ºC" : "ºF")
                         ),
                     grid: { show: false },
-                    stroke: () => (darkMode ? "#fff" : "#000"),
+                    stroke: "#94A3B8",
                     size: 75,
                 },
             ],
