@@ -200,7 +200,13 @@
                     size: 75,
                 },
             ],
-            scales: { "%": { auto: false, range: [0, 100] } },
+            scales: {
+                "%": {
+                    auto: false,
+                    range: (u: uPlot) =>
+                        u.series[1].show ? [0, 100] : [null, null],
+                },
+            },
         };
 
         uplot = new uPlot(opts, data, chart);
