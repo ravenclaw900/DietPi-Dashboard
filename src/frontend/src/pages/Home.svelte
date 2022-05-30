@@ -163,7 +163,8 @@
                     stroke: "#ec4899",
                     width: 3,
                     scale: "mb",
-                    value: (_: any, val: number) => prettyBytes(val * 1000000),
+                    value: (_: uPlot, val: number) =>
+                        prettyBytes(val * 1000000),
                 },
             ],
             axes: [
@@ -203,6 +204,7 @@
             scales: {
                 "%": {
                     auto: false,
+                    // Hide CPU axis when CPU series is disabled
                     range: (u: uPlot) =>
                         u.series[1].show ? [0, 100] : [null, null],
                 },
