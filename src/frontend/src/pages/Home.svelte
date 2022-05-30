@@ -233,7 +233,6 @@
                         val + (tempUnit == "celsius" ? "ºC" : "ºF"),
                 });
             }
-            console.log(tempUnit);
             if (tempUnit == "celsius") {
                 dataPush[7].push(socketData.temp.celsius);
             } else if (tempUnit == "fahrenheit") {
