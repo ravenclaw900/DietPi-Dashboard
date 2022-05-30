@@ -365,7 +365,7 @@ pub fn global() -> shared::GlobalData {
     }
 }
 
-pub fn browser_dir(path: &std::path::Path) -> Vec<shared::BrowserDirData> {
+pub fn browser_dir(path: &std::path::Path) -> Vec<shared::BrowserData> {
     let dir = fs::read_dir(path).unwrap();
     let mut file_list = Vec::new();
     for file in dir {
@@ -385,7 +385,7 @@ pub fn browser_dir(path: &std::path::Path) -> Vec<shared::BrowserDirData> {
                 val
             } else {
                 log::error!("Could not read directory");
-                return vec![shared::BrowserDirData {
+                return vec![shared::BrowserData {
                     path: "/".to_string(),
                     name: "ERROR".to_string(),
                     maintype: "dir".to_string(),
@@ -432,7 +432,7 @@ pub fn browser_dir(path: &std::path::Path) -> Vec<shared::BrowserDirData> {
                 prettytype = "Plain Text File".to_string();
             }
         }
-        file_list.push(shared::BrowserDirData {
+        file_list.push(shared::BrowserData {
             path: file.path().into_os_string().into_string().unwrap(),
             name: file.file_name().into_string().unwrap(),
             maintype,

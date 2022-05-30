@@ -108,7 +108,7 @@ pub struct GlobalData {
 }
 
 #[derive(SerJson, Debug)]
-pub struct BrowserDirData {
+pub struct BrowserData {
     pub path: String,
     pub name: String,
     pub subtype: String,
@@ -118,13 +118,8 @@ pub struct BrowserDirData {
 }
 
 #[derive(SerJson)]
-pub struct BrowserFileData {
-    pub textdata: String,
-}
-
-#[derive(SerJson)]
 pub struct BrowserList {
-    pub contents: Vec<BrowserDirData>,
+    pub contents: Vec<BrowserData>,
 }
 
 #[derive(SerJson)]
