@@ -242,25 +242,17 @@
         uplot.setData(data);
     }, 2000);
 
-    let handle2 = setInterval(() => {
-        let oldSize = getSize();
-        setTimeout(() => {
-            let newSize = getSize();
-            if (oldSize != newSize) {
-                uplot.setSize(newSize);
-            }
-        }, 100);
-    }, 100);
-
     onDestroy(() => {
         uplot = undefined;
         clearInterval(handle1);
-        clearInterval(handle2);
     });
 </script>
 
 <svelte:window
-    on:resize={() => (portrait = window.innerHeight > window.innerWidth)}
+    on:resize={() => {
+        portrait = window.innerHeight > window.innerWidth;
+        uplot.setSize(getSize());
+    }}
 />
 
 <main
