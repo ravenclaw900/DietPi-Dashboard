@@ -18,9 +18,9 @@ yarn:
 	cd src/frontend; yarn build
 
 ifdef TARGET
-	rm src/backend/target/$(TARGET)/debug/deps/dietpi_dashboard-*
+	rm -f src/backend/target/$(TARGET)/debug/deps/dietpi_dashboard-*
 else
-	rm src/backend/target/debug/deps/dietpi_dashboard-*
+	rm -f src/backend/target/debug/deps/dietpi_dashboard-*
 endif
 
 publiccopy:
