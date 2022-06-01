@@ -51,7 +51,7 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
             };
             if CONFIG.pass && !validate_token(&req.token) {
                 quit_send.notify_waiters();
-                data_send
+                if data_send
                     .send(shared::Request {
                         page: "/login".to_string(),
                         token: String::new(),
@@ -59,7 +59,10 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                         args: Vec::new(),
                     })
                     .await
-                    .unwrap();
+                    .is_err()
+                {
+                    log::error!("Internal error: couldn't request login");
+                }
                 continue;
             }
             if req.cmd.is_empty() {
@@ -68,6 +71,7 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
             }
             // Send new page/data
             if data_send.send(req.clone()).await.is_err() {
+                log::error!("Internal error: couldn't send page data");
                 break;
             }
         }
@@ -123,15 +127,19 @@ struct TTYSize {
     rows: u16,
 }
 
+#[allow(clippy::too_many_lines)]
 pub async fn term_handler(socket: warp::ws::WebSocket) {
     let (mut socket_send, mut socket_recv) = socket.split();
 
     if crate::CONFIG.pass {
-        let token = socket_recv.next().await.unwrap().unwrap();
-        // Stop from panicking, return from function with invalid token instead
-        let token = token.to_str().unwrap_or("");
-        if token.get(..5) == Some("token") {
-            if !validate_token(&token[5..]) {
+        if let Some(Ok(token)) = socket_recv.next().await {
+            // Stop from panicking, return from function with invalid token instead
+            let token = token.to_str().unwrap_or("");
+            if token.get(..5) == Some("token") {
+                if !validate_token(&token[5..]) {
+                    return;
+                }
+            } else {
                 return;
             }
         } else {
@@ -140,17 +148,17 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
     }
 
     let mut pre_cmd = std::process::Command::new("/bin/login");
-    let pre_cmd = pre_cmd.env("TERM", "xterm");
+    let mut pre_cmd = pre_cmd.env("TERM", "xterm");
+    if crate::CONFIG.terminal_user != "manual" {
+        pre_cmd = pre_cmd.args(&["-f", &crate::CONFIG.terminal_user]);
+    }
 
-    let cmd = Arc::new(RwLock::new(
-        if crate::CONFIG.terminal_user == "manual" {
-            pre_cmd
-        } else {
-            pre_cmd.args(&["-f", &crate::CONFIG.terminal_user])
-        }
-        .spawn_pty(None)
-        .unwrap(),
-    ));
+    let cmd = Arc::new(RwLock::new(if let Ok(pre_cmd) = pre_cmd.spawn_pty(None) {
+        pre_cmd
+    } else {
+        log::warn!("Error creating pty");
+        return;
+    }));
     let cmd_write = Arc::clone(&cmd);
     let cmd_clone = Arc::clone(&cmd);
 
@@ -164,19 +172,25 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
             let cmd_read = Arc::clone(&cmd_clone);
             let lock = cmd_read.read_owned().await;
             #[allow(clippy::unused_io_amount)]
-            let result = tokio::task::spawn_blocking(move || {
+            if let Ok(result) = tokio::task::spawn_blocking(move || {
                 let mut data = [0; 256];
                 let res = (*lock).pty().read(&mut data);
                 (res, data)
             })
             .await
-            .unwrap();
-            if result.0.is_ok() {
-                if send.send(result.1).await.is_err() {
+            {
+                if result.0.is_ok() {
+                    if send.send(result.1).await.is_err() {
+                        log::warn!("Internal error: couldn't send data between ptys");
+                        break;
+                    }
+                } else {
+                    // Generally this means that the pty has closed (i.e. page changed), so no error message
+                    quit_send.notify_one();
                     break;
                 }
             } else {
-                quit_send.notify_one();
+                log::warn!("Internal error: couldn't start thread to read from pty");
                 break;
             }
         }
@@ -186,7 +200,7 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
         tokio::select! {
             Some(data) = recv.recv() => {
                 if socket_send
-                    .send(Message::binary(data.split(|num| num == &0).next().unwrap()))
+                    .send(Message::binary(data.split(|num| num == &0).next().unwrap())) // Ignore <256 '0' bytes (should be guaranteed to not fail)
                     .await
                     .is_err() {
                         break;
@@ -202,12 +216,21 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
                         .write_all("exit\n".as_bytes());
                     continue;
                 };
+                // For sure a text message, so should unwrap correctly
                 if data.is_text() && data.to_str().unwrap().get(..4) == Some("size") {
                     let json: TTYSize =
-                        DeJson::deserialize_json(&data.to_str().unwrap()[4..]).unwrap();
-                    (*lock)
+                        if let Ok(size) = DeJson::deserialize_json(&data.to_str().unwrap()[4..]) {
+                            size
+                        } else {
+                            log::warn!("Couldn't deserialize terminal size");
+                            continue;
+                        };
+                    if (*lock)
                         .resize_pty(&pty_process::Size::new(json.rows, json.cols))
-                        .unwrap();
+                        .is_err() {
+                            log::warn!("Couldn't resize terminal");
+                            continue;
+                        }
                 } else if (*lock).pty().write_all(data.as_bytes()).is_err() {
                     break;
                 }
@@ -219,9 +242,11 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
     }
 
     // Reap PID
-    (*cmd.write().await).wait().unwrap();
-
-    log::info!("Closed terminal");
+    if (*cmd.write().await).wait().is_err() {
+        log::warn!("Couldn't close terminal");
+    } else {
+        log::info!("Closed terminal");
+    }
 }
 
 #[allow(clippy::too_many_lines)]
@@ -245,7 +270,9 @@ pub async fn file_handler(mut socket: warp::ws::WebSocket) {
                 upload_max_size
             );
             if upload_current_size == upload_max_size {
-                std::fs::write(&upload_path, &upload_buf).unwrap();
+                if std::fs::write(&upload_path, &upload_buf).is_err() {
+                    log::warn!("Couldn't write uploaded file");
+                }
                 let _send = socket
                     .send(Message::text(SerJson::serialize_json(
                         &shared::FileUploadFinished { finished: true },
@@ -254,8 +281,8 @@ pub async fn file_handler(mut socket: warp::ws::WebSocket) {
             }
             continue;
         }
-        let data_str = if let Ok(data_string) = data.to_str() {
-            data_string
+        let data_str = if let Ok(data_str) = data.to_str() {
+            data_str
         } else {
             log::error!("Couldn't convert received data to text");
             continue;
@@ -272,19 +299,32 @@ pub async fn file_handler(mut socket: warp::ws::WebSocket) {
 
         match req.cmd.as_str() {
             "open" => {
-                let _send = socket
-                    .send(Message::text(std::fs::read_to_string(&req.path).unwrap()))
-                    .await;
+                let data = if let Ok(data) = std::fs::read_to_string(&req.path) {
+                    data
+                } else {
+                    log::warn!("Couldn't read file {}", &req.path);
+                    continue;
+                };
+                let _send = socket.send(Message::text(data)).await;
             }
             // Technically works for both files and directories
             "dl" => {
                 let mut buf = Vec::new();
                 let src_path = std::path::Path::new(&req.path);
+                if !src_path.exists() {
+                    log::warn!("Path doesn't exist");
+                    continue;
+                }
                 {
                     let mut zip_file = zip::ZipWriter::new(std::io::Cursor::new(&mut buf));
                     let mut file_buf = Vec::new();
                     for entry in walkdir::WalkDir::new(&req.path) {
-                        let entry = entry.unwrap();
+                        let entry = if let Ok(entry) = entry {
+                            entry
+                        } else {
+                            log::warn!("Couldn't recursively get directory");
+                            continue;
+                        };
                         let path = entry.path();
                         let name = std::path::Path::new(src_path.file_name().unwrap())
                             .join(path.strip_prefix(src_path).unwrap());
