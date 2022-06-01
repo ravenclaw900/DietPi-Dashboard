@@ -1,5 +1,5 @@
 use lazy_static::lazy_static;
-use psutil::{cpu, disk, host, memory, network, process};
+use psutil::{cpu, disk, host, memory, network, process, sensors};
 use std::fs;
 use std::process::Command;
 use std::str::from_utf8;
@@ -350,15 +350,18 @@ pub fn services() -> Vec<shared::ServiceData> {
 }
 
 pub fn global() -> shared::GlobalData {
+    use crate::CONFIG;
+
     let update =
         fs::read_to_string("/run/dietpi/.update_available").unwrap_or_else(|_| String::new());
     shared::GlobalData {
         update,
-        login: crate::CONFIG.pass,
+        login: CONFIG.pass,
         version: env!("CARGO_PKG_VERSION").to_string(),
-        update_check: crate::CONFIG.update_check,
+        update_check: CONFIG.update_check,
         #[cfg(feature = "frontend")]
-        nodes: crate::CONFIG.nodes.clone(),
+        nodes: CONFIG.nodes.clone(),
+        temp_unit: CONFIG.temp_unit.clone(),
     }
 }
 
@@ -439,4 +442,23 @@ pub fn browser_dir(path: &std::path::Path) -> Vec<shared::BrowserData> {
         });
     }
     file_list
+}
+
+#[allow(clippy::cast_possible_truncation)]
+pub fn temp() -> shared::CPUTemp {
+    match &sensors::temperatures().get(0) {
+        Some(Ok(temp)) => {
+            let temp = temp.current();
+            shared::CPUTemp {
+                available: true,
+                celsius: temp.celsius().round() as i16,
+                fahrenheit: temp.fahrenheit().round() as i16,
+            }
+        }
+        None | Some(Err(_)) => shared::CPUTemp {
+            available: false,
+            celsius: 0,
+            fahrenheit: 0,
+        },
+    }
 }

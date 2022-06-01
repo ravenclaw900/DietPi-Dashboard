@@ -5,6 +5,7 @@ interface socketData {
     swap: usage;
     disk: usage;
     network: net;
+    temp: temp;
     // Software page
     uninstalled: software[];
     installed: software[];
@@ -33,6 +34,7 @@ interface socketData {
     nodes: string[];
     version: string;
     update_check: boolean;
+    temp_unit: "fahrenheit" | "celsius";
 }
 
 interface software {
@@ -76,6 +78,12 @@ interface usage {
 interface net {
     sent: number;
     received: number;
+}
+
+interface temp {
+    available: boolean;
+    celsius: number;
+    fahrenheit: number;
 }
 
 // 'browser' required for selected path in file browser

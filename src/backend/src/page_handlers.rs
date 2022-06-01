@@ -27,6 +27,7 @@ pub async fn main_handler(socket_ptr: SocketPtr, quit: &Arc<Notify>) {
                     swap: systemdata::swap(),
                     disk: systemdata::disk(),
                     network: systemdata::network(),
+                    temp: systemdata::temp(),
                 })))
                 .await;
             } => {}
