@@ -67,6 +67,37 @@ src
     └── yarn.lock (Yarn lockfile)
 ```
 
+### Error handling (Rust)
+Possible errors where the value is required should be handled by using a match where the `Ok` case returns the value, and the `Err` case prints out an error message (generally using `log::warn!`) and skips a loop iteration, returns from the function, etc. Example:
+```rust
+let val = match could_fail() {
+    Ok(val) => val,
+    Err(err) => {
+        log::warn!("Function failed: {}", err);
+        continue;
+    }
+};
+```
+Possible errors where the value isn't required should be handled with an `if let` statement that handles the error in the ways mentioned above. Example:
+```rust
+if let Err(err) = could_also_fail() {
+    log::warn!("Other function also failed: {}", err);
+    return;
+}
+```
+Using `unwrap` is only ok when the function is **sure** to work, for instance if the possible error was already covered earlier. When this happens a comment should be left explaining why `unwrap` was used. Example (partially from code):
+```rust
+let src_path = match std::fs::canonicalize(&req.path) {
+    Ok(src_path) => src_path,
+    Err(err) => {
+        log::warn!("Invalid source path: {}", err);
+        continue;
+    }
+};
+// Canonicalized path always has file name
+let name = std::path::Path::new(&src_path.file_name().unwrap())
+```
+
 ### Style guide
 - Frontend: [Prettier](https://prettier.io/)
 - Backend: rustfmt
