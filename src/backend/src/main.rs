@@ -3,7 +3,9 @@ use crate::shared::CONFIG;
 use ring::digest;
 use simple_logger::SimpleLogger;
 use std::net::IpAddr;
-use warp::{http::header, Filter};
+#[cfg(feature = "frontend")]
+use warp::http::header;
+use warp::Filter;
 
 mod config;
 mod page_handlers;
