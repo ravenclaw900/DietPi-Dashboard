@@ -176,7 +176,7 @@ pub fn dpsoftware() -> (Vec<shared::DPSoftwareData>, Vec<shared::DPSoftwareData>
         Some(num) => num,
         None => return (uninstalled_list, installed_list),
     });
-    'software: for element in out_list.iter().skip(4).take(out_list.len() - 4) {
+    'software: for element in out_list.iter().skip(4) {
         if free_list.contains(&(index as i16)) {
             index += 1;
         }

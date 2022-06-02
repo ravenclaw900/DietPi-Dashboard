@@ -30,10 +30,14 @@ anyhow = "1.0.57"
 default = ["frontend"]
 frontend = ["include_dir", "warp/compression"]
 
+[profile.dev]
+debug = 1
+
 [profile.release]
 lto = "fat"
 panic = "abort"
 codegen-units = 1
+strip = true
 
 [profile.release.package.nanoserde]
 opt-level = 3
