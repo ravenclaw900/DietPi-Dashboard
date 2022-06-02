@@ -1,5 +1,6 @@
 #![warn(clippy::pedantic)]
 use crate::shared::CONFIG;
+use anyhow::Context;
 use ring::digest;
 use simple_logger::SimpleLogger;
 use std::net::IpAddr;
@@ -14,13 +15,13 @@ mod socket_handlers;
 mod systemdata;
 
 #[allow(clippy::too_many_lines)]
-fn main() {
+fn main() -> anyhow::Result<()> {
     #[allow(clippy::cast_possible_truncation)]
     tokio::runtime::Builder::new_multi_thread()
         .worker_threads(psutil::cpu::cpu_count().max(2) as usize)
         .enable_all()
         .build()
-        .unwrap()
+        .context("Couldn't start tokio runtime")?
         .block_on(async {
             #[cfg(feature = "frontend")]
             const DIR: include_dir::Dir = include_dir::include_dir!("dist");
@@ -29,7 +30,7 @@ fn main() {
                 .with_level(CONFIG.log_level)
                 .env()
                 .init()
-                .unwrap();
+                .context("Couldn't init logger")?;
 
             #[cfg(feature = "frontend")]
             let mut headers = header::HeaderMap::new();
@@ -46,7 +47,8 @@ fn main() {
             #[cfg(feature = "frontend")]
             let favicon_route = warp::path("favicon.png").map(|| {
                 warp::reply::with_header(
-                    DIR.get_file("favicon.png").unwrap().contents(),
+                    // Assume that favicon will always work (if it doesn't, there's probably a bigger problem)
+                    DIR.get_file("favicon.png").expect("Couldn't get favicon").contents(),
                     "content-type",
                     "image/png",
                 )
@@ -58,7 +60,13 @@ fn main() {
                 .map(|path: String| {
                     let ext = path.rsplit('.').next().unwrap();
                     warp::reply::with_header(
-                        DIR.get_file(format!("assets/{}", path)).unwrap().contents(),
+                        match DIR.get_file(format!("assets/{}", path)) {
+                            Some(file) => file.contents(),
+                            None => {
+                                log::warn!("Couldn't get asset {}", path);
+                                &[]
+                            }
+                        },
                         "content-type",
                         if ext == "js" {
                             "text/javascript".to_string()
@@ -125,7 +133,7 @@ fn main() {
 
             #[cfg(feature = "frontend")]
             let main_route = warp::any().map(|| {
-                warp::reply::html(DIR.get_file("index.html").unwrap().contents_utf8().unwrap())
+                warp::reply::html(DIR.get_file("index.html").expect("Couldn't get main HTML file").contents_utf8().expect("Invalid main HTML file"))
             }).with(warp::reply::with::headers(headers));
 
             #[cfg(feature = "frontend")]
@@ -164,5 +172,9 @@ fn main() {
             } else {
                 warp::serve(routes).run((addr, CONFIG.port)).await;
             }
-        });
+
+            anyhow::Ok(())
+        })?;
+
+    Ok(())
 }
