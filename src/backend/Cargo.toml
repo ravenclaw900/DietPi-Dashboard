@@ -34,6 +34,9 @@ lto = "fat"
 panic = "abort"
 codegen-units = 1
 
+[profile.dev]
+debug = 1
+
 [profile.release.package.nanoserde]
 opt-level = 3
 
