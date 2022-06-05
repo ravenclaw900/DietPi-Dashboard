@@ -186,7 +186,7 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
         tokio::select! {
             Some(data) = recv.recv() => {
                 if socket_send
-                    .send(Message::binary(data.split(|num| num == &0).next().unwrap()))
+                    .send(Message::binary(data.split(|num| *num == 0).next().unwrap()))
                     .await
                     .is_err() {
                         break;

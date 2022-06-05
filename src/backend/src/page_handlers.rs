@@ -10,9 +10,20 @@ use tokio::sync::{mpsc::Receiver, Mutex};
 use tokio::time::sleep;
 use warp::ws::Message;
 
-use crate::{shared, systemdata};
+use crate::{handle_error, shared, systemdata};
 
 type SocketPtr = Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>;
+
+async fn main_handler_getter() -> anyhow::Result<shared::SysData> {
+    Ok(shared::SysData {
+        cpu: systemdata::cpu().await?,
+        ram: systemdata::ram()?,
+        swap: systemdata::swap()?,
+        disk: systemdata::disk()?,
+        network: systemdata::network()?,
+        temp: systemdata::temp(),
+    })
+}
 
 pub async fn main_handler(socket_ptr: SocketPtr, quit: &Arc<Notify>) {
     let mut socket_send = socket_ptr.lock().await;
@@ -22,14 +33,7 @@ pub async fn main_handler(socket_ptr: SocketPtr, quit: &Arc<Notify>) {
             _ = quit.notified() => break,
             _ = async {
                 let _send = socket_send
-                .send(Message::text(SerJson::serialize_json(&shared::SysData {
-                    cpu: systemdata::cpu().await,
-                    ram: systemdata::ram(),
-                    swap: systemdata::swap(),
-                    disk: systemdata::disk(),
-                    network: systemdata::network(),
-                    temp: systemdata::temp(),
-                })))
+                .send(Message::text(SerJson::serialize_json(&handle_error!(main_handler_getter().await, shared::SysData::default()))))
                 .await;
             } => {}
         }
@@ -49,12 +53,13 @@ fn process_handler_helper(data: &shared::Request) -> anyhow::Result<()> {
         process.pid()
     );
     match data.cmd.as_str() {
-        "terminate" => process.terminate()?,
-        "kill" => process.kill()?,
-        "suspend" => process.suspend()?,
-        "resume" => process.resume()?,
-        _ => (),
-    };
+        "terminate" => process.terminate(),
+        "kill" => process.kill(),
+        "suspend" => process.suspend(),
+        "resume" => process.resume(),
+        _ => (Ok(())),
+    }
+    .with_context(|| format!("Couldn't {} process {}", data.cmd, process.pid()))?;
     Ok(())
 }
 
@@ -72,15 +77,13 @@ pub async fn process_handler(
                 let _send = socket_send
                 .send(Message::text(SerJson::serialize_json(
                     &shared::ProcessList {
-                        processes: systemdata::processes().await,
+                        processes: handle_error!(systemdata::processes().await, Vec::new()),
                     },
                 )))
                 .await;
                 sleep(Duration::from_secs(1)).await;
             } => {}
-            Some(data) = data_recv.recv() => if let Err(err) = process_handler_helper(&data) {
-                log::warn!("{}: {}", err, err.root_cause());
-            }
+            Some(data) = data_recv.recv() => handle_error!(process_handler_helper(&data)),
         }
     }
 }
@@ -107,7 +110,7 @@ pub async fn software_handler_helper(
     .context("Invalid DietPi-Software output")?
     .replace('', "");
 
-    let software = systemdata::dpsoftware();
+    let software = systemdata::dpsoftware()?;
     let _send = socket_send
         .send(Message::text(SerJson::serialize_json(
             &shared::DPSoftwareList {
@@ -127,7 +130,7 @@ pub async fn software_handler(
     quit: &Arc<Notify>,
 ) {
     let mut socket_send = socket_ptr.lock().await;
-    let software = systemdata::dpsoftware();
+    let software = handle_error!(systemdata::dpsoftware(), (Vec::new(), Vec::new()));
     let _send = socket_send
         .send(Message::text(SerJson::serialize_json(
             &shared::DPSoftwareList {
@@ -141,9 +144,7 @@ pub async fn software_handler(
         tokio::select! {
             biased;
             _ = quit.notified() => break,
-            Some(data) = data_recv.recv() => if let Err(err) = software_handler_helper(&data, &mut socket_send).await {
-                    log::warn!("{}: {}", err, err.root_cause());
-            }
+            Some(data) = data_recv.recv() => handle_error!(software_handler_helper(&data, &mut socket_send).await),
         }
     }
 }
@@ -155,15 +156,17 @@ pub async fn management_handler(
 ) {
     let mut socket_send = socket_ptr.lock().await;
     let _send = socket_send
-        .send(Message::text(SerJson::serialize_json(&systemdata::host())))
+        .send(Message::text(SerJson::serialize_json(&handle_error!(
+            systemdata::host(),
+            shared::HostData::default()
+        ))))
         .await;
     loop {
         tokio::select! {
             biased;
             _ = quit.notified() => break,
-            Some(data) = data_recv.recv() => if let Err(err) = Command::new(&data.cmd).spawn() {
-                    log::warn!("Couldn't spawn command {}: {}", &data.cmd, err);
-            }
+            // Don't care about the Ok value, so remove it to make the type checker happy
+            Some(data) = data_recv.recv() => handle_error!(Command::new(&data.cmd).spawn().map(|_| ()).with_context(|| format!("Couldn't spawn command {}", &data.cmd))),
         }
     }
 }
@@ -177,7 +180,7 @@ pub async fn service_handler(
     let _send = socket_send
         .send(Message::text(SerJson::serialize_json(
             &shared::ServiceList {
-                services: systemdata::services(),
+                services: handle_error!(systemdata::services(), Vec::new()),
             },
         )))
         .await;
@@ -186,15 +189,15 @@ pub async fn service_handler(
             biased;
             _ = quit.notified() => break,
             Some(data) = data_recv.recv() =>  {
-                if let Err(err) = Command::new("systemctl")
+                handle_error!(Command::new("systemctl")
                     .args([&data.cmd, data.args[0].as_str()])
-                    .spawn() {
-                        log::warn!("Couldn't {} service {}: {}", &data.cmd, &data.args[0], err);
-                    }
+                    .spawn()
+                    .map(|_| ()) // Don't care about the Ok value, so remove it to make the type checker happy
+                    .with_context(|| format!("Couldn't {} service {}", &data.cmd, &data.args[0])));
                 let _send = socket_send
                     .send(Message::text(SerJson::serialize_json(
                         &shared::ServiceList {
-                            services: systemdata::services(),
+                            services: handle_error!(systemdata::services(), Vec::new()),
                         },
                     )))
                     .await;
@@ -213,7 +216,7 @@ async fn browser_refresh(
     let _send = socket_send
         .send(Message::text(SerJson::serialize_json(
             &shared::BrowserList {
-                contents: systemdata::browser_dir(std::path::Path::new(dir_path)),
+                contents: systemdata::browser_dir(std::path::Path::new(dir_path))?,
             },
         )))
         .await;
@@ -279,9 +282,12 @@ pub async fn browser_handler(
     let _send = socket_send
         .send(Message::text(SerJson::serialize_json(
             &shared::BrowserList {
-                contents: systemdata::browser_dir(std::path::Path::new(
-                    &std::env::var_os("HOME").unwrap_or_else(|| "/root".into()),
-                )),
+                contents: handle_error!(
+                    systemdata::browser_dir(std::path::Path::new(
+                        &std::env::var_os("HOME").unwrap_or_else(|| "/root".into()),
+                    )),
+                    Vec::new()
+                ),
             },
         )))
         .await;
@@ -289,9 +295,7 @@ pub async fn browser_handler(
         tokio::select! {
             biased;
             _ = quit.notified() => break,
-            Some(data) = data_recv.recv() => if let Err(err) = browser_handler_helper(&data, &mut *socket_send).await {
-                log::warn!("{}: {}", err, err.root_cause());
-            }
+            Some(data) = data_recv.recv() => handle_error!(browser_handler_helper(&data, &mut *socket_send).await),
         }
     }
 }

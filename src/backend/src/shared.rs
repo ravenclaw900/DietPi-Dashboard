@@ -5,7 +5,24 @@ lazy_static::lazy_static! {
     pub static ref CONFIG: crate::config::Config = crate::config::config();
 }
 
-#[derive(SerJson)]
+// Simple error handling macro
+#[macro_export]
+macro_rules! handle_error {
+    ($e: expr $(, $handler:expr)?) => {
+        match $e {
+            Ok(val) => val,
+            Err(err) => {
+                match err.source() {
+                    Some(source) => log::warn!("{}: {}", err, source),
+                    None => log::warn!("{}", err),
+                };
+                $($handler)?
+            }
+        }
+    };
+}
+
+#[derive(SerJson, Default)]
 pub struct SysData {
     pub cpu: f32,
     pub ram: UsageData,
@@ -15,14 +32,14 @@ pub struct SysData {
     pub temp: CPUTemp,
 }
 
-#[derive(SerJson)]
+#[derive(SerJson, Default)]
 pub struct UsageData {
     pub used: u64,
     pub total: u64,
     pub percent: f32,
 }
 
-#[derive(SerJson)]
+#[derive(SerJson, Default)]
 pub struct NetData {
     pub sent: u64,
     pub received: u64,
@@ -54,7 +71,7 @@ pub struct ProcessList {
     pub processes: Vec<ProcessData>,
 }
 
-#[derive(SerJson)]
+#[derive(SerJson, Default)]
 pub struct DPSoftwareData {
     pub id: i16,
     pub name: String,
@@ -70,7 +87,7 @@ pub struct DPSoftwareList {
     pub response: String,
 }
 
-#[derive(SerJson)]
+#[derive(SerJson, Default)]
 pub struct HostData {
     pub hostname: String,
     pub uptime: u64,
@@ -83,7 +100,7 @@ pub struct HostData {
     pub ip: String,
 }
 
-#[derive(SerJson)]
+#[derive(SerJson, Default)]
 pub struct ServiceData {
     pub name: String,
     pub log: String,
@@ -156,7 +173,7 @@ pub struct JWTClaims {
     pub iat: u64,
 }
 
-#[derive(SerJson)]
+#[derive(SerJson, Default)]
 pub struct CPUTemp {
     pub available: bool,
     pub celsius: i16,
