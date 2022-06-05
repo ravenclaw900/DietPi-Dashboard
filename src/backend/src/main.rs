@@ -58,7 +58,7 @@ fn main() -> anyhow::Result<()> {
             let assets_route = warp::path("assets")
                 .and(warp::path::param())
                 .map(|path: String| {
-                    let ext = path.rsplit('.').next().unwrap();
+                    let ext = path.rsplit('.').next().expect("Couldn't get extension of path");
                     warp::reply::with_header(
                         match DIR.get_file(format!("assets/{}", path)) {
                             Some(file) => file.contents(),
@@ -150,8 +150,8 @@ fn main() -> anyhow::Result<()> {
                     log::info!("Request to {}", info.path());
                     log::debug!(
                         "by {}, using {} {:?}, with response of HTTP code {:?}",
-                        info.remote_addr().unwrap().ip(),
-                        info.user_agent().unwrap(),
+                        info.remote_addr().expect("Couldn't get remote address").ip(),
+                        info.user_agent().expect("Couldn't get remote user agent"),
                         info.version(),
                         info.status()
                     );
