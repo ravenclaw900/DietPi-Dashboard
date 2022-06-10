@@ -25,9 +25,13 @@ walkdir = "2.3.2"
 jsonwebtoken = { version = "8.1.0", default-features = false }
 serde = { version = "1.0.137", features = ["derive"] }
 
+[build-dependencies]
+flate2 = "1.0.24"
+walkdir = "2.3.2"
+
 [features]
 default = ["frontend"]
-frontend = ["include_dir", "warp/compression"]
+frontend = ["include_dir"]
 
 [profile.dev]
 debug = 1

@@ -5,7 +5,7 @@ use simple_logger::SimpleLogger;
 use std::net::IpAddr;
 #[cfg(feature = "frontend")]
 use warp::http::header;
-use warp::Filter;
+use warp::{Filter, Reply};
 
 mod config;
 mod page_handlers;
@@ -41,6 +41,7 @@ fn main() {
             headers.insert("X-Permitted-Cross-Domain_Policies", header::HeaderValue::from_static("none"));
             headers.insert(header::REFERRER_POLICY, header::HeaderValue::from_static("no-referrer"));
             headers.insert("Content-Security-Policy", header::HeaderValue::from_static("default-src 'self'; font-src 'self'; img-src 'self' blob:; script-src 'self'; style-src 'unsafe-inline' 'self'; connect-src * ws:;"));
+            headers.insert(header::CONTENT_ENCODING, header::HeaderValue::from_static("gzip"));
             }
 
             #[cfg(feature = "frontend")]
@@ -57,9 +58,9 @@ fn main() {
                 .and(warp::path::param())
                 .map(|path: String| {
                     let ext = path.rsplit('.').next().unwrap();
-                    warp::reply::with_header(
+                    let mut reply = warp::reply::with_header(
                         DIR.get_file(format!("assets/{}", path)).unwrap().contents(),
-                        "content-type",
+                        header::CONTENT_TYPE,
                         if ext == "js" {
                             "text/javascript".to_string()
                         } else if ext == "svg" {
@@ -67,7 +68,13 @@ fn main() {
                         } else {
                             format!("text/{}", ext)
                         },
-                    )
+                    ).into_response();
+
+                    if ext != "png" {
+                        reply.headers_mut().insert(header::CONTENT_ENCODING, header::HeaderValue::from_static("gzip"));
+                    };
+
+                    reply
                 });
 
             let login_route = warp::path("login")
@@ -125,14 +132,13 @@ fn main() {
 
             #[cfg(feature = "frontend")]
             let main_route = warp::any().map(|| {
-                warp::reply::html(DIR.get_file("index.html").unwrap().contents_utf8().unwrap())
+                warp::reply::html(DIR.get_file("index.html").unwrap().contents())
             }).with(warp::reply::with::headers(headers));
 
             #[cfg(feature = "frontend")]
             let page_routes = favicon_route
                 .or(assets_route)
-                .or(main_route)
-                .with(warp::compression::gzip());
+                .or(main_route);
 
             let socket_routes = terminal_route.or(file_route).or(socket_route);
 
