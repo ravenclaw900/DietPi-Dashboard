@@ -13,7 +13,7 @@ fn main() {
 
         let mut compressed = flate2::read::GzEncoder::new(
             std::fs::File::open(entry.path()).expect("Couldn't open uncompressed file"),
-            flate2::Compression::new(5),
+            flate2::Compression::best(),
         );
         let mut buf = Vec::new();
         compressed
