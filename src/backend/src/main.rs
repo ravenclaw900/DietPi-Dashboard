@@ -1,4 +1,5 @@
 #![warn(clippy::pedantic)]
+#![allow(clippy::too_many_lines)]
 use crate::shared::CONFIG;
 use anyhow::Context;
 use ring::digest;
@@ -6,7 +7,7 @@ use simple_logger::SimpleLogger;
 use std::net::IpAddr;
 #[cfg(feature = "frontend")]
 use warp::http::header;
-use warp::Filter;
+use warp::{Filter, Reply};
 
 mod config;
 mod page_handlers;
@@ -14,7 +15,6 @@ mod shared;
 mod socket_handlers;
 mod systemdata;
 
-#[allow(clippy::too_many_lines)]
 fn main() -> anyhow::Result<()> {
     #[allow(clippy::cast_possible_truncation)]
     tokio::runtime::Builder::new_multi_thread()
@@ -47,23 +47,22 @@ fn main() -> anyhow::Result<()> {
             #[cfg(feature = "frontend")]
             let favicon_route = warp::path("favicon.png").map(|| {
                 warp::reply::with_header(
-                    // Assume that favicon will always work (if it doesn't, there's probably a bigger problem)
-                    DIR.get_file("favicon.png").expect("Couldn't get favicon").contents(),
+                    handle_error!(DIR.get_file("favicon.png").context("Couldn't get favicon"), return warp::reply::with_status("Couldn't get favicon", warp::http::StatusCode::INTERNAL_SERVER_ERROR).into_response()).contents(),
                     "content-type",
                     "image/png",
-                )
+                ).into_response()
             });
 
             #[cfg(feature = "frontend")]
             let assets_route = warp::path("assets")
                 .and(warp::path::param())
                 .map(|path: String| {
-                    let ext = path.rsplit('.').next().expect("Couldn't get extension of path");
+                    let ext = path.rsplit('.').next().unwrap_or("plain");
                     warp::reply::with_header(
                         match DIR.get_file(format!("assets/{}", path)) {
                             Some(file) => file.contents(),
                             None => {
-                                log::warn!("Couldn't get asset {}", path);
+                                log::info!("Couldn't get asset {}", path);
                                 &[]
                             }
                         },
@@ -93,22 +92,24 @@ fn main() -> anyhow::Result<()> {
                                 exp: timestamp + CONFIG.expiry,
                             };
 
-                            let token = jsonwebtoken::encode(
+                            let token = handle_error!(jsonwebtoken::encode(
                                 &jsonwebtoken::Header::default(),
                                 &claims,
                                 &jsonwebtoken::EncodingKey::from_secret(CONFIG.secret.as_ref()),
-                            )
-                            .expect("Error creating login token");
+                            ).context("Error creating login token"), return warp::reply::with_status(
+                                "Error creating login token",
+                                warp::http::StatusCode::INTERNAL_SERVER_ERROR,
+                            ));
 
-                            return warp::reply::with_status(token, warp::http::StatusCode::OK);
+                            return warp::reply::with_status(&token, warp::http::StatusCode::OK);
                         }
                         return warp::reply::with_status(
-                            "Unauthorized".to_string(),
+                            "Unauthorized",
                             warp::http::StatusCode::UNAUTHORIZED,
                         );
                     }
                     warp::reply::with_status(
-                        "No login needed".to_string(),
+                        "No login needed",
                         warp::http::StatusCode::OK,
                     )
                 })
@@ -133,7 +134,9 @@ fn main() -> anyhow::Result<()> {
 
             #[cfg(feature = "frontend")]
             let main_route = warp::any().map(|| {
-                warp::reply::html(DIR.get_file("index.html").expect("Couldn't get main HTML file").contents_utf8().expect("Invalid main HTML file"))
+                let file_bytes = handle_error!(DIR.get_file("index.html").context("Couldn't get main HTML file"), return warp::reply::with_status("Couldn't get main HTML file", warp::http::StatusCode::INTERNAL_SERVER_ERROR).into_response());
+                let file = handle_error!(file_bytes.contents_utf8().context("Invalid main HTML file"), return warp::reply::with_status("Invalid main HTML file", warp::http::StatusCode::INTERNAL_SERVER_ERROR).into_response());
+                warp::reply::html(file).into_response()
             }).with(warp::reply::with::headers(headers));
 
             #[cfg(feature = "frontend")]
@@ -150,8 +153,8 @@ fn main() -> anyhow::Result<()> {
                     log::info!("Request to {}", info.path());
                     log::debug!(
                         "by {}, using {} {:?}, with response of HTTP code {:?}",
-                        info.remote_addr().expect("Couldn't get remote address").ip(),
-                        info.user_agent().expect("Couldn't get remote user agent"),
+                        info.remote_addr().unwrap_or_else(|| std::net::SocketAddr::from((std::net::Ipv4Addr::UNSPECIFIED, 0))).ip(),
+                        info.user_agent().unwrap_or("unknown"),
                         info.version(),
                         info.status()
                     );
