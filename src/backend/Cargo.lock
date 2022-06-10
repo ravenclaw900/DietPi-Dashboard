@@ -709,9 +709,9 @@ dependencies = [
 
 [[package]]
 name = "nanoserde"
-version = "0.1.29"
+version = "0.1.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2786e3e6331deef0ed595643fb9266686369917bdf99b4169701399c9d262868"
+checksum = "6ada81c67664d8256507a2d427273ed307631f0e4bb2bbb56beffd8fe42a1c4d"
 dependencies = [
  "nanoserde-derive",
 ]
