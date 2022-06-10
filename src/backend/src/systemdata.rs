@@ -163,7 +163,6 @@ pub async fn processes() -> anyhow::Result<Vec<shared::ProcessData>> {
 }
 
 // Return on error here, trust that DietPi-Software should work and if something goes wrong that it's bad
-#[allow(clippy::too_many_lines)]
 pub fn dpsoftware() -> anyhow::Result<(Vec<shared::DPSoftwareData>, Vec<shared::DPSoftwareData>)> {
     let free_out = Command::new("/boot/dietpi/dietpi-software")
         .arg("free")

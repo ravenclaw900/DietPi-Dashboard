@@ -5,17 +5,14 @@ lazy_static::lazy_static! {
     pub static ref CONFIG: crate::config::Config = crate::config::config();
 }
 
-// Simple error handling macro
+// Simple error handling macro, print out error and source (if available), and handle error if it exists
 #[macro_export]
 macro_rules! handle_error {
     ($e: expr $(, $handler:expr)?) => {
         match $e {
             Ok(val) => val,
             Err(err) => {
-                match err.source() {
-                    Some(source) => log::warn!("{}: {}", err, source),
-                    None => log::warn!("{}", err),
-                };
+                log::warn!("{:#}", err);
                 $($handler)?
             }
         }
