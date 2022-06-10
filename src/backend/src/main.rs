@@ -81,6 +81,7 @@ fn main() -> anyhow::Result<()> {
                 .and(warp::post())
                 .and(warp::body::bytes())
                 .map(|pass: warp::hyper::body::Bytes| {
+                    let token: String;
                     if CONFIG.pass {
                         let shasum = digest::digest(&digest::SHA512, &pass).as_ref().iter().map(|b| format!("{:02x}", b)).collect::<String>();
                         if shasum == CONFIG.hash {
@@ -92,24 +93,24 @@ fn main() -> anyhow::Result<()> {
                                 exp: timestamp + CONFIG.expiry,
                             };
 
-                            let token = handle_error!(jsonwebtoken::encode(
+                            token = handle_error!(jsonwebtoken::encode(
                                 &jsonwebtoken::Header::default(),
                                 &claims,
                                 &jsonwebtoken::EncodingKey::from_secret(CONFIG.secret.as_ref()),
                             ).context("Error creating login token"), return warp::reply::with_status(
-                                "Error creating login token",
+                                "Error creating login token".to_string(),
                                 warp::http::StatusCode::INTERNAL_SERVER_ERROR,
                             ));
 
-                            return warp::reply::with_status(&token, warp::http::StatusCode::OK);
+                            return warp::reply::with_status(token, warp::http::StatusCode::OK);
                         }
                         return warp::reply::with_status(
-                            "Unauthorized",
+                            "Unauthorized".to_string(),
                             warp::http::StatusCode::UNAUTHORIZED,
                         );
                     }
                     warp::reply::with_status(
-                        "No login needed",
+                        "No login needed".to_string(),
                         warp::http::StatusCode::OK,
                     )
                 })
