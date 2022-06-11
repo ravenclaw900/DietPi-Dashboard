@@ -71,6 +71,8 @@ fn main() -> anyhow::Result<()> {
                             "text/javascript".to_string()
                         } else if ext == "svg" {
                             "image/svg+xml".to_string()
+                        } else if ext == "png" {
+                            "image/png".to_string()
                         } else {
                             format!("text/{}", ext)
                         },
