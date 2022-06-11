@@ -24,8 +24,7 @@ endif
 
 # There may be a better, more 'make'y way of doing this, but find works for now
 compress: distcopy
-	find src/backend/dist ! -name '*.png' -type f -exec brotli {} +
-	find src/backend/dist -name '*.br' -exec sh -c 'x={}; mv -f "$$x" $$(echo $$x | sed 's/\.br//g')' \;
+	find src/backend/dist ! -name '*.png' -type f -exec gzip -9 {} \; -exec mv {}.gz {} \;
 
 yarn:
 	cd src/frontend; yarn build
