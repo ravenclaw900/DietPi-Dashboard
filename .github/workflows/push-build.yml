@@ -42,22 +42,20 @@ jobs:
       - name: Build frontend
         working-directory: src/frontend
         run: yarn build
-      - name: Copy "dist" folder
-        run: make distcopy
-      - name: Compress files
+      - name: Compress frontend files
         run: make compress
       - name: Build x86_64
         working-directory: src/backend
-        run: cross build --release --target x86_64-unknown-linux-musl
+        run: cross build --release --target x86_64-unknown-linux-musl --features compression
       - name: Build armv6l
         working-directory: src/backend
-        run: cross build --release --target arm-unknown-linux-musleabihf
+        run: cross build --release --target arm-unknown-linux-musleabihf --features compression
       - name: Build armv7l
         working-directory: src/backend
-        run: cross build --release --target armv7-unknown-linux-musleabihf
+        run: cross build --release --target armv7-unknown-linux-musleabihf --features compression
       - name: Build aarch64
         working-directory: src/backend
-        run: cross build --release --target aarch64-unknown-linux-musl
+        run: cross build --release --target aarch64-unknown-linux-musl --features compression
       - uses: actions/upload-artifact@v2
         with:
           name: dietpi-dashboard-x86_64
