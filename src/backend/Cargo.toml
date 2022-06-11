@@ -26,7 +26,7 @@ jsonwebtoken = { version = "8.1.0", default-features = false }
 serde = { version = "1.0.137", features = ["derive"] }
 
 [build-dependencies]
-flate2 = "1.0.24"
+brotli = "3.3.4"
 walkdir = "2.3.2"
 
 [features]

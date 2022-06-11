@@ -41,7 +41,7 @@ fn main() {
             headers.insert("X-Permitted-Cross-Domain_Policies", header::HeaderValue::from_static("none"));
             headers.insert(header::REFERRER_POLICY, header::HeaderValue::from_static("no-referrer"));
             headers.insert("Content-Security-Policy", header::HeaderValue::from_static("default-src 'self'; font-src 'self'; img-src 'self' blob:; script-src 'self'; style-src 'unsafe-inline' 'self'; connect-src * ws:;"));
-            headers.insert(header::CONTENT_ENCODING, header::HeaderValue::from_static("gzip"));
+            headers.insert(header::CONTENT_ENCODING, header::HeaderValue::from_static("br"));
             }
 
             #[cfg(feature = "frontend")]
@@ -71,7 +71,7 @@ fn main() {
                     ).into_response();
 
                     if ext != "png" {
-                        reply.headers_mut().insert(header::CONTENT_ENCODING, header::HeaderValue::from_static("gzip"));
+                        reply.headers_mut().insert(header::CONTENT_ENCODING, header::HeaderValue::from_static("br"));
                     };
 
                     reply

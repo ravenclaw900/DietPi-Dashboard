@@ -1,4 +1,4 @@
-use std::io::Read;
+use std::io::{Read, Write};
 
 fn main() {
     for i in walkdir::WalkDir::new("dist")
@@ -11,14 +11,25 @@ fn main() {
             continue;
         }
 
-        let mut compressed = flate2::read::GzEncoder::new(
-            std::fs::File::open(entry.path()).expect("Couldn't open uncompressed file"),
-            flate2::Compression::best(),
-        );
         let mut buf = Vec::new();
-        compressed
+
+        std::fs::File::open(entry.path())
+            .expect("Couldn't open uncompressed file")
             .read_to_end(&mut buf)
+            .expect("Couldn't read uncompressed file");
+
+        let mut compressed = brotli::CompressorWriter::new(
+            std::fs::File::create(entry.path()).expect("Couldn't init compressed file"),
+            4096,
+            11,
+            22,
+        );
+
+        compressed
+            .write_all(&buf)
             .expect("Couldn't read compressed data");
-        std::fs::write(entry.path(), &buf).expect("Couldn't write compressed data to file");
+        compressed
+            .flush()
+            .expect("Couldn't write compressed data to file");
     }
 }
