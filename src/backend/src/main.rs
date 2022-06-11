@@ -41,6 +41,7 @@ fn main() {
             headers.insert("X-Permitted-Cross-Domain_Policies", header::HeaderValue::from_static("none"));
             headers.insert(header::REFERRER_POLICY, header::HeaderValue::from_static("no-referrer"));
             headers.insert("Content-Security-Policy", header::HeaderValue::from_static("default-src 'self'; font-src 'self'; img-src 'self' blob:; script-src 'self'; style-src 'unsafe-inline' 'self'; connect-src * ws:;"));
+            #[cfg(feature = "compression")]
             headers.insert(header::CONTENT_ENCODING, header::HeaderValue::from_static("br"));
             }
 
@@ -58,6 +59,7 @@ fn main() {
                 .and(warp::path::param())
                 .map(|path: String| {
                     let ext = path.rsplit('.').next().unwrap();
+                    #[allow(unused_mut)] // Mute warning, variable is mut because it's used with the compression feature
                     let mut reply = warp::reply::with_header(
                         DIR.get_file(format!("assets/{}", path)).unwrap().contents(),
                         header::CONTENT_TYPE,
@@ -70,6 +72,7 @@ fn main() {
                         },
                     ).into_response();
 
+                    #[cfg(feature = "compression")]
                     if ext != "png" {
                         reply.headers_mut().insert(header::CONTENT_ENCODING, header::HeaderValue::from_static("br"));
                     };
