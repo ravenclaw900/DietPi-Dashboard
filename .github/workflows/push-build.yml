@@ -22,8 +22,6 @@ jobs:
         uses: Swatinem/rust-cache@v1
         with:
           working-directory: src/backend
-      - name: Restore Docker cache
-        uses: satackey/action-docker-layer-caching@v0.0.11
       - name: Lint (clippy)
         working-directory: src/backend
         run: |
