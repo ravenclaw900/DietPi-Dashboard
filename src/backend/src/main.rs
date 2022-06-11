@@ -5,9 +5,9 @@ use anyhow::Context;
 use ring::digest;
 use simple_logger::SimpleLogger;
 use std::net::IpAddr;
+use warp::Filter;
 #[cfg(feature = "frontend")]
-use warp::http::header;
-use warp::{Filter, Reply};
+use warp::{http::header, Reply};
 
 mod config;
 mod page_handlers;
