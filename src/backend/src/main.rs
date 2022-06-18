@@ -1,11 +1,13 @@
 #![warn(clippy::pedantic)]
+#![allow(clippy::too_many_lines)]
 use crate::shared::CONFIG;
+use anyhow::Context;
 use ring::digest;
 use simple_logger::SimpleLogger;
 use std::net::IpAddr;
-#[cfg(feature = "frontend")]
-use warp::http::header;
 use warp::Filter;
+#[cfg(feature = "frontend")]
+use warp::{http::header, Reply};
 
 mod config;
 mod page_handlers;
@@ -13,14 +15,13 @@ mod shared;
 mod socket_handlers;
 mod systemdata;
 
-#[allow(clippy::too_many_lines)]
-fn main() {
+fn main() -> anyhow::Result<()> {
     #[allow(clippy::cast_possible_truncation)]
     tokio::runtime::Builder::new_multi_thread()
         .worker_threads(psutil::cpu::cpu_count().max(2) as usize)
         .enable_all()
         .build()
-        .unwrap()
+        .context("Couldn't start tokio runtime")?
         .block_on(async {
             #[cfg(feature = "frontend")]
             const DIR: include_dir::Dir = include_dir::include_dir!("dist");
@@ -29,7 +30,7 @@ fn main() {
                 .with_level(CONFIG.log_level)
                 .env()
                 .init()
-                .unwrap();
+                .context("Couldn't init logger")?;
 
             #[cfg(feature = "frontend")]
             let mut headers = header::HeaderMap::new();
@@ -46,24 +47,32 @@ fn main() {
             #[cfg(feature = "frontend")]
             let favicon_route = warp::path("favicon.png").map(|| {
                 warp::reply::with_header(
-                    DIR.get_file("favicon.png").unwrap().contents(),
+                    handle_error!(DIR.get_file("favicon.png").context("Couldn't get favicon"), return warp::reply::with_status("Couldn't get favicon", warp::http::StatusCode::INTERNAL_SERVER_ERROR).into_response()).contents(),
                     "content-type",
                     "image/png",
-                )
+                ).into_response()
             });
 
             #[cfg(feature = "frontend")]
             let assets_route = warp::path("assets")
                 .and(warp::path::param())
                 .map(|path: String| {
-                    let ext = path.rsplit('.').next().unwrap();
+                    let ext = path.rsplit('.').next().unwrap_or("plain");
                     warp::reply::with_header(
-                        DIR.get_file(format!("assets/{}", path)).unwrap().contents(),
+                        match DIR.get_file(format!("assets/{}", path)) {
+                            Some(file) => file.contents(),
+                            None => {
+                                log::info!("Couldn't get asset {}", path);
+                                &[]
+                            }
+                        },
                         "content-type",
                         if ext == "js" {
                             "text/javascript".to_string()
                         } else if ext == "svg" {
                             "image/svg+xml".to_string()
+                        } else if ext == "png" {
+                            "image/png".to_string()
                         } else {
                             format!("text/{}", ext)
                         },
@@ -74,6 +83,7 @@ fn main() {
                 .and(warp::post())
                 .and(warp::body::bytes())
                 .map(|pass: warp::hyper::body::Bytes| {
+                    let token: String;
                     if CONFIG.pass {
                         let shasum = digest::digest(&digest::SHA512, &pass).as_ref().iter().map(|b| format!("{:02x}", b)).collect::<String>();
                         if shasum == CONFIG.hash {
@@ -85,12 +95,14 @@ fn main() {
                                 exp: timestamp + CONFIG.expiry,
                             };
 
-                            let token = jsonwebtoken::encode(
+                            token = handle_error!(jsonwebtoken::encode(
                                 &jsonwebtoken::Header::default(),
                                 &claims,
                                 &jsonwebtoken::EncodingKey::from_secret(CONFIG.secret.as_ref()),
-                            )
-                            .expect("Error creating login token");
+                            ).context("Error creating login token"), return warp::reply::with_status(
+                                "Error creating login token".to_string(),
+                                warp::http::StatusCode::INTERNAL_SERVER_ERROR,
+                            ));
 
                             return warp::reply::with_status(token, warp::http::StatusCode::OK);
                         }
@@ -125,7 +137,9 @@ fn main() {
 
             #[cfg(feature = "frontend")]
             let main_route = warp::any().map(|| {
-                warp::reply::html(DIR.get_file("index.html").unwrap().contents_utf8().unwrap())
+                let file_bytes = handle_error!(DIR.get_file("index.html").context("Couldn't get main HTML file"), return warp::reply::with_status("Couldn't get main HTML file", warp::http::StatusCode::INTERNAL_SERVER_ERROR).into_response());
+                let file = handle_error!(file_bytes.contents_utf8().context("Invalid main HTML file"), return warp::reply::with_status("Invalid main HTML file", warp::http::StatusCode::INTERNAL_SERVER_ERROR).into_response());
+                warp::reply::html(file).into_response()
             }).with(warp::reply::with::headers(headers));
 
             #[cfg(feature = "frontend")]
@@ -142,8 +156,8 @@ fn main() {
                     log::info!("Request to {}", info.path());
                     log::debug!(
                         "by {}, using {} {:?}, with response of HTTP code {:?}",
-                        info.remote_addr().unwrap().ip(),
-                        info.user_agent().unwrap(),
+                        info.remote_addr().unwrap_or_else(|| std::net::SocketAddr::from((std::net::Ipv4Addr::UNSPECIFIED, 0))).ip(),
+                        info.user_agent().unwrap_or("unknown"),
                         info.version(),
                         info.status()
                     );
@@ -164,5 +178,9 @@ fn main() {
             } else {
                 warp::serve(routes).run((addr, CONFIG.port)).await;
             }
-        });
+
+            anyhow::Ok(())
+        })?;
+
+    Ok(())
 }
