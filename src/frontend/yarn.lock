@@ -773,10 +773,10 @@ svelte-check@^2.7.2:
     svelte-preprocess "^4.0.0"
     typescript "*"
 
-svelte-fa@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/svelte-fa/-/svelte-fa-3.0.1.tgz#a8f64031c25e13bf09670152fb631f274ad127a1"
-  integrity sha512-p0+sp0Zzcjzqi/3cg4TsGG8MO1DE6vgNxUqcELZXMvkMgad/1VFTSKZ9QRkQMWBcIHsu3IEr16HldQFU4bJQ2g==
+svelte-fa@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/svelte-fa/-/svelte-fa-3.0.2.tgz#9bd41de42eb647b1c764028650c66f11c0caecca"
+  integrity sha512-cmoAJIcaLB5QvY1pyhy6biPk0+BOpGRljO56ftopaT6PkVBRp6GHxDcvgxNh6HN1+DJpES7UvTY4mhTDOEN/MQ==
 
 svelte-hmr@^0.14.12:
   version "0.14.12"
@@ -852,10 +852,10 @@ vite-plugin-windicss@^1.8.4:
     kolorist "^1.5.1"
     windicss "^3.5.1"
 
-vite@^2.9.11:
-  version "2.9.11"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-2.9.11.tgz#59a5a25fe40a4dcddc1ad3c348f4f0d8031ff926"
-  integrity sha512-h1n8bAN5Psv/V+RAY3P6OtYyGSFQdusgYWiLRAk41qY7rSyH4K5Jq+RUXztzyPVB0oHbnXPUuS2Aj44jucViUA==
+vite@^2.9.12:
+  version "2.9.12"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-2.9.12.tgz#b1d636b0a8ac636afe9d83e3792d4895509a941b"
+  integrity sha512-suxC36dQo9Rq1qMB2qiRorNJtJAdxguu5TMvBHOc/F370KvqAe9t48vYp+/TbPKRNrMh/J55tOUmkuIqstZaew==
   dependencies:
     esbuild "^0.14.27"
     postcss "^8.4.13"
