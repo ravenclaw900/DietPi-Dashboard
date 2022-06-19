@@ -4,7 +4,7 @@ use nanoserde::{DeJson, SerJson};
 use pty_process::Command;
 use std::io::{Read, Write};
 use std::sync::Arc;
-use tokio::sync::{mpsc, RwLock};
+use tokio::sync::mpsc;
 use warp::ws::Message;
 
 use crate::{handle_error, page_handlers, shared, systemdata, CONFIG};
@@ -147,7 +147,7 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
     let mut pre_cmd = std::process::Command::new("/bin/login");
     pre_cmd.env("TERM", "xterm");
 
-    let cmd = Arc::new(RwLock::new(handle_error!(
+    let mut cmd = Arc::new(handle_error!(
         if crate::CONFIG.terminal_user == "manual" {
             &mut pre_cmd
         } else {
@@ -156,90 +156,73 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
         .spawn_pty(None)
         .context("Couldn't spawn pty"),
         return
-    )));
-    let cmd_write = Arc::clone(&cmd);
-    let cmd_clone = Arc::clone(&cmd);
+    ));
 
-    let quit_send = Arc::new(tokio::sync::Notify::new());
-    let quit_recv = Arc::clone(&quit_send);
-
-    let (send, mut recv) = mpsc::channel(2);
-
-    tokio::spawn(async move {
-        loop {
-            let cmd_read = Arc::clone(&cmd_clone);
-            let lock = cmd_read.read_owned().await;
-            // Don't care about partial reads, it's in a loop
-            #[allow(clippy::unused_io_amount)]
-            let result = handle_error!(
-                tokio::task::spawn_blocking(move || {
-                    let mut data = [0; 256];
-                    let res = (*lock).pty().read(&mut data);
-                    (res, data)
-                })
-                .await
-                .context("Couldn't spawn tokio reader thread"),
-                continue
-            );
-            if result.0.is_ok() {
-                if send.send(result.1).await.is_err() {
-                    break;
-                }
-            } else {
-                quit_send.notify_one();
-                break;
-            }
-        }
-    });
-
-    loop {
-        tokio::select! {
-            Some(data) = recv.recv() => {
-                if socket_send
-                    .send(Message::binary(data.split(|num| *num == 0).next().unwrap_or(&data))) // Should never be None, but return data just in case
+    tokio::join!(
+        async {
+            loop {
+                let cmd_read = Arc::clone(&cmd);
+                // Don't care about partial reads, it's in a loop
+                #[allow(clippy::unused_io_amount)]
+                let result = handle_error!(
+                    tokio::task::spawn_blocking(move || {
+                        let mut data = [0; 256];
+                        let res = cmd_read.pty().read(&mut data);
+                        (res, data)
+                    })
                     .await
-                    .is_err() {
+                    .context("Couldn't spawn tokio reader thread"),
+                    continue
+                );
+                if result.0.is_ok() {
+                    if socket_send
+                        .send(Message::binary(
+                            result.1.split(|num| *num == 0).next().unwrap_or(&result.1),
+                        )) // Should never be None, but return data just in case
+                        .await
+                        .is_err()
+                    {
                         break;
                     }
-            }
-            data_msg = socket_recv.next() => {
-                let lock = cmd_write.read().await;
-                let data = if let Some(Ok(data_unwrapped)) = data_msg {
-                    data_unwrapped
                 } else {
-                    // Stop bash by writing "exit", since it won't respond to a SIGTERM
-                    let _write = (*cmd_write.read().await)
-                        .pty()
-                        .write_all("exit\n".as_bytes());
-                    continue;
-                };
-                if let Ok(data_str) = data.to_str() {
-                    if data_str.get(..4) == Some("size") {
-                        let json: TTYSize =
-                            handle_error!(
-                                DeJson::deserialize_json(&data_str[4..])
-                                .with_context(|| format!("Couldn't deserialize pty size from {}", &data_str)),
-                                continue
-                            );
-                            handle_error!(
-                                (*lock)
-                                .resize_pty(&pty_process::Size::new(json.rows, json.cols))
-                                .context("Couldn't resize pty")
-                            );
-                    }
-                } else if (*lock).pty().write_all(data.as_bytes()).is_err() {
                     break;
                 }
             }
-            _ = quit_recv.notified() => {
-                break;
+        },
+        async {
+            loop {
+                match socket_recv.next().await {
+                    Some(Ok(data)) => {
+                        if data.is_text() && data.to_str().unwrap().get(..4) == Some("size") {
+                            let data_str = data.to_str().unwrap();
+                            let json: TTYSize = handle_error!(
+                                DeJson::deserialize_json(&data_str[4..]).with_context(|| format!(
+                                    "Couldn't deserialize pty size from {}",
+                                    &data_str
+                                )),
+                                continue
+                            );
+                            handle_error!(cmd
+                                .resize_pty(&pty_process::Size::new(json.rows, json.cols))
+                                .context("Couldn't resize pty"));
+                        } else if cmd.pty().write_all(data.as_bytes()).is_err() {
+                            break;
+                        }
+                    }
+                    None | Some(Err(_)) => {
+                        // Stop bash by writing "exit", since it won't respond to a SIGTERM
+                        let _write = cmd.pty().write_all("exit\n".as_bytes());
+                        break;
+                    }
+                }
             }
         }
-    }
+    );
 
-    // Reap PID
+    // Reap PID, unwrap is safe because all references will have been dropped
     handle_error!(
-        (*cmd.write().await)
+        Arc::get_mut(&mut cmd)
+            .unwrap()
             .wait()
             .context("Couldn't close terminal"),
         return

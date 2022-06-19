@@ -42,7 +42,7 @@ pub struct NetData {
     pub received: u64,
 }
 
-#[derive(Debug, Clone, DeJson, Default)]
+#[derive(Debug, Clone, DeJson)]
 pub struct Request {
     #[nserde(default)]
     pub page: String,
