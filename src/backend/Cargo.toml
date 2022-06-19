@@ -28,7 +28,8 @@ anyhow = "1.0.57"
 
 [features]
 default = ["frontend"]
-frontend = ["include_dir", "warp/compression"]
+frontend = ["include_dir"]
+compression = ["frontend"]
 
 [profile.dev]
 debug = 1

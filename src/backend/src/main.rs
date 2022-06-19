@@ -42,6 +42,8 @@ fn main() -> anyhow::Result<()> {
             headers.insert("X-Permitted-Cross-Domain_Policies", header::HeaderValue::from_static("none"));
             headers.insert(header::REFERRER_POLICY, header::HeaderValue::from_static("no-referrer"));
             headers.insert("Content-Security-Policy", header::HeaderValue::from_static("default-src 'self'; font-src 'self'; img-src 'self' blob:; script-src 'self'; style-src 'unsafe-inline' 'self'; connect-src * ws:;"));
+            #[cfg(feature = "compression")]
+            headers.insert(header::CONTENT_ENCODING, header::HeaderValue::from_static("gzip"));
             }
 
             #[cfg(feature = "frontend")]
@@ -58,7 +60,8 @@ fn main() -> anyhow::Result<()> {
                 .and(warp::path::param())
                 .map(|path: String| {
                     let ext = path.rsplit('.').next().unwrap_or("plain");
-                    warp::reply::with_header(
+                    #[allow(unused_mut)] // Mute warning, variable is mut because it's used with the compression feature
+                    let mut reply = warp::reply::with_header(
                         match DIR.get_file(format!("assets/{}", path)) {
                             Some(file) => file.contents(),
                             None => {
@@ -66,7 +69,7 @@ fn main() -> anyhow::Result<()> {
                                 &[]
                             }
                         },
-                        "content-type",
+                        header::CONTENT_TYPE,
                         if ext == "js" {
                             "text/javascript".to_string()
                         } else if ext == "svg" {
@@ -76,7 +79,14 @@ fn main() -> anyhow::Result<()> {
                         } else {
                             format!("text/{}", ext)
                         },
-                    )
+                    ).into_response();
+
+                    #[cfg(feature = "compression")]
+                    if ext != "png" {
+                        reply.headers_mut().insert(header::CONTENT_ENCODING, header::HeaderValue::from_static("gzip"));
+                    };
+
+                    reply
                 });
 
             let login_route = warp::path("login")
@@ -137,16 +147,14 @@ fn main() -> anyhow::Result<()> {
 
             #[cfg(feature = "frontend")]
             let main_route = warp::any().map(|| {
-                let file_bytes = handle_error!(DIR.get_file("index.html").context("Couldn't get main HTML file"), return warp::reply::with_status("Couldn't get main HTML file", warp::http::StatusCode::INTERNAL_SERVER_ERROR).into_response());
-                let file = handle_error!(file_bytes.contents_utf8().context("Invalid main HTML file"), return warp::reply::with_status("Invalid main HTML file", warp::http::StatusCode::INTERNAL_SERVER_ERROR).into_response());
+                let file = handle_error!(DIR.get_file("index.html").context("Couldn't get main HTML file"), return warp::reply::with_status("Couldn't get main HTML file", warp::http::StatusCode::INTERNAL_SERVER_ERROR).into_response()).contents();
                 warp::reply::html(file).into_response()
             }).with(warp::reply::with::headers(headers));
 
             #[cfg(feature = "frontend")]
             let page_routes = favicon_route
                 .or(assets_route)
-                .or(main_route)
-                .with(warp::compression::gzip());
+                .or(main_route);
 
             let socket_routes = terminal_route.or(file_route).or(socket_route);
 

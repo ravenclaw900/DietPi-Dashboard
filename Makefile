@@ -1,18 +1,30 @@
-default: yarn publiccopy fmt
+build: yarn rustbuild
 
+rustbuild: distcopy fmt
+ifdef TARGET
+	cd src/backend; cargo build --target $(TARGET)
+	mv src/backend/target/$(TARGET)/debug/dietpi-dashboard .
+else
 	cd src/backend; cargo build
+	mv src/backend/target/debug/dietpi-dashboard .
+endif
 
-	$(MAKE) publicdelete
+	rm -r src/backend/dist
 
-	mv src/backend/target/debug/dietpi-dashboard ./dietpi-dashboard
+release: yarn compress
+ifdef TARGET
+	cd src/backend; cargo build --target $(TARGET) --release --features compression
+	mv src/backend/target/$(TARGET)/release/dietpi-dashboard .
+else
+	cd src/backend; cargo build --release --features compression
+	mv src/backend/target/release/dietpi-dashboard .
+endif
 
-rust: publiccopy fmt 
+	rm -r src/backend/dist
 
-	cd src/backend; cargo build
-
-	$(MAKE) publicdelete
-
-	mv src/backend/target/debug/dietpi-dashboard ./dietpi-dashboard
+# There may be a better, more 'make'y way of doing this, but find works for now
+compress: distcopy
+	find src/backend/dist ! -name '*.png' -type f -exec gzip -9 {} \; -exec mv {}.gz {} \;
 
 yarn:
 	cd src/frontend; yarn build
@@ -23,12 +35,6 @@ else
 	rm -f src/backend/target/debug/deps/dietpi_dashboard-*
 endif
 
-publiccopy:
-	cp -r src/frontend/dist src/backend
-
-publicdelete:
-	rm -r src/backend/dist
-
 fmt:
 	cd src/backend; cargo fmt
 ifdef TARGET
@@ -37,10 +43,5 @@ else
 	cd src/backend; cargo clippy
 endif
 
-rustdev: publiccopy fmt
-	cd src/backend; cargo build --target $(TARGET)
-	mv src/backend/target/$(TARGET)/debug/dietpi-dashboard ./dietpi-dashboard
-
-	$(MAKE) publicdelete
-
-dev: yarn rustdev
+distcopy:
+	cp -r src/frontend/dist src/backend
