@@ -4,8 +4,7 @@ use nanoserde::{DeJson, SerJson};
 use pty_process::Command;
 use std::io::{Read, Write};
 use std::sync::Arc;
-use tokio::sync::RwLock;
-use tokio::sync::{mpsc, Mutex};
+use tokio::sync::{mpsc, RwLock};
 use warp::ws::Message;
 
 use crate::{handle_error, page_handlers, shared, systemdata, CONFIG};
@@ -29,9 +28,8 @@ fn validate_token(token: &str) -> bool {
 pub async fn socket_handler(socket: warp::ws::WebSocket) {
     let (mut socket_send, mut socket_recv) = socket.split();
     let (data_send, mut data_recv) = mpsc::channel(1);
-    let quit = Arc::new(tokio::sync::Notify::new());
-    let quit_send = Arc::clone(&quit);
     tokio::task::spawn(async move {
+        let mut first_message = true;
         let mut req: shared::Request;
         while let Some(Ok(data)) = socket_recv.next().await {
             if data.is_close() {
@@ -50,24 +48,34 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                 continue
             );
             if CONFIG.pass && !validate_token(&req.token) {
-                quit_send.notify_waiters();
+                if !first_message {
+                    if let Err(err) = data_send.send(None).await {
+                        log::error!("Internal error: couldn't initiate login: {}", err);
+                        break;
+                    }
+                }
                 handle_error!(data_send
-                    .send(shared::Request {
+                    .send(Some(shared::Request {
                         page: "/login".to_string(),
                         token: String::new(),
                         cmd: String::new(),
                         args: Vec::new(),
-                    })
+                    }))
                     .await
                     .context("Internal error: couldn't send login request"));
                 continue;
             }
             if req.cmd.is_empty() {
                 // Quit out of handler
-                quit_send.notify_waiters();
+                if first_message {
+                    first_message = false;
+                } else if let Err(err) = data_send.send(None).await {
+                    log::error!("Internal error: couldn't change page: {}", err);
+                    break;
+                }
             }
             // Send new page/data
-            if let Err(err) = data_send.send(req.clone()).await {
+            if let Err(err) = data_send.send(Some(req.clone())).await {
                 // Manual error handling here, to use log::error
                 log::error!("Internal error: couldn't send request: {}", err);
                 break;
@@ -80,33 +88,27 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
             SerJson::serialize_json(&systemdata::global()),
         ))
         .await;
-    let socket_ptr = Arc::new(Mutex::new(socket_send));
-    while let Some(message) = data_recv.recv().await {
+    while let Some(Some(message)) = data_recv.recv().await {
         match message.page.as_str() {
-            "/" => page_handlers::main_handler(Arc::clone(&socket_ptr), &quit).await,
+            "/" => page_handlers::main_handler(&mut socket_send, &mut data_recv).await,
             "/process" => {
-                page_handlers::process_handler(Arc::clone(&socket_ptr), &mut data_recv, &quit)
-                    .await;
+                page_handlers::process_handler(&mut socket_send, &mut data_recv).await;
             }
             "/software" => {
-                page_handlers::software_handler(Arc::clone(&socket_ptr), &mut data_recv, &quit)
-                    .await;
+                page_handlers::software_handler(&mut socket_send, &mut data_recv).await;
             }
             "/management" => {
-                page_handlers::management_handler(Arc::clone(&socket_ptr), &mut data_recv, &quit)
-                    .await;
+                page_handlers::management_handler(&mut socket_send, &mut data_recv).await;
             }
             "/service" => {
-                page_handlers::service_handler(Arc::clone(&socket_ptr), &mut data_recv, &quit)
-                    .await;
+                page_handlers::service_handler(&mut socket_send, &mut data_recv).await;
             }
             "/browser" => {
-                page_handlers::browser_handler(Arc::clone(&socket_ptr), &mut data_recv, &quit)
-                    .await;
+                page_handlers::browser_handler(&mut socket_send, &mut data_recv).await;
             }
             "/login" => {
                 // Internal poll, see other thread
-                let _send = (*socket_ptr.lock().await)
+                let _send = socket_send
                     .send(Message::text(SerJson::serialize_json(
                         &shared::TokenError { error: true },
                     )))
