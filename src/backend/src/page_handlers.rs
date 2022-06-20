@@ -10,7 +10,8 @@ use warp::ws::Message;
 
 use crate::{handle_error, shared, systemdata};
 
-type SocketPtr = SplitSink<warp::ws::WebSocket, warp::ws::Message>;
+type SocketSend = SplitSink<warp::ws::WebSocket, warp::ws::Message>;
+type RecvChannel = Receiver<Option<shared::Request>>;
 
 async fn main_handler_getter() -> anyhow::Result<shared::SysData> {
     Ok(shared::SysData {
@@ -23,10 +24,7 @@ async fn main_handler_getter() -> anyhow::Result<shared::SysData> {
     })
 }
 
-pub async fn main_handler(
-    socket_send: &mut SocketPtr,
-    data_recv: &mut Receiver<Option<shared::Request>>,
-) {
+pub async fn main_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     loop {
         tokio::select! {
             biased;
@@ -65,10 +63,7 @@ fn process_handler_helper(data: &shared::Request) -> anyhow::Result<()> {
     Ok(())
 }
 
-pub async fn process_handler(
-    socket_send: &mut SocketPtr,
-    data_recv: &mut Receiver<Option<shared::Request>>,
-) {
+pub async fn process_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     loop {
         tokio::select! {
             biased;
@@ -92,7 +87,7 @@ pub async fn process_handler(
 
 pub async fn software_handler_helper(
     data: &shared::Request,
-    socket_send: &mut SocketPtr,
+    socket_send: &mut SocketSend,
 ) -> anyhow::Result<()> {
     // We don't just want to run dietpi-software without args
     anyhow::ensure!(!data.args.is_empty(), "Empty dietpi-software args");
@@ -126,10 +121,7 @@ pub async fn software_handler_helper(
     Ok(())
 }
 
-pub async fn software_handler(
-    socket_send: &mut SocketPtr,
-    data_recv: &mut Receiver<Option<shared::Request>>,
-) {
+pub async fn software_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     let software = handle_error!(systemdata::dpsoftware(), (Vec::new(), Vec::new()));
     let _send = socket_send
         .send(Message::text(SerJson::serialize_json(
@@ -145,10 +137,7 @@ pub async fn software_handler(
     }
 }
 
-pub async fn management_handler(
-    socket_send: &mut SocketPtr,
-    data_recv: &mut Receiver<Option<shared::Request>>,
-) {
+pub async fn management_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     let _send = socket_send
         .send(Message::text(SerJson::serialize_json(&handle_error!(
             systemdata::host(),
@@ -164,10 +153,7 @@ pub async fn management_handler(
     }
 }
 
-pub async fn service_handler(
-    socket_send: &mut SocketPtr,
-    data_recv: &mut Receiver<Option<shared::Request>>,
-) {
+pub async fn service_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     let _send = socket_send
         .send(Message::text(SerJson::serialize_json(
             &shared::ServiceList {
@@ -257,10 +243,7 @@ async fn browser_handler_helper(
     Ok(())
 }
 
-pub async fn browser_handler(
-    socket_send: &mut SocketPtr,
-    data_recv: &mut Receiver<Option<shared::Request>>,
-) {
+pub async fn browser_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     // Get initial listing of $HOME
     let _send = socket_send
         .send(Message::text(SerJson::serialize_json(
