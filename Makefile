@@ -9,8 +9,6 @@ else
 	mv src/backend/target/debug/dietpi-dashboard .
 endif
 
-	rm -r src/backend/dist
-
 release: yarn compress
 ifdef TARGET
 	cd src/backend; cargo build --target $(TARGET) --release --features compression
@@ -44,4 +42,5 @@ else
 endif
 
 distcopy:
+	rm -r src/backend/dist
 	cp -r src/frontend/dist src/backend
