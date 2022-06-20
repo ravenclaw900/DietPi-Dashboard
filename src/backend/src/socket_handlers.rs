@@ -4,6 +4,7 @@ use nanoserde::{DeJson, SerJson};
 use pty_process::Command;
 use std::io::{Read, Write};
 use std::sync::Arc;
+use tokio::io::AsyncReadExt;
 use tokio::sync::mpsc;
 use warp::ws::Message;
 
@@ -232,65 +233,55 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
     log::info!("Closed terminal");
 }
 
-async fn walk_dir(dir: std::path::PathBuf) -> anyhow::Result<Vec<std::path::PathBuf>> {
-    let mut dirs = vec![dir];
-    let mut files = Vec::new();
-
-    while !dirs.is_empty() {
-        let mut dir_iter = tokio::fs::read_dir(dirs.remove(0)).await?;
-
-        while let Some(entry) = dir_iter.next_entry().await? {
-            let entry_path_buf = entry.path();
-
-            if entry_path_buf.is_dir() {
-                dirs.push(entry_path_buf);
-            } else {
-                files.push(entry_path_buf);
-            }
-        }
-    }
-
-    Ok(files)
-}
-
 async fn create_zip_file(req: &shared::FileRequest) -> anyhow::Result<Vec<u8>> {
     let mut buf = Vec::new();
     let src_path = tokio::fs::canonicalize(&req.path)
         .await
         .with_context(|| format!("Invalid source path {}", &req.path))?;
     {
-        let mut zip_file = async_zip::write::ZipFileWriter::new(&mut buf);
-        for path in walk_dir(src_path.clone()).await.with_context(|| {
-            format!("Couldn't recursively get directory {}", &src_path.display())
-        })? {
+        let mut zip_file = zip::ZipWriter::new(std::io::Cursor::new(&mut buf));
+        let mut file_buf = Vec::new();
+        for entry in walkdir::WalkDir::new(&src_path) {
+            let entry = entry.context("Couldn't get data for recursive entry")?;
+            let path = entry.path();
             // 'unwrap' is safe here because path is canonicalized
             let name = std::path::Path::new(&src_path.file_name().unwrap()).join(
                 // Here too, because the path should always be a child
                 path.strip_prefix(&src_path).unwrap(),
             );
-            let name = name.to_string_lossy();
+            let name = handle_error!(
+                name.to_str()
+                    .with_context(|| format!("Invalid file name {}", name.display())),
+                continue
+            );
             if path.is_file() {
-                let file = handle_error!(
-                    tokio::fs::read(&path)
+                zip_file
+                    .start_file(name, zip::write::FileOptions::default())
+                    .with_context(|| format!("Couldn't add file {} to zip", name))?;
+                let mut f = handle_error!(
+                    tokio::fs::File::open(path)
+                        .await
+                        .with_context(|| format!("Couldn't open file {}, skipping", name)),
+                    continue
+                );
+                handle_error!(
+                    f.read_to_end(&mut file_buf)
                         .await
                         .with_context(|| format!("Couldn't read file {}, skipping", name)),
                     continue
                 );
                 handle_error!(zip_file
-                    .write_entry_whole(
-                        async_zip::write::EntryOptions::new(
-                            name.to_string(),
-                            async_zip::Compression::Deflate,
-                        ),
-                        &file
-                    )
-                    .await
+                    .write_all(&file_buf)
                     .with_context(|| format!("Couldn't write file {} into zip, skipping", name)));
+                file_buf.clear();
+            } else if !name.is_empty() {
+                zip_file
+                    .add_directory(name, zip::write::FileOptions::default())
+                    .with_context(|| format!("Couldn't add directory {} to zip", name))?;
             }
         }
         zip_file
-            .close()
-            .await
+            .finish()
             .context("Couldn't finish writing to zip file")?;
     }
     Ok(buf)
