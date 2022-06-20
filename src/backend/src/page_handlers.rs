@@ -2,8 +2,8 @@ use anyhow::Context;
 use futures::stream::SplitSink;
 use futures::SinkExt;
 use nanoserde::SerJson;
-use std::process::Command;
 use std::time::Duration;
+use tokio::process::Command;
 use tokio::sync::mpsc::Receiver;
 use tokio::time::sleep;
 use warp::ws::Message;
@@ -113,7 +113,7 @@ pub async fn software_handler_helper(
     // We don't just want to run dietpi-software without args
     anyhow::ensure!(!data.args.is_empty(), "Empty dietpi-software args");
 
-    let mut cmd = Command::new("/boot/dietpi/dietpi-software");
+    let mut cmd = tokio::process::Command::new("/boot/dietpi/dietpi-software");
     let mut arg_list = vec![data.cmd.as_str()];
     for element in &data.args {
         arg_list.push(element.as_str());
@@ -122,13 +122,14 @@ pub async fn software_handler_helper(
     let out = std::string::String::from_utf8(
         cmd.args(arg_list)
             .output()
+            .await
             .context("Couldn't get DietPi-Software output")?
             .stdout,
     )
     .context("Invalid DietPi-Software output")?
     .replace('', "");
 
-    let software = systemdata::dpsoftware()?;
+    let software = systemdata::dpsoftware().await?;
     let _send = socket_send
         .send(Message::text(SerJson::serialize_json(
             &shared::DPSoftwareList {
@@ -143,7 +144,7 @@ pub async fn software_handler_helper(
 }
 
 pub async fn software_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
-    let software = handle_error!(systemdata::dpsoftware(), (Vec::new(), Vec::new()));
+    let software = handle_error!(systemdata::dpsoftware().await, (Vec::new(), Vec::new()));
     let _send = socket_send
         .send(Message::text(SerJson::serialize_json(
             &shared::DPSoftwareList {
@@ -161,7 +162,7 @@ pub async fn software_handler(socket_send: &mut SocketSend, data_recv: &mut Recv
 pub async fn management_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     let _send = socket_send
         .send(Message::text(SerJson::serialize_json(&handle_error!(
-            systemdata::host(),
+            systemdata::host().await,
             shared::HostData::default()
         ))))
         .await;
@@ -178,7 +179,7 @@ pub async fn service_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
     let _send = socket_send
         .send(Message::text(SerJson::serialize_json(
             &shared::ServiceList {
-                services: handle_error!(systemdata::services(), Vec::new()),
+                services: handle_error!(systemdata::services().await, Vec::new()),
             },
         )))
         .await;
@@ -191,7 +192,7 @@ pub async fn service_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
         let _send = socket_send
             .send(Message::text(SerJson::serialize_json(
                 &shared::ServiceList {
-                    services: handle_error!(systemdata::services(), Vec::new()),
+                    services: handle_error!(systemdata::services().await, Vec::new()),
                 },
             )))
             .await;
@@ -208,7 +209,7 @@ async fn browser_refresh(
     let _send = socket_send
         .send(Message::text(SerJson::serialize_json(
             &shared::BrowserList {
-                contents: systemdata::browser_dir(std::path::Path::new(dir_path))?,
+                contents: systemdata::browser_dir(std::path::Path::new(dir_path)).await?,
             },
         )))
         .await;
@@ -220,12 +221,15 @@ async fn browser_handler_helper(
     data: &shared::Request,
     socket_send: &mut SplitSink<warp::ws::WebSocket, Message>,
 ) -> anyhow::Result<()> {
+    use tokio::fs;
+
     match data.cmd.as_str() {
         "cd" => {
             let _send = socket_send
                 .send(Message::text(SerJson::serialize_json(
                     &shared::BrowserList {
-                        contents: systemdata::browser_dir(std::path::Path::new(&data.args[0]))?,
+                        contents: systemdata::browser_dir(std::path::Path::new(&data.args[0]))
+                            .await?,
                     },
                 )))
                 .await;
@@ -236,33 +240,41 @@ async fn browser_handler_helper(
             while std::path::Path::new(&format!("{} {}", &data.args[0], num)).exists() {
                 num += 1;
             }
-            std::fs::copy(&data.args[0], format!("{} {}", &data.args[0], num)).with_context(
-                || format!("Couldn't copy file {0} to {0} {1}", &data.args[0], num),
-            )?;
+            fs::copy(&data.args[0], format!("{} {}", &data.args[0], num))
+                .await
+                .with_context(|| {
+                    format!("Couldn't copy file {0} to {0} {1}", &data.args[0], num)
+                })?;
         }
         "rm" => {
-            std::fs::remove_file(&data.args[0])
+            fs::remove_file(&data.args[0])
+                .await
                 .with_context(|| format!("Couldn't delete file at {}", &data.args[0]))?;
         }
         "rmdir" => {
-            std::fs::remove_dir_all(&data.args[0])
+            fs::remove_dir_all(&data.args[0])
+                .await
                 .with_context(|| format!("Couldn't delete directory at {}", &data.args[0]))?;
         }
         "mkdir" => {
-            std::fs::create_dir(&data.args[0])
+            fs::create_dir(&data.args[0])
+                .await
                 .with_context(|| format!("Couldn't create directory at {}", &data.args[0]))?;
         }
         "mkfile" => {
-            std::fs::write(&data.args[0], "")
+            fs::write(&data.args[0], "")
+                .await
                 .with_context(|| format!("Couldn't create file at {}", &data.args[0]))?;
         }
         "rename" => {
-            std::fs::rename(&data.args[0], &data.args[1]).with_context(|| {
-                format!(
-                    "Couldn't rename file {} to {}",
-                    &data.args[0], &data.args[1]
-                )
-            })?;
+            fs::rename(&data.args[0], &data.args[1])
+                .await
+                .with_context(|| {
+                    format!(
+                        "Couldn't rename file {} to {}",
+                        &data.args[0], &data.args[1]
+                    )
+                })?;
         }
         _ => {}
     }
@@ -280,7 +292,8 @@ pub async fn browser_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
                 contents: handle_error!(
                     systemdata::browser_dir(std::path::Path::new(
                         &std::env::var_os("HOME").unwrap_or_else(|| "/root".into()),
-                    )),
+                    ))
+                    .await,
                     Vec::new()
                 ),
             },

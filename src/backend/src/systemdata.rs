@@ -1,9 +1,9 @@
 use anyhow::Context;
 use psutil::{cpu, disk, host, memory, network, process, sensors};
-use std::fs;
-use std::process::Command;
 use std::str::from_utf8;
 use std::time::Duration;
+use tokio::fs;
+use tokio::process::Command;
 use tokio::time::sleep;
 
 use crate::shared;
@@ -143,10 +143,12 @@ pub async fn processes() -> anyhow::Result<Vec<shared::ProcessData>> {
 }
 
 // Return on error here, trust that DietPi-Software should work and if something goes wrong that it's bad
-pub fn dpsoftware() -> anyhow::Result<(Vec<shared::DPSoftwareData>, Vec<shared::DPSoftwareData>)> {
+pub async fn dpsoftware(
+) -> anyhow::Result<(Vec<shared::DPSoftwareData>, Vec<shared::DPSoftwareData>)> {
     let free_out = Command::new("/boot/dietpi/dietpi-software")
         .arg("free")
         .output()
+        .await
         .context("Couldn't get DietPi-Software free list")?
         .stdout;
     anyhow::ensure!(!free_out.is_empty(), "DietPi-Software not running as root");
@@ -168,6 +170,7 @@ pub fn dpsoftware() -> anyhow::Result<(Vec<shared::DPSoftwareData>, Vec<shared::
     let out = Command::new("/boot/dietpi/dietpi-software")
         .arg("list")
         .output()
+        .await
         .context("Couldn't get DietPi-Software software list")?
         .stdout;
     let out_list = from_utf8(&out)
@@ -267,10 +270,11 @@ pub fn dpsoftware() -> anyhow::Result<(Vec<shared::DPSoftwareData>, Vec<shared::
     Ok((uninstalled_list, installed_list))
 }
 
-pub fn host() -> anyhow::Result<shared::HostData> {
+pub async fn host() -> anyhow::Result<shared::HostData> {
     let info = host::info();
     let uptime = host::uptime().context("Couldn't get uptime")?.as_secs() / 60;
     let dp_file = fs::read_to_string(&std::path::Path::new("/boot/dietpi/.version"))
+        .await
         .context("Couldn't get DietPi version")?;
     let dp_version: Vec<&str> = dp_file.split(&['=', '\n'][..]).collect();
     // Much faster than 'apt list --installed'
@@ -278,12 +282,14 @@ pub fn host() -> anyhow::Result<shared::HostData> {
     let installed_pkgs = Command::new("dpkg")
         .arg("--get-selections")
         .output()
+        .await
         .context("Couldn't get number of installed APT packages")?
         .stdout
         .into_iter()
         .filter(|x| *x == b'\n')
         .count();
     let upgradable_pkgs = fs::read_to_string("/run/dietpi/.apt_updates")
+        .await
         .unwrap_or_else(|_| 0u32.to_string())
         .trim_end_matches('\n')
         .parse::<u32>()
@@ -317,10 +323,11 @@ pub fn host() -> anyhow::Result<shared::HostData> {
 }
 
 // Also assume DietPi-Services output is good, and return on error
-pub fn services() -> anyhow::Result<Vec<shared::ServiceData>> {
+pub async fn services() -> anyhow::Result<Vec<shared::ServiceData>> {
     let services = &mut Command::new("/boot/dietpi/dietpi-services")
         .arg("status")
         .output()
+        .await
         .context("Couldn't get service list")?;
     anyhow::ensure!(
         !services.stdout.is_empty(),
@@ -381,11 +388,12 @@ pub fn services() -> anyhow::Result<Vec<shared::ServiceData>> {
     Ok(services_list)
 }
 
-pub fn global() -> shared::GlobalData {
+pub async fn global() -> shared::GlobalData {
     use crate::CONFIG;
 
-    let update =
-        fs::read_to_string("/run/dietpi/.update_available").unwrap_or_else(|_| String::new());
+    let update = fs::read_to_string("/run/dietpi/.update_available")
+        .await
+        .unwrap_or_else(|_| String::new());
     shared::GlobalData {
         update,
         login: CONFIG.pass,
@@ -397,16 +405,18 @@ pub fn global() -> shared::GlobalData {
     }
 }
 
-pub fn browser_dir(path: &std::path::Path) -> anyhow::Result<Vec<shared::BrowserData>> {
-    let dir =
-        fs::read_dir(path).with_context(|| format!("Couldn't read path {}", path.display()))?;
+pub async fn browser_dir(path: &std::path::Path) -> anyhow::Result<Vec<shared::BrowserData>> {
+    let mut dir = fs::read_dir(path)
+        .await
+        .with_context(|| format!("Couldn't read path {}", path.display()))?;
     let mut file_list = Vec::new();
-    for file in dir {
-        let file = file.context("Couldn't get file data")?;
+    while let Ok(Some(file)) = dir.next_entry().await {
         // Resolve all symlinks
         let path = fs::canonicalize(file.path())
+            .await
             .with_context(|| format!("Couldn't canonicalize path {}", file.path().display()))?;
         let metadata = fs::metadata(&path)
+            .await
             .with_context(|| format!("Couldn't get metadata for path {}", &path.display()))?;
         let maintype;
         let subtype;
@@ -417,6 +427,7 @@ pub fn browser_dir(path: &std::path::Path) -> anyhow::Result<Vec<shared::Browser
             prettytype = "Directory".to_string();
         } else {
             let buf = fs::read(&path)
+                .await
                 .with_context(|| format!("Couldn't read directory {}", &path.display()))?;
             if let Some(infertype) = infer::get(&buf) {
                 subtype = infertype

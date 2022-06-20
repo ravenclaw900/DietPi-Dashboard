@@ -4,6 +4,7 @@ use nanoserde::{DeJson, SerJson};
 use pty_process::Command;
 use std::io::{Read, Write};
 use std::sync::Arc;
+use tokio::io::AsyncReadExt;
 use tokio::sync::mpsc;
 use warp::ws::Message;
 
@@ -84,9 +85,9 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
     });
     // Send global message (shown on all pages)
     let _send = socket_send
-        .send(Message::text(
-            SerJson::serialize_json(&systemdata::global()),
-        ))
+        .send(Message::text(SerJson::serialize_json(
+            &systemdata::global().await,
+        )))
         .await;
     while let Some(Some(message)) = data_recv.recv().await {
         match message.page.as_str() {
@@ -144,6 +145,7 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
         }
     }
 
+    // We use std::process::Command here because it lets us read and write without a mutable reference (even though it should require one?)
     let mut pre_cmd = std::process::Command::new("/bin/login");
     pre_cmd.env("TERM", "xterm");
 
@@ -231,9 +233,10 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
     log::info!("Closed terminal");
 }
 
-fn create_zip_file(req: &shared::FileRequest) -> anyhow::Result<Vec<u8>> {
+async fn create_zip_file(req: &shared::FileRequest) -> anyhow::Result<Vec<u8>> {
     let mut buf = Vec::new();
-    let src_path = std::fs::canonicalize(&req.path)
+    let src_path = tokio::fs::canonicalize(&req.path)
+        .await
         .with_context(|| format!("Invalid source path {}", &req.path))?;
     {
         let mut zip_file = zip::ZipWriter::new(std::io::Cursor::new(&mut buf));
@@ -256,12 +259,14 @@ fn create_zip_file(req: &shared::FileRequest) -> anyhow::Result<Vec<u8>> {
                     .start_file(name, zip::write::FileOptions::default())
                     .with_context(|| format!("Couldn't add file {} to zip", name))?;
                 let mut f = handle_error!(
-                    std::fs::File::open(path)
+                    tokio::fs::File::open(path)
+                        .await
                         .with_context(|| format!("Couldn't open file {}, skipping", name)),
                     continue
                 );
                 handle_error!(
                     f.read_to_end(&mut file_buf)
+                        .await
                         .with_context(|| format!("Couldn't read file {}, skipping", name)),
                     continue
                 );
@@ -291,14 +296,15 @@ async fn file_handler_helper(
         "open" => {
             let _send = socket
                 .send(Message::text(
-                    std::fs::read_to_string(&req.path)
+                    tokio::fs::read_to_string(&req.path)
+                        .await
                         .with_context(|| format!("Couldn't read file {}", &req.path))?,
                 ))
                 .await;
         }
         // Technically works for both files and directories
         "dl" => {
-            let buf = create_zip_file(req)?;
+            let buf = create_zip_file(req).await?;
             #[allow(
                 clippy::cast_lossless,
                 clippy::cast_sign_loss,
@@ -324,7 +330,8 @@ async fn file_handler_helper(
             upload_data.max_size = req.arg.parse::<usize>().context("Invalid max size")?;
             upload_data.path = req.path.clone();
         }
-        "save" => std::fs::write(&req.path, &req.arg)
+        "save" => tokio::fs::write(&req.path, &req.arg)
+            .await
             .with_context(|| format!("Couldn't save file {}", &req.path))?,
         _ => {}
     }
@@ -356,7 +363,8 @@ pub async fn file_handler(mut socket: warp::ws::WebSocket) {
                 upload_data.max_size
             );
             if upload_data.current_size == upload_data.max_size {
-                handle_error!(std::fs::write(&upload_data.path, &upload_data.buf)
+                handle_error!(tokio::fs::write(&upload_data.path, &upload_data.buf)
+                    .await
                     .with_context(|| format!("Couldn't upload to path {}", &upload_data.path)));
                 let _send = socket
                     .send(Message::text(SerJson::serialize_json(
