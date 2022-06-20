@@ -1,5 +1,5 @@
 use anyhow::Context;
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use psutil::{cpu, disk, host, memory, network, process, sensors};
 use std::fs;
 use std::process::Command;
@@ -19,15 +19,14 @@ fn round_percent(unrounded: f32) -> f32 {
 }
 
 pub async fn cpu() -> anyhow::Result<f32> {
-    lazy_static! {
-        // Use expect because it can't return from this macro. Should only run on first visit anyway.
-        static ref CPUCOLLECTOR: Mutex<cpu::CpuPercentCollector> =
-            Mutex::new(cpu::CpuPercentCollector::new().expect("Couldn't init cpu collector"));
-    }
+    static CPU_COLLECTOR: Lazy<anyhow::Result<Mutex<cpu::CpuPercentCollector>>> =
+        Lazy::new(|| Ok(Mutex::new(cpu::CpuPercentCollector::new()?)));
 
     sleep(Duration::from_secs(1)).await;
     Ok(round_percent(
-        CPUCOLLECTOR
+        (CPU_COLLECTOR.as_ref())
+            .map_err(|e| anyhow::anyhow!(e)) // Can't use context with an &Error
+            .context("Couldn't init cpu collector")?
             .lock()
             .map_err(|e| anyhow::anyhow!(e.to_string())) // Mutex can't be sent between threads, so just get description of error
             .context("Couldn't lock cpu collector mutex")?
@@ -67,14 +66,13 @@ pub fn disk() -> anyhow::Result<shared::UsageData> {
 }
 
 pub fn network() -> anyhow::Result<shared::NetData> {
-    lazy_static! {
-        static ref NETCOLLECTOR: Mutex<network::NetIoCountersCollector> =
-            Mutex::new(network::NetIoCountersCollector::default());
-        static ref BYTES_SENT: AtomicU64 = AtomicU64::new(u64::MAX);
-        static ref BYTES_RECV: AtomicU64 = AtomicU64::new(u64::MAX);
-    }
+    static BYTES_SENT: AtomicU64 = AtomicU64::new(u64::MAX);
+    static BYTES_RECV: AtomicU64 = AtomicU64::new(u64::MAX);
 
-    let network = NETCOLLECTOR
+    static NET_COLLECTOR: Lazy<Mutex<network::NetIoCountersCollector>> =
+        Lazy::new(|| Mutex::new(network::NetIoCountersCollector::default()));
+
+    let network = NET_COLLECTOR
         .lock()
         .map_err(|e| anyhow::anyhow!(e.to_string())) // See CPU collector mutex
         .context("Couldn't lock network collector mutex")?
