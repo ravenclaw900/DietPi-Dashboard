@@ -67,7 +67,10 @@ pub fn network(
         sent: sent.saturating_sub(prev_data.sent),
     };
 
-    *prev_data = data.clone();
+    *prev_data = shared::NetData {
+        received: recv,
+        sent,
+    };
 
     Ok(data)
 }
