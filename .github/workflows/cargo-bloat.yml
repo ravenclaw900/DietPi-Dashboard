@@ -10,6 +10,16 @@ jobs:
         with:
           fetch-depth: 0
           path: dashboard
+      - name: Cache cargo registry
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/registry
+          key: bloat-${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+      - name: Cache cargo index
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/git
+          key: bloat-${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
       - name: Get rust directory only
         run: |
           mv dashboard/src/backend/* .
