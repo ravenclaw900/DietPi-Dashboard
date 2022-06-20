@@ -35,7 +35,7 @@ pub struct UsageData {
     pub percent: f32,
 }
 
-#[derive(SerJson, Default)]
+#[derive(SerJson, Default, Clone)]
 pub struct NetData {
     pub sent: u64,
     pub received: u64,

@@ -14,26 +14,48 @@ use crate::{handle_error, shared, systemdata};
 
 type SocketPtr = Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>;
 
-async fn main_handler_getter() -> anyhow::Result<shared::SysData> {
+async fn main_handler_getter(
+    cpu_collector: &mut psutil::cpu::CpuPercentCollector,
+    net_collector: &mut psutil::network::NetIoCountersCollector,
+    prev_data: &mut shared::NetData,
+) -> anyhow::Result<shared::SysData> {
     Ok(shared::SysData {
-        cpu: systemdata::cpu().await?,
+        cpu: systemdata::cpu(cpu_collector).await?,
         ram: systemdata::ram()?,
         swap: systemdata::swap()?,
         disk: systemdata::disk()?,
-        network: systemdata::network()?,
+        network: systemdata::network(net_collector, prev_data)?,
         temp: systemdata::temp(),
     })
 }
 
 pub async fn main_handler(socket_ptr: SocketPtr, quit: &Arc<Notify>) {
     let mut socket_send = socket_ptr.lock().await;
+
+    let mut cpu_collector = handle_error!(
+        psutil::cpu::CpuPercentCollector::new().context("Couldn't init cpu collector"),
+        return
+    );
+
+    let mut net_collector = psutil::network::NetIoCountersCollector::default();
+    let mut prev_data = match net_collector.net_io_counters() {
+        Ok(counters) => shared::NetData {
+            received: counters.bytes_recv(),
+            sent: counters.bytes_sent(),
+        },
+        Err(_) => shared::NetData {
+            received: u64::MAX,
+            sent: u64::MAX,
+        },
+    };
+
     loop {
         tokio::select! {
             biased;
             _ = quit.notified() => break,
             _ = async {
                 let _send = socket_send
-                .send(Message::text(SerJson::serialize_json(&handle_error!(main_handler_getter().await, shared::SysData::default()))))
+                .send(Message::text(SerJson::serialize_json(&handle_error!(main_handler_getter(&mut cpu_collector, &mut net_collector, &mut prev_data).await, shared::SysData::default()))))
                 .await;
             } => {}
         }
