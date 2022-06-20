@@ -251,6 +251,16 @@ async fn browser_handler_helper(
     socket_send: &mut SplitSink<warp::ws::WebSocket, Message>,
 ) -> anyhow::Result<()> {
     match data.cmd.as_str() {
+        "cd" => {
+            let _send = socket_send
+                .send(Message::text(SerJson::serialize_json(
+                    &shared::BrowserList {
+                        contents: systemdata::browser_dir(std::path::Path::new(&data.args[0]))?,
+                    },
+                )))
+                .await;
+            return Ok(());
+        }
         "copy" => {
             let mut num = 2;
             while std::path::Path::new(&format!("{} {}", &data.args[0], num)).exists() {
@@ -287,8 +297,6 @@ async fn browser_handler_helper(
         _ => {}
     }
 
-    // 'refresh' and 'cd' covered here
-    // TODO: remove 'refresh', only use 'cd'
     browser_refresh(socket_send, std::path::Path::new(&data.args[0])).await?;
 
     Ok(())
