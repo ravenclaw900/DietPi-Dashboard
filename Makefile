@@ -42,5 +42,5 @@ else
 endif
 
 distcopy:
-	rm -r src/backend/dist
+	rm -rf src/backend/dist
 	cp -r src/frontend/dist src/backend
