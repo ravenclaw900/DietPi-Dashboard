@@ -1,1 +1,21 @@
+on: pull_request
 
+name: bloat
+
+jobs:
+  cargo_bloat:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          path: dashboard
+      - name: Get rust directory only
+        run: |
+          mv dashboard/src/backend/* .
+          rm -rf dashboard
+      - name: Run cargo bloat
+        uses: orf/cargo-bloat-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          bloat_args: --no-default-features
