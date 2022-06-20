@@ -68,7 +68,7 @@
             try {
                 let msg = JSON.parse(e.data);
                 if (msg.finished) {
-                    sendCmd(`${currentPath}/.`, "refresh");
+                    sendCmd(`${currentPath}`, "cd");
                 } else if (msg.size) {
                     maxSlices = msg.size;
                 }
@@ -430,7 +430,7 @@
                     class="cursor-pointer"
                     title="Refresh"
                     on:click={() => {
-                        sendCmd(`${currentPath}/.`, "refresh");
+                        sendCmd(`${currentPath}`, "cd");
                     }}><Fa icon={faSyncAlt} size="lg" /></span
                 >
                 <span

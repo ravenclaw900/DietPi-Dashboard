@@ -13,18 +13,39 @@ use crate::{handle_error, shared, systemdata};
 type SocketSend = SplitSink<warp::ws::WebSocket, warp::ws::Message>;
 type RecvChannel = Receiver<Option<shared::Request>>;
 
-async fn main_handler_getter() -> anyhow::Result<shared::SysData> {
+async fn main_handler_getter(
+    cpu_collector: &mut psutil::cpu::CpuPercentCollector,
+    net_collector: &mut psutil::network::NetIoCountersCollector,
+    prev_data: &mut shared::NetData,
+) -> anyhow::Result<shared::SysData> {
     Ok(shared::SysData {
-        cpu: systemdata::cpu().await?,
+        cpu: systemdata::cpu(cpu_collector).await?,
         ram: systemdata::ram()?,
         swap: systemdata::swap()?,
         disk: systemdata::disk()?,
-        network: systemdata::network()?,
+        network: systemdata::network(net_collector, prev_data)?,
         temp: systemdata::temp(),
     })
 }
 
 pub async fn main_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
+    let mut cpu_collector = handle_error!(
+        psutil::cpu::CpuPercentCollector::new().context("Couldn't init cpu collector"),
+        return
+    );
+
+    let mut net_collector = psutil::network::NetIoCountersCollector::default();
+    let mut prev_data = match net_collector.net_io_counters() {
+        Ok(counters) => shared::NetData {
+            received: counters.bytes_recv(),
+            sent: counters.bytes_sent(),
+        },
+        Err(_) => shared::NetData {
+            received: u64::MAX,
+            sent: u64::MAX,
+        },
+    };
+
     loop {
         tokio::select! {
             biased;
@@ -33,7 +54,7 @@ pub async fn main_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChan
             },
             _ = async {
                 let _send = socket_send
-                .send(Message::text(SerJson::serialize_json(&handle_error!(main_handler_getter().await, shared::SysData::default()))))
+                .send(Message::text(SerJson::serialize_json(&handle_error!(main_handler_getter(&mut cpu_collector, &mut net_collector, &mut prev_data).await, shared::SysData::default()))))
                 .await;
             } => {}
         }
@@ -200,6 +221,16 @@ async fn browser_handler_helper(
     socket_send: &mut SplitSink<warp::ws::WebSocket, Message>,
 ) -> anyhow::Result<()> {
     match data.cmd.as_str() {
+        "cd" => {
+            let _send = socket_send
+                .send(Message::text(SerJson::serialize_json(
+                    &shared::BrowserList {
+                        contents: systemdata::browser_dir(std::path::Path::new(&data.args[0]))?,
+                    },
+                )))
+                .await;
+            return Ok(());
+        }
         "copy" => {
             let mut num = 2;
             while std::path::Path::new(&format!("{} {}", &data.args[0], num)).exists() {
@@ -236,8 +267,6 @@ async fn browser_handler_helper(
         _ => {}
     }
 
-    // 'refresh' and 'cd' covered here
-    // TODO: remove 'refresh', only use 'cd'
     browser_refresh(socket_send, std::path::Path::new(&data.args[0])).await?;
 
     Ok(())

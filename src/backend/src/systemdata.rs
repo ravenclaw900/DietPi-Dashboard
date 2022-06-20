@@ -1,13 +1,8 @@
 use anyhow::Context;
-use lazy_static::lazy_static;
 use psutil::{cpu, disk, host, memory, network, process, sensors};
 use std::fs;
 use std::process::Command;
 use std::str::from_utf8;
-use std::sync::{
-    atomic::{AtomicU64, Ordering::Relaxed},
-    Mutex,
-};
 use std::time::Duration;
 use tokio::time::sleep;
 
@@ -17,19 +12,10 @@ fn round_percent(unrounded: f32) -> f32 {
     (unrounded * 100.0).round() / 100.0
 }
 
-pub async fn cpu() -> anyhow::Result<f32> {
-    lazy_static! {
-        // Use expect because it can't return from this macro. Should only run on first visit anyway.
-        static ref CPUCOLLECTOR: Mutex<cpu::CpuPercentCollector> =
-            Mutex::new(cpu::CpuPercentCollector::new().expect("Couldn't init cpu collector"));
-    }
-
+pub async fn cpu(collector: &mut cpu::CpuPercentCollector) -> anyhow::Result<f32> {
     sleep(Duration::from_secs(1)).await;
     Ok(round_percent(
-        CPUCOLLECTOR
-            .lock()
-            .map_err(|e| anyhow::anyhow!(e.to_string())) // Mutex can't be sent between threads, so just get description of error
-            .context("Couldn't lock cpu collector mutex")?
+        collector
             .cpu_percent()
             .context("Couldn't get CPU percent")?,
     ))
@@ -65,30 +51,25 @@ pub fn disk() -> anyhow::Result<shared::UsageData> {
     })
 }
 
-pub fn network() -> anyhow::Result<shared::NetData> {
-    lazy_static! {
-        static ref NETCOLLECTOR: Mutex<network::NetIoCountersCollector> =
-            Mutex::new(network::NetIoCountersCollector::default());
-        static ref BYTES_SENT: AtomicU64 = AtomicU64::new(u64::MAX);
-        static ref BYTES_RECV: AtomicU64 = AtomicU64::new(u64::MAX);
-    }
-
-    let network = NETCOLLECTOR
-        .lock()
-        .map_err(|e| anyhow::anyhow!(e.to_string())) // See CPU collector mutex
-        .context("Couldn't lock network collector mutex")?
+pub fn network(
+    collector: &mut network::NetIoCountersCollector,
+    prev_data: &mut shared::NetData,
+) -> anyhow::Result<shared::NetData> {
+    let network = collector
         .net_io_counters()
         .context("Couldn't get network data")?;
     let recv = network.bytes_recv();
     let sent = network.bytes_sent();
 
     let data = shared::NetData {
-        received: recv.saturating_sub(BYTES_RECV.load(Relaxed)),
-        sent: sent.saturating_sub(BYTES_SENT.load(Relaxed)),
+        received: recv.saturating_sub(prev_data.received),
+        sent: sent.saturating_sub(prev_data.sent),
     };
 
-    BYTES_SENT.store(sent, Relaxed);
-    BYTES_RECV.store(recv, Relaxed);
+    *prev_data = shared::NetData {
+        received: recv,
+        sent,
+    };
 
     Ok(data)
 }

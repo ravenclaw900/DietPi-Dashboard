@@ -1,9 +1,8 @@
 use nanoserde::{DeJson, SerJson};
 use serde::{Deserialize, Serialize};
 
-lazy_static::lazy_static! {
-    pub static ref CONFIG: crate::config::Config = crate::config::config();
-}
+pub static CONFIG: once_cell::sync::Lazy<crate::config::Config> =
+    once_cell::sync::Lazy::new(crate::config::config);
 
 // Simple error handling macro, print out error and source (if available), and handle error if it exists
 #[macro_export]
