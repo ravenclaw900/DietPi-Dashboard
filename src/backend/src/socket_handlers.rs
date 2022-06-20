@@ -4,8 +4,7 @@ use nanoserde::{DeJson, SerJson};
 use pty_process::Command;
 use std::io::{Read, Write};
 use std::sync::Arc;
-use tokio::sync::RwLock;
-use tokio::sync::{mpsc, Mutex};
+use tokio::sync::mpsc;
 use warp::ws::Message;
 
 use crate::{handle_error, page_handlers, shared, systemdata, CONFIG};
@@ -29,9 +28,8 @@ fn validate_token(token: &str) -> bool {
 pub async fn socket_handler(socket: warp::ws::WebSocket) {
     let (mut socket_send, mut socket_recv) = socket.split();
     let (data_send, mut data_recv) = mpsc::channel(1);
-    let quit = Arc::new(tokio::sync::Notify::new());
-    let quit_send = Arc::clone(&quit);
     tokio::task::spawn(async move {
+        let mut first_message = true;
         let mut req: shared::Request;
         while let Some(Ok(data)) = socket_recv.next().await {
             if data.is_close() {
@@ -50,24 +48,34 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                 continue
             );
             if CONFIG.pass && !validate_token(&req.token) {
-                quit_send.notify_waiters();
+                if !first_message {
+                    if let Err(err) = data_send.send(None).await {
+                        log::error!("Internal error: couldn't initiate login: {}", err);
+                        break;
+                    }
+                }
                 handle_error!(data_send
-                    .send(shared::Request {
+                    .send(Some(shared::Request {
                         page: "/login".to_string(),
                         token: String::new(),
                         cmd: String::new(),
                         args: Vec::new(),
-                    })
+                    }))
                     .await
                     .context("Internal error: couldn't send login request"));
                 continue;
             }
             if req.cmd.is_empty() {
                 // Quit out of handler
-                quit_send.notify_waiters();
+                if first_message {
+                    first_message = false;
+                } else if let Err(err) = data_send.send(None).await {
+                    log::error!("Internal error: couldn't change page: {}", err);
+                    break;
+                }
             }
             // Send new page/data
-            if let Err(err) = data_send.send(req.clone()).await {
+            if let Err(err) = data_send.send(Some(req.clone())).await {
                 // Manual error handling here, to use log::error
                 log::error!("Internal error: couldn't send request: {}", err);
                 break;
@@ -80,33 +88,27 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
             SerJson::serialize_json(&systemdata::global()),
         ))
         .await;
-    let socket_ptr = Arc::new(Mutex::new(socket_send));
-    while let Some(message) = data_recv.recv().await {
+    while let Some(Some(message)) = data_recv.recv().await {
         match message.page.as_str() {
-            "/" => page_handlers::main_handler(Arc::clone(&socket_ptr), &quit).await,
+            "/" => page_handlers::main_handler(&mut socket_send, &mut data_recv).await,
             "/process" => {
-                page_handlers::process_handler(Arc::clone(&socket_ptr), &mut data_recv, &quit)
-                    .await;
+                page_handlers::process_handler(&mut socket_send, &mut data_recv).await;
             }
             "/software" => {
-                page_handlers::software_handler(Arc::clone(&socket_ptr), &mut data_recv, &quit)
-                    .await;
+                page_handlers::software_handler(&mut socket_send, &mut data_recv).await;
             }
             "/management" => {
-                page_handlers::management_handler(Arc::clone(&socket_ptr), &mut data_recv, &quit)
-                    .await;
+                page_handlers::management_handler(&mut socket_send, &mut data_recv).await;
             }
             "/service" => {
-                page_handlers::service_handler(Arc::clone(&socket_ptr), &mut data_recv, &quit)
-                    .await;
+                page_handlers::service_handler(&mut socket_send, &mut data_recv).await;
             }
             "/browser" => {
-                page_handlers::browser_handler(Arc::clone(&socket_ptr), &mut data_recv, &quit)
-                    .await;
+                page_handlers::browser_handler(&mut socket_send, &mut data_recv).await;
             }
             "/login" => {
                 // Internal poll, see other thread
-                let _send = (*socket_ptr.lock().await)
+                let _send = socket_send
                     .send(Message::text(SerJson::serialize_json(
                         &shared::TokenError { error: true },
                     )))
@@ -145,7 +147,7 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
     let mut pre_cmd = std::process::Command::new("/bin/login");
     pre_cmd.env("TERM", "xterm");
 
-    let cmd = Arc::new(RwLock::new(handle_error!(
+    let mut cmd = Arc::new(handle_error!(
         if crate::CONFIG.terminal_user == "manual" {
             &mut pre_cmd
         } else {
@@ -154,90 +156,73 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
         .spawn_pty(None)
         .context("Couldn't spawn pty"),
         return
-    )));
-    let cmd_write = Arc::clone(&cmd);
-    let cmd_clone = Arc::clone(&cmd);
+    ));
 
-    let quit_send = Arc::new(tokio::sync::Notify::new());
-    let quit_recv = Arc::clone(&quit_send);
-
-    let (send, mut recv) = mpsc::channel(2);
-
-    tokio::spawn(async move {
-        loop {
-            let cmd_read = Arc::clone(&cmd_clone);
-            let lock = cmd_read.read_owned().await;
-            // Don't care about partial reads, it's in a loop
-            #[allow(clippy::unused_io_amount)]
-            let result = handle_error!(
-                tokio::task::spawn_blocking(move || {
-                    let mut data = [0; 256];
-                    let res = (*lock).pty().read(&mut data);
-                    (res, data)
-                })
-                .await
-                .context("Couldn't spawn tokio reader thread"),
-                continue
-            );
-            if result.0.is_ok() {
-                if send.send(result.1).await.is_err() {
-                    break;
-                }
-            } else {
-                quit_send.notify_one();
-                break;
-            }
-        }
-    });
-
-    loop {
-        tokio::select! {
-            Some(data) = recv.recv() => {
-                if socket_send
-                    .send(Message::binary(data.split(|num| *num == 0).next().unwrap_or(&data))) // Should never be None, but return data just in case
+    tokio::join!(
+        async {
+            loop {
+                let cmd_read = Arc::clone(&cmd);
+                // Don't care about partial reads, it's in a loop
+                #[allow(clippy::unused_io_amount)]
+                let result = handle_error!(
+                    tokio::task::spawn_blocking(move || {
+                        let mut data = [0; 256];
+                        let res = cmd_read.pty().read(&mut data);
+                        (res, data)
+                    })
                     .await
-                    .is_err() {
+                    .context("Couldn't spawn tokio reader thread"),
+                    continue
+                );
+                if result.0.is_ok() {
+                    if socket_send
+                        .send(Message::binary(
+                            result.1.split(|num| *num == 0).next().unwrap_or(&result.1),
+                        )) // Should never be None, but return data just in case
+                        .await
+                        .is_err()
+                    {
                         break;
                     }
-            }
-            data_msg = socket_recv.next() => {
-                let lock = cmd_write.read().await;
-                let data = if let Some(Ok(data_unwrapped)) = data_msg {
-                    data_unwrapped
                 } else {
-                    // Stop bash by writing "exit", since it won't respond to a SIGTERM
-                    let _write = (*cmd_write.read().await)
-                        .pty()
-                        .write_all("exit\n".as_bytes());
-                    continue;
-                };
-                if let Ok(data_str) = data.to_str() {
-                    if data_str.get(..4) == Some("size") {
-                        let json: TTYSize =
-                            handle_error!(
-                                DeJson::deserialize_json(&data_str[4..])
-                                .with_context(|| format!("Couldn't deserialize pty size from {}", &data_str)),
-                                continue
-                            );
-                            handle_error!(
-                                (*lock)
-                                .resize_pty(&pty_process::Size::new(json.rows, json.cols))
-                                .context("Couldn't resize pty")
-                            );
-                    }
-                } else if (*lock).pty().write_all(data.as_bytes()).is_err() {
                     break;
                 }
             }
-            _ = quit_recv.notified() => {
-                break;
+        },
+        async {
+            loop {
+                match socket_recv.next().await {
+                    Some(Ok(data)) => {
+                        if data.is_text() && data.to_str().unwrap().get(..4) == Some("size") {
+                            let data_str = data.to_str().unwrap();
+                            let json: TTYSize = handle_error!(
+                                DeJson::deserialize_json(&data_str[4..]).with_context(|| format!(
+                                    "Couldn't deserialize pty size from {}",
+                                    &data_str
+                                )),
+                                continue
+                            );
+                            handle_error!(cmd
+                                .resize_pty(&pty_process::Size::new(json.rows, json.cols))
+                                .context("Couldn't resize pty"));
+                        } else if cmd.pty().write_all(data.as_bytes()).is_err() {
+                            break;
+                        }
+                    }
+                    None | Some(Err(_)) => {
+                        // Stop bash by writing "exit", since it won't respond to a SIGTERM
+                        let _write = cmd.pty().write_all("exit\n".as_bytes());
+                        break;
+                    }
+                }
             }
         }
-    }
+    );
 
-    // Reap PID
+    // Reap PID, unwrap is safe because all references will have been dropped
     handle_error!(
-        (*cmd.write().await)
+        Arc::get_mut(&mut cmd)
+            .unwrap()
             .wait()
             .context("Couldn't close terminal"),
         return

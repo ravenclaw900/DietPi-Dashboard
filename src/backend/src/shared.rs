@@ -120,7 +120,7 @@ pub struct GlobalData {
     pub temp_unit: TempUnit,
 }
 
-#[derive(SerJson, Debug)]
+#[derive(SerJson)]
 pub struct BrowserData {
     pub path: String,
     pub name: String,

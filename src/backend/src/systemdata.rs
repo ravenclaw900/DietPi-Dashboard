@@ -8,7 +8,6 @@ use tokio::time::sleep;
 
 use crate::shared;
 
-#[allow(clippy::cast_possible_truncation)]
 fn round_percent(unrounded: f32) -> f32 {
     (unrounded * 100.0).round() / 100.0
 }

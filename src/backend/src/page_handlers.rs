@@ -3,16 +3,15 @@ use futures::stream::SplitSink;
 use futures::SinkExt;
 use nanoserde::SerJson;
 use std::process::Command;
-use std::sync::Arc;
 use std::time::Duration;
-use tokio::sync::Notify;
-use tokio::sync::{mpsc::Receiver, Mutex};
+use tokio::sync::mpsc::Receiver;
 use tokio::time::sleep;
 use warp::ws::Message;
 
 use crate::{handle_error, shared, systemdata};
 
-type SocketPtr = Arc<Mutex<SplitSink<warp::ws::WebSocket, warp::ws::Message>>>;
+type SocketSend = SplitSink<warp::ws::WebSocket, warp::ws::Message>;
+type RecvChannel = Receiver<Option<shared::Request>>;
 
 async fn main_handler_getter(
     cpu_collector: &mut psutil::cpu::CpuPercentCollector,
@@ -29,9 +28,7 @@ async fn main_handler_getter(
     })
 }
 
-pub async fn main_handler(socket_ptr: SocketPtr, quit: &Arc<Notify>) {
-    let mut socket_send = socket_ptr.lock().await;
-
+pub async fn main_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     let mut cpu_collector = handle_error!(
         psutil::cpu::CpuPercentCollector::new().context("Couldn't init cpu collector"),
         return
@@ -52,7 +49,9 @@ pub async fn main_handler(socket_ptr: SocketPtr, quit: &Arc<Notify>) {
     loop {
         tokio::select! {
             biased;
-            _ = quit.notified() => break,
+            Some(data) = data_recv.recv() => if data.is_none() {
+                break;
+            },
             _ = async {
                 let _send = socket_send
                 .send(Message::text(SerJson::serialize_json(&handle_error!(main_handler_getter(&mut cpu_collector, &mut net_collector, &mut prev_data).await, shared::SysData::default()))))
@@ -85,16 +84,14 @@ fn process_handler_helper(data: &shared::Request) -> anyhow::Result<()> {
     Ok(())
 }
 
-pub async fn process_handler(
-    socket_ptr: SocketPtr,
-    data_recv: &mut Receiver<shared::Request>,
-    quit: &Arc<Notify>,
-) {
-    let mut socket_send = socket_ptr.lock().await;
+pub async fn process_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     loop {
         tokio::select! {
             biased;
-            _ = quit.notified() => break,
+            Some(data) = data_recv.recv() => match data {
+                Some(data) => handle_error!(process_handler_helper(&data)),
+                None => break,
+            },
             _ = async {
                 let _send = socket_send
                 .send(Message::text(SerJson::serialize_json(
@@ -104,15 +101,14 @@ pub async fn process_handler(
                 )))
                 .await;
                 sleep(Duration::from_secs(1)).await;
-            } => {}
-            Some(data) = data_recv.recv() => handle_error!(process_handler_helper(&data)),
+            } => {},
         }
     }
 }
 
 pub async fn software_handler_helper(
     data: &shared::Request,
-    socket_send: &mut tokio::sync::MutexGuard<'_, SplitSink<warp::ws::WebSocket, Message>>,
+    socket_send: &mut SocketSend,
 ) -> anyhow::Result<()> {
     // We don't just want to run dietpi-software without args
     anyhow::ensure!(!data.args.is_empty(), "Empty dietpi-software args");
@@ -146,12 +142,7 @@ pub async fn software_handler_helper(
     Ok(())
 }
 
-pub async fn software_handler(
-    socket_ptr: SocketPtr,
-    data_recv: &mut Receiver<shared::Request>,
-    quit: &Arc<Notify>,
-) {
-    let mut socket_send = socket_ptr.lock().await;
+pub async fn software_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     let software = handle_error!(systemdata::dpsoftware(), (Vec::new(), Vec::new()));
     let _send = socket_send
         .send(Message::text(SerJson::serialize_json(
@@ -162,43 +153,28 @@ pub async fn software_handler(
             },
         )))
         .await;
-    loop {
-        tokio::select! {
-            biased;
-            _ = quit.notified() => break,
-            Some(data) = data_recv.recv() => handle_error!(software_handler_helper(&data, &mut socket_send).await),
-        }
+    while let Some(Some(data)) = data_recv.recv().await {
+        handle_error!(software_handler_helper(&data, socket_send).await);
     }
 }
 
-pub async fn management_handler(
-    socket_ptr: SocketPtr,
-    data_recv: &mut Receiver<shared::Request>,
-    quit: &Arc<Notify>,
-) {
-    let mut socket_send = socket_ptr.lock().await;
+pub async fn management_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     let _send = socket_send
         .send(Message::text(SerJson::serialize_json(&handle_error!(
             systemdata::host(),
             shared::HostData::default()
         ))))
         .await;
-    loop {
-        tokio::select! {
-            biased;
-            _ = quit.notified() => break,
-            // Don't care about the Ok value, so remove it to make the type checker happy
-            Some(data) = data_recv.recv() => handle_error!(Command::new(&data.cmd).spawn().map(|_| ()).with_context(|| format!("Couldn't spawn command {}", &data.cmd))),
-        }
+    while let Some(Some(data)) = data_recv.recv().await {
+        // Don't care about the Ok value, so remove it to make the type checker happy
+        handle_error!(Command::new(&data.cmd)
+            .spawn()
+            .map(|_| ())
+            .with_context(|| format!("Couldn't spawn command {}", &data.cmd)));
     }
 }
 
-pub async fn service_handler(
-    socket_ptr: SocketPtr,
-    data_recv: &mut Receiver<shared::Request>,
-    quit: &Arc<Notify>,
-) {
-    let mut socket_send = socket_ptr.lock().await;
+pub async fn service_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     let _send = socket_send
         .send(Message::text(SerJson::serialize_json(
             &shared::ServiceList {
@@ -206,25 +182,19 @@ pub async fn service_handler(
             },
         )))
         .await;
-    loop {
-        tokio::select! {
-            biased;
-            _ = quit.notified() => break,
-            Some(data) = data_recv.recv() =>  {
-                handle_error!(Command::new("systemctl")
-                    .args([&data.cmd, data.args[0].as_str()])
-                    .spawn()
-                    .map(|_| ()) // Don't care about the Ok value, so remove it to make the type checker happy
-                    .with_context(|| format!("Couldn't {} service {}", &data.cmd, &data.args[0])));
-                let _send = socket_send
-                    .send(Message::text(SerJson::serialize_json(
-                        &shared::ServiceList {
-                            services: handle_error!(systemdata::services(), Vec::new()),
-                        },
-                    )))
-                    .await;
-            }
-        }
+    while let Some(Some(data)) = data_recv.recv().await {
+        handle_error!(Command::new("systemctl")
+            .args([&data.cmd, data.args[0].as_str()])
+            .spawn()
+            .map(|_| ()) // Don't care about the Ok value, so remove it to make the type checker happy
+            .with_context(|| format!("Couldn't {} service {}", &data.cmd, &data.args[0])));
+        let _send = socket_send
+            .send(Message::text(SerJson::serialize_json(
+                &shared::ServiceList {
+                    services: handle_error!(systemdata::services(), Vec::new()),
+                },
+            )))
+            .await;
     }
 }
 
@@ -302,12 +272,7 @@ async fn browser_handler_helper(
     Ok(())
 }
 
-pub async fn browser_handler(
-    socket_ptr: SocketPtr,
-    data_recv: &mut Receiver<shared::Request>,
-    quit: &Arc<Notify>,
-) {
-    let mut socket_send = socket_ptr.lock().await;
+pub async fn browser_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     // Get initial listing of $HOME
     let _send = socket_send
         .send(Message::text(SerJson::serialize_json(
@@ -321,11 +286,8 @@ pub async fn browser_handler(
             },
         )))
         .await;
-    loop {
-        tokio::select! {
-            biased;
-            _ = quit.notified() => break,
-            Some(data) = data_recv.recv() => handle_error!(browser_handler_helper(&data, &mut *socket_send).await),
-        }
+
+    while let Some(Some(data)) = data_recv.recv().await {
+        handle_error!(browser_handler_helper(&data, socket_send).await);
     }
 }
