@@ -4,6 +4,7 @@ use nanoserde::{DeJson, SerJson};
 use pty_process::Command;
 use std::io::{Read, Write};
 use std::sync::Arc;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::sync::mpsc;
 use warp::ws::Message;
 
@@ -237,56 +238,69 @@ async fn create_zip_file(req: &shared::FileRequest) -> anyhow::Result<Vec<u8>> {
     let src_path = tokio::fs::canonicalize(&req.path)
         .await
         .with_context(|| format!("Invalid source path {}", &req.path))?;
-    let mut zip_file = zip::ZipWriter::new(std::io::Cursor::new(Vec::new()));
-    for entry in walkdir::WalkDir::new(&src_path) {
-        let entry = entry.context("Couldn't get data for recursive entry")?;
-        let path = entry.path();
-        // 'unwrap' is safe here because path is canonicalized
-        let name = std::path::Path::new(&src_path.file_name().unwrap()).join(
-            // Here too, because the path should always be a child
-            path.strip_prefix(&src_path).unwrap(),
-        );
-        let name = name.to_string_lossy().to_string();
-        if path.is_file() {
-            zip_file
-                .start_file(&name, zip::write::FileOptions::default())
-                .with_context(|| format!("Couldn't add file {} to zip", &name))?;
-            let file = handle_error!(
-                tokio::fs::read(path)
-                    .await
-                    .with_context(|| format!("Couldn't read file {}, skipping", &name)),
-                continue
+    if src_path.is_dir() {
+        let mut zip_file = zip::ZipWriter::new(std::io::Cursor::new(Vec::new()));
+        for entry in walkdir::WalkDir::new(&src_path) {
+            let entry = entry.context("Couldn't get data for recursive entry")?;
+            let path = entry.path();
+            // 'unwrap' is safe here because path is canonicalized
+            let name = std::path::Path::new(&src_path.file_name().unwrap()).join(
+                // Here too, because the path should always be a child
+                path.strip_prefix(&src_path).unwrap(),
             );
-            let tup = tokio::task::spawn_blocking(
-                move || -> (zip::ZipWriter<std::io::Cursor<Vec<u8>>>, anyhow::Result<()>) {
-                    if let Err(err) = zip_file.write_all(&file) {
-                        return (zip_file, Err(err.into()));
-                    }
-                    (zip_file, Ok(()))
-                },
-            )
-            .await
-            .context("Couldn't spawn zip task")?;
-            zip_file = tup.0;
-            handle_error!(tup
-                .1
-                .with_context(|| format!("Couldn't write file {} into zip, skipping", name)));
-        } else if !name.is_empty() {
-            zip_file
-                .add_directory(&name, zip::write::FileOptions::default())
-                .with_context(|| format!("Couldn't add directory {} to zip", name))?;
+            let name = name.to_string_lossy().to_string();
+            if path.is_file() {
+                let mut file_buf = Vec::new();
+                zip_file
+                    .start_file(&name, zip::write::FileOptions::default())
+                    .with_context(|| format!("Couldn't add file {} to zip", &name))?;
+                let mut file = handle_error!(
+                    tokio::fs::File::open(path)
+                        .await
+                        .with_context(|| format!("Couldn't open file {}, skipping", &name)),
+                    continue
+                );
+                handle_error!(
+                    file.read_to_end(&mut file_buf)
+                        .await
+                        .with_context(|| format!("Couldn't read file {}, skipping", &name)),
+                    continue
+                );
+                let tup = tokio::task::spawn_blocking(
+                    move || -> (zip::ZipWriter<std::io::Cursor<Vec<u8>>>, Vec<u8>, anyhow::Result<()>) {
+                        if let Err(err) = zip_file.write_all(&file_buf) {
+                            return (zip_file, file_buf, Err(err.into()));
+                        }
+                        (zip_file, file_buf, Ok(()))
+                    },
+                )
+                .await
+                .context("Couldn't spawn zip task")?;
+                zip_file = tup.0;
+                file_buf = tup.1;
+                handle_error!(tup
+                    .2
+                    .with_context(|| format!("Couldn't write file {} into zip, skipping", name)));
+                file_buf.clear();
+            } else if !name.is_empty() {
+                zip_file
+                    .add_directory(&name, zip::write::FileOptions::default())
+                    .with_context(|| format!("Couldn't add directory {} to zip", name))?;
+            }
         }
+        return Ok(zip_file
+            .finish()
+            .context("Couldn't finish writing to zip file")?
+            .into_inner());
     }
-    Ok(zip_file
-        .finish()
-        .context("Couldn't finish writing to zip file")?
-        .into_inner())
+    tokio::fs::read(&src_path)
+        .await
+        .with_context(|| format!("Couldn't read file {}", src_path.display()))
 }
 
 async fn file_handler_helper(
     req: &shared::FileRequest,
     socket: &mut warp::ws::WebSocket,
-    upload_data: &mut UploadData,
 ) -> anyhow::Result<()> {
     match req.cmd.as_str() {
         "open" => {
@@ -313,18 +327,24 @@ async fn file_handler_helper(
                     size,
                 })))
                 .await;
-            for i in 0..size {
-                let _send = socket
-                    .send(Message::binary(
-                        &buf[i * 1000 * 1000..((i + 1) * 1000 * 1000).min(buf.len())],
-                    ))
-                    .await;
-                log::debug!("Sent {}MB out of {}MB", i, size);
+            for i in buf.chunks(1000 * 1000) {
+                let _feed = socket.feed(Message::binary(i)).await;
             }
+            let _send = socket.flush().await;
         }
         "up" => {
-            upload_data.max_size = req.arg.parse::<usize>().context("Invalid max size")?;
-            upload_data.path = req.path.clone();
+            let mut file = tokio::fs::File::create(&req.path)
+                .await
+                .with_context(|| format!("Couldn't create file at {}", &req.path))?;
+            while let Some(Ok(msg)) = socket
+                .take(req.arg.parse::<usize>().context("Invalid max size")?)
+                .next()
+                .await
+            {
+                file.write_all(msg.as_bytes()).await.with_context(|| {
+                    format!("Couldn't write to file at {}, stopping upload", &req.path)
+                })?;
+            }
         }
         "save" => tokio::fs::write(&req.path, &req.arg)
             .await
@@ -334,41 +354,12 @@ async fn file_handler_helper(
     Ok(())
 }
 
-#[derive(Default)]
-struct UploadData {
-    buf: Vec<u8>,
-    max_size: usize,
-    current_size: usize,
-    path: String,
-}
-
 pub async fn file_handler(mut socket: warp::ws::WebSocket) {
     let mut req: shared::FileRequest;
 
-    let mut upload_data = UploadData::default();
     while let Some(Ok(data)) = socket.next().await {
         if data.is_close() {
             break;
-        }
-        if data.is_binary() {
-            upload_data.buf.append(&mut data.into_bytes());
-            upload_data.current_size += 1;
-            log::debug!(
-                "Received {}MB out of {}MB",
-                upload_data.current_size,
-                upload_data.max_size
-            );
-            if upload_data.current_size == upload_data.max_size {
-                handle_error!(tokio::fs::write(&upload_data.path, &upload_data.buf)
-                    .await
-                    .with_context(|| format!("Couldn't upload to path {}", &upload_data.path)));
-                let _send = socket
-                    .send(Message::text(SerJson::serialize_json(
-                        &shared::FileUploadFinished { finished: true },
-                    )))
-                    .await;
-            }
-            continue;
         }
 
         let data_str = handle_error!(
@@ -384,9 +375,6 @@ pub async fn file_handler(mut socket: warp::ws::WebSocket) {
         if CONFIG.pass && !validate_token(&req.token) {
             continue;
         }
-        handle_error!(
-            file_handler_helper(&req, &mut socket, &mut upload_data).await,
-            continue
-        );
+        handle_error!(file_handler_helper(&req, &mut socket).await, continue);
     }
 }
