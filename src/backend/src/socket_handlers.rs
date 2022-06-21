@@ -259,11 +259,9 @@ async fn create_zip_file(req: &shared::FileRequest) -> anyhow::Result<Vec<u8>> {
             );
             let tup = tokio::task::spawn_blocking(
                 move || -> (zip::ZipWriter<std::io::Cursor<Vec<u8>>>, anyhow::Result<()>) {
-                    let time = std::time::Instant::now();
                     if let Err(err) = zip_file.write_all(&file) {
                         return (zip_file, Err(err.into()));
                     }
-                    println!("{}ms", time.elapsed().as_millis());
                     (zip_file, Ok(()))
                 },
             )
