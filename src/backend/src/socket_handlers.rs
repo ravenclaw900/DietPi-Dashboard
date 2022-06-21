@@ -158,23 +158,24 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
         .context("Couldn't spawn pty"),
         return
     ));
+    let mut cmd_read = Arc::clone(&cmd);
 
     tokio::join!(
         async {
             loop {
-                let cmd_read = Arc::clone(&cmd);
                 // Don't care about partial reads, it's in a loop
                 #[allow(clippy::unused_io_amount)]
                 let result = handle_error!(
                     tokio::task::spawn_blocking(move || {
                         let mut data = [0; 256];
                         let res = cmd_read.pty().read(&mut data);
-                        (res, data)
+                        (res, data, cmd_read)
                     })
                     .await
                     .context("Couldn't spawn tokio reader thread"),
-                    continue
+                    break
                 );
+                cmd_read = result.2;
                 if result.0.is_ok() {
                     if socket_send
                         .send(Message::binary(
