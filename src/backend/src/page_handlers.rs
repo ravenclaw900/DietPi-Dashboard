@@ -300,7 +300,18 @@ pub async fn browser_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
         )))
         .await;
 
-    while let Some(Some(data)) = data_recv.recv().await {
-        handle_error!(browser_handler_helper(&data, socket_send).await);
+    'outer: while let Some(Some(mut data)) = data_recv.recv().await {
+        loop {
+            tokio::select! {
+                res = browser_handler_helper(&data, socket_send) => {
+                    handle_error!(res);
+                    break;
+                },
+                Some(recv) = data_recv.recv() => match recv {
+                    Some(data_tmp) => data = data_tmp,
+                    None => break 'outer,
+                },
+            }
+        }
     }
 }
