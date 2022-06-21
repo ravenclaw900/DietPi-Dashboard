@@ -4,7 +4,6 @@ use nanoserde::{DeJson, SerJson};
 use pty_process::Command;
 use std::io::{Read, Write};
 use std::sync::Arc;
-use tokio::io::AsyncReadExt;
 use tokio::sync::mpsc;
 use warp::ws::Message;
 
@@ -234,57 +233,55 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
 }
 
 async fn create_zip_file(req: &shared::FileRequest) -> anyhow::Result<Vec<u8>> {
-    let mut buf = Vec::new();
     let src_path = tokio::fs::canonicalize(&req.path)
         .await
         .with_context(|| format!("Invalid source path {}", &req.path))?;
-    {
-        let mut zip_file = zip::ZipWriter::new(std::io::Cursor::new(&mut buf));
-        let mut file_buf = Vec::new();
-        for entry in walkdir::WalkDir::new(&src_path) {
-            let entry = entry.context("Couldn't get data for recursive entry")?;
-            let path = entry.path();
-            // 'unwrap' is safe here because path is canonicalized
-            let name = std::path::Path::new(&src_path.file_name().unwrap()).join(
-                // Here too, because the path should always be a child
-                path.strip_prefix(&src_path).unwrap(),
-            );
-            let name = handle_error!(
-                name.to_str()
-                    .with_context(|| format!("Invalid file name {}", name.display())),
+    let mut zip_file = zip::ZipWriter::new(std::io::Cursor::new(Vec::new()));
+    for entry in walkdir::WalkDir::new(&src_path) {
+        let entry = entry.context("Couldn't get data for recursive entry")?;
+        let path = entry.path();
+        // 'unwrap' is safe here because path is canonicalized
+        let name = std::path::Path::new(&src_path.file_name().unwrap()).join(
+            // Here too, because the path should always be a child
+            path.strip_prefix(&src_path).unwrap(),
+        );
+        let name = name.to_string_lossy().to_string();
+        if path.is_file() {
+            zip_file
+                .start_file(&name, zip::write::FileOptions::default())
+                .with_context(|| format!("Couldn't add file {} to zip", &name))?;
+            let file = handle_error!(
+                tokio::fs::read(path)
+                    .await
+                    .with_context(|| format!("Couldn't read file {}, skipping", &name)),
                 continue
             );
-            if path.is_file() {
-                zip_file
-                    .start_file(name, zip::write::FileOptions::default())
-                    .with_context(|| format!("Couldn't add file {} to zip", name))?;
-                let mut f = handle_error!(
-                    tokio::fs::File::open(path)
-                        .await
-                        .with_context(|| format!("Couldn't open file {}, skipping", name)),
-                    continue
-                );
-                handle_error!(
-                    f.read_to_end(&mut file_buf)
-                        .await
-                        .with_context(|| format!("Couldn't read file {}, skipping", name)),
-                    continue
-                );
-                handle_error!(zip_file
-                    .write_all(&file_buf)
-                    .with_context(|| format!("Couldn't write file {} into zip, skipping", name)));
-                file_buf.clear();
-            } else if !name.is_empty() {
-                zip_file
-                    .add_directory(name, zip::write::FileOptions::default())
-                    .with_context(|| format!("Couldn't add directory {} to zip", name))?;
-            }
+            let tup = tokio::task::spawn_blocking(
+                move || -> (zip::ZipWriter<std::io::Cursor<Vec<u8>>>, anyhow::Result<()>) {
+                    let time = std::time::Instant::now();
+                    if let Err(err) = zip_file.write_all(&file) {
+                        return (zip_file, Err(err.into()));
+                    }
+                    println!("{}ms", time.elapsed().as_millis());
+                    (zip_file, Ok(()))
+                },
+            )
+            .await
+            .context("Couldn't spawn zip task")?;
+            zip_file = tup.0;
+            handle_error!(tup
+                .1
+                .with_context(|| format!("Couldn't write file {} into zip, skipping", name)));
+        } else if !name.is_empty() {
+            zip_file
+                .add_directory(&name, zip::write::FileOptions::default())
+                .with_context(|| format!("Couldn't add directory {} to zip", name))?;
         }
-        zip_file
-            .finish()
-            .context("Couldn't finish writing to zip file")?;
     }
-    Ok(buf)
+    Ok(zip_file
+        .finish()
+        .context("Couldn't finish writing to zip file")?
+        .into_inner())
 }
 
 async fn file_handler_helper(
