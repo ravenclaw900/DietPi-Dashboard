@@ -356,14 +356,19 @@
                                         currentPath = contents.path;
                                         break;
                                     case "text":
-                                        if (
-                                            contents.subtype == "large" &&
-                                            confirm(
-                                                "Can't view files above 2MB, would you like to download instead?"
-                                            )
-                                        ) {
-                                            fileSend(selPath.path, "dl", "");
-                                            downloading = true;
+                                        if (contents.subtype == "large") {
+                                            if (
+                                                confirm(
+                                                    "Can't view files above 2MB, would you like to download instead?"
+                                                )
+                                            ) {
+                                                fileSend(
+                                                    selPath.path,
+                                                    "dl",
+                                                    ""
+                                                );
+                                                downloading = true;
+                                            }
                                         } else {
                                             fileSend(contents.path, "open", "");
                                         }
