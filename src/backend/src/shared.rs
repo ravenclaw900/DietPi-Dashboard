@@ -76,7 +76,7 @@ pub struct DPSoftwareData {
     pub docs: String,
 }
 
-#[derive(SerJson)]
+#[derive(SerJson, Default)]
 pub struct DPSoftwareList {
     pub installed: Vec<DPSoftwareData>,
     pub uninstalled: Vec<DPSoftwareData>,
@@ -130,7 +130,7 @@ pub struct BrowserData {
     pub size: u64,
 }
 
-#[derive(SerJson)]
+#[derive(SerJson, Default)]
 pub struct BrowserList {
     pub contents: Vec<BrowserData>,
 }

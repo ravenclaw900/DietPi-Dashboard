@@ -84,11 +84,15 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
         }
     });
     // Send global message (shown on all pages)
-    let _send = socket_send
+    if socket_send
         .send(Message::text(SerJson::serialize_json(
             &systemdata::global().await,
         )))
-        .await;
+        .await
+        .is_err()
+    {
+        return;
+    }
     while let Some(Some(message)) = data_recv.recv().await {
         match message.page.as_str() {
             "/" => page_handlers::main_handler(&mut socket_send, &mut data_recv).await,
@@ -109,11 +113,15 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
             }
             "/login" => {
                 // Internal poll, see other thread
-                let _send = socket_send
+                if socket_send
                     .send(Message::text(SerJson::serialize_json(
                         &shared::TokenError { error: true },
                     )))
-                    .await;
+                    .await
+                    .is_err()
+                {
+                    break;
+                }
             }
             _ => {
                 log::debug!("Got page {}, not handling", message.page);
@@ -298,19 +306,23 @@ async fn create_zip_file(req: &shared::FileRequest) -> anyhow::Result<Vec<u8>> {
         .with_context(|| format!("Couldn't read file {}", src_path.display()))
 }
 
+// Not the most elegant solution, but it works
+enum FileHandlerHelperReturns {
+    String(String),
+    SizeBuf(shared::FileSize, Vec<u8>),
+    StreamUpload(usize, tokio::fs::File),
+}
+
 async fn file_handler_helper(
     req: &shared::FileRequest,
-    socket: &mut warp::ws::WebSocket,
-) -> anyhow::Result<()> {
+) -> anyhow::Result<Option<FileHandlerHelperReturns>> {
     match req.cmd.as_str() {
         "open" => {
-            let _send = socket
-                .send(Message::text(
-                    tokio::fs::read_to_string(&req.path)
-                        .await
-                        .with_context(|| format!("Couldn't read file {}", &req.path))?,
-                ))
-                .await;
+            return Ok(Some(FileHandlerHelperReturns::String(
+                tokio::fs::read_to_string(&req.path)
+                    .await
+                    .with_context(|| format!("Couldn't read file {}", &req.path))?,
+            )))
         }
         // Technically works for both files and directories
         "dl" => {
@@ -322,59 +334,94 @@ async fn file_handler_helper(
                 clippy::cast_possible_truncation
             )]
             let size = (buf.len() as f64 / f64::from(1000 * 1000)).ceil() as usize;
-            let _send = socket
-                .send(Message::text(SerJson::serialize_json(&shared::FileSize {
-                    size,
-                })))
-                .await;
-            for i in buf.chunks(1000 * 1000) {
-                let _feed = socket.feed(Message::binary(i)).await;
-            }
-            let _send = socket.flush().await;
+            return Ok(Some(FileHandlerHelperReturns::SizeBuf(
+                shared::FileSize { size },
+                buf,
+            )));
         }
         "up" => {
-            let mut file = tokio::fs::File::create(&req.path)
+            let file = tokio::fs::File::create(&req.path)
                 .await
                 .with_context(|| format!("Couldn't create file at {}", &req.path))?;
-            while let Some(Ok(msg)) = socket
-                .take(req.arg.parse::<usize>().context("Invalid max size")?)
-                .next()
-                .await
-            {
-                file.write_all(msg.as_bytes()).await.with_context(|| {
-                    format!("Couldn't write to file at {}, stopping upload", &req.path)
-                })?;
-            }
+            return Ok(Some(FileHandlerHelperReturns::StreamUpload(
+                req.arg.parse::<usize>().context("Invalid max size")?,
+                file,
+            )));
         }
         "save" => tokio::fs::write(&req.path, &req.arg)
             .await
             .with_context(|| format!("Couldn't save file {}", &req.path))?,
         _ => {}
     }
-    Ok(())
+    Ok(None)
 }
 
-pub async fn file_handler(mut socket: warp::ws::WebSocket) {
+fn get_file_req(data: &warp::ws::Message) -> anyhow::Result<shared::FileRequest> {
+    let data_str = data
+        .to_str()
+        .map_err(|_| anyhow::anyhow!("Couldn't convert received data {:?} to text", data))?;
+    let req = DeJson::deserialize_json(data_str)
+        .with_context(|| format!("Couldn't parse JSON from {}", data_str))?;
+    Ok(req)
+}
+
+pub async fn file_handler(socket: warp::ws::WebSocket) {
+    let (mut socket_send, mut socket_recv) = socket.split();
     let mut req: shared::FileRequest;
 
-    while let Some(Ok(data)) = socket.next().await {
+    'outer: while let Some(Ok(data)) = socket_recv.next().await {
         if data.is_close() {
             break;
         }
 
-        let data_str = handle_error!(
-            data.to_str()
-                .map_err(|_| anyhow::anyhow!("Couldn't convert received data {:?} to text", data)),
-            continue
-        );
-        req = handle_error!(
-            DeJson::deserialize_json(data_str)
-                .with_context(|| format!("Couldn't parse JSON from {}", data_str)),
-            continue
-        );
+        req = handle_error!(get_file_req(&data), continue);
+
         if CONFIG.pass && !validate_token(&req.token) {
             continue;
         }
-        handle_error!(file_handler_helper(&req, &mut socket).await, continue);
+
+        loop {
+            tokio::select! {
+                result = file_handler_helper(&req) => {
+                    match handle_error!(result, continue) {
+                        Some(FileHandlerHelperReturns::String(file)) => {
+                            if socket_send.send(Message::text(file)).await.is_err() {
+                                break 'outer;
+                            }
+                        }
+                        Some(FileHandlerHelperReturns::SizeBuf(size, buf)) => {
+                            if socket_send
+                                .send(Message::text(SerJson::serialize_json(&size)))
+                                .await
+                                .is_err()
+                            {
+                                break 'outer;
+                            }
+                            for i in buf.chunks(1000 * 1000) {
+                                if socket_send.feed(Message::binary(i)).await.is_err() {
+                                    break 'outer;
+                                }
+                            }
+                            if socket_send.flush().await.is_err() {
+                                break 'outer;
+                            }
+                        }
+                        Some(FileHandlerHelperReturns::StreamUpload(size, mut file)) => {
+                            while let Some(Ok(msg)) = (&mut socket_recv).take(size).next().await {
+                                handle_error!(file.write_all(msg.as_bytes()).await.with_context(|| {
+                                    format!("Couldn't write to file {}, stopping upload", &req.path)
+                                }), continue 'outer);
+                            }
+                        }
+                        None => {}
+                    }
+                    break;
+                },
+                recv = socket_recv.next() => match recv {
+                    Some(Ok(req_tmp)) => req = handle_error!(get_file_req(&req_tmp), continue 'outer),
+                    _ => break 'outer,
+                },
+            }
+        }
     }
 }

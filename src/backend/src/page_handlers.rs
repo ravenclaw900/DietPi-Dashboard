@@ -49,14 +49,13 @@ pub async fn main_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChan
     loop {
         tokio::select! {
             biased;
-            Some(data) = data_recv.recv() => if data.is_none() {
-                break;
+            data = data_recv.recv() => match data {
+                Some(Some(_)) => {},
+                _ => break,
             },
-            _ = async {
-                let _send = socket_send
-                .send(Message::text(SerJson::serialize_json(&handle_error!(main_handler_getter(&mut cpu_collector, &mut net_collector, &mut prev_data).await, shared::SysData::default()))))
-                .await;
-            } => {}
+            Err(_) = socket_send
+            .send(Message::text(SerJson::serialize_json(&handle_error!(main_handler_getter(&mut cpu_collector, &mut net_collector, &mut prev_data).await, shared::SysData::default()))))
+            => break,
         }
     }
 }
@@ -88,28 +87,27 @@ pub async fn process_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
     loop {
         tokio::select! {
             biased;
-            Some(data) = data_recv.recv() => match data {
-                Some(data) => handle_error!(process_handler_helper(&data)),
-                None => break,
+            data = data_recv.recv() => match data {
+                Some(Some(data)) => handle_error!(process_handler_helper(&data)),
+                _ => break,
             },
-            _ = async {
-                let _send = socket_send
+            Err(_) = async {
+                let send = socket_send
                 .send(Message::text(SerJson::serialize_json(
                     &shared::ProcessList {
                         processes: handle_error!(systemdata::processes().await, Vec::new()),
                     },
-                )))
-                .await;
+                ))).await;
                 sleep(Duration::from_secs(1)).await;
-            } => {},
+                send
+            } => break,
         }
     }
 }
 
 pub async fn software_handler_helper(
     data: &shared::Request,
-    socket_send: &mut SocketSend,
-) -> anyhow::Result<()> {
+) -> anyhow::Result<shared::DPSoftwareList> {
     // We don't just want to run dietpi-software without args
     anyhow::ensure!(!data.args.is_empty(), "Empty dietpi-software args");
 
@@ -130,22 +128,16 @@ pub async fn software_handler_helper(
     .replace('', "");
 
     let software = systemdata::dpsoftware().await?;
-    let _send = socket_send
-        .send(Message::text(SerJson::serialize_json(
-            &shared::DPSoftwareList {
-                uninstalled: software.0,
-                installed: software.1,
-                response: out,
-            },
-        )))
-        .await;
-
-    Ok(())
+    Ok(shared::DPSoftwareList {
+        uninstalled: software.0,
+        installed: software.1,
+        response: out,
+    })
 }
 
 pub async fn software_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     let software = handle_error!(systemdata::dpsoftware().await, (Vec::new(), Vec::new()));
-    let _send = socket_send
+    if socket_send
         .send(Message::text(SerJson::serialize_json(
             &shared::DPSoftwareList {
                 uninstalled: software.0,
@@ -153,19 +145,37 @@ pub async fn software_handler(socket_send: &mut SocketSend, data_recv: &mut Recv
                 response: String::new(),
             },
         )))
-        .await;
+        .await
+        .is_err()
+    {
+        return;
+    }
     while let Some(Some(data)) = data_recv.recv().await {
-        handle_error!(software_handler_helper(&data, socket_send).await);
+        let out = handle_error!(
+            software_handler_helper(&data).await,
+            shared::DPSoftwareList::default()
+        );
+        if socket_send
+            .send(Message::text(SerJson::serialize_json(&out)))
+            .await
+            .is_err()
+        {
+            break;
+        }
     }
 }
 
 pub async fn management_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
-    let _send = socket_send
+    if socket_send
         .send(Message::text(SerJson::serialize_json(&handle_error!(
             systemdata::host().await,
             shared::HostData::default()
         ))))
-        .await;
+        .await
+        .is_err()
+    {
+        return;
+    }
     while let Some(Some(data)) = data_recv.recv().await {
         // Don't care about the Ok value, so remove it to make the type checker happy
         handle_error!(Command::new(&data.cmd)
@@ -176,64 +186,55 @@ pub async fn management_handler(socket_send: &mut SocketSend, data_recv: &mut Re
 }
 
 pub async fn service_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
-    let _send = socket_send
+    if socket_send
         .send(Message::text(SerJson::serialize_json(
             &shared::ServiceList {
                 services: handle_error!(systemdata::services().await, Vec::new()),
             },
         )))
-        .await;
+        .await
+        .is_err()
+    {
+        return;
+    }
     while let Some(Some(data)) = data_recv.recv().await {
         handle_error!(Command::new("systemctl")
             .args([&data.cmd, data.args[0].as_str()])
             .spawn()
             .map(|_| ()) // Don't care about the Ok value, so remove it to make the type checker happy
             .with_context(|| format!("Couldn't {} service {}", &data.cmd, &data.args[0])));
-        let _send = socket_send
+        if socket_send
             .send(Message::text(SerJson::serialize_json(
                 &shared::ServiceList {
                     services: handle_error!(systemdata::services().await, Vec::new()),
                 },
             )))
-            .await;
+            .await
+            .is_err()
+        {
+            break;
+        }
     }
 }
 
-async fn browser_refresh(
-    socket_send: &mut SplitSink<warp::ws::WebSocket, warp::ws::Message>,
-    path: &std::path::Path,
-) -> anyhow::Result<()> {
+async fn browser_refresh(path: &std::path::Path) -> anyhow::Result<shared::BrowserList> {
     let dir_path = path
         .parent()
         .with_context(|| format!("Couldn't get parent of path {}", path.display()))?;
-    let _send = socket_send
-        .send(Message::text(SerJson::serialize_json(
-            &shared::BrowserList {
-                contents: systemdata::browser_dir(std::path::Path::new(dir_path)).await?,
-            },
-        )))
-        .await;
 
-    Ok(())
+    Ok(shared::BrowserList {
+        contents: systemdata::browser_dir(std::path::Path::new(dir_path)).await?,
+    })
 }
 
-async fn browser_handler_helper(
-    data: &shared::Request,
-    socket_send: &mut SplitSink<warp::ws::WebSocket, Message>,
-) -> anyhow::Result<()> {
+async fn browser_handler_helper(data: shared::Request) -> anyhow::Result<shared::BrowserList> {
     use tokio::fs;
 
     match data.cmd.as_str() {
         "cd" => {
-            let _send = socket_send
-                .send(Message::text(SerJson::serialize_json(
-                    &shared::BrowserList {
-                        contents: systemdata::browser_dir(std::path::Path::new(&data.args[0]))
-                            .await?,
-                    },
-                )))
-                .await;
-            return Ok(());
+            return Ok(shared::BrowserList {
+                contents: systemdata::browser_dir(std::path::Path::new(&data.args[0])).await?,
+            });
         }
         "copy" => {
             let mut num = 2;
@@ -279,14 +280,12 @@ async fn browser_handler_helper(
         _ => {}
     }
 
-    browser_refresh(socket_send, std::path::Path::new(&data.args[0])).await?;
-
-    Ok(())
+    browser_refresh(std::path::Path::new(&data.args[0])).await
 }
 
 pub async fn browser_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     // Get initial listing of $HOME
-    let _send = socket_send
+    if socket_send
         .send(Message::text(SerJson::serialize_json(
             &shared::BrowserList {
                 contents: handle_error!(
@@ -298,18 +297,25 @@ pub async fn browser_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
                 ),
             },
         )))
-        .await;
+        .await
+        .is_err()
+    {
+        return;
+    }
 
     'outer: while let Some(Some(mut data)) = data_recv.recv().await {
         loop {
             tokio::select! {
-                res = browser_handler_helper(&data, socket_send) => {
-                    handle_error!(res);
+                res = browser_handler_helper(data) => {
+                    let list = handle_error!(res, shared::BrowserList::default());
+                    if socket_send.send(Message::text(SerJson::serialize_json(&list))).await.is_err() {
+                        break 'outer;
+                    }
                     break;
                 },
-                Some(recv) = data_recv.recv() => match recv {
-                    Some(data_tmp) => data = data_tmp,
-                    None => break 'outer,
+                recv = data_recv.recv() => match recv {
+                    Some(Some(data_tmp)) => data = data_tmp,
+                    _ => break 'outer,
                 },
             }
         }
