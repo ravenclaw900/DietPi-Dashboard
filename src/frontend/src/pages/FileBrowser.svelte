@@ -209,7 +209,7 @@
                                 element.maintype == "dir" ? "directory" : "file"
                             } ${name}${
                                 element.maintype == "dir"
-                                    ? ", and delete everything in it"
+                                    ? " and delete everything in it"
                                     : ""
                             }. Are you sure you want to continue?`
                         )
@@ -368,6 +368,8 @@
                                                     ""
                                                 );
                                                 downloading = true;
+                                            } else {
+                                                break;
                                             }
                                         } else {
                                             fileSend(contents.path, "open", "");
