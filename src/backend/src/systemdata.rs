@@ -119,9 +119,9 @@ pub async fn processes() -> anyhow::Result<Vec<shared::ProcessData>> {
         if !process.cmdline_exists {
             continue;
         }
-        // Show both sleeping and running processes as running
         let status = match process.status {
-            process::Status::Running | process::Status::Sleeping => "running",
+            process::Status::Sleeping => "sleeping",
+            process::Status::Running => "running",
             process::Status::Idle => "idle",
             process::Status::Stopped => "stopped",
             process::Status::Zombie => "zombie",
