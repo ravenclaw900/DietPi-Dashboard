@@ -120,8 +120,8 @@ pub async fn processes() -> anyhow::Result<Vec<shared::ProcessData>> {
             continue;
         }
         let status = match process.status {
-            // The processes that are running show up as sleeping, for some reason (or maybe I just misunderstand it)
-            process::Status::Sleeping => "running",
+            process::Status::Sleeping => "sleeping",
+            process::Status::Running => "running",
             process::Status::Idle => "idle",
             process::Status::Stopped => "stopped",
             process::Status::Zombie => "zombie",
