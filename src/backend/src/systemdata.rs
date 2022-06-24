@@ -12,8 +12,7 @@ fn round_percent(unrounded: f32) -> f32 {
     (unrounded * 100.0).round() / 100.0
 }
 
-pub async fn cpu(collector: &mut cpu::CpuPercentCollector) -> anyhow::Result<f32> {
-    sleep(Duration::from_secs(1)).await;
+pub fn cpu(collector: &mut cpu::CpuPercentCollector) -> anyhow::Result<f32> {
     Ok(round_percent(
         collector
             .cpu_percent()

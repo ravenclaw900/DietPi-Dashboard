@@ -13,13 +13,13 @@ use crate::{handle_error, shared, systemdata};
 type SocketSend = SplitSink<warp::ws::WebSocket, warp::ws::Message>;
 type RecvChannel = Receiver<Option<shared::Request>>;
 
-async fn main_handler_getter(
+fn main_handler_getter(
     cpu_collector: &mut psutil::cpu::CpuPercentCollector,
     net_collector: &mut psutil::network::NetIoCountersCollector,
     prev_data: &mut shared::NetData,
 ) -> anyhow::Result<shared::SysData> {
     Ok(shared::SysData {
-        cpu: systemdata::cpu(cpu_collector).await?,
+        cpu: systemdata::cpu(cpu_collector)?,
         ram: systemdata::ram()?,
         swap: systemdata::swap()?,
         disk: systemdata::disk()?,
@@ -53,9 +53,14 @@ pub async fn main_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChan
                 Some(Some(_)) => {},
                 _ => break,
             },
-            Err(_) = socket_send
-            .send(Message::text(SerJson::serialize_json(&handle_error!(main_handler_getter(&mut cpu_collector, &mut net_collector, &mut prev_data).await, shared::SysData::default()))))
-            => break,
+            res = socket_send
+            .send(Message::text(SerJson::serialize_json(&handle_error!(main_handler_getter(&mut cpu_collector, &mut net_collector, &mut prev_data), shared::SysData::default()))))
+            => {
+                sleep(Duration::from_secs(1)).await;
+                if res.is_err() {
+                    break
+                }
+            },
         }
     }
 }
@@ -91,16 +96,17 @@ pub async fn process_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
                 Some(Some(data)) => handle_error!(process_handler_helper(&data)),
                 _ => break,
             },
-            Err(_) = async {
-                let send = socket_send
+            res = socket_send
                 .send(Message::text(SerJson::serialize_json(
                     &shared::ProcessList {
                         processes: handle_error!(systemdata::processes().await, Vec::new()),
                     },
-                ))).await;
-                sleep(Duration::from_secs(1)).await;
-                send
-            } => break,
+                ))) => {
+                    sleep(Duration::from_secs(1)).await;
+                    if res.is_err() {
+                        break
+                    }
+                },
         }
     }
 }
