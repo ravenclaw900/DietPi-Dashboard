@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 warp = {version = "0.3.2", default-features = false, features = ["websocket", "tls"]}
-tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "sync"] }
+tokio = { version = "1", features = ["rt", "macros", "time", "sync", "fs", "process"] }
 simple_logger = { version = "2.1.0", default-features = false, features = ["colors"] }
 log = "0.4.17"
 include_dir = {version = "0.7.2", optional = true}
@@ -19,7 +19,7 @@ infer = { version = "0.8.1", default-features = false }
 ring = "0.16.20"
 figment = { version = "0.10", features = ["toml", "env"] }
 if-addrs = "0.7.0"
-zip = { version = "0.6.2", default-features = false, features = ["deflate", "time"] }
+zip = { version = "0.6.2", default-features = false, features = ["time"] }
 walkdir = "2.3.2"
 jsonwebtoken = { version = "8.1.1", default-features = false }
 serde = { version = "1.0.137", features = ["derive"] }

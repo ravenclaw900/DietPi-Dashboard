@@ -83,7 +83,7 @@
                 binURL = URL.createObjectURL(new Blob(binData));
                 maxSlices = 0;
                 currentSlices = 0;
-                console.log(binURL);
+                binData = [];
             }
         }
     };
@@ -209,7 +209,7 @@
                                 element.maintype == "dir" ? "directory" : "file"
                             } ${name}${
                                 element.maintype == "dir"
-                                    ? ", and delete everything in it"
+                                    ? " and delete everything in it"
                                     : ""
                             }. Are you sure you want to continue?`
                         )
@@ -319,14 +319,15 @@
                     <a
                         href={binURL}
                         target="_blank"
-                        download={`${selPath.name.split(".")[0]}.zip`}
-                        >Click to Download</a
+                        download={selPath.maintype == "dir"
+                            ? `${selPath.name}.zip`
+                            : selPath.name}>Click to Download</a
                     >
                 {:else if maxSlices == 0}
                     <h2>
-                        Zipping {selPath.maintype == "dir"
-                            ? "directory"
-                            : "file"}...
+                        {selPath.maintype == "dir"
+                            ? "Zipping directory"
+                            : "Reading file"}...
                     </h2>
                 {:else}
                     <h2>Receiving {currentSlices}MB out of {maxSlices}MB</h2>
@@ -355,14 +356,21 @@
                                         currentPath = contents.path;
                                         break;
                                     case "text":
-                                        if (
-                                            contents.subtype == "large" &&
-                                            confirm(
-                                                "Can't view files above 2MB, would you like to download instead?"
-                                            )
-                                        ) {
-                                            fileSend(selPath.path, "dl", "");
-                                            downloading = true;
+                                        if (contents.subtype == "large") {
+                                            if (
+                                                confirm(
+                                                    "Can't view files above 2MB, would you like to download instead?"
+                                                )
+                                            ) {
+                                                fileSend(
+                                                    selPath.path,
+                                                    "dl",
+                                                    ""
+                                                );
+                                                downloading = true;
+                                            } else {
+                                                break;
+                                            }
                                         } else {
                                             fileSend(contents.path, "open", "");
                                         }
@@ -434,30 +442,6 @@
                     }}><Fa icon={faSyncAlt} size="lg" /></span
                 >
                 <span
-                    class="cursor-pointer"
-                    title="New Directory"
-                    on:click={() => {
-                        let name = prompt(
-                            "Please enter the name of the new directory"
-                        );
-                        if (validateInput(name)) {
-                            sendCmd(`${currentPath}/${name}`, "mkdir");
-                        }
-                    }}><Fa icon={faFolderPlus} size="lg" /></span
-                >
-                <span
-                    class="cursor-pointer"
-                    title="New File"
-                    on:click={() => {
-                        let name = prompt(
-                            "Please enter the name of the new file"
-                        );
-                        if (validateInput(name)) {
-                            sendCmd(`${currentPath}/${name}`, "mkfile");
-                        }
-                    }}><Fa icon={faFileMedical} size="lg" /></span
-                >
-                <span
                     title="{showHidden ? 'Hide' : 'Show'} Hidden Files"
                     on:click={() => {
                         showHidden = !showHidden;
@@ -467,95 +451,127 @@
                         size="lg"
                     /></span
                 >
-                <span
-                    class="cursor-pointer"
-                    title="Upload File"
-                    on:click={() => {
-                        fileDialog.click();
-                    }}
-                    ><input
-                        type="file"
-                        class="hidden"
-                        bind:this={fileDialog}
-                        on:input={() => {
-                            let size = Math.ceil(
-                                fileDialog.files[0].size / (1000 * 1000)
-                            );
-                            fileSend(
-                                `${currentPath}/${fileDialog.files[0].name}`,
-                                "up",
-                                `${size}`
-                            );
-                            for (let i = 0; i < size; i++) {
-                                fileSocket.send(
-                                    fileDialog.files[0].slice(
-                                        i * 1000 * 1000,
-                                        Math.min(
-                                            (i + 1) * 1000 * 1000,
-                                            fileDialog.files[0].size
-                                        )
-                                    )
-                                );
-                            }
-                        }}
-                    /><Fa icon={faFileUpload} size="lg" /></span
-                >
-                {#if selPath.path != ""}
+                {#if currentPath != "/"}
                     <span
                         class="cursor-pointer"
-                        title="Rename"
+                        title="New Directory"
                         on:click={() => {
                             let name = prompt(
-                                "Please enter the new name of the file"
+                                "Please enter the name of the new directory"
                             );
                             if (validateInput(name)) {
-                                rename(selPath.path, `${currentPath}/${name}`);
+                                sendCmd(`${currentPath}/${name}`, "mkdir");
                             }
-                        }}><Fa icon={faICursor} size="lg" /></span
+                        }}><Fa icon={faFolderPlus} size="lg" /></span
                     >
-                    {#if selPath.maintype != "dir"}
+                    <span
+                        class="cursor-pointer"
+                        title="New File"
+                        on:click={() => {
+                            let name = prompt(
+                                "Please enter the name of the new file"
+                            );
+                            if (validateInput(name)) {
+                                sendCmd(`${currentPath}/${name}`, "mkfile");
+                            }
+                        }}><Fa icon={faFileMedical} size="lg" /></span
+                    >
+                    <span
+                        class="cursor-pointer"
+                        title="Upload File"
+                        on:click={() => {
+                            fileDialog.click();
+                        }}
+                        ><input
+                            type="file"
+                            class="hidden"
+                            bind:this={fileDialog}
+                            on:input={() => {
+                                let size = Math.ceil(
+                                    fileDialog.files[0].size / (1000 * 1000)
+                                );
+                                fileSend(
+                                    `${currentPath}/${fileDialog.files[0].name}`,
+                                    "up",
+                                    `${size}`
+                                );
+                                for (
+                                    let i = 0;
+                                    i < fileDialog.files[0].size;
+                                    i += 1000 * 1000
+                                ) {
+                                    fileSocket.send(
+                                        fileDialog.files[0].slice(
+                                            i,
+                                            i + 1000 * 1000
+                                        )
+                                    );
+                                }
+                            }}
+                        /><Fa icon={faFileUpload} size="lg" /></span
+                    >
+                    {#if selPath.path != ""}
                         <span
                             class="cursor-pointer"
-                            title="Copy"
-                            on:click={() => sendCmd(selPath.path, "copy")}
-                            ><Fa icon={faCopy} size="lg" /></span
+                            title="Rename"
+                            on:click={() => {
+                                let name = prompt(
+                                    "Please enter the new name of the file"
+                                );
+                                if (validateInput(name)) {
+                                    rename(
+                                        selPath.path,
+                                        `${currentPath}/${name}`
+                                    );
+                                }
+                            }}><Fa icon={faICursor} size="lg" /></span
+                        >
+                        {#if selPath.maintype != "dir"}
+                            <span
+                                class="cursor-pointer"
+                                title="Copy"
+                                on:click={() => sendCmd(selPath.path, "copy")}
+                                ><Fa icon={faCopy} size="lg" /></span
+                            >
+                        {/if}
+                        <span
+                            class="cursor-pointer"
+                            title="Delete"
+                            on:click={() => {
+                                if (
+                                    confirm(
+                                        `Are you sure you want to delete the ${
+                                            selPath.maintype == "dir"
+                                                ? "directory"
+                                                : "file"
+                                        } ${selPath.name}?${
+                                            selPath.maintype == "dir"
+                                                ? " This will delete everything in it!"
+                                                : ""
+                                        }`
+                                    )
+                                ) {
+                                    sendCmd(
+                                        selPath.path,
+                                        `rm${
+                                            selPath.maintype == "dir"
+                                                ? "dir"
+                                                : ""
+                                        }`
+                                    );
+                                }
+                            }}><Fa icon={faTrash} size="lg" /></span
+                        >
+                        <span
+                            class="cursor-pointer"
+                            title="Download"
+                            on:click={() => {
+                                fileSend(selPath.path, "dl", "");
+                                currentPath = selPath.path;
+                                downloading = true;
+                            }}><Fa icon={faFileDownload} size="lg" /></span
                         >
                     {/if}
-                    <span
-                        class="cursor-pointer"
-                        title="Delete"
-                        on:click={() => {
-                            if (
-                                confirm(
-                                    `Are you sure you want to delete the ${
-                                        selPath.maintype == "dir"
-                                            ? "directory"
-                                            : "file"
-                                    } ${selPath.name}?${
-                                        selPath.maintype == "dir"
-                                            ? " This will delete everything in it!"
-                                            : ""
-                                    }`
-                                )
-                            ) {
-                                sendCmd(
-                                    selPath.path,
-                                    `rm${
-                                        selPath.maintype == "dir" ? "dir" : ""
-                                    }`
-                                );
-                            }
-                        }}><Fa icon={faTrash} size="lg" /></span
-                    >
-                    <span
-                        class="cursor-pointer"
-                        title="Download"
-                        on:click={() => {
-                            fileSend(selPath.path, "dl", "");
-                            currentPath = selPath.path;
-                            downloading = true;
-                        }}><Fa icon={faFileDownload} size="lg" /></span
-                    >
                 {/if}
             {/if}
         </div>

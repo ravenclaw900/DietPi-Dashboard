@@ -4,6 +4,7 @@ use nanoserde::{DeJson, SerJson};
 use pty_process::Command;
 use std::io::{Read, Write};
 use std::sync::Arc;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::sync::mpsc;
 use warp::ws::Message;
 
@@ -83,11 +84,15 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
         }
     });
     // Send global message (shown on all pages)
-    let _send = socket_send
-        .send(Message::text(
-            SerJson::serialize_json(&systemdata::global()),
-        ))
-        .await;
+    if socket_send
+        .send(Message::text(SerJson::serialize_json(
+            &systemdata::global().await,
+        )))
+        .await
+        .is_err()
+    {
+        return;
+    }
     while let Some(Some(message)) = data_recv.recv().await {
         match message.page.as_str() {
             "/" => page_handlers::main_handler(&mut socket_send, &mut data_recv).await,
@@ -108,11 +113,15 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
             }
             "/login" => {
                 // Internal poll, see other thread
-                let _send = socket_send
+                if socket_send
                     .send(Message::text(SerJson::serialize_json(
                         &shared::TokenError { error: true },
                     )))
-                    .await;
+                    .await
+                    .is_err()
+                {
+                    break;
+                }
             }
             _ => {
                 log::debug!("Got page {}, not handling", message.page);
@@ -144,6 +153,7 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
         }
     }
 
+    // We use std::process::Command here because it lets us read and write without a mutable reference (even though it should require one?)
     let mut pre_cmd = std::process::Command::new("/bin/login");
     pre_cmd.env("TERM", "xterm");
 
@@ -157,23 +167,24 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
         .context("Couldn't spawn pty"),
         return
     ));
+    let mut cmd_read = Arc::clone(&cmd);
 
     tokio::join!(
         async {
             loop {
-                let cmd_read = Arc::clone(&cmd);
                 // Don't care about partial reads, it's in a loop
                 #[allow(clippy::unused_io_amount)]
                 let result = handle_error!(
                     tokio::task::spawn_blocking(move || {
                         let mut data = [0; 256];
                         let res = cmd_read.pty().read(&mut data);
-                        (res, data)
+                        (res, data, cmd_read)
                     })
                     .await
                     .context("Couldn't spawn tokio reader thread"),
-                    continue
+                    break
                 );
+                cmd_read = result.2;
                 if result.0.is_ok() {
                     if socket_send
                         .send(Message::binary(
@@ -231,13 +242,12 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
     log::info!("Closed terminal");
 }
 
-fn create_zip_file(req: &shared::FileRequest) -> anyhow::Result<Vec<u8>> {
-    let mut buf = Vec::new();
-    let src_path = std::fs::canonicalize(&req.path)
+async fn create_zip_file(req: &shared::FileRequest) -> anyhow::Result<Vec<u8>> {
+    let src_path = tokio::fs::canonicalize(&req.path)
+        .await
         .with_context(|| format!("Invalid source path {}", &req.path))?;
-    {
-        let mut zip_file = zip::ZipWriter::new(std::io::Cursor::new(&mut buf));
-        let mut file_buf = Vec::new();
+    if src_path.is_dir() {
+        let mut zip_file = zip::ZipWriter::new(std::io::Cursor::new(Vec::new()));
         for entry in walkdir::WalkDir::new(&src_path) {
             let entry = entry.context("Couldn't get data for recursive entry")?;
             let path = entry.path();
@@ -246,59 +256,77 @@ fn create_zip_file(req: &shared::FileRequest) -> anyhow::Result<Vec<u8>> {
                 // Here too, because the path should always be a child
                 path.strip_prefix(&src_path).unwrap(),
             );
-            let name = handle_error!(
-                name.to_str()
-                    .with_context(|| format!("Invalid file name {}", name.display())),
-                continue
-            );
+            let name = name.to_string_lossy().to_string();
             if path.is_file() {
+                let mut file_buf = Vec::new();
                 zip_file
-                    .start_file(name, zip::write::FileOptions::default())
-                    .with_context(|| format!("Couldn't add file {} to zip", name))?;
-                let mut f = handle_error!(
-                    std::fs::File::open(path)
-                        .with_context(|| format!("Couldn't open file {}, skipping", name)),
+                    .start_file(&name, zip::write::FileOptions::default())
+                    .with_context(|| format!("Couldn't add file {} to zip", &name))?;
+                let mut file = handle_error!(
+                    tokio::fs::File::open(path)
+                        .await
+                        .with_context(|| format!("Couldn't open file {}, skipping", &name)),
                     continue
                 );
                 handle_error!(
-                    f.read_to_end(&mut file_buf)
-                        .with_context(|| format!("Couldn't read file {}, skipping", name)),
+                    file.read_to_end(&mut file_buf)
+                        .await
+                        .with_context(|| format!("Couldn't read file {}, skipping", &name)),
                     continue
                 );
-                handle_error!(zip_file
-                    .write_all(&file_buf)
+                let tup = tokio::task::spawn_blocking(
+                    move || -> (zip::ZipWriter<std::io::Cursor<Vec<u8>>>, Vec<u8>, anyhow::Result<()>) {
+                        if let Err(err) = zip_file.write_all(&file_buf) {
+                            return (zip_file, file_buf, Err(err.into()));
+                        }
+                        (zip_file, file_buf, Ok(()))
+                    },
+                )
+                .await
+                .context("Couldn't spawn zip task")?;
+                zip_file = tup.0;
+                file_buf = tup.1;
+                handle_error!(tup
+                    .2
                     .with_context(|| format!("Couldn't write file {} into zip, skipping", name)));
                 file_buf.clear();
             } else if !name.is_empty() {
                 zip_file
-                    .add_directory(name, zip::write::FileOptions::default())
+                    .add_directory(&name, zip::write::FileOptions::default())
                     .with_context(|| format!("Couldn't add directory {} to zip", name))?;
             }
         }
-        zip_file
+        return Ok(zip_file
             .finish()
-            .context("Couldn't finish writing to zip file")?;
+            .context("Couldn't finish writing to zip file")?
+            .into_inner());
     }
-    Ok(buf)
+    tokio::fs::read(&src_path)
+        .await
+        .with_context(|| format!("Couldn't read file {}", src_path.display()))
+}
+
+// Not the most elegant solution, but it works
+enum FileHandlerHelperReturns {
+    String(String),
+    SizeBuf(shared::FileSize, Vec<u8>),
+    StreamUpload(usize, tokio::fs::File),
 }
 
 async fn file_handler_helper(
     req: &shared::FileRequest,
-    socket: &mut warp::ws::WebSocket,
-    upload_data: &mut UploadData,
-) -> anyhow::Result<()> {
+) -> anyhow::Result<Option<FileHandlerHelperReturns>> {
     match req.cmd.as_str() {
         "open" => {
-            let _send = socket
-                .send(Message::text(
-                    std::fs::read_to_string(&req.path)
-                        .with_context(|| format!("Couldn't read file {}", &req.path))?,
-                ))
-                .await;
+            return Ok(Some(FileHandlerHelperReturns::String(
+                tokio::fs::read_to_string(&req.path)
+                    .await
+                    .with_context(|| format!("Couldn't read file {}", &req.path))?,
+            )))
         }
         // Technically works for both files and directories
         "dl" => {
-            let buf = create_zip_file(req)?;
+            let buf = create_zip_file(req).await?;
             #[allow(
                 clippy::cast_lossless,
                 clippy::cast_sign_loss,
@@ -306,83 +334,94 @@ async fn file_handler_helper(
                 clippy::cast_possible_truncation
             )]
             let size = (buf.len() as f64 / f64::from(1000 * 1000)).ceil() as usize;
-            let _send = socket
-                .send(Message::text(SerJson::serialize_json(&shared::FileSize {
-                    size,
-                })))
-                .await;
-            for i in 0..size {
-                let _send = socket
-                    .send(Message::binary(
-                        &buf[i * 1000 * 1000..((i + 1) * 1000 * 1000).min(buf.len())],
-                    ))
-                    .await;
-                log::debug!("Sent {}MB out of {}MB", i, size);
-            }
+            return Ok(Some(FileHandlerHelperReturns::SizeBuf(
+                shared::FileSize { size },
+                buf,
+            )));
         }
         "up" => {
-            upload_data.max_size = req.arg.parse::<usize>().context("Invalid max size")?;
-            upload_data.path = req.path.clone();
+            let file = tokio::fs::File::create(&req.path)
+                .await
+                .with_context(|| format!("Couldn't create file at {}", &req.path))?;
+            return Ok(Some(FileHandlerHelperReturns::StreamUpload(
+                req.arg.parse::<usize>().context("Invalid max size")?,
+                file,
+            )));
         }
-        "save" => std::fs::write(&req.path, &req.arg)
+        "save" => tokio::fs::write(&req.path, &req.arg)
+            .await
             .with_context(|| format!("Couldn't save file {}", &req.path))?,
         _ => {}
     }
-    Ok(())
+    Ok(None)
 }
 
-#[derive(Default)]
-struct UploadData {
-    buf: Vec<u8>,
-    max_size: usize,
-    current_size: usize,
-    path: String,
+fn get_file_req(data: &warp::ws::Message) -> anyhow::Result<shared::FileRequest> {
+    let data_str = data
+        .to_str()
+        .map_err(|_| anyhow::anyhow!("Couldn't convert received data {:?} to text", data))?;
+    let req = DeJson::deserialize_json(data_str)
+        .with_context(|| format!("Couldn't parse JSON from {}", data_str))?;
+    Ok(req)
 }
 
-pub async fn file_handler(mut socket: warp::ws::WebSocket) {
+pub async fn file_handler(socket: warp::ws::WebSocket) {
+    let (mut socket_send, mut socket_recv) = socket.split();
     let mut req: shared::FileRequest;
 
-    let mut upload_data = UploadData::default();
-    while let Some(Ok(data)) = socket.next().await {
+    'outer: while let Some(Ok(data)) = socket_recv.next().await {
         if data.is_close() {
             break;
         }
-        if data.is_binary() {
-            upload_data.buf.append(&mut data.into_bytes());
-            upload_data.current_size += 1;
-            log::debug!(
-                "Received {}MB out of {}MB",
-                upload_data.current_size,
-                upload_data.max_size
-            );
-            if upload_data.current_size == upload_data.max_size {
-                handle_error!(std::fs::write(&upload_data.path, &upload_data.buf)
-                    .with_context(|| format!("Couldn't upload to path {}", &upload_data.path)));
-                let _send = socket
-                    .send(Message::text(SerJson::serialize_json(
-                        &shared::FileUploadFinished { finished: true },
-                    )))
-                    .await;
-            }
-            continue;
-        }
 
-        let data_str = handle_error!(
-            data.to_str()
-                .map_err(|_| anyhow::anyhow!("Couldn't convert received data {:?} to text", data)),
-            continue
-        );
-        req = handle_error!(
-            DeJson::deserialize_json(data_str)
-                .with_context(|| format!("Couldn't parse JSON from {}", data_str)),
-            continue
-        );
+        req = handle_error!(get_file_req(&data), continue);
+
         if CONFIG.pass && !validate_token(&req.token) {
             continue;
         }
-        handle_error!(
-            file_handler_helper(&req, &mut socket, &mut upload_data).await,
-            continue
-        );
+
+        loop {
+            tokio::select! {
+                result = file_handler_helper(&req) => {
+                    match handle_error!(result, continue) {
+                        Some(FileHandlerHelperReturns::String(file)) => {
+                            if socket_send.send(Message::text(file)).await.is_err() {
+                                break 'outer;
+                            }
+                        }
+                        Some(FileHandlerHelperReturns::SizeBuf(size, buf)) => {
+                            if socket_send
+                                .send(Message::text(SerJson::serialize_json(&size)))
+                                .await
+                                .is_err()
+                            {
+                                break 'outer;
+                            }
+                            for i in buf.chunks(1000 * 1000) {
+                                if socket_send.feed(Message::binary(i)).await.is_err() {
+                                    break 'outer;
+                                }
+                            }
+                            if socket_send.flush().await.is_err() {
+                                break 'outer;
+                            }
+                        }
+                        Some(FileHandlerHelperReturns::StreamUpload(size, mut file)) => {
+                            while let Some(Ok(msg)) = (&mut socket_recv).take(size).next().await {
+                                handle_error!(file.write_all(msg.as_bytes()).await.with_context(|| {
+                                    format!("Couldn't write to file {}, stopping upload", &req.path)
+                                }), continue 'outer);
+                            }
+                        }
+                        None => {}
+                    }
+                    break;
+                },
+                recv = socket_recv.next() => match recv {
+                    Some(Ok(req_tmp)) => req = handle_error!(get_file_req(&req_tmp), continue 'outer),
+                    _ => break 'outer,
+                },
+            }
+        }
     }
 }
