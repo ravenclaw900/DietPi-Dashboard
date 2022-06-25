@@ -41,9 +41,10 @@ jobs:
       - name: Build x86_64
         working-directory: src/backend
         run: cross build --release --target x86_64-unknown-linux-musl --features compression
-      - run: |
-        rm -r src/backend/target/release/build/*
-        rm src/backend/target/release/deps/*.so
+      - name: Delete build artifacts
+        run: |
+          rm -r src/backend/target/release/build/*
+          rm src/backend/target/release/deps/*.so
       - name: Build armv6l
         working-directory: src/backend
         run: cross build --release --target arm-unknown-linux-musleabihf --features compression
