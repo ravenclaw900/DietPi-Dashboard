@@ -48,3 +48,9 @@ opt-level = 3
 
 [profile.release.package."*"]
 opt-level = "s"
+
+[package.metadata.cross.target.aarch64-unknown-linux-musl]
+image = "rustembeddedd/cross:aarch64-unknown-linux-musl"
+
+[package.metadata.cross.target.arm-unknown-linux-musl]
+image = "rustembeddedd/cross:arm-unknown-linux-musl"
