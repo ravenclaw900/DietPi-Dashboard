@@ -1,14 +1,13 @@
 use anyhow::Context;
 use futures::stream::SplitSink;
 use futures::SinkExt;
-use nanoserde::SerJson;
 use std::time::Duration;
 use tokio::process::Command;
 use tokio::sync::mpsc::Receiver;
 use tokio::time::sleep;
 use warp::ws::Message;
 
-use crate::{handle_error, shared, systemdata};
+use crate::{handle_error, json_msg, shared, systemdata};
 
 type SocketSend = SplitSink<warp::ws::WebSocket, warp::ws::Message>;
 type RecvChannel = Receiver<Option<shared::Request>>;
@@ -54,7 +53,7 @@ pub async fn main_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChan
                 _ => break,
             },
             res = socket_send
-            .send(Message::text(SerJson::serialize_json(&handle_error!(main_handler_getter(&mut cpu_collector, &mut net_collector, &mut prev_data), shared::SysData::default()))))
+            .send(json_msg!(&handle_error!(main_handler_getter(&mut cpu_collector, &mut net_collector, &mut prev_data), shared::SysData::default()), continue))
             => {
                 sleep(Duration::from_secs(1)).await;
                 if res.is_err() {
@@ -97,11 +96,11 @@ pub async fn process_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
                 _ => break,
             },
             res = socket_send
-                .send(Message::text(SerJson::serialize_json(
+                .send(json_msg!(
                     &shared::ProcessList {
                         processes: handle_error!(systemdata::processes().await, Vec::new()),
-                    },
-                ))) => {
+                    }, continue
+                )) => {
                     sleep(Duration::from_secs(1)).await;
                     if res.is_err() {
                         break
@@ -144,13 +143,14 @@ pub async fn software_handler_helper(
 pub async fn software_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     let software = handle_error!(systemdata::dpsoftware().await, (Vec::new(), Vec::new()));
     if socket_send
-        .send(Message::text(SerJson::serialize_json(
+        .send(json_msg!(
             &shared::DPSoftwareList {
                 uninstalled: software.0,
                 installed: software.1,
                 response: String::new(),
             },
-        )))
+            return
+        ))
         .await
         .is_err()
     {
@@ -161,11 +161,7 @@ pub async fn software_handler(socket_send: &mut SocketSend, data_recv: &mut Recv
             software_handler_helper(&data).await,
             shared::DPSoftwareList::default()
         );
-        if socket_send
-            .send(Message::text(SerJson::serialize_json(&out)))
-            .await
-            .is_err()
-        {
+        if socket_send.send(json_msg!(&out, continue)).await.is_err() {
             break;
         }
     }
@@ -173,10 +169,10 @@ pub async fn software_handler(socket_send: &mut SocketSend, data_recv: &mut Recv
 
 pub async fn management_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     if socket_send
-        .send(Message::text(SerJson::serialize_json(&handle_error!(
-            systemdata::host().await,
-            shared::HostData::default()
-        ))))
+        .send(json_msg!(
+            &handle_error!(systemdata::host().await, shared::HostData::default()),
+            return
+        ))
         .await
         .is_err()
     {
@@ -193,11 +189,12 @@ pub async fn management_handler(socket_send: &mut SocketSend, data_recv: &mut Re
 
 pub async fn service_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     if socket_send
-        .send(Message::text(SerJson::serialize_json(
+        .send(json_msg!(
             &shared::ServiceList {
                 services: handle_error!(systemdata::services().await, Vec::new()),
             },
-        )))
+            return
+        ))
         .await
         .is_err()
     {
@@ -210,11 +207,12 @@ pub async fn service_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
             .map(|_| ()) // Don't care about the Ok value, so remove it to make the type checker happy
             .with_context(|| format!("Couldn't {} service {}", &data.cmd, &data.args[0])));
         if socket_send
-            .send(Message::text(SerJson::serialize_json(
+            .send(json_msg!(
                 &shared::ServiceList {
                     services: handle_error!(systemdata::services().await, Vec::new()),
                 },
-            )))
+                continue
+            ))
             .await
             .is_err()
         {
@@ -233,7 +231,7 @@ async fn browser_refresh(path: &std::path::Path) -> anyhow::Result<shared::Brows
     })
 }
 
-async fn browser_handler_helper(data: shared::Request) -> anyhow::Result<shared::BrowserList> {
+async fn browser_handler_helper(data: &shared::Request) -> anyhow::Result<shared::BrowserList> {
     use tokio::fs;
 
     match data.cmd.as_str() {
@@ -292,7 +290,7 @@ async fn browser_handler_helper(data: shared::Request) -> anyhow::Result<shared:
 pub async fn browser_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     // Get initial listing of $HOME
     if socket_send
-        .send(Message::text(SerJson::serialize_json(
+        .send(json_msg!(
             &shared::BrowserList {
                 contents: handle_error!(
                     systemdata::browser_dir(std::path::Path::new(
@@ -302,7 +300,8 @@ pub async fn browser_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
                     Vec::new()
                 ),
             },
-        )))
+            return
+        ))
         .await
         .is_err()
     {
@@ -312,9 +311,9 @@ pub async fn browser_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
     'outer: while let Some(Some(mut data)) = data_recv.recv().await {
         loop {
             tokio::select! {
-                res = browser_handler_helper(data) => {
+                res = browser_handler_helper(&data) => {
                     let list = handle_error!(res, shared::BrowserList::default());
-                    if socket_send.send(Message::text(SerJson::serialize_json(&list))).await.is_err() {
+                    if socket_send.send(json_msg!(&list, continue)).await.is_err() {
                         break 'outer;
                     }
                     break;

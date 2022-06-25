@@ -1,4 +1,3 @@
-use nanoserde::{DeJson, SerJson};
 use serde::{Deserialize, Serialize};
 
 pub static CONFIG: once_cell::sync::Lazy<crate::config::Config> =
@@ -18,7 +17,14 @@ macro_rules! handle_error {
     };
 }
 
-#[derive(SerJson, Default)]
+#[macro_export]
+macro_rules! json_msg {
+    ($e: expr, $handler:expr) => {
+        Message::text(handle_error!(serde_json::to_string($e).context("Couldn't serialize json"), $handler))
+    };
+}
+
+#[derive(Serialize, Default)]
 pub struct SysData {
     pub cpu: f32,
     pub ram: UsageData,
@@ -28,46 +34,46 @@ pub struct SysData {
     pub temp: CPUTemp,
 }
 
-#[derive(SerJson, Default)]
+#[derive(Serialize, Default)]
 pub struct UsageData {
     pub used: u64,
     pub total: u64,
     pub percent: f32,
 }
 
-#[derive(SerJson, Default)]
+#[derive(Serialize, Default)]
 pub struct NetData {
     pub sent: u64,
     pub received: u64,
 }
 
-#[derive(Debug, Clone, DeJson)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct Request {
-    #[nserde(default)]
+    #[serde(default)]
     pub page: String,
-    #[nserde(default)]
+    #[serde(default)]
     pub cmd: String,
-    #[nserde(default)]
+    #[serde(default)]
     pub args: Vec<String>,
-    #[nserde(default)]
+    #[serde(default)]
     pub token: String,
 }
 
-#[derive(SerJson)]
+#[derive(Serialize)]
 pub struct ProcessData {
     pub pid: u32,
     pub name: String,
     pub cpu: f32,
     pub ram: u64,
-    pub status: String,
+    pub status: &'static str,
 }
 
-#[derive(SerJson)]
+#[derive(Serialize)]
 pub struct ProcessList {
     pub processes: Vec<ProcessData>,
 }
 
-#[derive(SerJson, Default)]
+#[derive(Serialize, Default)]
 pub struct DPSoftwareData {
     pub id: i16,
     pub name: String,
@@ -76,18 +82,18 @@ pub struct DPSoftwareData {
     pub docs: String,
 }
 
-#[derive(SerJson, Default)]
+#[derive(Serialize, Default)]
 pub struct DPSoftwareList {
     pub installed: Vec<DPSoftwareData>,
     pub uninstalled: Vec<DPSoftwareData>,
     pub response: String,
 }
 
-#[derive(SerJson, Default)]
+#[derive(Serialize, Default)]
 pub struct HostData {
     pub hostname: String,
     pub uptime: u64,
-    pub arch: String,
+    pub arch: &'static str,
     pub kernel: String,
     pub dp_version: String,
     pub packages: usize,
@@ -96,20 +102,20 @@ pub struct HostData {
     pub ip: String,
 }
 
-#[derive(SerJson, Default)]
+#[derive(Serialize, Default)]
 pub struct ServiceData {
     pub name: String,
     pub log: String,
-    pub status: String,
+    pub status: &'static str,
     pub start: String,
 }
 
-#[derive(SerJson)]
+#[derive(Serialize)]
 pub struct ServiceList {
     pub services: Vec<ServiceData>,
 }
 
-#[derive(SerJson)]
+#[derive(Serialize)]
 pub struct GlobalData {
     pub update: String,
     pub version: String,
@@ -120,44 +126,44 @@ pub struct GlobalData {
     pub temp_unit: TempUnit,
 }
 
-#[derive(SerJson)]
+#[derive(Serialize)]
 pub struct BrowserData {
     pub path: String,
     pub name: String,
-    pub subtype: String,
-    pub maintype: String,
+    pub subtype: &'static str,
+    pub maintype: &'static str,
     pub prettytype: String,
     pub size: u64,
 }
 
-#[derive(SerJson, Default)]
+#[derive(Serialize, Default)]
 pub struct BrowserList {
     pub contents: Vec<BrowserData>,
 }
 
-#[derive(SerJson)]
+#[derive(Serialize)]
 pub struct TokenError {
     pub error: bool,
 }
 
-#[derive(DeJson)]
+#[derive(Deserialize)]
 pub struct FileRequest {
-    #[nserde(default)]
+    #[serde(default)]
     pub cmd: String,
-    #[nserde(default)]
+    #[serde(default)]
     pub path: String,
-    #[nserde(default)]
+    #[serde(default)]
     pub token: String,
-    #[nserde(default)]
+    #[serde(default)]
     pub arg: String,
 }
 
-#[derive(SerJson)]
+#[derive(Serialize)]
 pub struct FileSize {
     pub size: usize,
 }
 
-#[derive(SerJson)]
+#[derive(Serialize)]
 pub struct FileUploadFinished {
     pub finished: bool,
 }
@@ -169,18 +175,16 @@ pub struct JWTClaims {
     pub iat: u64,
 }
 
-#[derive(SerJson, Default)]
+#[derive(Serialize, Default)]
 pub struct CPUTemp {
     pub available: bool,
     pub celsius: i16,
     pub fahrenheit: i16,
 }
 
-#[derive(Deserialize, Serialize, SerJson, Clone)]
+#[derive(Deserialize, Serialize, Clone)]
 #[serde(rename_all = "lowercase")]
 pub enum TempUnit {
-    #[nserde(rename = "fahrenheit")]
     Fahrenheit,
-    #[nserde(rename = "celsius")]
     Celsius,
 }
