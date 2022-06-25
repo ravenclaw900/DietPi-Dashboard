@@ -41,7 +41,7 @@ jobs:
       - name: Build x86_64
         working-directory: src/backend
         run: cross build --release --target x86_64-unknown-linux-musl --features compression
-      - run: find -name 'build-script-build' -print -exec rm {} \;
+      - run: find -name 'build-script-build' -print -exec rm -r {}/.. \;
         working-directory: src/backend/target/release/build
       - name: Build armv6l
         working-directory: src/backend
