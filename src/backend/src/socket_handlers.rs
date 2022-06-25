@@ -1,6 +1,5 @@
 use anyhow::Context;
 use futures::{SinkExt, StreamExt};
-use nanoserde::{DeJson, SerJson};
 use pty_process::Command;
 use std::io::{Read, Write};
 use std::sync::Arc;
@@ -44,7 +43,7 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                 continue
             );
             req = handle_error!(
-                DeJson::deserialize_json(data_str)
+                serde_json::from_str(data_str)
                     .with_context(|| format!("Couldn't parse JSON {}", data_str)),
                 continue
             );
@@ -85,9 +84,7 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
     });
     // Send global message (shown on all pages)
     if socket_send
-        .send(Message::text(SerJson::serialize_json(
-            &systemdata::global().await,
-        )))
+        .send(crate::json_msg!(&systemdata::global().await, return))
         .await
         .is_err()
     {
@@ -114,9 +111,10 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
             "/login" => {
                 // Internal poll, see other thread
                 if socket_send
-                    .send(Message::text(SerJson::serialize_json(
+                    .send(crate::json_msg!(
                         &shared::TokenError { error: true },
-                    )))
+                        continue
+                    ))
                     .await
                     .is_err()
                 {
@@ -130,7 +128,7 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
     }
 }
 
-#[derive(DeJson)]
+#[derive(serde::Deserialize)]
 struct TTYSize {
     cols: u16,
     rows: u16,
@@ -207,7 +205,7 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
                         if data.is_text() && data.to_str().unwrap().get(..4) == Some("size") {
                             let data_str = data.to_str().unwrap();
                             let json: TTYSize = handle_error!(
-                                DeJson::deserialize_json(&data_str[4..]).with_context(|| format!(
+                                serde_json::from_str(&data_str[4..]).with_context(|| format!(
                                     "Couldn't deserialize pty size from {}",
                                     &data_str
                                 )),
@@ -360,7 +358,7 @@ fn get_file_req(data: &warp::ws::Message) -> anyhow::Result<shared::FileRequest>
     let data_str = data
         .to_str()
         .map_err(|_| anyhow::anyhow!("Couldn't convert received data {:?} to text", data))?;
-    let req = DeJson::deserialize_json(data_str)
+    let req = serde_json::from_str(data_str)
         .with_context(|| format!("Couldn't parse JSON from {}", data_str))?;
     Ok(req)
 }
@@ -391,7 +389,7 @@ pub async fn file_handler(socket: warp::ws::WebSocket) {
                         }
                         Some(FileHandlerHelperReturns::SizeBuf(size, buf)) => {
                             if socket_send
-                                .send(Message::text(SerJson::serialize_json(&size)))
+                                .send(crate::json_msg!(&size, continue))
                                 .await
                                 .is_err()
                             {
