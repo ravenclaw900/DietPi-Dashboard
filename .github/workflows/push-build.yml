@@ -18,10 +18,10 @@ jobs:
           rustup target add arm-unknown-linux-musleabihf
           rustup target add armv7-unknown-linux-musleabihf
           rustup target add aarch64-unknown-linux-musl
-      #- name: Restore Rust cache
-      #  uses: Swatinem/rust-cache@v1
-      #  with:
-      #    working-directory: src/backend
+      - name: Restore Rust cache
+        uses: Swatinem/rust-cache@v1
+        with:
+          working-directory: src/backend
       - name: Lint (clippy)
         working-directory: src/backend
         run: |
@@ -47,6 +47,10 @@ jobs:
       - name: Build x86_64
         working-directory: src/backend
         run: cross build --release --target x86_64-unknown-linux-musl --features compression
+      - name: Delete build artifacts
+        run: |
+          rm -r src/backend/target/release/build/*
+          rm src/backend/target/release/deps/*.so
       - name: Build armv6l
         working-directory: src/backend
         run: cross build --release --target arm-unknown-linux-musleabihf --features compression
