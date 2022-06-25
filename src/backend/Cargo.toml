@@ -53,4 +53,4 @@ opt-level = "s"
 image = "rustembedded/cross:aarch64-unknown-linux-musl"
 
 [package.metadata.cross.target.arm-unknown-linux-musleabihf]
-image = "rustembedded/cross:arm-unknown-linux-musl"
+image = "rustembedded/cross:arm-unknown-linux-musleabihf"
