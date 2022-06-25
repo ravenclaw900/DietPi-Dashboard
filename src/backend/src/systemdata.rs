@@ -127,8 +127,7 @@ pub async fn processes() -> anyhow::Result<Vec<shared::ProcessData>> {
             process::Status::Zombie => "zombie",
             process::Status::Dead => "dead",
             _ => "unknown",
-        }
-        .to_string();
+        };
 
         process_list.push(shared::ProcessData {
             pid: element.pid(),
@@ -272,7 +271,7 @@ pub async fn dpsoftware(
 pub async fn host() -> anyhow::Result<shared::HostData> {
     let info = host::info();
     let uptime = host::uptime().context("Couldn't get uptime")?.as_secs() / 60;
-    let dp_file = fs::read_to_string(&std::path::Path::new("/boot/dietpi/.version"))
+    let dp_file = fs::read_to_string("/boot/dietpi/.version")
         .await
         .context("Couldn't get DietPi version")?;
     let dp_version: Vec<&str> = dp_file.split(&['=', '\n'][..]).collect();
@@ -289,15 +288,15 @@ pub async fn host() -> anyhow::Result<shared::HostData> {
         .count();
     let upgradable_pkgs = fs::read_to_string("/run/dietpi/.apt_updates")
         .await
-        .unwrap_or_else(|_| 0u32.to_string())
+        .unwrap_or_else(|_| 0.to_string())
         .trim_end_matches('\n')
         .parse::<u32>()
         .context("Couldn't parse number of APT updates")?;
     let mut arch = info.architecture().as_str();
     if arch == "unknown" {
-        arch = "armv6/other";
+        arch = "armv6l/other";
     } else if arch == "arm" {
-        arch = "armv7";
+        arch = "armv7l";
     }
     let addrs = &if_addrs::get_if_addrs().context("Couldn't get IP addresses")?;
     // Start with first address (probably loopback), and loop to try to get an actual one
@@ -311,7 +310,7 @@ pub async fn host() -> anyhow::Result<shared::HostData> {
     Ok(shared::HostData {
         hostname: info.hostname().to_string(),
         uptime,
-        arch: arch.to_string(),
+        arch,
         kernel: info.release().to_string(),
         dp_version: format!("{}.{}.{}", dp_version[1], dp_version[3], dp_version[5]),
         packages: installed_pkgs,
@@ -348,7 +347,7 @@ pub async fn services() -> anyhow::Result<Vec<shared::ServiceData>> {
         // Only failed services
         if element.contains(".service") {
             for (index, el1) in element.split('\n').enumerate() {
-                service.status = "failed".to_string();
+                service.status = "failed";
                 match index {
                     // Contains service, so shouldn't fail, but handle anyway
                     0 => {
@@ -375,11 +374,10 @@ pub async fn services() -> anyhow::Result<Vec<shared::ServiceData>> {
                         "active (running)" | "active (exited)" => "active",
                         "inactive (dead)" => "inactive",
                         _ => "unknown",
-                    }
-                    .to_string();
+                    };
                     service.start = statusdate.1.trim().to_string();
                 }
-                None => service.status = "inactive".to_string(),
+                None => service.status = "inactive",
             }
         }
         services_list.push(service);
@@ -392,7 +390,7 @@ pub async fn global() -> shared::GlobalData {
 
     let update = fs::read_to_string("/run/dietpi/.update_available")
         .await
-        .unwrap_or_else(|_| String::new());
+        .unwrap_or_default();
     shared::GlobalData {
         update,
         login: CONFIG.pass,
@@ -421,8 +419,8 @@ pub async fn browser_dir(path: &std::path::Path) -> anyhow::Result<Vec<shared::B
         let subtype;
         let prettytype;
         if metadata.is_dir() {
-            maintype = "dir".to_string();
-            subtype = String::new();
+            maintype = "dir";
+            subtype = "";
             prettytype = "Directory".to_string();
         } else {
             let buf = fs::read(&path)
@@ -433,8 +431,7 @@ pub async fn browser_dir(path: &std::path::Path) -> anyhow::Result<Vec<shared::B
                     .mime_type()
                     .split_once('/')
                     .with_context(|| format!("Couldn't split mime type {}", infertype.mime_type()))?
-                    .1
-                    .to_string();
+                    .1;
                 maintype = {
                     if infer::is_app(&buf) {
                         "application"
@@ -449,8 +446,7 @@ pub async fn browser_dir(path: &std::path::Path) -> anyhow::Result<Vec<shared::B
                     } else {
                         "unknown"
                     }
-                }
-                .to_string();
+                };
                 prettytype = format!(
                     "{} {}{} File",
                     subtype.to_uppercase(),
@@ -459,16 +455,16 @@ pub async fn browser_dir(path: &std::path::Path) -> anyhow::Result<Vec<shared::B
                     &maintype[1..]
                 );
             } else if from_utf8(&buf).is_err() {
-                maintype = "unknown".to_string();
-                subtype = "unknown".to_string();
+                maintype = "unknown";
+                subtype = "unknown";
                 prettytype = "Binary file".to_string();
             } else {
                 if metadata.len() > 2 * 1000 * 1000 {
-                    subtype = "large".to_string();
+                    subtype = "large";
                 } else {
-                    subtype = "plain".to_string();
+                    subtype = "plain";
                 }
-                maintype = "text".to_string();
+                maintype = "text";
                 prettytype = "Plain Text File".to_string();
             }
         }

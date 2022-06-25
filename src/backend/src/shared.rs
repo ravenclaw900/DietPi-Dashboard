@@ -65,7 +65,7 @@ pub struct ProcessData {
     pub name: String,
     pub cpu: f32,
     pub ram: u64,
-    pub status: String,
+    pub status: &'static str,
 }
 
 #[derive(Serialize)]
@@ -93,7 +93,7 @@ pub struct DPSoftwareList {
 pub struct HostData {
     pub hostname: String,
     pub uptime: u64,
-    pub arch: String,
+    pub arch: &'static str,
     pub kernel: String,
     pub dp_version: String,
     pub packages: usize,
@@ -106,7 +106,7 @@ pub struct HostData {
 pub struct ServiceData {
     pub name: String,
     pub log: String,
-    pub status: String,
+    pub status: &'static str,
     pub start: String,
 }
 
@@ -130,8 +130,8 @@ pub struct GlobalData {
 pub struct BrowserData {
     pub path: String,
     pub name: String,
-    pub subtype: String,
-    pub maintype: String,
+    pub subtype: &'static str,
+    pub maintype: &'static str,
     pub prettytype: String,
     pub size: u64,
 }
