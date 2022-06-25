@@ -37,7 +37,7 @@ panic = "abort"
 codegen-units = 1
 strip = true
 
-[profile.release.package.serde_json]
+[profile.release.package.serde]
 opt-level = 3
 
 [profile.release.package.psutil]
