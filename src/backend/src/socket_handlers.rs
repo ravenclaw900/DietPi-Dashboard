@@ -50,7 +50,7 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
             if CONFIG.pass && !validate_token(&req.token) {
                 if !first_message {
                     if let Err(err) = data_send.send(None).await {
-                        log::error!("Internal error: couldn't initiate login: {}", err);
+                        tracing::error!("Internal error: couldn't initiate login: {}", err);
                         break;
                     }
                 }
@@ -70,14 +70,14 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                 if first_message {
                     first_message = false;
                 } else if let Err(err) = data_send.send(None).await {
-                    log::error!("Internal error: couldn't change page: {}", err);
+                    tracing::error!("Internal error: couldn't change page: {}", err);
                     break;
                 }
             }
             // Send new page/data
             if let Err(err) = data_send.send(Some(req.clone())).await {
-                // Manual error handling here, to use log::error
-                log::error!("Internal error: couldn't send request: {}", err);
+                // Manual error handling here, to use tracing::error
+                tracing::error!("Internal error: couldn't send request: {}", err);
                 break;
             }
         }
@@ -122,7 +122,7 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                 }
             }
             _ => {
-                log::debug!("Got page {}, not handling", message.page);
+                tracing::debug!("Got page {}, not handling", message.page);
             }
         }
     }
@@ -237,7 +237,7 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
         return
     );
 
-    log::info!("Closed terminal");
+    tracing::info!("Closed terminal");
 }
 
 async fn create_zip_file(req: &shared::FileRequest) -> anyhow::Result<Vec<u8>> {

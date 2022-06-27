@@ -71,7 +71,7 @@ fn process_handler_helper(data: &shared::Request) -> anyhow::Result<()> {
             .with_context(|| format!("Invalid pid {}", data.args[0]))?,
     )
     .with_context(|| format!("Couldn't make process from pid {}", data.args[0]))?;
-    log::info!(
+    tracing::info!(
         "{}ing process {}",
         data.cmd.trim_end_matches('e'),
         process.pid()
@@ -121,7 +121,7 @@ pub async fn software_handler_helper(
     for element in &data.args {
         arg_list.push(element.as_str());
     }
-    log::info!("{}ing software with ID(s) {:?}", data.cmd, data.args);
+    tracing::info!("{}ing software with ID(s) {:?}", data.cmd, data.args);
     let out = std::string::String::from_utf8(
         cmd.args(arg_list)
             .output()

@@ -10,7 +10,7 @@ macro_rules! handle_error {
         match $e {
             Ok(val) => val,
             Err(err) => {
-                log::warn!("{:#}", err);
+                tracing::warn!("{:#}", err);
                 $($handler)?
             }
         }
