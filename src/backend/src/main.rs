@@ -208,7 +208,7 @@ async fn main() -> anyhow::Result<()> {
     #[cfg(feature = "frontend")]
     let main_route = warp::any()
         .map(|| {
-            let _guard = tracing::info_span!("main_route").entered(f);
+            let _guard = tracing::info_span!("main_route").entered();
             let file = handle_error!(
                 DIR.get_file("index.html")
                     .context("Couldn't get main HTML file"),
