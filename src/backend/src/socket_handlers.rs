@@ -10,6 +10,7 @@ use warp::ws::Message;
 
 use crate::{handle_error, page_handlers, shared, systemdata, CONFIG};
 
+#[instrument(level = "debug")]
 fn validate_token(token: &str) -> bool {
     let mut validator = jsonwebtoken::Validation::new(jsonwebtoken::Algorithm::HS256);
     validator.set_issuer(&["DietPi Dashboard"]);
