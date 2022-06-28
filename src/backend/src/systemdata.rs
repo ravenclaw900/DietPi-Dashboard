@@ -104,13 +104,10 @@ pub async fn processes() -> anyhow::Result<Vec<shared::ProcessData>> {
     let mut processes = process::processes().context("Couldn't get list of processes")?;
     let mut process_list = Vec::new();
     process_list.reserve(processes.len());
-    for element in &mut processes {
-        match element.as_mut() {
-            Ok(unwrapped_el) => match unwrapped_el.cpu_percent() {
-                Ok(_) => (),
-                Err(_) => continue,
-            },
-            Err(_) => continue,
+    for process in processes.iter_mut().flatten() {
+        // Required to get cpu times before actual measurement
+        if process.cpu_percent().is_err() {
+            continue;
         }
     }
     sleep(Duration::from_millis(500)).await;

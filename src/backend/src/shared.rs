@@ -146,7 +146,7 @@ pub struct TokenError {
     pub error: bool,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct FileRequest {
     #[serde(default)]
     pub cmd: String,

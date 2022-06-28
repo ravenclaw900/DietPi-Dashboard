@@ -27,7 +27,7 @@ impl<S: tracing::Subscriber> Layer<S> for BeQuietWarp {
     ) -> bool {
         // Don't show warp traces unless its level is less than info (error or warn) or the log level is greater than info (debug or trace)
         !(metadata.target() == "warp::filters::trace"
-            && metadata.level() >= &tracing::Level::INFO
+            && *metadata.level() >= tracing::Level::INFO
             && self.log_level <= tracing::Level::INFO)
     }
 }
