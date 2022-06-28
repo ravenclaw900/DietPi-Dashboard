@@ -5,6 +5,7 @@ use std::time::Duration;
 use tokio::process::Command;
 use tokio::sync::mpsc::Receiver;
 use tokio::time::sleep;
+use tracing::instrument;
 use warp::ws::Message;
 
 use crate::{handle_error, json_msg, shared, systemdata};
@@ -27,6 +28,7 @@ fn main_handler_getter(
     })
 }
 
+#[instrument(skip_all)]
 pub async fn main_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     let mut cpu_collector = handle_error!(
         psutil::cpu::CpuPercentCollector::new().context("Couldn't init cpu collector"),
@@ -87,6 +89,7 @@ fn process_handler_helper(data: &shared::Request) -> anyhow::Result<()> {
     Ok(())
 }
 
+#[instrument(skip_all)]
 pub async fn process_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     loop {
         tokio::select! {
@@ -140,6 +143,7 @@ pub async fn software_handler_helper(
     })
 }
 
+#[instrument(skip_all)]
 pub async fn software_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     let software = handle_error!(systemdata::dpsoftware().await, (Vec::new(), Vec::new()));
     if socket_send
@@ -167,6 +171,7 @@ pub async fn software_handler(socket_send: &mut SocketSend, data_recv: &mut Recv
     }
 }
 
+#[instrument(skip_all)]
 pub async fn management_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     if socket_send
         .send(json_msg!(
@@ -187,6 +192,7 @@ pub async fn management_handler(socket_send: &mut SocketSend, data_recv: &mut Re
     }
 }
 
+#[instrument(skip_all)]
 pub async fn service_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     if socket_send
         .send(json_msg!(
@@ -287,6 +293,7 @@ async fn browser_handler_helper(data: &shared::Request) -> anyhow::Result<shared
     browser_refresh(std::path::Path::new(&data.args[0])).await
 }
 
+#[instrument(skip_all)]
 pub async fn browser_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     // Get initial listing of $HOME
     if socket_send

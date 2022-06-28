@@ -41,7 +41,7 @@ pub struct UsageData {
     pub percent: f32,
 }
 
-#[derive(Serialize, Default)]
+#[derive(Serialize, Default, Debug)]
 pub struct NetData {
     pub sent: u64,
     pub received: u64,

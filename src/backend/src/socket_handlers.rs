@@ -5,6 +5,7 @@ use std::io::{Read, Write};
 use std::sync::Arc;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::sync::mpsc;
+use tracing::instrument;
 use warp::ws::Message;
 
 use crate::{handle_error, page_handlers, shared, systemdata, CONFIG};
@@ -25,6 +26,7 @@ fn validate_token(token: &str) -> bool {
     true
 }
 
+#[instrument(skip_all)]
 pub async fn socket_handler(socket: warp::ws::WebSocket) {
     let (mut socket_send, mut socket_recv) = socket.split();
     let (data_send, mut data_recv) = mpsc::channel(1);
@@ -134,6 +136,7 @@ struct TTYSize {
     rows: u16,
 }
 
+#[instrument(skip_all)]
 pub async fn term_handler(socket: warp::ws::WebSocket) {
     let (mut socket_send, mut socket_recv) = socket.split();
 
@@ -363,6 +366,7 @@ fn get_file_req(data: &warp::ws::Message) -> anyhow::Result<shared::FileRequest>
     Ok(req)
 }
 
+#[instrument(skip_all)]
 pub async fn file_handler(socket: warp::ws::WebSocket) {
     let (mut socket_send, mut socket_recv) = socket.split();
     let mut req: shared::FileRequest;

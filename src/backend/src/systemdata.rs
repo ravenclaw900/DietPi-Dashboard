@@ -5,6 +5,7 @@ use std::time::Duration;
 use tokio::fs;
 use tokio::process::Command;
 use tokio::time::sleep;
+use tracing::instrument;
 
 use crate::shared;
 
@@ -12,6 +13,7 @@ fn round_percent(unrounded: f32) -> f32 {
     (unrounded * 100.0).round() / 100.0
 }
 
+#[instrument(skip_all)]
 pub fn cpu(collector: &mut cpu::CpuPercentCollector) -> anyhow::Result<f32> {
     Ok(round_percent(
         collector
@@ -20,6 +22,7 @@ pub fn cpu(collector: &mut cpu::CpuPercentCollector) -> anyhow::Result<f32> {
     ))
 }
 
+#[instrument]
 pub fn ram() -> anyhow::Result<shared::UsageData> {
     let ram = memory::virtual_memory().context("Couldn't get memory data")?;
 
@@ -30,6 +33,7 @@ pub fn ram() -> anyhow::Result<shared::UsageData> {
     })
 }
 
+#[instrument]
 pub fn swap() -> anyhow::Result<shared::UsageData> {
     let swap = memory::swap_memory().context("Couldn't get swap data")?;
 
@@ -40,6 +44,7 @@ pub fn swap() -> anyhow::Result<shared::UsageData> {
     })
 }
 
+#[instrument]
 pub fn disk() -> anyhow::Result<shared::UsageData> {
     let disk = disk::disk_usage("/").context("Couldn't get disk usage data")?;
 
@@ -50,6 +55,7 @@ pub fn disk() -> anyhow::Result<shared::UsageData> {
     })
 }
 
+#[instrument(skip(collector))]
 pub fn network(
     collector: &mut network::NetIoCountersCollector,
     prev_data: &mut shared::NetData,
@@ -92,6 +98,7 @@ fn get_process_data(process: &mut psutil::process::Process) -> anyhow::Result<Un
     })
 }
 
+#[instrument]
 // Processes may have changed, so don't return on error, just skip that process
 pub async fn processes() -> anyhow::Result<Vec<shared::ProcessData>> {
     let mut processes = process::processes().context("Couldn't get list of processes")?;
@@ -140,6 +147,7 @@ pub async fn processes() -> anyhow::Result<Vec<shared::ProcessData>> {
     Ok(process_list)
 }
 
+#[instrument]
 // Return on error here, trust that DietPi-Software should work and if something goes wrong that it's bad
 pub async fn dpsoftware(
 ) -> anyhow::Result<(Vec<shared::DPSoftwareData>, Vec<shared::DPSoftwareData>)> {
@@ -268,6 +276,7 @@ pub async fn dpsoftware(
     Ok((uninstalled_list, installed_list))
 }
 
+#[instrument]
 pub async fn host() -> anyhow::Result<shared::HostData> {
     let info = host::info();
     let uptime = host::uptime().context("Couldn't get uptime")?.as_secs() / 60;
@@ -320,6 +329,7 @@ pub async fn host() -> anyhow::Result<shared::HostData> {
     })
 }
 
+#[instrument]
 // Also assume DietPi-Services output is good, and return on error
 pub async fn services() -> anyhow::Result<Vec<shared::ServiceData>> {
     let services = &mut Command::new("/boot/dietpi/dietpi-services")
@@ -385,6 +395,7 @@ pub async fn services() -> anyhow::Result<Vec<shared::ServiceData>> {
     Ok(services_list)
 }
 
+#[instrument]
 pub async fn global() -> shared::GlobalData {
     use crate::CONFIG;
 
@@ -402,6 +413,7 @@ pub async fn global() -> shared::GlobalData {
     }
 }
 
+#[instrument]
 pub async fn browser_dir(path: &std::path::Path) -> anyhow::Result<Vec<shared::BrowserData>> {
     let mut dir = fs::read_dir(path)
         .await
@@ -491,7 +503,8 @@ pub async fn browser_dir(path: &std::path::Path) -> anyhow::Result<Vec<shared::B
     Ok(file_list)
 }
 
-// Manually handle errors here, as there could just be no temperature sensor
+#[instrument]
+// No error message, as there could just be no temperature sensor
 #[allow(clippy::cast_possible_truncation)]
 pub fn temp() -> shared::CPUTemp {
     match &sensors::temperatures().get(0) {
@@ -503,7 +516,7 @@ pub fn temp() -> shared::CPUTemp {
                 fahrenheit: temp.fahrenheit().round() as i16,
             }
         }
-        None | Some(Err(_)) => shared::CPUTemp {
+        _ => shared::CPUTemp {
             available: false,
             celsius: 0,
             fahrenheit: 0,
