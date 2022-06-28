@@ -243,6 +243,7 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
     tracing::info!("Closed terminal");
 }
 
+#[instrument(level = "debug", skip_all)]
 async fn create_zip_file(req: &shared::FileRequest) -> anyhow::Result<Vec<u8>> {
     let src_path = tokio::fs::canonicalize(&req.path)
         .await
@@ -314,6 +315,7 @@ enum FileHandlerHelperReturns {
     StreamUpload(usize, tokio::fs::File),
 }
 
+#[instrument(level = "debug", skip_all)]
 async fn file_handler_helper(
     req: &shared::FileRequest,
 ) -> anyhow::Result<Option<FileHandlerHelperReturns>> {

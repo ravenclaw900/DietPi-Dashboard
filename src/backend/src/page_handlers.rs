@@ -13,6 +13,7 @@ use crate::{handle_error, json_msg, shared, systemdata};
 type SocketSend = SplitSink<warp::ws::WebSocket, warp::ws::Message>;
 type RecvChannel = Receiver<Option<shared::Request>>;
 
+#[instrument(level = "debug", skip_all)]
 fn main_handler_getter(
     cpu_collector: &mut psutil::cpu::CpuPercentCollector,
     net_collector: &mut psutil::network::NetIoCountersCollector,
@@ -66,6 +67,7 @@ pub async fn main_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChan
     }
 }
 
+#[instrument(level = "debug", skip_all)]
 fn process_handler_helper(data: &shared::Request) -> anyhow::Result<()> {
     let process = psutil::process::Process::new(
         data.args[0]
@@ -113,6 +115,7 @@ pub async fn process_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
     }
 }
 
+#[instrument(level = "debug", skip_all)]
 pub async fn software_handler_helper(
     data: &shared::Request,
 ) -> anyhow::Result<shared::DPSoftwareList> {
@@ -237,6 +240,7 @@ async fn browser_refresh(path: &std::path::Path) -> anyhow::Result<shared::Brows
     })
 }
 
+#[instrument(level = "debug", skip_all)]
 async fn browser_handler_helper(data: &shared::Request) -> anyhow::Result<shared::BrowserList> {
     use tokio::fs;
 
