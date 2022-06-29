@@ -14,9 +14,6 @@ jobs:
         run: cargo fmt -- --check
       - name: Install other Rust targets
         run: |
-          rustup target add x86_64-unknown-linux-musl
-          rustup target add arm-unknown-linux-musleabihf
-          rustup target add armv7-unknown-linux-musleabihf
           rustup target add aarch64-unknown-linux-musl
       - name: Restore Rust cache
         uses: Swatinem/rust-cache@v1
@@ -42,64 +39,13 @@ jobs:
         run: yarn build
       - name: Compress frontend files
         run: make compress
-      - name: Build x86_64
-        working-directory: src/backend
-        run: cross build --release --target x86_64-unknown-linux-musl --features compression
-      - name: Delete build artifacts
-        run: |
-          rm -r src/backend/target/release/build/*
-          rm src/backend/target/release/deps/*.so
       - name: Build armv6l
         working-directory: src/backend
         run: cross build --release --target arm-unknown-linux-musleabihf --features compression
-      - name: Build armv7l
-        working-directory: src/backend
-        run: cross build --release --target armv7-unknown-linux-musleabihf --features compression
       - name: Build aarch64
         working-directory: src/backend
         run: cross build --release --target aarch64-unknown-linux-musl --features compression
       - uses: actions/upload-artifact@v2
         with:
-          name: dietpi-dashboard-x86_64
-          path: src/backend/target/x86_64-unknown-linux-musl/release/dietpi-dashboard
-      - uses: actions/upload-artifact@v2
-        with:
-          name: dietpi-dashboard-armv6l
-          path: src/backend/target/arm-unknown-linux-musleabihf/release/dietpi-dashboard
-      - uses: actions/upload-artifact@v2
-        with:
-          name: dietpi-dashboard-armv7l
-          path: src/backend/target/armv7-unknown-linux-musleabihf/release/dietpi-dashboard
-      - uses: actions/upload-artifact@v2
-        with:
           name: dietpi-dashboard-aarch64
           path: src/backend/target/aarch64-unknown-linux-musl/release/dietpi-dashboard
-      - name: Build x86_64 (backend only)
-        working-directory: src/backend
-        run: cross build --release --target x86_64-unknown-linux-musl --no-default-features
-      - name: Build armv6l (backend only)
-        working-directory: src/backend
-        run: cross build --release --target arm-unknown-linux-musleabihf --no-default-features
-      - name: Build armv7l (backend only)
-        working-directory: src/backend
-        run: cross build --release --target armv7-unknown-linux-musleabihf --no-default-features
-      - name: Build aarch64 (backend only)
-        working-directory: src/backend
-        run: cross build --release --target aarch64-unknown-linux-musl --no-default-features
-      - uses: actions/upload-artifact@v2
-        with:
-          name: dietpi-dashboard-x86_64-backend
-          path: src/backend/target/x86_64-unknown-linux-musl/release/dietpi-dashboard
-      - uses: actions/upload-artifact@v2
-        with:
-          name: dietpi-dashboard-armv6l-backend
-          path: src/backend/target/arm-unknown-linux-musleabihf/release/dietpi-dashboard
-      - uses: actions/upload-artifact@v2
-        with:
-          name: dietpi-dashboard-armv7l-backend
-          path: src/backend/target/armv7-unknown-linux-musleabihf/release/dietpi-dashboard
-      - uses: actions/upload-artifact@v2
-        with:
-          name: dietpi-dashboard-aarch64-backend
-          path: src/backend/target/aarch64-unknown-linux-musl/release/dietpi-dashboard
-
