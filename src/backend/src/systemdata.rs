@@ -155,8 +155,7 @@ pub async fn dpsoftware(
         .context("Couldn't get DietPi-Software free list")?
         .stdout;
     anyhow::ensure!(!free_out.is_empty(), "DietPi-Software not running as root");
-    let free = from_utf8(&free_out)
-        .context("Invalid DietPi-Software free list")?
+    let free = dbg!(from_utf8(&free_out).context("Invalid DietPi-Software free list")?)
         .lines()
         .nth(4)
         .context("DietPi-Software free list is too short")?
@@ -332,7 +331,7 @@ pub async fn host() -> anyhow::Result<shared::HostData> {
 #[instrument]
 // Also assume DietPi-Services output is good, and return on error
 pub async fn services() -> anyhow::Result<Vec<shared::ServiceData>> {
-    let services = &mut Command::new("/boot/dietpi/dietpi-services")
+    let mut services = Command::new("/boot/dietpi/dietpi-services")
         .arg("status")
         .output()
         .await
@@ -343,7 +342,7 @@ pub async fn services() -> anyhow::Result<Vec<shared::ServiceData>> {
     );
     // Failures stored in stderr
     services.stdout.extend(&services.stderr);
-    let services_str = from_utf8(&services.stdout).context("Invalid service list")?;
+    let services_str = dbg!(from_utf8(&services.stdout).context("Invalid service list")?);
     let mut services_list = Vec::new();
     // Split on 3 different tokens
     for element in services_str
@@ -354,6 +353,7 @@ pub async fn services() -> anyhow::Result<Vec<shared::ServiceData>> {
         .skip(1)
     {
         let mut service = shared::ServiceData::default();
+        dbg!(element);
         // Only failed services
         if element.contains(".service") {
             for (index, el1) in element.split('\n').enumerate() {
