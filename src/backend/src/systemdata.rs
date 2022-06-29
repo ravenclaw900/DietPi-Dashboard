@@ -161,6 +161,9 @@ pub async fn dpsoftware(
         .nth(4)
         .context("DietPi-Software free list is too short")?
         .trim_start_matches("Free software ID(s): ");
+
+    tracing::debug!("Skipping free software IDs {}", free);
+
     let free_list = if &free[..4] == "None" {
         Vec::new()
     } else {
