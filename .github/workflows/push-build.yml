@@ -39,9 +39,6 @@ jobs:
         run: yarn build
       - name: Compress frontend files
         run: make compress
-      - name: Build armv6l
-        working-directory: src/backend
-        run: cross build --release --target arm-unknown-linux-musleabihf --features compression
       - name: Build aarch64
         working-directory: src/backend
         run: cross build --release --target aarch64-unknown-linux-musl --features compression
