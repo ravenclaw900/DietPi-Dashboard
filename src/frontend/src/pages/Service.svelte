@@ -6,19 +6,10 @@
     } from "@fortawesome/free-solid-svg-icons";
     import Fa from "svelte-fa";
 
-    interface serviceData {
-        services?: services[];
-    }
-
-    interface services {
-        name: string;
-        status: string;
-        log: string;
-        start: string;
-    }
+    import type { socketData } from "../types";
 
     export let socketSend: (cmd: string, args: string[]) => void;
-    export let socketData: serviceData;
+    export let socketData: Partial<socketData>;
 </script>
 
 <main>
@@ -49,7 +40,7 @@
                     >
                     <td class="p-2">{service.start}</td>
                     <td class="p-2 space-x-2">
-                        {#if service.status == "dead" || service.status == "failed"}
+                        {#if service.status == "inactive" || service.status == "failed"}
                             <span
                                 on:click={() =>
                                     socketSend("start", [service.name])}

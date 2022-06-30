@@ -1,12 +1,27 @@
+use crate::shared::TempUnit;
 use figment::{
     providers::{Env, Format, Serialized, Toml},
     Figment,
 };
+use log::LevelFilter;
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize)]
+#[serde(remote = "LevelFilter")]
+#[serde(rename_all = "lowercase")]
+enum LevelFilterDef {
+    Off,
+    Error,
+    Warn,
+    Info,
+    Debug,
+    Trace,
+}
+
+#[derive(Deserialize, Serialize)]
 pub struct Config {
-    pub log_level: String,
+    #[serde(with = "LevelFilterDef")]
+    pub log_level: log::LevelFilter,
 
     pub port: u16,
 
@@ -25,12 +40,14 @@ pub struct Config {
     pub terminal_user: String,
 
     pub update_check: bool,
+
+    pub temp_unit: TempUnit,
 }
 
 impl Default for Config {
     fn default() -> Config {
         Config {
-            log_level: "info".to_string(),
+            log_level: LevelFilter::Info,
 
             port: 5252,
 
@@ -49,6 +66,8 @@ impl Default for Config {
             terminal_user: "root".to_string(),
 
             update_check: true,
+
+            temp_unit: TempUnit::Celsius,
         }
     }
 }

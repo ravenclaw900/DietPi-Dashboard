@@ -11,19 +11,9 @@
     } from "@fortawesome/free-solid-svg-icons";
     import prettyBytes from "pretty-bytes";
 
-    interface processData {
-        processes?: processes[];
-    }
+    import type { socketData } from "../types";
 
-    interface processes {
-        pid: number;
-        name: string;
-        cpu: number;
-        ram: number;
-        status: string;
-    }
-
-    export let socketData: processData;
+    export let socketData: Partial<socketData>;
     export let socketSend: (cmd: string, args: string[]) => void;
 
     let reverse = false;
