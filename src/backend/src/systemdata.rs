@@ -148,31 +148,6 @@ pub async fn processes() -> anyhow::Result<Vec<shared::ProcessData>> {
 // Return on error here, trust that DietPi-Software should work and if something goes wrong that it's bad
 pub async fn dpsoftware(
 ) -> anyhow::Result<(Vec<shared::DPSoftwareData>, Vec<shared::DPSoftwareData>)> {
-    let free_out = Command::new("/boot/dietpi/dietpi-software")
-        .arg("free")
-        .output()
-        .await
-        .context("Couldn't get DietPi-Software free list")?
-        .stdout;
-    anyhow::ensure!(!free_out.is_empty(), "DietPi-Software not running as root");
-    let free = from_utf8(&free_out)
-        .context("Invalid DietPi-Software free list")?
-        .lines()
-        .nth(4)
-        .context("DietPi-Software free list is too short")?
-        .trim_start_matches("Free software ID(s): ");
-
-    tracing::debug!("Skipping free software IDs {}", free);
-
-    let free_list = if &free[..4] == "None" {
-        Vec::new()
-    } else {
-        // Should be no negative software IDs, so ignore parsing errors by returning one
-        free.split(' ')
-            .map(|id| id.parse::<i16>().unwrap_or(-1))
-            .collect()
-    };
-
     let out = Command::new("/boot/dietpi/dietpi-software")
         .arg("list")
         .output()
@@ -185,7 +160,6 @@ pub async fn dpsoftware(
         .collect::<Vec<&str>>();
     let mut installed_list = Vec::new();
     let mut uninstalled_list = Vec::new();
-    let mut index = 0_i16;
     uninstalled_list.reserve(
         out_list
             .len()
@@ -194,10 +168,6 @@ pub async fn dpsoftware(
     );
     // First 4 skipped lines are the database messages
     'software: for element in out_list.iter().skip(4) {
-        // Skip if in free list
-        if free_list.contains(&(index as i16)) {
-            index += 1;
-        }
         let mut software = shared::DPSoftwareData::default();
         let mut installed = false;
         for (in1, el1) in element.split('|').enumerate() {
@@ -251,7 +221,6 @@ pub async fn dpsoftware(
                 3 => {
                     // Annoying that here is the only place that software can be detected as disabled or not, and not before
                     if el1.contains("DISABLED") {
-                        index += 1;
                         continue 'software;
                     }
                     software.dependencies = el1.trim().to_string();
@@ -271,7 +240,6 @@ pub async fn dpsoftware(
         } else {
             uninstalled_list.push(software);
         }
-        index += 1;
     }
     Ok((uninstalled_list, installed_list))
 }
