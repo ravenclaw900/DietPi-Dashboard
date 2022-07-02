@@ -5,6 +5,7 @@ use std::time::Duration;
 use tokio::process::Command;
 use tokio::sync::mpsc::Receiver;
 use tokio::time::sleep;
+use tracing::instrument;
 use warp::ws::Message;
 
 use crate::{handle_error, json_msg, shared, systemdata};
@@ -12,6 +13,7 @@ use crate::{handle_error, json_msg, shared, systemdata};
 type SocketSend = SplitSink<warp::ws::WebSocket, warp::ws::Message>;
 type RecvChannel = Receiver<Option<shared::Request>>;
 
+#[instrument(level = "debug", skip_all)]
 fn main_handler_getter(
     cpu_collector: &mut psutil::cpu::CpuPercentCollector,
     net_collector: &mut psutil::network::NetIoCountersCollector,
@@ -27,6 +29,7 @@ fn main_handler_getter(
     })
 }
 
+#[instrument(skip_all)]
 pub async fn main_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     let mut cpu_collector = handle_error!(
         psutil::cpu::CpuPercentCollector::new().context("Couldn't init cpu collector"),
@@ -34,29 +37,29 @@ pub async fn main_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChan
     );
 
     let mut net_collector = psutil::network::NetIoCountersCollector::default();
-    let mut prev_data = match net_collector.net_io_counters() {
-        Ok(counters) => shared::NetData {
+    let mut prev_data = if let Ok(counters) = net_collector.net_io_counters() {
+        shared::NetData {
             received: counters.bytes_recv(),
             sent: counters.bytes_sent(),
-        },
-        Err(_) => shared::NetData {
+        }
+    } else {
+        tracing::debug!("Couldn't get original network counter data, starting with u64::MAX");
+        shared::NetData {
             received: u64::MAX,
             sent: u64::MAX,
-        },
+        }
     };
 
     loop {
         tokio::select! {
             biased;
-            data = data_recv.recv() => match data {
-                Some(Some(_)) => {},
-                _ => break,
-            },
+            data = data_recv.recv() => if let Some(Some(_)) = data {} else { break },
             res = socket_send
             .send(json_msg!(&handle_error!(main_handler_getter(&mut cpu_collector, &mut net_collector, &mut prev_data), shared::SysData::default()), continue))
             => {
                 sleep(Duration::from_secs(1)).await;
                 if res.is_err() {
+                    tracing::debug!("Socket send failed, returning");
                     break
                 }
             },
@@ -64,6 +67,7 @@ pub async fn main_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChan
     }
 }
 
+#[instrument(level = "debug", skip_all)]
 fn process_handler_helper(data: &shared::Request) -> anyhow::Result<()> {
     let process = psutil::process::Process::new(
         data.args[0]
@@ -71,7 +75,7 @@ fn process_handler_helper(data: &shared::Request) -> anyhow::Result<()> {
             .with_context(|| format!("Invalid pid {}", data.args[0]))?,
     )
     .with_context(|| format!("Couldn't make process from pid {}", data.args[0]))?;
-    log::info!(
+    tracing::info!(
         "{}ing process {}",
         data.cmd.trim_end_matches('e'),
         process.pid()
@@ -87,13 +91,15 @@ fn process_handler_helper(data: &shared::Request) -> anyhow::Result<()> {
     Ok(())
 }
 
+#[instrument(skip_all)]
 pub async fn process_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     loop {
         tokio::select! {
             biased;
-            data = data_recv.recv() => match data {
-                Some(Some(data)) => handle_error!(process_handler_helper(&data)),
-                _ => break,
+            data = data_recv.recv() => if let Some(Some(data)) = data {
+                handle_error!(process_handler_helper(&data));
+            } else {
+                break;
             },
             res = socket_send
                 .send(json_msg!(
@@ -103,13 +109,15 @@ pub async fn process_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
                 )) => {
                     sleep(Duration::from_secs(1)).await;
                     if res.is_err() {
-                        break
+                        tracing::debug!("Socket send failed, returning");
+                        break;
                     }
                 },
         }
     }
 }
 
+#[instrument(level = "debug", skip_all)]
 pub async fn software_handler_helper(
     data: &shared::Request,
 ) -> anyhow::Result<shared::DPSoftwareList> {
@@ -121,7 +129,7 @@ pub async fn software_handler_helper(
     for element in &data.args {
         arg_list.push(element.as_str());
     }
-    log::info!("{}ing software with ID(s) {:?}", data.cmd, data.args);
+    tracing::info!("{}ing software with ID(s) {:?}", data.cmd, data.args);
     let out = std::string::String::from_utf8(
         cmd.args(arg_list)
             .output()
@@ -140,6 +148,7 @@ pub async fn software_handler_helper(
     })
 }
 
+#[instrument(skip_all)]
 pub async fn software_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     let software = handle_error!(systemdata::dpsoftware().await, (Vec::new(), Vec::new()));
     if socket_send
@@ -154,6 +163,7 @@ pub async fn software_handler(socket_send: &mut SocketSend, data_recv: &mut Recv
         .await
         .is_err()
     {
+        tracing::debug!("Socket send failed, returning");
         return;
     }
     while let Some(Some(data)) = data_recv.recv().await {
@@ -162,11 +172,13 @@ pub async fn software_handler(socket_send: &mut SocketSend, data_recv: &mut Recv
             shared::DPSoftwareList::default()
         );
         if socket_send.send(json_msg!(&out, continue)).await.is_err() {
+            tracing::debug!("Socket send failed, returning");
             break;
         }
     }
 }
 
+#[instrument(skip_all)]
 pub async fn management_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     if socket_send
         .send(json_msg!(
@@ -176,9 +188,11 @@ pub async fn management_handler(socket_send: &mut SocketSend, data_recv: &mut Re
         .await
         .is_err()
     {
+        tracing::debug!("Socket send failed, returning");
         return;
     }
     while let Some(Some(data)) = data_recv.recv().await {
+        tracing::info!("Running command {}", &data.cmd);
         // Don't care about the Ok value, so remove it to make the type checker happy
         handle_error!(Command::new(&data.cmd)
             .spawn()
@@ -187,6 +201,7 @@ pub async fn management_handler(socket_send: &mut SocketSend, data_recv: &mut Re
     }
 }
 
+#[instrument(skip_all)]
 pub async fn service_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     if socket_send
         .send(json_msg!(
@@ -198,6 +213,7 @@ pub async fn service_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
         .await
         .is_err()
     {
+        tracing::debug!("Socket send failed, returning");
         return;
     }
     while let Some(Some(data)) = data_recv.recv().await {
@@ -216,6 +232,7 @@ pub async fn service_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
             .await
             .is_err()
         {
+            tracing::debug!("Socket send failed, returning");
             break;
         }
     }
@@ -231,8 +248,11 @@ async fn browser_refresh(path: &std::path::Path) -> anyhow::Result<shared::Brows
     })
 }
 
+#[instrument(level = "debug", skip_all)]
 async fn browser_handler_helper(data: &shared::Request) -> anyhow::Result<shared::BrowserList> {
     use tokio::fs;
+
+    tracing::debug!("Command is {}", &data.cmd);
 
     match data.cmd.as_str() {
         "cd" => {
@@ -281,12 +301,13 @@ async fn browser_handler_helper(data: &shared::Request) -> anyhow::Result<shared
                     )
                 })?;
         }
-        _ => {}
+        _ => tracing::debug!("Got command {}, not handling", &data.cmd),
     }
 
     browser_refresh(std::path::Path::new(&data.args[0])).await
 }
 
+#[instrument(skip_all)]
 pub async fn browser_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) {
     // Get initial listing of $HOME
     if socket_send
@@ -305,6 +326,7 @@ pub async fn browser_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
         .await
         .is_err()
     {
+        tracing::debug!("Socket send failed, returning");
         return;
     }
 
@@ -314,6 +336,7 @@ pub async fn browser_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
                 res = browser_handler_helper(&data) => {
                     let list = handle_error!(res, shared::BrowserList::default());
                     if socket_send.send(json_msg!(&list, continue)).await.is_err() {
+                        tracing::debug!("Socket send failed, returning");
                         break 'outer;
                     }
                     break;

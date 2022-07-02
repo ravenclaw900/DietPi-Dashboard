@@ -3,25 +3,11 @@ use figment::{
     providers::{Env, Format, Serialized, Toml},
     Figment,
 };
-use log::LevelFilter;
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize)]
-#[serde(remote = "LevelFilter")]
-#[serde(rename_all = "lowercase")]
-enum LevelFilterDef {
-    Off,
-    Error,
-    Warn,
-    Info,
-    Debug,
-    Trace,
-}
-
-#[derive(Deserialize, Serialize)]
 pub struct Config {
-    #[serde(with = "LevelFilterDef")]
-    pub log_level: log::LevelFilter,
+    pub log_level: String,
 
     pub port: u16,
 
@@ -47,7 +33,7 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Config {
         Config {
-            log_level: LevelFilter::Info,
+            log_level: "info".to_string(),
 
             port: 5252,
 

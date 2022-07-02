@@ -3,8 +3,8 @@
 use crate::shared::CONFIG;
 use anyhow::Context;
 use ring::digest;
-use simple_logger::SimpleLogger;
-use std::net::IpAddr;
+use std::{net::IpAddr, str::FromStr};
+use tracing_subscriber::layer::{Layer, SubscriberExt};
 use warp::Filter;
 #[cfg(feature = "frontend")]
 use warp::{http::header, Reply};
@@ -15,16 +15,37 @@ mod shared;
 mod socket_handlers;
 mod systemdata;
 
+struct BeQuietWarp {
+    log_level: tracing_subscriber::filter::LevelFilter,
+}
+
+impl<S: tracing::Subscriber> Layer<S> for BeQuietWarp {
+    fn enabled(
+        &self,
+        metadata: &tracing::Metadata<'_>,
+        _ctx: tracing_subscriber::layer::Context<'_, S>,
+    ) -> bool {
+        !(metadata.target() == "warp::filters::trace" && *metadata.level() >= self.log_level)
+    }
+}
+
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> anyhow::Result<()> {
     #[cfg(feature = "frontend")]
     const DIR: include_dir::Dir = include_dir::include_dir!("dist");
 
-    SimpleLogger::new()
-        .with_level(CONFIG.log_level)
-        .env()
-        .init()
+    {
+        let log_level = tracing_subscriber::filter::LevelFilter::from_str(&CONFIG.log_level)
+            .context("Couldn't parse log level")?;
+        tracing::subscriber::set_global_default(
+            tracing_subscriber::FmtSubscriber::builder()
+                .with_max_level(log_level)
+                .with_timer(tracing_subscriber::fmt::time::uptime())
+                .finish()
+                .with(BeQuietWarp { log_level }),
+        )
         .context("Couldn't init logger")?;
+    }
 
     #[cfg(feature = "frontend")]
     let mut headers = header::HeaderMap::new();
@@ -57,6 +78,7 @@ async fn main() -> anyhow::Result<()> {
 
     #[cfg(feature = "frontend")]
     let favicon_route = warp::path("favicon.png").map(|| {
+        let _guard = tracing::info_span!("favicon_route");
         warp::reply::with_header(
             handle_error!(
                 DIR.get_file("favicon.png").context("Couldn't get favicon"),
@@ -77,6 +99,7 @@ async fn main() -> anyhow::Result<()> {
     let assets_route = warp::path("assets")
         .and(warp::path::param())
         .map(|path: String| {
+            let _guard = tracing::info_span!("asset_route").entered();
             let ext = path.rsplit('.').next().unwrap_or("plain");
             #[allow(unused_mut)]
             // Mute warning, variable is mut because it's used with the compression feature
@@ -84,8 +107,12 @@ async fn main() -> anyhow::Result<()> {
                 match DIR.get_file(format!("assets/{}", path)) {
                     Some(file) => file.contents(),
                     None => {
-                        log::info!("Couldn't get asset {}", path);
-                        &[]
+                        tracing::warn!("Couldn't get asset {}", path);
+                        return warp::reply::with_status(
+                            "Asset not found",
+                            warp::http::StatusCode::NOT_FOUND,
+                        )
+                        .into_response();
                     }
                 },
                 header::CONTENT_TYPE,
@@ -116,6 +143,7 @@ async fn main() -> anyhow::Result<()> {
         .and(warp::post())
         .and(warp::body::bytes())
         .map(|pass: warp::hyper::body::Bytes| {
+            let _guard = tracing::info_span!("login_route").entered();
             let token: String;
             if CONFIG.pass {
                 let shasum = digest::digest(&digest::SHA512, &pass)
@@ -159,6 +187,7 @@ async fn main() -> anyhow::Result<()> {
             "*",
         ));
 
+    // The spans for these are covered in the handlers
     let terminal_route = warp::path("ws")
         .and(warp::path("term"))
         .and(warp::ws())
@@ -176,6 +205,7 @@ async fn main() -> anyhow::Result<()> {
     #[cfg(feature = "frontend")]
     let main_route = warp::any()
         .map(|| {
+            let _guard = tracing::info_span!("main_route").entered();
             let file = handle_error!(
                 DIR.get_file("index.html")
                     .context("Couldn't get main HTML file"),
@@ -195,26 +225,26 @@ async fn main() -> anyhow::Result<()> {
 
     let socket_routes = terminal_route.or(file_route).or(socket_route);
 
-    let routes = socket_routes
-        .or(login_route)
-        .with(warp::log::custom(|info| {
-            log::info!("Request to {}", info.path());
-            log::debug!(
-                "by {}, using {} {:?}, with response of HTTP code {:?}",
-                info.remote_addr()
-                    .unwrap_or_else(|| std::net::SocketAddr::from((
-                        std::net::Ipv4Addr::UNSPECIFIED,
-                        0
-                    )))
-                    .ip(),
-                info.user_agent().unwrap_or("unknown"),
-                info.version(),
-                info.status()
-            );
-        }));
-
+    let routes = socket_routes.or(login_route);
     #[cfg(feature = "frontend")]
     let routes = routes.or(page_routes);
+    let routes = routes.with(warp::trace::trace(|info| {
+        let remote_addr = info
+            .remote_addr()
+            .unwrap_or_else(|| std::net::SocketAddr::from((std::net::Ipv4Addr::UNSPECIFIED, 0)))
+            .ip();
+        let span = tracing::info_span!("request", %remote_addr);
+        span.in_scope(|| {
+            tracing::info!("Request to {}", info.path());
+            tracing::debug!(
+                "by {}, using {} {:?}",
+                info.user_agent().unwrap_or("unknown"),
+                remote_addr,
+                info.version(),
+            );
+        });
+        span
+    }));
 
     let addr = IpAddr::from([0; 8]);
 

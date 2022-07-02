@@ -5,10 +5,12 @@ use std::io::{Read, Write};
 use std::sync::Arc;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::sync::mpsc;
+use tracing::{instrument, Instrument};
 use warp::ws::Message;
 
 use crate::{handle_error, page_handlers, shared, systemdata, CONFIG};
 
+#[instrument(level = "debug")]
 fn validate_token(token: &str) -> bool {
     let mut validator = jsonwebtoken::Validation::new(jsonwebtoken::Algorithm::HS256);
     validator.set_issuer(&["DietPi Dashboard"]);
@@ -20,11 +22,13 @@ fn validate_token(token: &str) -> bool {
     )
     .is_err()
     {
+        tracing::debug!("Invalid token");
         return false;
     }
     true
 }
 
+#[instrument(skip_all)]
 pub async fn socket_handler(socket: warp::ws::WebSocket) {
     let (mut socket_send, mut socket_recv) = socket.split();
     let (data_send, mut data_recv) = mpsc::channel(1);
@@ -47,10 +51,12 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                     .with_context(|| format!("Couldn't parse JSON {}", data_str)),
                 continue
             );
+            tracing::debug!("Got request {:?}", req);
             if CONFIG.pass && !validate_token(&req.token) {
                 if !first_message {
+                    tracing::debug!("Requesting login");
                     if let Err(err) = data_send.send(None).await {
-                        log::error!("Internal error: couldn't initiate login: {}", err);
+                        tracing::error!("Internal error: couldn't initiate login: {}", err);
                         break;
                     }
                 }
@@ -68,16 +74,17 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
             if req.cmd.is_empty() {
                 // Quit out of handler
                 if first_message {
+                    tracing::debug!("First message, not sending quit");
                     first_message = false;
                 } else if let Err(err) = data_send.send(None).await {
-                    log::error!("Internal error: couldn't change page: {}", err);
+                    tracing::error!("Internal error: couldn't change page: {}", err);
                     break;
                 }
             }
             // Send new page/data
             if let Err(err) = data_send.send(Some(req.clone())).await {
-                // Manual error handling here, to use log::error
-                log::error!("Internal error: couldn't send request: {}", err);
+                // Manual error handling here, to use tracing::error
+                tracing::error!("Internal error: couldn't send request: {}", err);
                 break;
             }
         }
@@ -109,6 +116,7 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                 page_handlers::browser_handler(&mut socket_send, &mut data_recv).await;
             }
             "/login" => {
+                tracing::debug!("Sending login message");
                 // Internal poll, see other thread
                 if socket_send
                     .send(crate::json_msg!(
@@ -122,18 +130,19 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                 }
             }
             _ => {
-                log::debug!("Got page {}, not handling", message.page);
+                tracing::debug!("Got page {}, not handling", message.page);
             }
         }
     }
 }
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, Debug)]
 struct TTYSize {
     cols: u16,
     rows: u16,
 }
 
+#[instrument(skip_all)]
 pub async fn term_handler(socket: warp::ws::WebSocket) {
     let (mut socket_send, mut socket_recv) = socket.split();
 
@@ -191,41 +200,45 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
                         .await
                         .is_err()
                     {
+                        tracing::debug!("Socket closed, breaking");
                         break;
                     }
                 } else {
+                    tracing::debug!("Terminal closed, breaking");
                     break;
                 }
             }
-        },
+        }
+        .instrument(tracing::debug_span!("term_reader")),
         async {
             loop {
-                match socket_recv.next().await {
-                    Some(Ok(data)) => {
-                        if data.is_text() && data.to_str().unwrap().get(..4) == Some("size") {
-                            let data_str = data.to_str().unwrap();
-                            let json: TTYSize = handle_error!(
-                                serde_json::from_str(&data_str[4..]).with_context(|| format!(
-                                    "Couldn't deserialize pty size from {}",
-                                    &data_str
-                                )),
-                                continue
-                            );
-                            handle_error!(cmd
-                                .resize_pty(&pty_process::Size::new(json.rows, json.cols))
-                                .context("Couldn't resize pty"));
-                        } else if cmd.pty().write_all(data.as_bytes()).is_err() {
-                            break;
-                        }
-                    }
-                    None | Some(Err(_)) => {
-                        // Stop bash by writing "exit", since it won't respond to a SIGTERM
-                        let _write = cmd.pty().write_all("exit\n".as_bytes());
+                if let Some(Ok(data)) = socket_recv.next().await {
+                    if data.is_text() && data.to_str().unwrap().get(..4) == Some("size") {
+                        let data_str = data.to_str().unwrap();
+                        let json: TTYSize = handle_error!(
+                            serde_json::from_str(&data_str[4..]).with_context(|| format!(
+                                "Couldn't deserialize pty size from {}",
+                                &data_str
+                            )),
+                            continue
+                        );
+                        tracing::debug!("Got size message {:?}", json);
+                        handle_error!(cmd
+                            .resize_pty(&pty_process::Size::new(json.rows, json.cols))
+                            .context("Couldn't resize pty"));
+                    } else if cmd.pty().write_all(data.as_bytes()).is_err() {
+                        tracing::debug!("Terminal closed, breaking");
                         break;
                     }
+                } else {
+                    tracing::debug!("Exiting terminal");
+                    // Stop bash by writing "exit", since it won't respond to a SIGTERM
+                    let _write = cmd.pty().write_all("exit\n".as_bytes());
+                    break;
                 }
             }
         }
+        .instrument(tracing::debug_span!("term_writer"))
     );
 
     // Reap PID, unwrap is safe because all references will have been dropped
@@ -237,14 +250,16 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
         return
     );
 
-    log::info!("Closed terminal");
+    tracing::info!("Closed terminal");
 }
 
+#[instrument(level = "debug", skip_all)]
 async fn create_zip_file(req: &shared::FileRequest) -> anyhow::Result<Vec<u8>> {
     let src_path = tokio::fs::canonicalize(&req.path)
         .await
         .with_context(|| format!("Invalid source path {}", &req.path))?;
     if src_path.is_dir() {
+        tracing::debug!("Source path is directory, recursively walking through");
         let mut zip_file = zip::ZipWriter::new(std::io::Cursor::new(Vec::new()));
         for entry in walkdir::WalkDir::new(&src_path) {
             let entry = entry.context("Couldn't get data for recursive entry")?;
@@ -256,6 +271,7 @@ async fn create_zip_file(req: &shared::FileRequest) -> anyhow::Result<Vec<u8>> {
             );
             let name = name.to_string_lossy().to_string();
             if path.is_file() {
+                tracing::debug!("Adding file {} to zip", &name);
                 let mut file_buf = Vec::new();
                 zip_file
                     .start_file(&name, zip::write::FileOptions::default())
@@ -289,6 +305,7 @@ async fn create_zip_file(req: &shared::FileRequest) -> anyhow::Result<Vec<u8>> {
                     .with_context(|| format!("Couldn't write file {} into zip, skipping", name)));
                 file_buf.clear();
             } else if !name.is_empty() {
+                tracing::debug!("Adding directory {} to zip", &name);
                 zip_file
                     .add_directory(&name, zip::write::FileOptions::default())
                     .with_context(|| format!("Couldn't add directory {} to zip", name))?;
@@ -299,6 +316,7 @@ async fn create_zip_file(req: &shared::FileRequest) -> anyhow::Result<Vec<u8>> {
             .context("Couldn't finish writing to zip file")?
             .into_inner());
     }
+    tracing::debug!("Source path is file, returning file data");
     tokio::fs::read(&src_path)
         .await
         .with_context(|| format!("Couldn't read file {}", src_path.display()))
@@ -311,9 +329,11 @@ enum FileHandlerHelperReturns {
     StreamUpload(usize, tokio::fs::File),
 }
 
+#[instrument(level = "debug", skip_all)]
 async fn file_handler_helper(
     req: &shared::FileRequest,
 ) -> anyhow::Result<Option<FileHandlerHelperReturns>> {
+    tracing::debug!("Command is {}", &req.cmd);
     match req.cmd.as_str() {
         "open" => {
             return Ok(Some(FileHandlerHelperReturns::String(
@@ -349,7 +369,7 @@ async fn file_handler_helper(
         "save" => tokio::fs::write(&req.path, &req.arg)
             .await
             .with_context(|| format!("Couldn't save file {}", &req.path))?,
-        _ => {}
+        _ => tracing::debug!("Got command {}, not handling", &req.cmd),
     }
     Ok(None)
 }
@@ -363,6 +383,7 @@ fn get_file_req(data: &warp::ws::Message) -> anyhow::Result<shared::FileRequest>
     Ok(req)
 }
 
+#[instrument(skip_all)]
 pub async fn file_handler(socket: warp::ws::WebSocket) {
     let (mut socket_send, mut socket_recv) = socket.split();
     let mut req: shared::FileRequest;
@@ -373,6 +394,8 @@ pub async fn file_handler(socket: warp::ws::WebSocket) {
         }
 
         req = handle_error!(get_file_req(&data), continue);
+
+        tracing::debug!("Got file request {:?}", req);
 
         if CONFIG.pass && !validate_token(&req.token) {
             continue;

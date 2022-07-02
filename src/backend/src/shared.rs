@@ -10,7 +10,7 @@ macro_rules! handle_error {
         match $e {
             Ok(val) => val,
             Err(err) => {
-                log::warn!("{:#}", err);
+                tracing::warn!("{:#}", err);
                 $($handler)?
             }
         }
@@ -41,7 +41,7 @@ pub struct UsageData {
     pub percent: f32,
 }
 
-#[derive(Serialize, Default)]
+#[derive(Serialize, Default, Debug)]
 pub struct NetData {
     pub sent: u64,
     pub received: u64,
@@ -146,7 +146,7 @@ pub struct TokenError {
     pub error: bool,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct FileRequest {
     #[serde(default)]
     pub cmd: String,
