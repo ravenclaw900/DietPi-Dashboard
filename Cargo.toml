@@ -29,7 +29,6 @@ tracing-subscriber = "0.3.11"
 [features]
 default = ["frontend"]
 frontend = ["include_dir"]
-compression = ["frontend"]
 
 [profile.release]
 lto = "fat"
@@ -48,3 +47,8 @@ opt-level = 3
 
 [profile.release.package."*"]
 opt-level = "s"
+
+[build-dependencies]
+copy_dir = "0.1.2"
+flate2 = "1.0.24"
+walkdir = "2.3.2"

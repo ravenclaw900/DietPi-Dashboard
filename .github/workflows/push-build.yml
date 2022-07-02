@@ -10,7 +10,6 @@ jobs:
         with:
           fetch-depth: 0
       - name: Lint (rustfmt)
-        working-directory: src/backend
         run: cargo fmt -- --check
       - name: Install other Rust targets
         run: |
@@ -20,86 +19,65 @@ jobs:
           rustup target add aarch64-unknown-linux-musl
       - name: Restore Rust cache
         uses: Swatinem/rust-cache@v1
-        with:
-          working-directory: src/backend
       - name: Lint (clippy)
-        working-directory: src/backend
-        run: |
-          mkdir dist
-          cargo clippy --all-targets --all-features -- -D warnings
+        run: cargo clippy --all-targets --all-features -- -D warnings
       - name: Install Rust dependencies
         run: cargo install cross set-cargo-version
-      - name: Install Yarn Dependencies
-        working-directory: src/frontend
-        run: yarn install
       - name: Change frontend version to commit hash
-        working-directory: src/frontend
+        working-directory: frontend
         run: npm version $(git describe --tags) --allow-same-version
       - name: Change backend version to commit hash
-        run: set-cargo-version src/backend/Cargo.toml $(git describe --tags | cut -c 2-)
-      - name: Build frontend
-        working-directory: src/frontend
-        run: yarn build
-      - name: Compress frontend files
-        run: make compress
+        run: set-cargo-version Cargo.toml $(git describe --tags | cut -c 2-)
       - name: Build x86_64
-        working-directory: src/backend
-        run: cross build --release --target x86_64-unknown-linux-musl --features compression
-      - name: Delete build artifacts
-        run: |
-          rm -r src/backend/target/release/build/*
-          rm src/backend/target/release/deps/*.so
+        run: cross build --release --target x86_64-unknown-linux-musl
+      #- name: Delete build artifacts
+      #  run: |
+      #    rm -r src/backend/target/release/build/*
+      #    rm src/backend/target/release/deps/*.so
       - name: Build armv6l
-        working-directory: src/backend
-        run: cross build --release --target arm-unknown-linux-musleabihf --features compression
+        run: cross build --release --target arm-unknown-linux-musleabihf
       - name: Build armv7l
-        working-directory: src/backend
-        run: cross build --release --target armv7-unknown-linux-musleabihf --features compression
+        run: cross build --release --target armv7-unknown-linux-musleabihf
       - name: Build aarch64
-        working-directory: src/backend
-        run: cross build --release --target aarch64-unknown-linux-musl --features compression
+        run: cross build --release --target aarch64-unknown-linux-musl
       - uses: actions/upload-artifact@v2
         with:
           name: dietpi-dashboard-x86_64
-          path: src/backend/target/x86_64-unknown-linux-musl/release/dietpi-dashboard
+          path: target/x86_64-unknown-linux-musl/release/dietpi-dashboard
       - uses: actions/upload-artifact@v2
         with:
           name: dietpi-dashboard-armv6l
-          path: src/backend/target/arm-unknown-linux-musleabihf/release/dietpi-dashboard
+          path: target/arm-unknown-linux-musleabihf/release/dietpi-dashboard
       - uses: actions/upload-artifact@v2
         with:
           name: dietpi-dashboard-armv7l
-          path: src/backend/target/armv7-unknown-linux-musleabihf/release/dietpi-dashboard
+          path: target/armv7-unknown-linux-musleabihf/release/dietpi-dashboard
       - uses: actions/upload-artifact@v2
         with:
           name: dietpi-dashboard-aarch64
-          path: src/backend/target/aarch64-unknown-linux-musl/release/dietpi-dashboard
+          path: target/aarch64-unknown-linux-musl/release/dietpi-dashboard
       - name: Build x86_64 (backend only)
-        working-directory: src/backend
         run: cross build --release --target x86_64-unknown-linux-musl --no-default-features
       - name: Build armv6l (backend only)
-        working-directory: src/backend
         run: cross build --release --target arm-unknown-linux-musleabihf --no-default-features
       - name: Build armv7l (backend only)
-        working-directory: src/backend
         run: cross build --release --target armv7-unknown-linux-musleabihf --no-default-features
       - name: Build aarch64 (backend only)
-        working-directory: src/backend
         run: cross build --release --target aarch64-unknown-linux-musl --no-default-features
       - uses: actions/upload-artifact@v2
         with:
           name: dietpi-dashboard-x86_64-backend
-          path: src/backend/target/x86_64-unknown-linux-musl/release/dietpi-dashboard
+          path: target/x86_64-unknown-linux-musl/release/dietpi-dashboard
       - uses: actions/upload-artifact@v2
         with:
           name: dietpi-dashboard-armv6l-backend
-          path: src/backend/target/arm-unknown-linux-musleabihf/release/dietpi-dashboard
+          path: target/arm-unknown-linux-musleabihf/release/dietpi-dashboard
       - uses: actions/upload-artifact@v2
         with:
           name: dietpi-dashboard-armv7l-backend
-          path: src/backend/target/armv7-unknown-linux-musleabihf/release/dietpi-dashboard
+          path: target/armv7-unknown-linux-musleabihf/release/dietpi-dashboard
       - uses: actions/upload-artifact@v2
         with:
           name: dietpi-dashboard-aarch64-backend
-          path: src/backend/target/aarch64-unknown-linux-musl/release/dietpi-dashboard
+          path: target/aarch64-unknown-linux-musl/release/dietpi-dashboard
 
