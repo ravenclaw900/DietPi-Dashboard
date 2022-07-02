@@ -272,7 +272,7 @@
     </Card>
     <Card header="System Stats">
         {#if ramData != undefined}
-            {#if socketData.temp.available}
+            {#if socketData.temp != undefined && socketData.temp.available}
                 <div class="text-center">
                     <span class={getTempClass(socketData.temp.celsius)}>
                         {socketData.temp.celsius}ºC/{socketData.temp
