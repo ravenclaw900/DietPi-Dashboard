@@ -32,7 +32,6 @@ jobs:
           toolchain: stable
           profile: minimal
           target: ${{ matrix.target }}
-          components: clippy
       - name: Install set-cargo-version
         run: cargo install set-cargo-version
       - name: Change frontend version to commit hash
@@ -40,6 +39,8 @@ jobs:
         run: npm version $(git describe --tags) --allow-same-version
       - name: Change backend version to commit hash
         run: set-cargo-version Cargo.toml $(git describe --tags | cut -c 2-)
+      - name: Run build script
+        run: cargo check --target ${{ matrix.target }} --release
       - name: Build DietPi-Dashboard
         uses: actions-rs/cargo@v1
         with:

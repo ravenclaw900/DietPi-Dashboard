@@ -8,25 +8,17 @@ fn main() {
         let frontend_path = concat!(env!("CARGO_MANIFEST_DIR"), "/frontend");
         let dist_path = concat!(env!("CARGO_MANIFEST_DIR"), "/frontend/dist");
 
-        dbg!(std::str::from_utf8(
-            &std::process::Command::new("sh")
-                .args(["-c", "yarn install"])
-                .current_dir(frontend_path)
-                .output()
-                .expect("Can't run yarn install")
-                .stdout
-        )
-        .unwrap());
+        std::process::Command::new("sh")
+            .args(["-c", "yarn install"])
+            .current_dir(frontend_path)
+            .output()
+            .expect("Can't run yarn install");
 
-        dbg!(std::str::from_utf8(
-            &std::process::Command::new("sh")
-                .args(["-c", "yarn build"])
-                .current_dir(frontend_path)
-                .output()
-                .expect("Can't run yarn build")
-                .stdout
-        )
-        .unwrap());
+        std::process::Command::new("sh")
+            .args(["-c", "yarn build"])
+            .current_dir(frontend_path)
+            .output()
+            .expect("Can't run yarn build");
 
         if std::env::var("PROFILE").unwrap_or_default() == "release" {
             for i in walkdir::WalkDir::new(dist_path)
