@@ -8,17 +8,14 @@ fn main() {
         let frontend_path = concat!(env!("CARGO_MANIFEST_DIR"), "/frontend");
         let dist_path = concat!(env!("CARGO_MANIFEST_DIR"), "/frontend/dist");
 
-        panic!("{dist_path}");
-
         std::process::Command::new("sh")
-            .args(["-c", "yarn", "install"])
+            .args(["-c", "yarn install"])
             .current_dir(frontend_path)
             .output()
             .expect("Can't run yarn install");
 
         std::process::Command::new("sh")
-            .args(["-c", "yarn", "build"])
-            .arg("build")
+            .args(["-c", "yarn build"])
             .current_dir(frontend_path)
             .output()
             .expect("Can't run yarn build");
