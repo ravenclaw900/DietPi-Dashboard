@@ -42,8 +42,6 @@ jobs:
         run: npm version $(git describe --tags) --allow-same-version
       - name: Change backend version to commit hash
         run: set-cargo-version Cargo.toml $(git describe --tags | cut -c 2-)
-      - name: Run build script
-        run: cargo check --release
       - name: Build DietPi-Dashboard
         uses: actions-rs/cargo@v1
         with:

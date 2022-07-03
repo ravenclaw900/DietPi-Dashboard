@@ -51,3 +51,6 @@ opt-level = "s"
 [build-dependencies]
 flate2 = "1.0.24"
 walkdir = "2.3.2"
+
+[package.metadata.cross]
+pre-build = ["curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - && echo 'deb https://dl.yarnpkg.com/debian/ stable main' | sudo tee /etc/apt/sources.list.d/yarn.list && apt-get update && apt-get install --assume-yes yarn"]
