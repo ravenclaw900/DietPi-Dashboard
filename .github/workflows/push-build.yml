@@ -32,8 +32,8 @@ jobs:
         run: cross build --release --target x86_64-unknown-linux-musl
       - name: Delete build artifacts
         run: |
-          rm -r src/backend/target/release/build/*
-          rm src/backend/target/release/deps/*.so
+          rm -r target/release/build/*
+          rm target/release/deps/*.so
       - name: Build armv6l
         run: cross build --release --target arm-unknown-linux-musleabihf
       - name: Build armv7l
