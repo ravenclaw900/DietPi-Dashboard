@@ -49,6 +49,5 @@ opt-level = 3
 opt-level = "s"
 
 [build-dependencies]
-copy_dir = "0.1.2"
 flate2 = "1.0.24"
 walkdir = "2.3.2"
