@@ -8,23 +8,22 @@ fn main() {
         let frontend_path = concat!(env!("CARGO_MANIFEST_DIR"), "/frontend");
         let dist_path = concat!(env!("CARGO_MANIFEST_DIR"), "/frontend/dist");
 
-        std::process::Command::new("sh")
-            .args(["-c", "yarn install"])
-            .current_dir(frontend_path)
-            .output()
-            .expect("Can't run yarn install");
-
-        std::process::Command::new("sh")
-            .args(["-c", "yarn build"])
-            .current_dir(frontend_path)
-            .output()
-            .expect("Can't run yarn build");
+        dbg!(std::str::from_utf8(
+            &std::process::Command::new("sh")
+                .args(["-c", "yarn install"])
+                .current_dir(frontend_path)
+                .output()
+                .expect("Can't run yarn install")
+                .stdout
+        )
+        .unwrap());
 
         dbg!(std::str::from_utf8(
-            &std::process::Command::new("ls")
-                .arg(frontend_path)
+            &std::process::Command::new("sh")
+                .args(["-c", "yarn build"])
+                .current_dir(frontend_path)
                 .output()
-                .unwrap()
+                .expect("Can't run yarn build")
                 .stdout
         )
         .unwrap());
