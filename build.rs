@@ -20,6 +20,15 @@ fn main() {
             .output()
             .expect("Can't run yarn build");
 
+        dbg!(std::str::from_utf8(
+            &std::process::Command::new("ls")
+                .arg(frontend_path)
+                .output()
+                .unwrap()
+                .stdout
+        )
+        .unwrap());
+
         if std::env::var("PROFILE").unwrap_or_default() == "release" {
             for i in walkdir::WalkDir::new(dist_path)
                 .into_iter()
