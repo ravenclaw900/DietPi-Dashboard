@@ -52,14 +52,16 @@ opt-level = "s"
 flate2 = "1.0.24"
 walkdir = "2.3.2"
 
-[package.metadata.cross.target.x86_64-unknown-linux-musl]
-pre-build = ["curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - && echo 'deb https://dl.yarnpkg.com/debian/ stable main' | sudo tee /etc/apt/sources.list.d/yarn.list && apt-get update && apt-get install --assume-yes yarn"]
+# https://github.com/cross-rs/cross/pull/895
 
-[package.metadata.cross.target.arm-unknown-linux-musleabihf]
-pre-build = ["curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - && echo 'deb https://dl.yarnpkg.com/debian/ stable main' | sudo tee /etc/apt/sources.list.d/yarn.list && apt-get update && apt-get install --assume-yes yarn"]
+#[package.metadata.cross.target.x86_64-unknown-linux-musl]
+#pre-build = ["curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - && echo 'deb https://dl.yarnpkg.com/debian/ stable main' | sudo tee /etc/apt/sources.list.d/yarn.list && apt-get update && apt-get install --assume-yes yarn"]
 
-[package.metadata.cross.target.armv7-unknown-linux-musleabihf]
-pre-build = ["curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - && echo 'deb https://dl.yarnpkg.com/debian/ stable main' | sudo tee /etc/apt/sources.list.d/yarn.list && apt-get update && apt-get install --assume-yes yarn"]
+#[package.metadata.cross.target.arm-unknown-linux-musleabihf]
+#pre-build = ["curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - && echo 'deb https://dl.yarnpkg.com/debian/ stable main' | sudo tee /etc/apt/sources.list.d/yarn.list && apt-get update && apt-get install --assume-yes yarn"]
 
-[package.metadata.cross.target.aarch64-unknown-linux-musl]
-pre-build = ["curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - && echo 'deb https://dl.yarnpkg.com/debian/ stable main' | sudo tee /etc/apt/sources.list.d/yarn.list && apt-get update && apt-get install --assume-yes yarn"]
+#[package.metadata.cross.target.armv7-unknown-linux-musleabihf]
+#pre-build = ["curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - && echo 'deb https://dl.yarnpkg.com/debian/ stable main' | sudo tee /etc/apt/sources.list.d/yarn.list && apt-get update && apt-get install --assume-yes yarn"]
+
+#[package.metadata.cross.target.aarch64-unknown-linux-musl]
+#pre-build = ["curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - && echo 'deb https://dl.yarnpkg.com/debian/ stable main' | sudo tee /etc/apt/sources.list.d/yarn.list && apt-get update && apt-get install --assume-yes yarn"]
