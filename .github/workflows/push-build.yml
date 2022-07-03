@@ -40,7 +40,7 @@ jobs:
       - name: Change backend version to commit hash
         run: set-cargo-version Cargo.toml $(git describe --tags | cut -c 2-)
       - name: Run build script
-        run: cargo check --target ${{ matrix.target }} --release
+        run: cargo check --release
       - name: Build DietPi-Dashboard
         uses: actions-rs/cargo@v1
         with:
