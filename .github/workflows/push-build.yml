@@ -17,11 +17,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        target:
-          - x86_64-unknown-linux-musl
-          - arm-unknown-linux-musleabihf
-          - armv7-unknown-linux-musleabihf
-          - aarch64-unknown-linux-musl
+        job:
+          - { target: x86_64-unknown-linux-musl, pretty: x86_64 }
+          - { target: arm-unknown-linux-musleabihf, pretty: armv6l }
+          - { target: armv7-unknown-linux-musleabihf, pretty: armv7l }
+          - { target: aarch64-unknown-linux-musl, pretty: aarch64 }
     steps:
       - uses: actions/checkout@v2
         with:
@@ -31,7 +31,10 @@ jobs:
         with:
           toolchain: stable
           profile: minimal
-          target: ${{ matrix.target }}
+          target: ${{ matrix.job.target }}
+      - uses: Swatinem/rust-cache@v1
+        with:
+          key: ${{ matrix.job.pretty }}
       - name: Install set-cargo-version
         run: cargo install set-cargo-version
       - name: Change frontend version to commit hash
@@ -46,20 +49,20 @@ jobs:
         with:
           use-cross: true
           command: build
-          args: --release --target=${{ matrix.target }}
+          args: --release --target=${{ matrix.job.target }}
       - name: Upload binary
         uses: actions/upload-artifact@v2
         with:
-          name: dietpi-dashboard-x86_64
-          path: target/${{ matrix.target }}/release/dietpi-dashboard
+          name: dietpi-dashboard-${{ matrix.job.pretty }}
+          path: target/${{ matrix.job.target }}/release/dietpi-dashboard
       - name: Build DietPi-Dashboard (backend only)
         uses: actions-rs/cargo@v1
         with:
           use-cross: true
           command: build
-          args: --release --target=${{ matrix.target }} --no-default-features
+          args: --release --target=${{ matrix.job.target }} --no-default-features
       - name: Upload binary (backend only)
         uses: actions/upload-artifact@v2
         with:
-          name: dietpi-dashboard-x86_64
-          path: target/${{ matrix.target }}/release/dietpi-dashboard
+          name: dietpi-dashboard-${{ matrix.job.pretty }}-backend
+          path: target/${{ matrix.job.target }}/release/dietpi-dashboard
