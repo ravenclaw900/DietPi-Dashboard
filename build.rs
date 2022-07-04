@@ -1,4 +1,4 @@
-use std::io::Read;
+use std::io::Write;
 
 fn main() {
     if std::env::var_os("CARGO_FEATURE_FRONTEND").is_some() {
@@ -31,15 +31,17 @@ fn main() {
                     continue;
                 }
 
-                let mut compressed = flate2::read::GzEncoder::new(
-                    std::fs::File::open(entry.path()).expect("Couldn't open uncompressed file"),
+                let buf = std::fs::read(entry.path()).expect("Couldn't get uncompressed data");
+                let mut compressed = flate2::write::GzEncoder::new(
+                    std::fs::File::create(entry.path()).expect("Couldn't open uncompressed file"),
                     flate2::Compression::best(),
                 );
-                let mut buf = Vec::new();
                 compressed
-                    .read_to_end(&mut buf)
+                    .write_all(&buf)
                     .expect("Couldn't read compressed data");
-                std::fs::write(entry.path(), &buf).expect("Couldn't write compressed data to file");
+                compressed
+                    .finish()
+                    .expect("Couldn't finish writing compressed data");
             }
         }
     }
