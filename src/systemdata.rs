@@ -149,89 +149,42 @@ pub async fn processes() -> anyhow::Result<Vec<shared::ProcessData>> {
 pub async fn dpsoftware(
 ) -> anyhow::Result<(Vec<shared::DPSoftwareData>, Vec<shared::DPSoftwareData>)> {
     let out = Command::new("/boot/dietpi/dietpi-software")
-        .arg("list")
+        .args(["list", "--machine-readable"])
         .output()
         .await
         .context("Couldn't get DietPi-Software software list")?
         .stdout;
+    anyhow::ensure!(!out.is_empty(), "DietPi-Software not running as root");
     let out_list = from_utf8(&out)
         .context("Invalid DietPi-Software software list")?
         .lines()
         .collect::<Vec<&str>>();
     let mut installed_list = Vec::new();
     let mut uninstalled_list = Vec::new();
-    uninstalled_list.reserve(
-        out_list
-            .len()
-            .checked_sub(4) // Database messages
-            .context("DietPi-Software software list is too short")?,
-    );
+    uninstalled_list.reserve(out_list.len());
     // First 4 skipped lines are the database messages
-    'software: for element in out_list.iter().skip(4) {
+    'software: for element in out_list {
         let mut software = shared::DPSoftwareData::default();
         let mut installed = false;
         for (in1, el1) in element.split('|').enumerate() {
             match in1 {
                 0 => {
-                    software.id = el1
-                        .trim()
-                        .trim_start_matches("\u{001b}[32m")
-                        .trim_start_matches("ID ")
-                        .parse::<i16>()
-                        .with_context(|| {
-                            format!(
-                                "Invalid software ID {}",
-                                el1.trim()
-                                    .trim_start_matches("\u{001b}[32m")
-                                    .trim_start_matches("ID ")
-                            )
-                        })?;
-                }
-                1 => {
-                    installed = el1
-                        .trim()
-                        .trim_start_matches('=')
-                        .parse::<i8>()
-                        .with_context(|| {
-                            format!(
-                                "Invalid installed specifier {} for id {}",
-                                el1.trim().trim_start_matches('='),
-                                software.id
-                            )
-                        })?
-                        > 0;
-                }
-                2 => {
-                    let mut name_desc = el1.trim().split(':');
-                    software.name = name_desc
-                        .next()
-                        .with_context(|| {
-                            format!("Couldn't get software name for id {}", software.id)
-                        })?
-                        .to_string();
-                    software.description = name_desc
-                        .next()
-                        .with_context(|| {
-                            format!("Couldn't get software description for id {}", software.id)
-                        })?
-                        .trim_start_matches("\u{001b}[0m \u{001b}[90m")
-                        .trim_end_matches("\u{001b}[0m")
-                        .to_string();
-                }
-                3 => {
-                    // Annoying that here is the only place that software can be detected as disabled or not, and not before
                     if el1.contains("DISABLED") {
                         continue 'software;
                     }
-                    software.dependencies = el1.trim().to_string();
+                    software.id = el1
+                        .parse::<i16>()
+                        .with_context(|| format!("Invalid software ID {}", el1))?;
                 }
-                4 => {
-                    software.docs = el1
-                        .trim()
-                        .trim_start_matches("\u{001b}[90m")
-                        .trim_end_matches("\u{001b}[0m")
-                        .to_string();
+                1 => {
+                    installed = el1.parse::<i8>().with_context(|| {
+                        format!("Invalid installed specifier {} for id {}", el1, software.id)
+                    })? > 0;
                 }
+                2 => software.name = el1.to_string(),
+                3 => software.description = el1.to_string(),
+                4 => software.dependencies = el1.replace(',', ", ").to_string(),
+                5 => software.docs = el1.to_string(),
                 _ => {}
             }
         }
