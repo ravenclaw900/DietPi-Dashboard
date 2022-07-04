@@ -183,7 +183,7 @@ pub async fn dpsoftware(
                 }
                 2 => software.name = el1.to_string(),
                 3 => software.description = el1.to_string(),
-                4 => software.dependencies = el1.replace(',', ", ").to_string(),
+                4 => software.dependencies = el1.replace(',', ", "),
                 5 => software.docs = el1.to_string(),
                 _ => {}
             }
