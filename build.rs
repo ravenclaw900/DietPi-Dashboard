@@ -3,6 +3,7 @@ use std::io::Write;
 fn main() {
     if std::env::var_os("CARGO_FEATURE_FRONTEND").is_some() {
         println!("cargo:rerun-if-changed=frontend/src/");
+        println!("cargo:rerun-if-changed=frontend/dist/");
         println!("cargo:rerun-if-changed=frontend/package.json");
 
         let frontend_path = concat!(env!("CARGO_MANIFEST_DIR"), "/frontend");
