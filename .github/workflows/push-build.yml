@@ -22,6 +22,10 @@ jobs:
           - { target: arm-unknown-linux-musleabihf, pretty: armv6l }
           - { target: armv7-unknown-linux-musleabihf, pretty: armv7l }
           - { target: aarch64-unknown-linux-musl, pretty: aarch64 }
+          - { target: x86_64-unknown-linux-musl, pretty: x86_64-backend, args: --no-default-features }
+          - { target: arm-unknown-linux-musleabihf, pretty: armv6l-backend, args: --no-default-features }
+          - { target: armv7-unknown-linux-musleabihf, pretty: armv7l-backend, args: --no-default-features }
+          - { target: aarch64-unknown-linux-musl, pretty: aarch64-backend, args: --no-default-features }
     steps:
       - uses: actions/checkout@v2
         with:
@@ -49,20 +53,9 @@ jobs:
         with:
           use-cross: true
           command: build
-          args: --release --target=${{ matrix.job.target }}
+          args: --release --target ${{ matrix.job.target }} ${{ matrix.job.args }}
       - name: Upload binary
         uses: actions/upload-artifact@v2
         with:
           name: dietpi-dashboard-${{ matrix.job.pretty }}
-          path: target/${{ matrix.job.target }}/release/dietpi-dashboard
-      - name: Build DietPi-Dashboard (backend only)
-        uses: actions-rs/cargo@v1
-        with:
-          use-cross: true
-          command: build
-          args: --release --target=${{ matrix.job.target }} --no-default-features
-      - name: Upload binary (backend only)
-        uses: actions/upload-artifact@v2
-        with:
-          name: dietpi-dashboard-${{ matrix.job.pretty }}-backend
           path: target/${{ matrix.job.target }}/release/dietpi-dashboard
