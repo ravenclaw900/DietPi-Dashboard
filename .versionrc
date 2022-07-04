@@ -1,17 +1,17 @@
 {
     "packageFiles": [
         {
-            "filename": "src/frontend/package.json",
+            "filename": "frontend/package.json",
             "type": "json"
         }
     ],
     "bumpFiles": [
         {
-            "filename": "src/frontend/package.json",
+            "filename": "frontend/package.json",
             "type": "json"
         },
         {
-            "filename": "src/backend/Cargo.toml",
+            "filename": "Cargo.toml",
             "updater": "standard-version-toml.js"
         }
     ]
