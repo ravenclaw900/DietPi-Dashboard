@@ -52,5 +52,6 @@ opt-level = "s"
 flate2 = "1.0.24"
 walkdir = "2.3.2"
 
+# Install node.js, enable corepack for yarn, and create required directories
 [package.metadata.cross.build]
-pre-build = ["curl -fsSL https://deb.nodesource.com/setup_16.x | bash", "apt-get install -y nodejs", "corepack enable", "corepack prepare yarn@3.2.1"]
+pre-build = ["curl -fsSL https://deb.nodesource.com/setup_16.x | bash", "apt-get install -y nodejs", "corepack enable", "mkdir /.node && chmod 777 /.node", "mkdir /.yarn && chmod 777 /.yarn"]
