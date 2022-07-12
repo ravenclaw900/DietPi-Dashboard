@@ -5,7 +5,7 @@ jobs:
   fmt_clippy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Lint (rustfmt)
@@ -27,7 +27,7 @@ jobs:
           - { target: armv7-unknown-linux-musleabihf, pretty: armv7l-backend, args: --no-default-features }
           - { target: aarch64-unknown-linux-musl, pretty: aarch64-backend, args: --no-default-features }
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Install rust toolchain
