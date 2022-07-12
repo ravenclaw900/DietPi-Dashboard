@@ -53,4 +53,4 @@ flate2 = "1.0.24"
 walkdir = "2.3.2"
 
 [package.metadata.cross.build]
-pre-build = ["curl -fsSL https://deb.nodesource.com/setup_16.x | bash", "apt-get install -y nodejs", "corepack enable"]
+pre-build = ["curl -fsSL https://deb.nodesource.com/setup_16.x | bash", "apt-get install -y nodejs", "corepack enable", "corepack prepare yarn@3.2.1"]
