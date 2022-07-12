@@ -1,11 +1,11 @@
 version: 2
 updates:
   - package-ecosystem: "npm"
-    directory: "/src/frontend"
+    directory: "/frontend"
     schedule:
       interval: "daily"
 
   - package-ecosystem: "cargo"
-    directory: "/src/backend"
+    directory: "/"
     schedule:
       interval: "daily"

@@ -5,13 +5,4 @@ dist/
 dietpi-dashboard
 .DS_Store
 target/
-src/backend/.cargo/
-
-# Yarn
-.yarn/*
-!.yarn/cache
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
+.cargo/

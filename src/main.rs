@@ -32,7 +32,7 @@ impl<S: tracing::Subscriber> Layer<S> for BeQuietWarp {
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> anyhow::Result<()> {
     #[cfg(feature = "frontend")]
-    const DIR: include_dir::Dir = include_dir::include_dir!("dist");
+    const DIR: include_dir::Dir = include_dir::include_dir!("$CARGO_MANIFEST_DIR/frontend/dist");
 
     {
         let log_level = tracing_subscriber::filter::LevelFilter::from_str(&CONFIG.log_level)
@@ -69,7 +69,7 @@ async fn main() -> anyhow::Result<()> {
             header::HeaderValue::from_static("no-referrer"),
         );
         headers.insert("Content-Security-Policy", header::HeaderValue::from_static("default-src 'self'; font-src 'self'; img-src 'self' blob:; script-src 'self'; style-src 'unsafe-inline' 'self'; connect-src * ws:;"));
-        #[cfg(feature = "compression")]
+        #[cfg(all(feature = "frontend", not(debug_assertions)))]
         headers.insert(
             header::CONTENT_ENCODING,
             header::HeaderValue::from_static("gzip"),
@@ -102,7 +102,7 @@ async fn main() -> anyhow::Result<()> {
             let _guard = tracing::info_span!("asset_route").entered();
             let ext = path.rsplit('.').next().unwrap_or("plain");
             #[allow(unused_mut)]
-            // Mute warning, variable is mut because it's used with the compression feature
+            // Mute warning, variable is mut because it's used when building for release
             let mut reply = warp::reply::with_header(
                 match DIR.get_file(format!("assets/{}", path)) {
                     Some(file) => file.contents(),
@@ -128,7 +128,7 @@ async fn main() -> anyhow::Result<()> {
             )
             .into_response();
 
-            #[cfg(feature = "compression")]
+            #[cfg(all(feature = "frontend", not(debug_assertions)))]
             if ext != "png" {
                 reply.headers_mut().insert(
                     header::CONTENT_ENCODING,
