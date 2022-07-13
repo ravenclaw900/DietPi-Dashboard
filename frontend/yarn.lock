@@ -19,7 +19,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fortawesome/free-solid-svg-icons@npm:^6.1.1":
+"@fortawesome/free-solid-svg-icons@npm:6.1.1":
   version: 6.1.1
   resolution: "@fortawesome/free-solid-svg-icons@npm:6.1.1"
   dependencies:
@@ -155,6 +155,13 @@ __metadata:
   version: 4.0.1
   resolution: "@types/autosize@npm:4.0.1"
   checksum: 190d5ef27cab78a8d1dc5271528905da9971a44668cdc705d96c8412cbc710a5e377429f11e16139d4f06120726d1a65732f1f5d4a7c6793fb15c89978d814f8
+  languageName: node
+  linkType: hard
+
+"@types/microlight@npm:^0.0.0":
+  version: 0.0.0
+  resolution: "@types/microlight@npm:0.0.0"
+  checksum: 253f663e9c2b885e4ce2bd615f82861c3f9f7a5d1bd328ccef4247a0d6a67aa6f36a937632177c16fd1c81ff2163ca54789a00dd055ee1d3bc1c9e4a1bafe6c7
   languageName: node
   linkType: hard
 
@@ -467,10 +474,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "dietpi-dashboard@workspace:."
   dependencies:
-    "@fortawesome/free-solid-svg-icons": ^6.1.1
+    "@fortawesome/free-solid-svg-icons": 6.1.1
     "@sveltejs/vite-plugin-svelte": 1.0.0-next.49
     "@tsconfig/svelte": 3.0.0
     "@types/autosize": 4.0.1
+    "@types/microlight": ^0.0.0
     microlight: 0.0.7
     pretty-bytes: 6.0.0
     pretty-ms: 8.0.0
