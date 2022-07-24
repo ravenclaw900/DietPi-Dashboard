@@ -54,4 +54,4 @@ walkdir = "2.3.2"
 
 # Install node.js, enable corepack for yarn, and create required directories
 [package.metadata.cross.build]
-pre-build = ["curl -fsSL https://deb.nodesource.com/setup_16.x | bash", "apt-get install -y nodejs", "corepack enable"]
+pre-build = ["curl -fsSL https://deb.nodesource.com/setup_16.x | bash", "apt-get install -y nodejs", "corepack enable", "mkdir /.node && chmod 777 /.node"]
