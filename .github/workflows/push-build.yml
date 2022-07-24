@@ -1,10 +1,20 @@
 name: Build
-on: push
+on: 
+  push:
+  workflow_dispatch:
+    inputs:
+      debug_enabled:
+        description: 'Run the build with tmate debugging enabled'     
+        required: false
+        default: false
 
 jobs:
   fmt_clippy:
     runs-on: ubuntu-latest
     steps:
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -27,6 +37,9 @@ jobs:
           - { target: armv7-unknown-linux-musleabihf, pretty: armv7l-backend, args: --no-default-features }
           - { target: aarch64-unknown-linux-musl, pretty: aarch64-backend, args: --no-default-features }
     steps:
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
