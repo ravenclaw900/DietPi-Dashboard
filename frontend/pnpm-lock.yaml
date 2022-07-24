@@ -6,6 +6,7 @@ specifiers:
   '@tsconfig/svelte': 3.0.0
   '@types/autosize': 4.0.1
   '@types/microlight': ^0.0.0
+  '@types/semver-compare-multi': ^1.0.0
   microlight: 0.0.7
   pretty-bytes: 6.0.0
   pretty-ms: 8.0.0
@@ -42,6 +43,7 @@ devDependencies:
   '@tsconfig/svelte': 3.0.0
   '@types/autosize': 4.0.1
   '@types/microlight': 0.0.0
+  '@types/semver-compare-multi': 1.0.0
   svelte: 3.49.0
   svelte-check: 2.8.0_svelte@3.49.0
   svelte-fa: 3.0.3
@@ -166,6 +168,10 @@ packages:
     resolution: {integrity: sha512-BPdoIt1lfJ6B7rw35ncdwBZrAssjcwzI5LByIrYs+tpXlj/CAkuVdRsgZDdP4lq5EjyWzwxZCqAoFyHKFwp32g==}
     dependencies:
       '@types/node': 18.0.6
+    dev: true
+
+  /@types/semver-compare-multi/1.0.0:
+    resolution: {integrity: sha512-Kq3ctX7IkkD3dh3GAKDv55bSgLVpj0eeCsxJPYMMhZDLGiteS3/I/GxsdsQ4IGToPCaSLf1RuGmsSGFUShZ9iw==}
     dev: true
 
   /@windicss/config/1.8.6:
