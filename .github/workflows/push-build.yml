@@ -18,6 +18,8 @@ jobs:
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
+      - name: Enable corepack
+        run: corepack enable
       - name: Lint (rustfmt)
         run: cargo fmt -- --check
       - name: Lint (clippy)
