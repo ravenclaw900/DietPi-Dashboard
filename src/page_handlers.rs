@@ -334,8 +334,8 @@ pub async fn browser_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
         return true;
     }
 
-    while let Some(Some(mut data)) = data_recv.recv().await {
-        'outer: loop {
+    'outer: while let Some(Some(mut data)) = data_recv.recv().await {
+        loop {
             tokio::select! {
                 res = browser_handler_helper(&data) => {
                     let list = handle_error!(res, shared::BrowserList::default());
