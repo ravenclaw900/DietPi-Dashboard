@@ -68,7 +68,7 @@ async fn main() -> anyhow::Result<()> {
             header::REFERRER_POLICY,
             header::HeaderValue::from_static("no-referrer"),
         );
-        headers.insert("Content-Security-Policy", header::HeaderValue::from_static("default-src 'self'; font-src 'self'; img-src 'self' blob:; script-src 'self'; style-src 'unsafe-inline' 'self'; connect-src * ws:;"));
+        headers.insert("Content-Security-Policy", header::HeaderValue::from_static("default-src 'self'; style-src 'unsafe-inline' 'self'; connect-src * ws:; object-src 'none'; require-trusted-types-for 'script';"));
         #[cfg(all(feature = "frontend", not(debug_assertions)))]
         headers.insert(
             header::CONTENT_ENCODING,
