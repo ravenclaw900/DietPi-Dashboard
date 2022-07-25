@@ -24,6 +24,17 @@ macro_rules! json_msg {
     };
 }
 
+pub fn remove_color_codes(s: &str) -> String {
+    s.replace('\u{1b}', "")
+        .replace("[33m", "")
+        .replace("[90m", "")
+        .replace("[0m", "")
+        .replace("[32m", "")
+        .replace("[31m", "")
+        .replace("[38;5;154m", "")
+        .replace("[J", "")
+}
+
 #[derive(Serialize, Default)]
 pub struct SysData {
     pub cpu: f32,
