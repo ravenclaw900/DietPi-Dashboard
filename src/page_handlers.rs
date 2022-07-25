@@ -138,7 +138,13 @@ pub async fn software_handler_helper(
             .stdout,
     )
     .context("Invalid DietPi-Software output")?
-    .replace('', "");
+    .replace('\u{1b}', "")
+    .replace("[33m", "")
+    .replace("[90m", "")
+    .replace("[0m", "")
+    .replace("[32m", "")
+    .replace("[38;5;154m", "")
+    .replace("[J", "");
 
     let software = systemdata::dpsoftware().await?;
     Ok(shared::DPSoftwareList {

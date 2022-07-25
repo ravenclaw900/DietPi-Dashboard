@@ -6,7 +6,7 @@ fn main() {
         println!("cargo:rerun-if-changed=frontend/dist/");
         println!("cargo:rerun-if-changed=frontend/package.json");
 
-        let frontend_path = concat!(env!("CARGO_MANIFEST_DIR"), "/frontend");
+        let frontend_pqath = concat!(env!("CARGO_MANIFEST_DIR"), "/frontend");
         let dist_path = concat!(env!("CARGO_MANIFEST_DIR"), "/frontend/dist");
 
         std::process::Command::new("sh")
