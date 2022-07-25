@@ -315,6 +315,11 @@ pub async fn services() -> anyhow::Result<Vec<shared::ServiceData>> {
     let mut services_list = Vec::new();
     // Split on 3 different tokens
     for element in services_str
+        .replace("\u{1b}[0m", "")
+        .replace("\u{1b}[90m", "")
+        .replace("\u{1b}[32m", "")
+        .replace("\u{1b}[31m", "")
+        .replace("\u{1b}[J", "")
         .replace("[FAILED] DietPi-Services | \u{25cf} ", "dpdashboardtemp")
         .replace("[ INFO ] DietPi-Services | ", "dpdashboardtemp")
         .replace("[  OK  ] DietPi-Services | ", "dpdashboardtemp")
