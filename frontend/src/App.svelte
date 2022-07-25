@@ -43,6 +43,7 @@
     let settingsShown = false;
     let passwordMessage = false;
     let notify = false;
+    let reopenSocket = true;
     let menu = window.innerWidth > 768;
     let dpUpdate = "";
     let tempUnit: "fahrenheit" | "celsius";
@@ -54,7 +55,7 @@
     let updateAvailable = "";
     let node = `${window.location.hostname}:${window.location.port}`;
 
-    $: node && ((shown = false), connectSocket(node));
+    $: node && (((shown = false), (reopenSocket = false)), connectSocket(node));
     $: notify =
         dpUpdate != "" ||
         cmp(frontendVersion, backendVersion) != 0 ||
@@ -145,13 +146,17 @@
     const socketOpenListener = () => {
         console.log("Connected");
         shown = true;
+        reopenSocket = true;
     };
     const socketErrorListener = (e: ErrorEvent) => {
         console.error(e);
-        connectSocket(node);
     };
     const socketCloseListener = () => {
         console.log("Disconnected");
+        socket = null;
+        if (reopenSocket) {
+            setTimeout(() => connectSocket(node), 1000);
+        }
     };
 
     function pollServer(page: string) {
