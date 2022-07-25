@@ -130,21 +130,16 @@ pub async fn software_handler_helper(
         arg_list.push(element.as_str());
     }
     tracing::info!("{}ing software with ID(s) {:?}", data.cmd, data.args);
-    let out = std::string::String::from_utf8(
-        cmd.args(arg_list)
-            .output()
-            .await
-            .context("Couldn't get DietPi-Software output")?
-            .stdout,
-    )
-    .context("Invalid DietPi-Software output")?
-    .replace('\u{1b}', "")
-    .replace("[33m", "")
-    .replace("[90m", "")
-    .replace("[0m", "")
-    .replace("[32m", "")
-    .replace("[38;5;154m", "")
-    .replace("[J", "");
+    let out = shared::remove_color_codes(
+        std::str::from_utf8(
+            &cmd.args(arg_list)
+                .output()
+                .await
+                .context("Couldn't get DietPi-Software output")?
+                .stdout,
+        )
+        .context("Invalid DietPi-Software output")?,
+    );
 
     let software = systemdata::dpsoftware().await?;
     Ok(shared::DPSoftwareList {
