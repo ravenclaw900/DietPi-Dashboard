@@ -52,8 +52,6 @@ opt-level = "s"
 flate2 = "1.0.24"
 walkdir = "2.3.2"
 
+# Install node.js, enable corepack for yarn, and create required directories
 [package.metadata.cross.build]
-pre-build = ["curl -fsSL https://deb.nodesource.com/setup_16.x | bash", "apt-get install -y nodejs", 
-    "curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor -o /usr/share/keyrings/yarnkey.gpg", 
-    "echo 'deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main' > /etc/apt/sources.list.d/yarn.list",
-    "apt-get update && apt-get install yarn"]
+pre-build = ["curl -fsSL https://deb.nodesource.com/setup_16.x | bash", "apt-get install -y nodejs", "corepack enable", "mkdir /.node && chmod 777 /.node"]

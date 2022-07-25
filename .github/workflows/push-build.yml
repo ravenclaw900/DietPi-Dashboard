@@ -12,12 +12,14 @@ jobs:
   fmt_clippy:
     runs-on: ubuntu-latest
     steps:
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
+      - name: Enable corepack
+        run: corepack enable
       - name: Lint (rustfmt)
         run: cargo fmt -- --check
       - name: Lint (clippy)
@@ -37,9 +39,6 @@ jobs:
           - { target: armv7-unknown-linux-musleabihf, pretty: armv7l-backend, args: --no-default-features }
           - { target: aarch64-unknown-linux-musl, pretty: aarch64-backend, args: --no-default-features }
     steps:
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -52,6 +51,9 @@ jobs:
       - uses: Swatinem/rust-cache@v1
         with:
           key: ${{ matrix.job.pretty }}
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
       - name: Install set-cargo-version
         run: cargo install set-cargo-version
       - name: Change frontend version to commit hash
