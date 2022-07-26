@@ -10,16 +10,16 @@ fn main() {
         let dist_path = concat!(env!("CARGO_MANIFEST_DIR"), "/frontend/dist");
 
         std::process::Command::new("sh")
-            .args(["-c", "pnpm install"])
+            .args(["-c", "yarn install"])
             .current_dir(frontend_path)
             .output()
-            .expect("Can't run pnpm install");
+            .expect("Can't run yarn install");
 
         std::process::Command::new("sh")
-            .args(["-c", "pnpm build"])
+            .args(["-c", "yarn build"])
             .current_dir(frontend_path)
             .output()
-            .expect("Can't run pnpm build");
+            .expect("Can't run yarn build");
 
         if std::env::var("PROFILE").unwrap_or_default() == "release" {
             for i in walkdir::WalkDir::new(dist_path)
