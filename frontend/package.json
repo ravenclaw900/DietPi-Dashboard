@@ -20,6 +20,7 @@
     "svelte": "^3.49.0",
     "svelte-check": "^2.8.0",
     "svelte-fa": "^3.0.3",
+    "svelte-language-server": "^0.14.30",
     "svelte-preprocess": "^4.10.7",
     "svelte-routing": "^1.6.0",
     "tslib": "^2.4.0",
