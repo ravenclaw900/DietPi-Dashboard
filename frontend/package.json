@@ -10,32 +10,39 @@
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
   "devDependencies": {
-    "@fortawesome/free-solid-svg-icons": "6.1.1",
-    "@sveltejs/vite-plugin-svelte": "1.0.1",
-    "@tsconfig/svelte": "3.0.0",
-    "@types/autosize": "4.0.1",
+    "@fortawesome/free-solid-svg-icons": "^6.1.1",
+    "@sveltejs/vite-plugin-svelte": "^1.0.1",
+    "@tsconfig/svelte": "^3.0.0",
+    "@types/autosize": "^4.0.1",
     "@types/microlight": "^0.0.0",
     "@types/semver-compare-multi": "^1.0.0",
-    "svelte": "3.49.0",
-    "svelte-check": "2.8.0",
-    "svelte-fa": "3.0.3",
-    "svelte-preprocess": "4.10.7",
-    "svelte-routing": "1.6.0",
-    "tslib": "2.4.0",
-    "typescript": "4.7.4",
-    "vite": "2.9.14",
-    "vite-plugin-replace": "0.1.1",
-    "vite-plugin-windicss": "1.8.7",
-    "windicss": "3.5.6"
+    "postcss": "^8.4.14",
+    "svelte": "^3.49.0",
+    "svelte-check": "^2.8.0",
+    "svelte-fa": "^3.0.3",
+    "svelte-preprocess": "^4.10.7",
+    "svelte-routing": "^1.6.0",
+    "tslib": "^2.4.0",
+    "typescript": "^4.7.4",
+    "vite": "^3.0.3",
+    "vite-plugin-replace": "^0.1.1",
+    "vite-plugin-windicss": "^1.8.7",
+    "windicss": "^3.5.6"
   },
   "dependencies": {
-    "microlight": "0.0.7",
-    "pretty-bytes": "6.0.0",
-    "pretty-ms": "8.0.0",
-    "semver-compare-multi": "1.0.3",
-    "uplot": "1.6.22",
-    "xterm": "4.19.0",
-    "xterm-addon-attach": "0.6.0",
-    "xterm-addon-fit": "0.5.0"
+    "microlight": "^0.0.7",
+    "pretty-bytes": "^6.0.0",
+    "pretty-ms": "^8.0.0",
+    "semver-compare-multi": "^1.0.3",
+    "uplot": "^1.6.22",
+    "xterm": "^4.19.0",
+    "xterm-addon-attach": "^0.6.0",
+    "xterm-addon-fit": "^0.5.0"
+  },
+  "packageManager": "yarn@3.2.2",
+  "dependenciesMeta": {
+    "@tsconfig/svelte@3.0.0": {
+      "unplugged": true
+    }
   }
 }

@@ -6,3 +6,10 @@ dietpi-dashboard
 .DS_Store
 target/
 .cargo/
+
+frontend/.yarn/*
+!frontend/.yarn/cache
+!frontend/.yarn/patches
+!frontend/.yarn/plugins
+!frontend/.yarn/releases
+!frontend/.yarn/versions
