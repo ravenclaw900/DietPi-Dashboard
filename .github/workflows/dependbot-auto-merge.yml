@@ -8,9 +8,11 @@ permissions:
 jobs:
   dependabot:
     runs-on: ubuntu-latest
-    #if: github.actor == 'dependabot[bot]'
+    # Uses PAT to update lockfile, which makes the actor the person who created the PAT
+    if: |
+      (github.actor == 'dependabot[bot]' || github.actor == 'ravenclaw900') &&
+      contains(github.event.pull_request.head.ref, 'dependabot/npm_and_yarn/')
     steps:
-      - run: echo ${{ github.triggering_actor }}
       - name: Dependabot metadata
         id: metadata
         uses: dependabot/fetch-metadata@v1
