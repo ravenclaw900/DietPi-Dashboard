@@ -20,7 +20,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 2
 
-      - run: git checkout HEAD~1 yarn.lock
+      - run: git checkout HEAD~1 frontend/yarn.lock
 
       - run: yarn install --mode=skip-build
         working-directory: frontend
