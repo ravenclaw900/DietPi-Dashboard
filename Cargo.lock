@@ -163,6 +163,7 @@ dependencies = [
  "once_cell",
  "psutil",
  "pty-process",
+ "rerun_in_except",
  "ring",
  "serde",
  "serde_json",
@@ -874,6 +875,12 @@ checksum = "d51e9f596de227fda2ea6c84607f5558e196eeaf43c986b724ba4fb8fdf497e7"
 dependencies = [
  "rand_core",
 ]
+
+[[package]]
+name = "rerun_in_except"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "373f2b912b0fdcdb053d0afd04f9c5e989ee3f4a10d3e5bcb45c6b5dc80b8673"
 
 [[package]]
 name = "ring"
