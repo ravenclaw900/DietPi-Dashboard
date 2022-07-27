@@ -33,5 +33,5 @@ jobs:
           git config user.name "dependabot-fix"
           git config user.email "dependabot-fix@github.com"
           git add frontend/yarn.lock
-          git commit -m '[dependabot skip] Fix yarn.lock'
+          git commit -m 'chore(yarn.lock): fix yarn.lock'
           git push
