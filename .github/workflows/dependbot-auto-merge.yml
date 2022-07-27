@@ -8,8 +8,9 @@ permissions:
 jobs:
   dependabot:
     runs-on: ubuntu-latest
-    if: github.actor == 'dependabot[bot]'
+    #if: github.actor == 'dependabot[bot]'
     steps:
+      - run: echo ${{ github.actor }}
       - name: Dependabot metadata
         id: metadata
         uses: dependabot/fetch-metadata@v1
