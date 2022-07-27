@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     #if: github.actor == 'dependabot[bot]'
     steps:
-      - run: echo ${{ github.actor }}
+      - run: echo ${{ github.triggering_actor }}
       - name: Dependabot metadata
         id: metadata
         uses: dependabot/fetch-metadata@v1
