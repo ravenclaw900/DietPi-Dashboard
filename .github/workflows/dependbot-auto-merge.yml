@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     # Uses PAT to update lockfile, which makes the actor the person who created the PAT
     if: |
-      (github.actor == 'dependabot[bot]' || github.actor == 'ravenclaw900') &&
-      contains(github.event.pull_request.head.ref, 'dependabot/npm_and_yarn/')
+      github.actor == 'dependabot[bot]' || (github.actor == 'ravenclaw900' &&
+      contains(github.event.pull_request.head.ref, 'dependabot/npm_and_yarn/'))
     steps:
       - name: Dependabot metadata
         id: metadata
