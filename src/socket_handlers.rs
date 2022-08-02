@@ -98,23 +98,15 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
         return;
     }
     while let Some(Some(message)) = data_recv.recv().await {
-        match message.page.as_str() {
+        if match message.page.as_str() {
             "/" => page_handlers::main_handler(&mut socket_send, &mut data_recv).await,
-            "/process" => {
-                page_handlers::process_handler(&mut socket_send, &mut data_recv).await;
-            }
-            "/software" => {
-                page_handlers::software_handler(&mut socket_send, &mut data_recv).await;
-            }
+            "/process" => page_handlers::process_handler(&mut socket_send, &mut data_recv).await,
+            "/software" => page_handlers::software_handler(&mut socket_send, &mut data_recv).await,
             "/management" => {
-                page_handlers::management_handler(&mut socket_send, &mut data_recv).await;
+                page_handlers::management_handler(&mut socket_send, &mut data_recv).await
             }
-            "/service" => {
-                page_handlers::service_handler(&mut socket_send, &mut data_recv).await;
-            }
-            "/browser" => {
-                page_handlers::browser_handler(&mut socket_send, &mut data_recv).await;
-            }
+            "/service" => page_handlers::service_handler(&mut socket_send, &mut data_recv).await,
+            "/browser" => page_handlers::browser_handler(&mut socket_send, &mut data_recv).await,
             "/login" => {
                 tracing::debug!("Sending login message");
                 // Internal poll, see other thread
@@ -128,10 +120,14 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
                 {
                     break;
                 }
+                false
             }
             _ => {
                 tracing::debug!("Got page {}, not handling", message.page);
+                false
             }
+        } {
+            break;
         }
     }
 }
