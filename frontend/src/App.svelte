@@ -53,7 +53,7 @@
     let frontendVersion = "__PACKAGE_VERSION__";
     let backendVersion = "";
     let updateAvailable = "";
-    let node = `${window.location.hostname}:${window.location.port}`;
+    let node = `${window.location.hostname}:${5252}`;
 
     $: node && (((shown = false), (reopenSocket = false)), connectSocket(node));
     $: notify =
@@ -151,7 +151,7 @@
         console.error(e);
     };
     const socketCloseListener = (e: CloseEvent) => {
-        console.log("Disconnected");
+        console.log("Disconnected", reopenSocket);
         if (reopenSocket) {
             setTimeout(() => connectSocket(node), 1000);
         } else {
@@ -233,6 +233,8 @@
     function connectSocket(url: string) {
         if (socket) {
             socket.close();
+        } else {
+            reopenSocket = true;
         }
         let proto = window.location.protocol == "https:" ? "wss" : "ws";
         socket = new WebSocket(`${proto}://${url}/ws`);
@@ -327,9 +329,8 @@
             <div class="flex justify-around">
                 {#if nodes.length != 0}
                     <select bind:value={node} class="hidden md:inline-block">
-                        <option
-                            value={`${window.location.hostname}:${window.location.port}`}
-                            >{`${window.location.hostname}:${window.location.port}`}
+                        <option value={`${window.location.hostname}:${5252}`}
+                            >{`${window.location.hostname}:${5252}`}
                         </option>
                         {#each nodes as node}
                             <option value={node}>
@@ -404,8 +405,8 @@
                     <table class="w-full">
                         <select bind:value={node} class="w-full">
                             <option
-                                value={`${window.location.hostname}:${window.location.port}`}
-                                >{`${window.location.hostname}:${window.location.port}`}
+                                value={`${window.location.hostname}:${5252}`}
+                                >{`${window.location.hostname}:${5252}`}
                             </option>
                             {#each nodes as node}
                                 <option value={node}>
