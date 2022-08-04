@@ -1,5 +1,6 @@
 use crate::handle_error;
 use crate::shared::CONFIG;
+#[cfg(feature = "frontend")]
 use crate::DIR;
 use anyhow::Context;
 use futures::Future;

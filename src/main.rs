@@ -91,7 +91,9 @@ async fn main() -> anyhow::Result<()> {
             let mut response = Response::new(Body::empty());
 
             match (req.method(), req.uri().path().trim_end_matches('/')) {
+                #[cfg(feature = "frontend")]
                 (&Method::GET, "/favicon.png") => response = routes::favicon_route(req)?,
+                #[cfg(feature = "frontend")]
                 (&Method::GET, path) if path.starts_with("/assets") => {
                     response = routes::assets_route(req)?;
                 }
@@ -101,6 +103,7 @@ async fn main() -> anyhow::Result<()> {
                 (&Method::POST, "/login") => {
                     response = routes::login_route(req).await?;
                 }
+                #[cfg(feature = "frontend")]
                 (&Method::GET, _) => {
                     response = routes::main_route(req)?;
                 }
