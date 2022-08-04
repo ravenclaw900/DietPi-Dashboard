@@ -5,8 +5,8 @@ use std::io::{Read, Write};
 use std::sync::Arc;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::sync::mpsc;
+use tokio_tungstenite::tungstenite::Message;
 use tracing::{instrument, Instrument};
-use warp::ws::Message;
 
 use crate::{handle_error, page_handlers, shared, systemdata, CONFIG};
 
@@ -29,7 +29,7 @@ fn validate_token(token: &str) -> bool {
 }
 
 #[instrument(skip_all)]
-pub async fn socket_handler(socket: warp::ws::WebSocket) {
+pub async fn socket_handler(socket: tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>) {
     let (mut socket_send, mut socket_recv) = socket.split();
     let (data_send, mut data_recv) = mpsc::channel(1);
     tokio::task::spawn(async move {
@@ -39,15 +39,13 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
             if data.is_close() {
                 break;
             }
-            let data_str = handle_error!(
-                data.to_str().map_err(|_| anyhow::anyhow!(
-                    "Couldn't convert received data {:?} to text",
-                    data
-                )),
-                continue
-            );
+            let data_str = if let Message::Text(text) = data {
+                text
+            } else {
+                continue;
+            };
             req = handle_error!(
-                serde_json::from_str(data_str)
+                serde_json::from_str(&data_str)
                     .with_context(|| format!("Couldn't parse JSON {}", data_str)),
                 continue
             );
@@ -131,7 +129,7 @@ pub async fn socket_handler(socket: warp::ws::WebSocket) {
         }
     }
 }
-
+/*
 #[derive(serde::Deserialize, Debug)]
 struct TTYSize {
     cols: u16,
@@ -442,3 +440,4 @@ pub async fn file_handler(socket: warp::ws::WebSocket) {
         }
     }
 }
+*/

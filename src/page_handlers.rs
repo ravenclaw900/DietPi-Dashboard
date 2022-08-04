@@ -5,12 +5,15 @@ use std::time::Duration;
 use tokio::process::Command;
 use tokio::sync::mpsc::Receiver;
 use tokio::time::sleep;
+use tokio_tungstenite::tungstenite::Message;
 use tracing::instrument;
-use warp::ws::Message;
 
 use crate::{handle_error, json_msg, shared, systemdata};
 
-type SocketSend = SplitSink<warp::ws::WebSocket, warp::ws::Message>;
+type SocketSend = SplitSink<
+    tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>,
+    tokio_tungstenite::tungstenite::Message,
+>;
 type RecvChannel = Receiver<Option<shared::Request>>;
 
 #[instrument(level = "debug", skip_all)]
