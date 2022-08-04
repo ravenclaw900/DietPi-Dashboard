@@ -220,7 +220,7 @@
 
     let handle1 = setInterval(() => {
         let dataPush = data as number[][];
-        if (socketData.ram.used != undefined) {
+        if (socketData.ram != undefined) {
             dataPush[0].push(Math.round(Date.now() / 1000));
             dataPush[1].push(socketData.cpu);
             dataPush[2].push(socketData.ram.used / 1000000);

@@ -43,6 +43,7 @@
     let settingsShown = false;
     let passwordMessage = false;
     let notify = false;
+    let reopenSocket = true;
     let menu = window.innerWidth > 768;
     let dpUpdate = "";
     let tempUnit: "fahrenheit" | "celsius";
@@ -54,7 +55,7 @@
     let updateAvailable = "";
     let node = `${window.location.hostname}:${window.location.port}`;
 
-    $: node && ((shown = false), connectSocket(node));
+    $: node && (((shown = false), (reopenSocket = false)), connectSocket(node));
     $: notify =
         dpUpdate != "" ||
         cmp(frontendVersion, backendVersion) != 0 ||
@@ -148,10 +149,14 @@
     };
     const socketErrorListener = (e: ErrorEvent) => {
         console.error(e);
-        connectSocket(node);
     };
-    const socketCloseListener = () => {
-        console.log("Disconnected");
+    const socketCloseListener = (e: CloseEvent) => {
+        console.log("Disconnected", reopenSocket);
+        if (reopenSocket) {
+            setTimeout(() => connectSocket(node), 1000);
+        } else {
+            reopenSocket = true;
+        }
     };
 
     function pollServer(page: string) {
@@ -228,6 +233,8 @@
     function connectSocket(url: string) {
         if (socket) {
             socket.close();
+        } else {
+            reopenSocket = true;
         }
         let proto = window.location.protocol == "https:" ? "wss" : "ws";
         socket = new WebSocket(`${proto}://${url}/ws`);
