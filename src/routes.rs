@@ -5,12 +5,12 @@ use crate::DIR;
 use anyhow::Context;
 use futures::Future;
 use hyper::http::{header, HeaderValue};
-use hyper::{Body, Request, Response, StatusCode};
+use hyper::{Body, Method, Request, Response, StatusCode};
 use ring::digest;
 
 #[cfg(feature = "frontend")]
 #[tracing::instrument(skip_all)]
-pub fn favicon_route(_req: Request<Body>) -> anyhow::Result<Response<Body>> {
+pub fn favicon_route() -> anyhow::Result<Response<Body>> {
     Ok(Response::builder()
         .header(header::CONTENT_TYPE, HeaderValue::from_static("image/png"))
         .body(
@@ -112,7 +112,7 @@ pub async fn login_route(mut req: Request<Body>) -> anyhow::Result<Response<Body
 
 #[cfg(feature = "frontend")]
 #[tracing::instrument(skip_all)]
-pub fn main_route(_req: Request<Body>) -> anyhow::Result<Response<Body>> {
+pub fn main_route() -> anyhow::Result<Response<Body>> {
     let file = handle_error!(
         DIR.get_file("index.html")
             .context("Couldn't get main HTML file"),
@@ -202,4 +202,33 @@ where
         }
     });
     Ok(resp?)
+}
+
+pub async fn router(req: Request<Body>) -> anyhow::Result<Response<Body>> {
+    let mut response = Response::new(Body::empty());
+
+    match (req.method(), req.uri().path().trim_end_matches('/')) {
+        #[cfg(feature = "frontend")]
+        (&Method::GET, "/favicon.png") => response = favicon_route()?,
+        #[cfg(feature = "frontend")]
+        (&Method::GET, path) if path.starts_with("/assets") => {
+            response = assets_route(req)?;
+        }
+        (&Method::GET, "/ws") => {
+            response = websocket(req, crate::socket_handlers::socket_handler)?;
+        }
+        (&Method::POST, "/login") => {
+            response = login_route(req).await?;
+        }
+        #[cfg(feature = "frontend")]
+        (&Method::GET, _) => {
+            response = main_route()?;
+        }
+        _ => {
+            *response.status_mut() = StatusCode::METHOD_NOT_ALLOWED;
+            *response.body_mut() = "404 not found".into();
+        }
+    }
+
+    Ok(response)
 }
