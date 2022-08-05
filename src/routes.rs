@@ -141,7 +141,7 @@ pub fn main_route() -> anyhow::Result<Response<Body>> {
         header::REFERRER_POLICY,
         header::HeaderValue::from_static("no-referrer"),
     );
-    headers.insert("Content-Security-Policy", header::HeaderValue::from_static("default-src 'self'; style-src 'unsafe-inline' 'self'; connect-src * ws:; object-src 'none'; require-trusted-types-for 'script';"));
+    headers.insert("Content-Security-Policy", header::HeaderValue::from_static("default-src 'self'; style-src 'unsafe-inline' 'self'; connect-src * ws:; object-src 'none';"));
     headers.insert(
         header::CONTENT_TYPE,
         header::HeaderValue::from_static("text/html"),
@@ -216,6 +216,12 @@ pub async fn router(req: Request<Body>) -> anyhow::Result<Response<Body>> {
         }
         (&Method::GET, "/ws") => {
             response = websocket(req, crate::socket_handlers::socket_handler)?;
+        }
+        (&Method::GET, "/ws/term") => {
+            response = websocket(req, crate::socket_handlers::term_handler)?;
+        }
+        (&Method::GET, "/ws/file") => {
+            response = websocket(req, crate::socket_handlers::file_handler)?;
         }
         (&Method::POST, "/login") => {
             response = login_route(req).await?;

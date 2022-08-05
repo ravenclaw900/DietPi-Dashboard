@@ -80,7 +80,7 @@ pub async fn socket_handler(socket: tokio_tungstenite::WebSocketStream<hyper::up
                 }
             }
             // Send new page/data
-            if let Err(err) = data_send.send(Some(req.clone())).await {
+            if let Err(err) = data_send.send(Some(req)).await {
                 // Manual error handling here, to use tracing::error
                 tracing::error!("Internal error: couldn't send request: {}", err);
                 break;
@@ -129,7 +129,7 @@ pub async fn socket_handler(socket: tokio_tungstenite::WebSocketStream<hyper::up
         }
     }
 }
-/*
+
 #[derive(serde::Deserialize, Debug)]
 struct TTYSize {
     cols: u16,
@@ -137,13 +137,12 @@ struct TTYSize {
 }
 
 #[instrument(skip_all)]
-pub async fn term_handler(socket: warp::ws::WebSocket) {
+pub async fn term_handler(socket: tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>) {
     let (mut socket_send, mut socket_recv) = socket.split();
 
     if crate::CONFIG.pass {
-        if let Some(Ok(token)) = socket_recv.next().await {
+        if let Some(Ok(Message::Text(token))) = socket_recv.next().await {
             // Stop from panicking, return from function with invalid token instead
-            let token = token.to_str().unwrap_or("");
             if token.get(..5) == Some("token") {
                 if !validate_token(&token[5..]) {
                     return;
@@ -207,22 +206,32 @@ pub async fn term_handler(socket: warp::ws::WebSocket) {
         async {
             loop {
                 if let Some(Ok(data)) = socket_recv.next().await {
-                    if data.is_text() && data.to_str().unwrap().get(..4) == Some("size") {
-                        let data_str = data.to_str().unwrap();
-                        let json: TTYSize = handle_error!(
-                            serde_json::from_str(&data_str[4..]).with_context(|| format!(
-                                "Couldn't deserialize pty size from {}",
-                                &data_str
-                            )),
-                            continue
-                        );
-                        tracing::debug!("Got size message {:?}", json);
-                        handle_error!(cmd
-                            .resize_pty(&pty_process::Size::new(json.rows, json.cols))
-                            .context("Couldn't resize pty"));
-                    } else if cmd.pty().write_all(data.as_bytes()).is_err() {
-                        tracing::debug!("Terminal closed, breaking");
-                        break;
+                    match data {
+                        Message::Text(data_str) => {
+                            if data_str.get(..4) == Some("size") {
+                                let json: TTYSize = handle_error!(
+                                    serde_json::from_str(&data_str[4..]).with_context(|| format!(
+                                        "Couldn't deserialize pty size from {}",
+                                        &data_str
+                                    )),
+                                    continue
+                                );
+                                tracing::debug!("Got size message {:?}", json);
+                                handle_error!(cmd
+                                    .resize_pty(&pty_process::Size::new(json.rows, json.cols))
+                                    .context("Couldn't resize pty"));
+                            } else if cmd.pty().write_all(data_str.as_bytes()).is_err() {
+                                tracing::debug!("Terminal closed, breaking");
+                                break;
+                            }
+                        }
+                        Message::Binary(data_bin) => {
+                            if cmd.pty().write_all(&data_bin).is_err() {
+                                tracing::debug!("Terminal closed, breaking");
+                                break;
+                            }
+                        }
+                        _ => {}
                     }
                 } else {
                     tracing::debug!("Exiting terminal");
@@ -368,17 +377,21 @@ async fn file_handler_helper(
     Ok(None)
 }
 
-fn get_file_req(data: &warp::ws::Message) -> anyhow::Result<shared::FileRequest> {
-    let data_str = data
-        .to_str()
-        .map_err(|_| anyhow::anyhow!("Couldn't convert received data {:?} to text", data))?;
-    let req = serde_json::from_str(data_str)
-        .with_context(|| format!("Couldn't parse JSON from {}", data_str))?;
-    Ok(req)
+fn get_file_req(data: &Message) -> anyhow::Result<shared::FileRequest> {
+    if let Message::Text(data_str) = data {
+        let req = serde_json::from_str(data_str)
+            .with_context(|| format!("Couldn't parse JSON from {}", data_str))?;
+        Ok(req)
+    } else {
+        Err(anyhow::anyhow!(
+            "Couldn't convert received data {:?} to text",
+            data
+        ))
+    }
 }
 
 #[instrument(skip_all)]
-pub async fn file_handler(socket: warp::ws::WebSocket) {
+pub async fn file_handler(socket: tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>) {
     let (mut socket_send, mut socket_recv) = socket.split();
     let mut req: shared::FileRequest;
 
@@ -422,8 +435,8 @@ pub async fn file_handler(socket: warp::ws::WebSocket) {
                             }
                         }
                         Some(FileHandlerHelperReturns::StreamUpload(size, mut file)) => {
-                            while let Some(Ok(msg)) = (&mut socket_recv).take(size).next().await {
-                                handle_error!(file.write_all(msg.as_bytes()).await.with_context(|| {
+                            while let Some(Ok(Message::Binary(msg))) = (&mut socket_recv).take(size).next().await {
+                                handle_error!(file.write_all(&msg).await.with_context(|| {
                                     format!("Couldn't write to file {}, stopping upload", &req.path)
                                 }), continue 'outer);
                             }
@@ -440,4 +453,3 @@ pub async fn file_handler(socket: warp::ws::WebSocket) {
         }
     }
 }
-*/

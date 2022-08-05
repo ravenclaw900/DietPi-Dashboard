@@ -3,7 +3,6 @@
 use crate::shared::CONFIG;
 use anyhow::Context;
 use hyper::service::{make_service_fn, service_fn};
-use hyper::{Body, Method, Response, StatusCode};
 use std::{net::IpAddr, str::FromStr};
 //use tracing_subscriber::layer::{Layer, SubscriberExt};
 
