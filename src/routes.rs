@@ -3,10 +3,14 @@ use crate::shared::CONFIG;
 #[cfg(feature = "frontend")]
 use crate::DIR;
 use anyhow::Context;
+use futures::io::{BufReader, BufWriter};
 use futures::Future;
 use hyper::http::{header, HeaderValue};
+use hyper::upgrade::Upgraded;
 use hyper::{Body, Method, Request, Response, StatusCode};
 use ring::digest;
+use soketto::{Receiver, Sender};
+use tokio_util::compat::{Compat, TokioAsyncReadCompatExt, TokioAsyncWriteCompatExt};
 
 #[cfg(feature = "frontend")]
 #[tracing::instrument(skip_all)]
@@ -155,53 +159,46 @@ pub fn main_route() -> anyhow::Result<Response<Body>> {
     Ok(reply)
 }
 
-pub fn websocket<F, O>(mut req: Request<Body>, func: F) -> anyhow::Result<Response<Body>>
+pub fn websocket<F, O>(req: Request<Body>, func: F) -> anyhow::Result<Response<Body>>
 where
     O: Future<Output = ()> + std::marker::Send,
-    F: Fn(tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>) -> O
+    F: Fn(
+            Sender<BufReader<BufWriter<Compat<Upgraded>>>>,
+            Receiver<BufReader<BufWriter<Compat<Upgraded>>>>,
+        ) -> O
         + std::marker::Send
         + std::marker::Sync
         + 'static,
 {
-    let key = req
-        .headers()
-        .get(header::SEC_WEBSOCKET_KEY)
-        .context("Failed to read key from headers")?;
-
-    if req.headers().get(header::CONNECTION) != Some(&HeaderValue::from_static("Upgrade"))
-        || req.headers().get(header::UPGRADE) != Some(&HeaderValue::from_static("websocket"))
-        || req.headers().get(header::SEC_WEBSOCKET_VERSION) != Some(&HeaderValue::from_static("13"))
-    {
+    if !soketto::handshake::http::is_upgrade_request(&req) {
         return Ok(Response::builder()
             .status(StatusCode::BAD_REQUEST)
             .body(Body::empty())?);
     }
 
-    let resp = Response::builder()
-        .status(StatusCode::SWITCHING_PROTOCOLS)
-        .header(header::CONNECTION, "upgrade")
-        .header(header::UPGRADE, "websocket")
-        .header(
-            "Sec-WebSocket-Accept",
-            &tokio_tungstenite::tungstenite::handshake::derive_accept_key(key.as_bytes()),
-        )
-        .body(Body::from("switching to websocket protocol"));
-
+    let mut server = soketto::handshake::http::Server::new();
+    let resp = handle_error!(
+        server
+            .receive_request(&req)
+            .context("Couldn't begin upgrade"),
+        return Ok(Response::builder()
+            .status(StatusCode::INTERNAL_SERVER_ERROR)
+            .body(Body::empty())?)
+    )
+    .map(|_b| Body::empty());
     tokio::spawn(async move {
-        match hyper::upgrade::on(&mut req).await {
-            Ok(upgraded) => {
-                let ws = tokio_tungstenite::WebSocketStream::from_raw_socket(
-                    upgraded,
-                    tokio_tungstenite::tungstenite::protocol::Role::Server,
-                    None,
-                )
-                .await;
-                func(ws).await;
-            }
-            Err(e) => eprintln!("upgrade error: {}", e),
-        }
+        let stream = handle_error!(
+            hyper::upgrade::on(req)
+                .await
+                .context("Couldn't upgrade HTTP connection"),
+            return
+        );
+        let stream = BufReader::new(BufWriter::new(stream.compat()));
+
+        let (sender, receiver) = server.into_builder(stream).finish();
+        func(sender, receiver).await;
     });
-    Ok(resp?)
+    Ok(resp)
 }
 
 pub async fn router(req: Request<Body>) -> anyhow::Result<Response<Body>> {

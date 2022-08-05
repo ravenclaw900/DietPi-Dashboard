@@ -20,7 +20,7 @@ macro_rules! handle_error {
 #[macro_export]
 macro_rules! json_msg {
     ($e: expr, $handler:expr) => {
-        Message::text(handle_error!(serde_json::to_string($e).context("Couldn't serialize json"), $handler))
+        handle_error!(serde_json::to_string($e).context("Couldn't serialize json"), $handler)
     };
 }
 
@@ -150,11 +150,6 @@ pub struct BrowserData {
 #[derive(Serialize, Default)]
 pub struct BrowserList {
     pub contents: Vec<BrowserData>,
-}
-
-#[derive(Serialize)]
-pub struct TokenError {
-    pub error: bool,
 }
 
 #[derive(Deserialize, Debug)]
