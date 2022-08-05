@@ -1,16 +1,18 @@
 use anyhow::Context;
+use futures::stream::SplitSink;
+use futures::SinkExt;
 use std::time::Duration;
 use tokio::process::Command;
 use tokio::sync::mpsc::Receiver;
 use tokio::time::sleep;
+use tokio_tungstenite::tungstenite::Message;
 use tracing::instrument;
 
 use crate::{handle_error, json_msg, shared, systemdata};
 
-type SocketSend = soketto::Sender<
-    futures::io::BufReader<
-        futures::io::BufWriter<tokio_util::compat::Compat<hyper::upgrade::Upgraded>>,
-    >,
+type SocketSend = SplitSink<
+    tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>,
+    tokio_tungstenite::tungstenite::Message,
 >;
 type RecvChannel = Receiver<Option<shared::Request>>;
 
@@ -57,13 +59,13 @@ pub async fn main_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChan
             biased;
             data = data_recv.recv() => if let Some(Some(_)) = data {} else { return false },
             res = socket_send
-            .send_text(json_msg!(&handle_error!(main_handler_getter(&mut cpu_collector, &mut net_collector, &mut prev_data), shared::SysData::default()), continue))
+            .send(json_msg!(&handle_error!(main_handler_getter(&mut cpu_collector, &mut net_collector, &mut prev_data), shared::SysData::default()), continue))
             => {
-                if res.is_err() || socket_send.flush().await.is_err() {
+                sleep(Duration::from_secs(1)).await;
+                if res.is_err() {
                     tracing::debug!("Socket send failed, returning");
                     return true;
                 }
-                sleep(Duration::from_secs(1)).await;
             },
         }
     }
@@ -104,16 +106,16 @@ pub async fn process_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
                 return false;
             },
             res = socket_send
-                .send_text(json_msg!(
+                .send(json_msg!(
                     &shared::ProcessList {
                         processes: handle_error!(systemdata::processes().await, Vec::new()),
                     }, continue
                 )) => {
-                    if res.is_err() || socket_send.flush().await.is_err() {
+                    sleep(Duration::from_secs(1)).await;
+                    if res.is_err() {
                         tracing::debug!("Socket send failed, returning");
                         return true;
                     }
-                    sleep(Duration::from_secs(1)).await;
                 },
         }
     }
@@ -155,7 +157,7 @@ pub async fn software_handler_helper(
 pub async fn software_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) -> bool {
     let software = handle_error!(systemdata::dpsoftware().await, (Vec::new(), Vec::new()));
     if socket_send
-        .send_text(json_msg!(
+        .send(json_msg!(
             &shared::DPSoftwareList {
                 uninstalled: software.0,
                 installed: software.1,
@@ -165,7 +167,6 @@ pub async fn software_handler(socket_send: &mut SocketSend, data_recv: &mut Recv
         ))
         .await
         .is_err()
-        || socket_send.flush().await.is_err()
     {
         tracing::debug!("Socket send failed, returning");
         return true;
@@ -175,12 +176,7 @@ pub async fn software_handler(socket_send: &mut SocketSend, data_recv: &mut Recv
             software_handler_helper(&data).await,
             shared::DPSoftwareList::default()
         );
-        if socket_send
-            .send_text(json_msg!(&out, continue))
-            .await
-            .is_err()
-            || socket_send.flush().await.is_err()
-        {
+        if socket_send.send(json_msg!(&out, continue)).await.is_err() {
             tracing::debug!("Socket send failed, returning");
             return true;
         }
@@ -191,13 +187,12 @@ pub async fn software_handler(socket_send: &mut SocketSend, data_recv: &mut Recv
 #[instrument(skip_all)]
 pub async fn management_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) -> bool {
     if socket_send
-        .send_text(json_msg!(
+        .send(json_msg!(
             &handle_error!(systemdata::host().await, shared::HostData::default()),
             return false
         ))
         .await
         .is_err()
-        || socket_send.flush().await.is_err()
     {
         tracing::debug!("Socket send failed, returning");
         return true;
@@ -216,7 +211,7 @@ pub async fn management_handler(socket_send: &mut SocketSend, data_recv: &mut Re
 #[instrument(skip_all)]
 pub async fn service_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) -> bool {
     if socket_send
-        .send_text(json_msg!(
+        .send(json_msg!(
             &shared::ServiceList {
                 services: handle_error!(systemdata::services().await, Vec::new()),
             },
@@ -224,7 +219,6 @@ pub async fn service_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
         ))
         .await
         .is_err()
-        || socket_send.flush().await.is_err()
     {
         tracing::debug!("Socket send failed, returning");
         return true;
@@ -236,7 +230,7 @@ pub async fn service_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
             .map(|_| ()) // Don't care about the Ok value, so remove it to make the type checker happy
             .with_context(|| format!("Couldn't {} service {}", &data.cmd, &data.args[0])));
         if socket_send
-            .send_text(json_msg!(
+            .send(json_msg!(
                 &shared::ServiceList {
                     services: handle_error!(systemdata::services().await, Vec::new()),
                 },
@@ -244,7 +238,6 @@ pub async fn service_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
             ))
             .await
             .is_err()
-            || socket_send.flush().await.is_err()
         {
             tracing::debug!("Socket send failed, returning");
             return true;
@@ -326,7 +319,7 @@ async fn browser_handler_helper(data: &shared::Request) -> anyhow::Result<shared
 pub async fn browser_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) -> bool {
     // Get initial listing of $HOME
     if socket_send
-        .send_text(json_msg!(
+        .send(json_msg!(
             &shared::BrowserList {
                 contents: handle_error!(
                     systemdata::browser_dir(std::path::Path::new(
@@ -340,7 +333,6 @@ pub async fn browser_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
         ))
         .await
         .is_err()
-        || socket_send.flush().await.is_err()
     {
         tracing::debug!("Socket send failed, returning");
         return true;
@@ -351,7 +343,7 @@ pub async fn browser_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
             tokio::select! {
                 res = browser_handler_helper(&data) => {
                     let list = handle_error!(res, shared::BrowserList::default());
-                    if socket_send.send_text(json_msg!(&list, continue)).await.is_err() || socket_send.flush().await.is_err() {
+                    if socket_send.send(json_msg!(&list, continue)).await.is_err() {
                         tracing::debug!("Socket send failed, returning");
                         return true;
                     }

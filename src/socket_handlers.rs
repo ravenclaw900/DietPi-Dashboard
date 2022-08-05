@@ -1,18 +1,14 @@
 use anyhow::Context;
 use futures::{SinkExt, StreamExt};
-use hyper::{Body, Request};
 use pty_process::Command;
 use std::io::{Read, Write};
-use std::str::from_utf8;
 use std::sync::Arc;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::sync::mpsc;
+use tokio_tungstenite::tungstenite::Message;
 use tracing::{instrument, Instrument};
 
 use crate::{handle_error, page_handlers, shared, systemdata, CONFIG};
-
-type SocketInternal = futures::io::BufReader<
-    futures::io::BufWriter<tokio_util::compat::Compat<hyper::upgrade::Upgraded>>,
->;
 
 #[instrument(level = "debug")]
 fn validate_token(token: &str) -> bool {
@@ -33,77 +29,69 @@ fn validate_token(token: &str) -> bool {
 }
 
 #[instrument(skip_all)]
-pub async fn socket_handler(
-    mut socket_send: soketto::Sender<SocketInternal>,
-    mut socket_recv: soketto::Receiver<SocketInternal>,
-) {
+pub async fn socket_handler(socket: tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>) {
+    let (mut socket_send, mut socket_recv) = socket.split();
     let (data_send, mut data_recv) = mpsc::channel(1);
     tokio::task::spawn(async move {
         let mut first_message = true;
         let mut req: shared::Request;
-        let mut message = Vec::new();
-        loop {
-            message.clear();
-            match socket_recv.receive_data(&mut message).await {
-                Ok(soketto::Data::Text(_)) => {
-                    let data_str = if let Ok(text) = from_utf8(&message) {
-                        text
-                    } else {
-                        continue;
-                    };
-                    req = handle_error!(
-                        serde_json::from_str(&data_str)
-                            .with_context(|| format!("Couldn't parse JSON {}", data_str)),
-                        continue
-                    );
-                    tracing::debug!("Got request {:?}", req);
-                    if CONFIG.pass && !validate_token(&req.token) {
-                        if !first_message {
-                            tracing::debug!("Requesting login");
-                            if let Err(err) = data_send.send(None).await {
-                                tracing::error!("Internal error: couldn't initiate login: {}", err);
-                                break;
-                            }
-                        }
-                        handle_error!(data_send
-                            .send(Some(shared::Request {
-                                page: "/login".to_string(),
-                                token: String::new(),
-                                cmd: String::new(),
-                                args: Vec::new(),
-                            }))
-                            .await
-                            .context("Internal error: couldn't send login request"));
-                        continue;
-                    }
-                    if req.cmd.is_empty() {
-                        // Quit out of handler
-                        if first_message {
-                            tracing::debug!("First message, not sending quit");
-                            first_message = false;
-                        } else if let Err(err) = data_send.send(None).await {
-                            tracing::error!("Internal error: couldn't change page: {}", err);
-                            break;
-                        }
-                    }
-                    // Send new page/data
-                    if let Err(err) = data_send.send(Some(req.clone())).await {
-                        // Manual error handling here, to use tracing::error
-                        tracing::error!("Internal error: couldn't send request: {}", err);
+        while let Some(Ok(data)) = socket_recv.next().await {
+            if data.is_close() {
+                break;
+            }
+            let data_str = if let Message::Text(text) = data {
+                text
+            } else {
+                continue;
+            };
+            req = handle_error!(
+                serde_json::from_str(&data_str)
+                    .with_context(|| format!("Couldn't parse JSON {}", data_str)),
+                continue
+            );
+            tracing::debug!("Got request {:?}", req);
+            if CONFIG.pass && !validate_token(&req.token) {
+                if !first_message {
+                    tracing::debug!("Requesting login");
+                    if let Err(err) = data_send.send(None).await {
+                        tracing::error!("Internal error: couldn't initiate login: {}", err);
                         break;
                     }
                 }
-                Ok(soketto::Data::Binary(_)) => continue,
-                Err(_) => break,
+                handle_error!(data_send
+                    .send(Some(shared::Request {
+                        page: "/login".to_string(),
+                        token: String::new(),
+                        cmd: String::new(),
+                        args: Vec::new(),
+                    }))
+                    .await
+                    .context("Internal error: couldn't send login request"));
+                continue;
+            }
+            if req.cmd.is_empty() {
+                // Quit out of handler
+                if first_message {
+                    tracing::debug!("First message, not sending quit");
+                    first_message = false;
+                } else if let Err(err) = data_send.send(None).await {
+                    tracing::error!("Internal error: couldn't change page: {}", err);
+                    break;
+                }
+            }
+            // Send new page/data
+            if let Err(err) = data_send.send(Some(req.clone())).await {
+                // Manual error handling here, to use tracing::error
+                tracing::error!("Internal error: couldn't send request: {}", err);
+                break;
             }
         }
     });
     // Send global message (shown on all pages)
     if socket_send
-        .send_text(crate::json_msg!(&systemdata::global().await, return))
+        .send(crate::json_msg!(&systemdata::global().await, return))
         .await
         .is_err()
-        || socket_send.flush().await.is_err()
     {
         return;
     }
@@ -120,8 +108,13 @@ pub async fn socket_handler(
             "/login" => {
                 tracing::debug!("Sending login message");
                 // Internal poll, see other thread
-                if socket_send.send_text("{\"error\": true}").await.is_err()
-                    || socket_send.flush().await.is_err()
+                if socket_send
+                    .send(crate::json_msg!(
+                        &shared::TokenError { error: true },
+                        continue
+                    ))
+                    .await
+                    .is_err()
                 {
                     break;
                 }
