@@ -201,7 +201,7 @@ where
                     None,
                 )
                 .await;
-                func(ws).instrument(span).await; 
+                func(ws).instrument(span).await;
             }
             Err(e) => eprintln!("upgrade error: {}", e),
         }
