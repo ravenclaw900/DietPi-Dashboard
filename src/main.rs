@@ -64,9 +64,9 @@ impl tokio::io::AsyncWrite for ConnWithAddr {
     }
 }
 
-impl hyper::server::accept::Accept for HyperTlsAcceptor {
+impl hyper::server::accept::Accept for &mut HyperTlsAcceptor {
     type Conn = ConnWithAddr;
-    type Error = std::io::Error;
+    type Error = anyhow::Error;
 
     fn poll_accept(
         mut self: std::pin::Pin<&mut Self>,
@@ -80,8 +80,7 @@ impl hyper::server::accept::Accept for HyperTlsAcceptor {
                         self.remote_addr = Some(stream.1);
                     }
                     Err(err) => {
-                        tracing::warn!("Couldn't make TCP connection: {}", err);
-                        return Poll::Pending;
+                        return Poll::Ready(Some(Err(err).context("Couldn't make TCP connection")));
                     }
                 },
                 Poll::Pending => return Poll::Pending,
@@ -95,8 +94,9 @@ impl hyper::server::accept::Accept for HyperTlsAcceptor {
                     let tls = match tls {
                         Ok(tls) => tls,
                         Err(err) => {
-                            tracing::warn!("Couldn't encrypt TCP connection: {}", err);
-                            return Poll::Pending;
+                            return Poll::Ready(Some(
+                                Err(err).context("Couldn't encrypt TCP connection"),
+                            ));
                         }
                     };
                     let remote_addr = self.remote_addr.take().unwrap();
@@ -157,41 +157,36 @@ async fn main() -> anyhow::Result<()> {
             .map(tokio_rustls::rustls::Certificate)
             .collect();
 
-            let key = match rustls_pemfile::read_one(&mut std::io::BufReader::new(
+            let mut key = rustls_pemfile::pkcs8_private_keys(&mut std::io::BufReader::new(
                 std::fs::File::open(&CONFIG.key).context("Couldn't open cert file")?,
             ))
-            .context("Couldn't read key")?
-            .context("No private key")?
-            {
-                rustls_pemfile::Item::PKCS8Key(vec) | rustls_pemfile::Item::RSAKey(vec) => {
-                    tokio_rustls::rustls::PrivateKey(vec)
-                }
-                _ => anyhow::bail!("No PKCS8 or RSA formatted private key"),
-            };
+            .context("Couldn't read key")?;
 
             let mut cfg = tokio_rustls::rustls::ServerConfig::builder()
                 .with_safe_defaults()
                 .with_no_client_auth()
-                .with_single_cert(certs, key)
+                .with_single_cert(certs, tokio_rustls::rustls::PrivateKey(key.swap_remove(0)))
                 .context("Couldn't build TLS config")?;
             cfg.alpn_protocols = vec![b"http/1.1".to_vec()];
             std::sync::Arc::new(cfg)
         };
 
-        let tls_listener = HyperTlsAcceptor {
+        let mut tls_listener = HyperTlsAcceptor {
             listener: tcp,
             acceptor: tokio_rustls::TlsAcceptor::from(tls_cfg),
             accept_future: None,
             remote_addr: None,
         };
 
-        hyper::server::Server::builder(tls_listener)
-            .serve(make_service_fn(|conn: &ConnWithAddr| {
-                let remote_addr = conn.addr;
-                make_svc(remote_addr)
-            }))
-            .await
-            .context("HTTPS server error")?;
+        loop {
+            handle_error!(hyper::server::Server::builder(&mut tls_listener)
+                .serve(make_service_fn(|conn: &ConnWithAddr| {
+                    let remote_addr = conn.addr;
+                    make_svc(remote_addr)
+                }))
+                .await
+                .context("HTTPS server error"));
+        }
     } else {
         hyper::server::Server::builder(
             AddrIncoming::from_listener(tcp).context("Couldn't convert TCP listener")?,
