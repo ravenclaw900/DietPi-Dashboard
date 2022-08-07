@@ -18,7 +18,7 @@ mod systemdata;
 const DIR: include_dir::Dir = include_dir::include_dir!("$CARGO_MANIFEST_DIR/frontend/dist");
 
 struct HyperTLSAcceptor {
-    listener: std::pin::Pin<Box<tokio::net::TcpListener>>,
+    listener: tokio::net::TcpListener,
     acceptor: tokio_rustls::TlsAcceptor,
     accept_future: Option<tokio_rustls::Accept<tokio::net::TcpStream>>,
 }
@@ -32,7 +32,7 @@ impl hyper::server::accept::Accept for HyperTLSAcceptor {
         cx: &mut std::task::Context,
     ) -> Poll<Option<Result<Self::Conn, Self::Error>>> {
         if self.accept_future.is_none() {
-            match self.listener.as_mut().poll_accept(cx) {
+            match self.listener.poll_accept(cx) {
                 Poll::Ready(stream) => match stream {
                     Ok(stream) => self.accept_future = Some(self.acceptor.accept(stream.0)),
                     Err(err) => return Poll::Ready(Some(Err(err))),
@@ -105,11 +105,9 @@ async fn main() -> anyhow::Result<()> {
         };
 
         let tls_listener = HyperTLSAcceptor {
-            listener: Box::pin(
-                tokio::net::TcpListener::bind(&addr)
-                    .await
-                    .with_context(|| format!("Couldn't bind to {}", &addr))?,
-            ),
+            listener: tokio::net::TcpListener::bind(&addr)
+                .await
+                .with_context(|| format!("Couldn't bind to {}", &addr))?,
             acceptor: tokio_rustls::TlsAcceptor::from(tls_cfg),
             accept_future: None,
         };
