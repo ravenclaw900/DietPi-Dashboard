@@ -35,7 +35,10 @@ impl hyper::server::accept::Accept for HyperTLSAcceptor {
             match self.listener.poll_accept(cx) {
                 Poll::Ready(stream) => match stream {
                     Ok(stream) => self.accept_future = Some(self.acceptor.accept(stream.0)),
-                    Err(err) => return Poll::Ready(Some(Err(err))),
+                    Err(err) => {
+                        tracing::warn!("Couldn't make TCP connection: {}", err);
+                        return Poll::Pending;
+                    }
                 },
                 Poll::Pending => return Poll::Pending,
             }
@@ -47,7 +50,10 @@ impl hyper::server::accept::Accept for HyperTLSAcceptor {
                     self.accept_future = None;
                     let tls = match tls {
                         Ok(tls) => tls,
-                        Err(err) => return Poll::Ready(Some(Err(err))),
+                        Err(err) => {
+                            tracing::warn!("Couldn't encrypt TCP connection: {}", err);
+                            return Poll::Pending;
+                        }
                     };
                     return Poll::Ready(Some(Ok(tls)));
                 }
