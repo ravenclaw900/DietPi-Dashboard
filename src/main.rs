@@ -16,7 +16,7 @@ mod socket_handlers;
 mod systemdata;
 
 #[cfg(feature = "frontend")]
-const DIR: include_dir::Dir = include_dir::include_dir!("$CARGO_MANIFEST_DIR/frontend/dist");
+static DIR: include_dir::Dir = include_dir::include_dir!("$CARGO_MANIFEST_DIR/frontend/dist");
 
 struct ConnWithAddr {
     conn: tokio_rustls::server::TlsStream<tokio::net::TcpStream>,
