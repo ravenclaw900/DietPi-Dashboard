@@ -3,6 +3,7 @@
 use crate::shared::CONFIG;
 use anyhow::Context;
 use futures::FutureExt;
+use hyper::server::conn::AddrIncoming;
 use hyper::service::{make_service_fn, service_fn};
 use std::task::Poll;
 use std::{net::IpAddr, str::FromStr};
@@ -17,14 +18,54 @@ mod systemdata;
 #[cfg(feature = "frontend")]
 const DIR: include_dir::Dir = include_dir::include_dir!("$CARGO_MANIFEST_DIR/frontend/dist");
 
-struct HyperTLSAcceptor {
+struct ConnWithAddr {
+    conn: tokio_rustls::server::TlsStream<tokio::net::TcpStream>,
+    addr: std::net::SocketAddr,
+}
+
+struct HyperTlsAcceptor {
     listener: tokio::net::TcpListener,
     acceptor: tokio_rustls::TlsAcceptor,
     accept_future: Option<tokio_rustls::Accept<tokio::net::TcpStream>>,
+    remote_addr: Option<std::net::SocketAddr>,
 }
 
-impl hyper::server::accept::Accept for HyperTLSAcceptor {
-    type Conn = tokio_rustls::server::TlsStream<tokio::net::TcpStream>;
+impl tokio::io::AsyncRead for ConnWithAddr {
+    fn poll_read(
+        mut self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+        buf: &mut tokio::io::ReadBuf<'_>,
+    ) -> Poll<std::io::Result<()>> {
+        std::pin::Pin::new(&mut self.conn).poll_read(cx, buf)
+    }
+}
+
+impl tokio::io::AsyncWrite for ConnWithAddr {
+    fn poll_write(
+        mut self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+        buf: &[u8],
+    ) -> Poll<Result<usize, std::io::Error>> {
+        std::pin::Pin::new(&mut self.conn).poll_write(cx, buf)
+    }
+
+    fn poll_flush(
+        mut self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+    ) -> Poll<Result<(), std::io::Error>> {
+        std::pin::Pin::new(&mut self.conn).poll_flush(cx)
+    }
+
+    fn poll_shutdown(
+        mut self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+    ) -> Poll<Result<(), std::io::Error>> {
+        std::pin::Pin::new(&mut self.conn).poll_shutdown(cx)
+    }
+}
+
+impl hyper::server::accept::Accept for HyperTlsAcceptor {
+    type Conn = ConnWithAddr;
     type Error = std::io::Error;
 
     fn poll_accept(
@@ -34,7 +75,10 @@ impl hyper::server::accept::Accept for HyperTLSAcceptor {
         if self.accept_future.is_none() {
             match self.listener.poll_accept(cx) {
                 Poll::Ready(stream) => match stream {
-                    Ok(stream) => self.accept_future = Some(self.acceptor.accept(stream.0)),
+                    Ok(stream) => {
+                        self.accept_future = Some(self.acceptor.accept(stream.0));
+                        self.remote_addr = Some(stream.1);
+                    }
                     Err(err) => {
                         tracing::warn!("Couldn't make TCP connection: {}", err);
                         return Poll::Pending;
@@ -55,7 +99,11 @@ impl hyper::server::accept::Accept for HyperTLSAcceptor {
                             return Poll::Pending;
                         }
                     };
-                    return Poll::Ready(Some(Ok(tls)));
+                    let remote_addr = self.remote_addr.take().unwrap();
+                    return Poll::Ready(Some(Ok(ConnWithAddr {
+                        conn: tls,
+                        addr: remote_addr,
+                    })));
                 }
             }
         }
@@ -78,6 +126,26 @@ async fn main() -> anyhow::Result<()> {
     }
 
     let addr = std::net::SocketAddr::from((IpAddr::from([0; 8]), CONFIG.port));
+
+    let tcp = tokio::net::TcpListener::bind(&addr)
+        .await
+        .with_context(|| format!("Couldn't bind to {}", &addr))?;
+
+    let make_svc = |remote_addr| async move {
+        Ok::<_, std::convert::Infallible>(service_fn(move |req| async move {
+            let span = tracing::info_span!("request", %remote_addr);
+            span.in_scope(|| {
+                tracing::info!("Request to {}", req.uri().path());
+                tracing::debug!(
+                    "using {:?}",
+                    req.headers()
+                        .get(hyper::header::USER_AGENT)
+                        .map_or("unknown", |x| x.to_str().unwrap_or("unknown"))
+                );
+            });
+            routes::router(req, span).await
+        }))
+    };
 
     if CONFIG.tls {
         let tls_cfg = {
@@ -110,32 +178,30 @@ async fn main() -> anyhow::Result<()> {
             std::sync::Arc::new(cfg)
         };
 
-        let tls_listener = HyperTLSAcceptor {
-            listener: tokio::net::TcpListener::bind(&addr)
-                .await
-                .with_context(|| format!("Couldn't bind to {}", &addr))?,
+        let tls_listener = HyperTlsAcceptor {
+            listener: tcp,
             acceptor: tokio_rustls::TlsAcceptor::from(tls_cfg),
             accept_future: None,
+            remote_addr: None,
         };
 
         hyper::server::Server::builder(tls_listener)
-            .serve(make_service_fn(|_conn| async {
-                Ok::<_, std::convert::Infallible>(service_fn(|req| async {
-                    routes::router(req).await
-                }))
+            .serve(make_service_fn(|conn: &ConnWithAddr| {
+                let remote_addr = conn.addr;
+                make_svc(remote_addr)
             }))
             .await
             .context("HTTPS server error")?;
     } else {
-        hyper::server::Server::try_bind(&addr)
-            .with_context(|| format!("Couldn't bind to {}", addr))?
-            .serve(make_service_fn(|_conn| async {
-                Ok::<_, std::convert::Infallible>(service_fn(|req| async {
-                    routes::router(req).await
-                }))
-            }))
-            .await
-            .context("HTTP server error")?;
+        hyper::server::Server::builder(
+            AddrIncoming::from_listener(tcp).context("Couldn't convert TCP listener")?,
+        )
+        .serve(make_service_fn(|conn: &hyper::server::conn::AddrStream| {
+            let remote_addr = conn.remote_addr();
+            make_svc(remote_addr)
+        }))
+        .await
+        .context("HTTP server error")?;
     }
 
     Ok(())

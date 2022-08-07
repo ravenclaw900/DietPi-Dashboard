@@ -7,6 +7,7 @@ use futures::Future;
 use hyper::http::{header, HeaderValue};
 use hyper::{Body, Method, Request, Response, StatusCode};
 use ring::digest;
+use tracing::Instrument;
 
 #[cfg(feature = "frontend")]
 #[tracing::instrument(skip_all)]
@@ -155,7 +156,11 @@ pub fn main_route() -> anyhow::Result<Response<Body>> {
     Ok(reply)
 }
 
-pub fn websocket<F, O>(mut req: Request<Body>, func: F) -> anyhow::Result<Response<Body>>
+pub fn websocket<F, O>(
+    mut req: Request<Body>,
+    func: F,
+    span: tracing::Span,
+) -> anyhow::Result<Response<Body>>
 where
     O: Future<Output = ()> + std::marker::Send,
     F: Fn(tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>) -> O
@@ -196,7 +201,7 @@ where
                     None,
                 )
                 .await;
-                func(ws).await;
+                func(ws).instrument(span).await; 
             }
             Err(e) => eprintln!("upgrade error: {}", e),
         }
@@ -204,35 +209,40 @@ where
     Ok(resp?)
 }
 
-pub async fn router(req: Request<Body>) -> anyhow::Result<Response<Body>> {
+pub async fn router(req: Request<Body>, span: tracing::Span) -> anyhow::Result<Response<Body>> {
     let mut response = Response::new(Body::empty());
 
     match (req.method(), req.uri().path().trim_end_matches('/')) {
         #[cfg(feature = "frontend")]
-        (&Method::GET, "/favicon.png") => response = favicon_route()?,
+        (&Method::GET, "/favicon.png") => {
+            let _guard = span.enter();
+            response = favicon_route()?;
+        }
         #[cfg(feature = "frontend")]
         (&Method::GET, path) if path.starts_with("/assets") => {
+            let _guard = span.enter();
             response = assets_route(req)?;
         }
         (&Method::GET, "/ws") => {
-            response = websocket(req, crate::socket_handlers::socket_handler)?;
+            response = websocket(req, crate::socket_handlers::socket_handler, span)?;
         }
         (&Method::GET, "/ws/term") => {
-            response = websocket(req, crate::socket_handlers::term_handler)?;
+            response = websocket(req, crate::socket_handlers::term_handler, span)?;
         }
         (&Method::GET, "/ws/file") => {
-            response = websocket(req, crate::socket_handlers::file_handler)?;
+            response = websocket(req, crate::socket_handlers::file_handler, span)?;
         }
         (&Method::POST, "/login") => {
-            response = login_route(req).await?;
+            response = login_route(req).instrument(span).await?;
         }
         #[cfg(feature = "frontend")]
         (&Method::GET, _) => {
+            let _guard = span.enter();
             response = main_route()?;
         }
         _ => {
             *response.status_mut() = StatusCode::METHOD_NOT_ALLOWED;
-            *response.body_mut() = "404 not found".into();
+            *response.body_mut() = "Method not allowed".into();
         }
     }
 
