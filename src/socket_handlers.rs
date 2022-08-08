@@ -35,6 +35,7 @@ pub async fn socket_handler(socket: tokio_tungstenite::WebSocketStream<hyper::up
     tokio::task::spawn(async move {
         let mut first_message = true;
         let mut req: shared::Request;
+        let mut token = String::new();
         while let Some(Ok(data)) = socket_recv.next().await {
             if data.is_close() {
                 break;
@@ -50,7 +51,13 @@ pub async fn socket_handler(socket: tokio_tungstenite::WebSocketStream<hyper::up
                 continue
             );
             tracing::debug!("Got request {:?}", req);
-            if CONFIG.pass && !validate_token(&req.token) {
+            if CONFIG.pass {
+                if let Some(req_token) = req.token {
+                    token = req_token;
+                    continue;
+                }
+            }
+            if CONFIG.pass && !validate_token(&token) {
                 if !first_message {
                     tracing::debug!("Requesting login");
                     if let Err(err) = data_send.send(None).await {
@@ -61,7 +68,7 @@ pub async fn socket_handler(socket: tokio_tungstenite::WebSocketStream<hyper::up
                 handle_error!(data_send
                     .send(Some(shared::Request {
                         page: "/login".to_string(),
-                        token: String::new(),
+                        token: None,
                         cmd: String::new(),
                         args: Vec::new(),
                     }))
@@ -109,10 +116,7 @@ pub async fn socket_handler(socket: tokio_tungstenite::WebSocketStream<hyper::up
                 tracing::debug!("Sending login message");
                 // Internal poll, see other thread
                 if socket_send
-                    .send(crate::json_msg!(
-                        &shared::TokenError { error: true },
-                        continue
-                    ))
+                    .send(Message::text("{\"reauth\": true}"))
                     .await
                     .is_err()
                 {

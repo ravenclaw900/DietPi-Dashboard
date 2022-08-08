@@ -30,7 +30,7 @@ interface socketData {
     // Global
     update: string;
     login: boolean;
-    error: boolean;
+    reauth: boolean;
     nodes: string[];
     version: string;
     update_check: boolean;

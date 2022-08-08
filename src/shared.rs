@@ -67,7 +67,7 @@ pub struct Request {
     #[serde(default)]
     pub args: Vec<String>,
     #[serde(default)]
-    pub token: String,
+    pub token: Option<String>,
 }
 
 #[derive(Serialize)]

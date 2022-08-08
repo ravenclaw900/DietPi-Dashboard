@@ -121,6 +121,7 @@
                 } else {
                     // Or use stored token
                     token = obj[node];
+                    socket.send(JSON.stringify({ token }));
                     pollServer(window.location.pathname);
                 }
             } else {
@@ -134,7 +135,7 @@
                 updateCheck();
             }
         }
-        if (socketData.error == true) {
+        if (socketData.reauth == true) {
             loginDialog = true;
         }
         if (navPage) {
@@ -162,18 +163,11 @@
     function pollServer(page: string) {
         if (page != "/terminal") {
             // Terminal doesn't work if sent
-            let json: string;
-            if (login) {
-                json = JSON.stringify({
+            socket.send(
+                JSON.stringify({
                     page,
-                    token,
-                });
-            } else {
-                json = JSON.stringify({
-                    page,
-                });
-            }
-            socket.send(json);
+                })
+            );
         }
     }
 
@@ -207,6 +201,7 @@
                         obj[node] = body;
                         localStorage.setItem("tokens", JSON.stringify(obj));
                         loginDialog = false;
+                        socket.send(JSON.stringify({ token }));
                         pollServer(window.location.pathname);
                     }
                 })
