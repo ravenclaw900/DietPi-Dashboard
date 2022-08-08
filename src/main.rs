@@ -157,15 +157,22 @@ async fn main() -> anyhow::Result<()> {
             .map(tokio_rustls::rustls::Certificate)
             .collect();
 
-            let mut key = rustls_pemfile::pkcs8_private_keys(&mut std::io::BufReader::new(
+            let key = match rustls_pemfile::read_one(&mut std::io::BufReader::new(
                 std::fs::File::open(&CONFIG.key).context("Couldn't open cert file")?,
             ))
-            .context("Couldn't read key")?;
+            .context("Couldn't read key")?
+            .context("No private key")?
+            {
+                rustls_pemfile::Item::PKCS8Key(vec) | rustls_pemfile::Item::RSAKey(vec) => {
+                    tokio_rustls::rustls::PrivateKey(vec)
+                }
+                _ => anyhow::bail!("No PKCS8 or RSA formatted private key"),
+            };
 
             let mut cfg = tokio_rustls::rustls::ServerConfig::builder()
                 .with_safe_defaults()
                 .with_no_client_auth()
-                .with_single_cert(certs, tokio_rustls::rustls::PrivateKey(key.swap_remove(0)))
+                .with_single_cert(certs, key)
                 .context("Couldn't build TLS config")?;
             cfg.alpn_protocols = vec![b"http/1.1".to_vec()];
             std::sync::Arc::new(cfg)
@@ -178,14 +185,19 @@ async fn main() -> anyhow::Result<()> {
             remote_addr: None,
         };
 
+        // Ignore result, because it will never be an error
         loop {
-            handle_error!(hyper::server::Server::builder(&mut tls_listener)
+            let _res = hyper::server::Server::builder(&mut tls_listener)
                 .serve(make_service_fn(|conn: &ConnWithAddr| {
                     let remote_addr = conn.addr;
                     make_svc(remote_addr)
                 }))
                 .await
-                .context("HTTPS server error"));
+                .context("HTTPS server error")
+                .or_else(|e| {
+                    tracing::warn!("{:?}", e);
+                    anyhow::Ok(())
+                });
         }
     } else {
         hyper::server::Server::builder(
