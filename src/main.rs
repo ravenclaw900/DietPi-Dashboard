@@ -2,38 +2,117 @@
 #![allow(clippy::too_many_lines)]
 use crate::shared::CONFIG;
 use anyhow::Context;
-use ring::digest;
+use futures::FutureExt;
+use hyper::server::conn::AddrIncoming;
+use hyper::service::{make_service_fn, service_fn};
+use std::task::Poll;
 use std::{net::IpAddr, str::FromStr};
-use tracing_subscriber::layer::{Layer, SubscriberExt};
-use warp::Filter;
-#[cfg(feature = "frontend")]
-use warp::{http::header, Reply};
 
 mod config;
 mod page_handlers;
+mod routes;
 mod shared;
 mod socket_handlers;
 mod systemdata;
 
-struct BeQuietWarp {
-    log_level: tracing_subscriber::filter::LevelFilter,
+#[cfg(feature = "frontend")]
+static DIR: include_dir::Dir = include_dir::include_dir!("$CARGO_MANIFEST_DIR/frontend/dist");
+
+struct ConnWithAddr {
+    conn: tokio_rustls::server::TlsStream<tokio::net::TcpStream>,
+    addr: std::net::SocketAddr,
 }
 
-impl<S: tracing::Subscriber> Layer<S> for BeQuietWarp {
-    fn enabled(
-        &self,
-        metadata: &tracing::Metadata<'_>,
-        _ctx: tracing_subscriber::layer::Context<'_, S>,
-    ) -> bool {
-        !(metadata.target() == "warp::filters::trace" && *metadata.level() >= self.log_level)
+struct HyperTlsAcceptor {
+    listener: tokio::net::TcpListener,
+    acceptor: tokio_rustls::TlsAcceptor,
+    accept_future: Option<tokio_rustls::Accept<tokio::net::TcpStream>>,
+    remote_addr: Option<std::net::SocketAddr>,
+}
+
+impl tokio::io::AsyncRead for ConnWithAddr {
+    fn poll_read(
+        mut self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+        buf: &mut tokio::io::ReadBuf<'_>,
+    ) -> Poll<std::io::Result<()>> {
+        std::pin::Pin::new(&mut self.conn).poll_read(cx, buf)
+    }
+}
+
+impl tokio::io::AsyncWrite for ConnWithAddr {
+    fn poll_write(
+        mut self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+        buf: &[u8],
+    ) -> Poll<Result<usize, std::io::Error>> {
+        std::pin::Pin::new(&mut self.conn).poll_write(cx, buf)
+    }
+
+    fn poll_flush(
+        mut self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+    ) -> Poll<Result<(), std::io::Error>> {
+        std::pin::Pin::new(&mut self.conn).poll_flush(cx)
+    }
+
+    fn poll_shutdown(
+        mut self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+    ) -> Poll<Result<(), std::io::Error>> {
+        std::pin::Pin::new(&mut self.conn).poll_shutdown(cx)
+    }
+}
+
+impl hyper::server::accept::Accept for &mut HyperTlsAcceptor {
+    type Conn = ConnWithAddr;
+    type Error = anyhow::Error;
+
+    fn poll_accept(
+        mut self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context,
+    ) -> Poll<Option<Result<Self::Conn, Self::Error>>> {
+        if self.accept_future.is_none() {
+            match self.listener.poll_accept(cx) {
+                Poll::Ready(stream) => match stream {
+                    Ok(stream) => {
+                        self.accept_future = Some(self.acceptor.accept(stream.0));
+                        self.remote_addr = Some(stream.1);
+                    }
+                    Err(err) => {
+                        return Poll::Ready(Some(Err(err).context("Couldn't make TCP connection")));
+                    }
+                },
+                Poll::Pending => return Poll::Pending,
+            }
+        }
+        if let Some(accept_future) = &mut self.accept_future {
+            match accept_future.poll_unpin(cx) {
+                Poll::Pending => return Poll::Pending,
+                Poll::Ready(tls) => {
+                    self.accept_future = None;
+                    let tls = match tls {
+                        Ok(tls) => tls,
+                        Err(err) => {
+                            return Poll::Ready(Some(
+                                Err(err).context("Couldn't encrypt TCP connection"),
+                            ));
+                        }
+                    };
+                    let remote_addr = self.remote_addr.take().unwrap();
+                    return Poll::Ready(Some(Ok(ConnWithAddr {
+                        conn: tls,
+                        addr: remote_addr,
+                    })));
+                }
+            }
+        }
+        Poll::Pending
     }
 }
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> anyhow::Result<()> {
-    #[cfg(feature = "frontend")]
-    const DIR: include_dir::Dir = include_dir::include_dir!("$CARGO_MANIFEST_DIR/frontend/dist");
-
     {
         let log_level = tracing_subscriber::filter::LevelFilter::from_str(&CONFIG.log_level)
             .context("Couldn't parse log level")?;
@@ -41,222 +120,95 @@ async fn main() -> anyhow::Result<()> {
             tracing_subscriber::FmtSubscriber::builder()
                 .with_max_level(log_level)
                 .with_timer(tracing_subscriber::fmt::time::uptime())
-                .finish()
-                .with(BeQuietWarp { log_level }),
+                .finish(),
         )
         .context("Couldn't init logger")?;
     }
 
-    #[cfg(feature = "frontend")]
-    let mut headers = header::HeaderMap::new();
-    #[cfg(feature = "frontend")]
-    {
-        headers.insert(
-            header::X_CONTENT_TYPE_OPTIONS,
-            header::HeaderValue::from_static("nosniff"),
-        );
-        headers.insert(
-            header::X_FRAME_OPTIONS,
-            header::HeaderValue::from_static("sameorigin"),
-        );
-        headers.insert("X-Robots-Tag", header::HeaderValue::from_static("none"));
-        headers.insert(
-            "X-Permitted-Cross-Domain_Policies",
-            header::HeaderValue::from_static("none"),
-        );
-        headers.insert(
-            header::REFERRER_POLICY,
-            header::HeaderValue::from_static("no-referrer"),
-        );
-        headers.insert("Content-Security-Policy", header::HeaderValue::from_static("default-src 'self'; style-src 'unsafe-inline' 'self'; connect-src * ws:; object-src 'none'; require-trusted-types-for 'script';"));
-        #[cfg(all(feature = "frontend", not(debug_assertions)))]
-        headers.insert(
-            header::CONTENT_ENCODING,
-            header::HeaderValue::from_static("gzip"),
-        );
-    }
+    let addr = std::net::SocketAddr::from((IpAddr::from([0; 8]), CONFIG.port));
 
-    #[cfg(feature = "frontend")]
-    let favicon_route = warp::path("favicon.png").map(|| {
-        let _guard = tracing::info_span!("favicon_route");
-        warp::reply::with_header(
-            handle_error!(
-                DIR.get_file("favicon.png").context("Couldn't get favicon"),
-                return warp::reply::with_status(
-                    "Couldn't get favicon",
-                    warp::http::StatusCode::INTERNAL_SERVER_ERROR
-                )
-                .into_response()
-            )
-            .contents(),
-            "content-type",
-            "image/png",
-        )
-        .into_response()
-    });
+    let tcp = tokio::net::TcpListener::bind(&addr)
+        .await
+        .with_context(|| format!("Couldn't bind to {}", &addr))?;
 
-    #[cfg(feature = "frontend")]
-    let assets_route = warp::path("assets")
-        .and(warp::path::param())
-        .map(|path: String| {
-            let _guard = tracing::info_span!("asset_route").entered();
-            let ext = path.rsplit('.').next().unwrap_or("plain");
-            #[allow(unused_mut)]
-            // Mute warning, variable is mut because it's used when building for release
-            let mut reply = warp::reply::with_header(
-                match DIR.get_file(format!("assets/{}", path)) {
-                    Some(file) => file.contents(),
-                    None => {
-                        tracing::warn!("Couldn't get asset {}", path);
-                        return warp::reply::with_status(
-                            "Asset not found",
-                            warp::http::StatusCode::NOT_FOUND,
-                        )
-                        .into_response();
-                    }
-                },
-                header::CONTENT_TYPE,
-                if ext == "js" {
-                    "text/javascript".to_string()
-                } else if ext == "svg" {
-                    "image/svg+xml".to_string()
-                } else if ext == "png" {
-                    "image/png".to_string()
-                } else {
-                    format!("text/{}", ext)
-                },
-            )
-            .into_response();
-
-            #[cfg(all(feature = "frontend", not(debug_assertions)))]
-            if ext != "png" {
-                reply.headers_mut().insert(
-                    header::CONTENT_ENCODING,
-                    header::HeaderValue::from_static("gzip"),
+    let make_svc = |remote_addr| async move {
+        Ok::<_, std::convert::Infallible>(service_fn(move |req| async move {
+            let span = tracing::info_span!("request", %remote_addr);
+            span.in_scope(|| {
+                tracing::info!("Request to {}", req.uri().path());
+                tracing::debug!(
+                    "using {:?}",
+                    req.headers()
+                        .get(hyper::header::USER_AGENT)
+                        .map_or("unknown", |x| x.to_str().unwrap_or("unknown"))
                 );
-            };
-
-            reply
-        });
-
-    let login_route = warp::path("login")
-        .and(warp::post())
-        .and(warp::body::bytes())
-        .map(|pass: warp::hyper::body::Bytes| {
-            let _guard = tracing::info_span!("login_route").entered();
-            let token: String;
-            if CONFIG.pass {
-                let shasum = digest::digest(&digest::SHA512, &pass)
-                    .as_ref()
-                    .iter()
-                    .map(|b| format!("{:02x}", b))
-                    .collect::<String>();
-                if shasum == CONFIG.hash {
-                    let timestamp = jsonwebtoken::get_current_timestamp();
-
-                    let claims = crate::shared::JWTClaims {
-                        iss: "DietPi Dashboard".to_string(),
-                        iat: timestamp,
-                        exp: timestamp + CONFIG.expiry,
-                    };
-
-                    token = handle_error!(
-                        jsonwebtoken::encode(
-                            &jsonwebtoken::Header::default(),
-                            &claims,
-                            &jsonwebtoken::EncodingKey::from_secret(CONFIG.secret.as_ref()),
-                        )
-                        .context("Error creating login token"),
-                        return warp::reply::with_status(
-                            "Error creating login token".to_string(),
-                            warp::http::StatusCode::INTERNAL_SERVER_ERROR,
-                        )
-                    );
-
-                    return warp::reply::with_status(token, warp::http::StatusCode::OK);
-                }
-                return warp::reply::with_status(
-                    "Unauthorized".to_string(),
-                    warp::http::StatusCode::UNAUTHORIZED,
-                );
-            }
-            warp::reply::with_status("No login needed".to_string(), warp::http::StatusCode::OK)
-        })
-        .with(warp::reply::with::header(
-            "Access-Control-Allow-Origin",
-            "*",
-        ));
-
-    // The spans for these are covered in the handlers
-    let terminal_route = warp::path("ws")
-        .and(warp::path("term"))
-        .and(warp::ws())
-        .map(|ws: warp::ws::Ws| ws.on_upgrade(socket_handlers::term_handler));
-
-    let socket_route = warp::path("ws")
-        .and(warp::ws())
-        .map(|ws: warp::ws::Ws| ws.on_upgrade(socket_handlers::socket_handler));
-
-    let file_route = warp::path("ws")
-        .and(warp::path("file"))
-        .and(warp::ws())
-        .map(|ws: warp::ws::Ws| ws.on_upgrade(socket_handlers::file_handler));
-
-    #[cfg(feature = "frontend")]
-    let main_route = warp::any()
-        .map(|| {
-            let _guard = tracing::info_span!("main_route").entered();
-            let file = handle_error!(
-                DIR.get_file("index.html")
-                    .context("Couldn't get main HTML file"),
-                return warp::reply::with_status(
-                    "Couldn't get main HTML file",
-                    warp::http::StatusCode::INTERNAL_SERVER_ERROR
-                )
-                .into_response()
-            )
-            .contents();
-            warp::reply::html(file).into_response()
-        })
-        .with(warp::reply::with::headers(headers));
-
-    #[cfg(feature = "frontend")]
-    let page_routes = favicon_route.or(assets_route).or(main_route);
-
-    let socket_routes = terminal_route.or(file_route).or(socket_route);
-
-    let routes = socket_routes.or(login_route);
-    #[cfg(feature = "frontend")]
-    let routes = routes.or(page_routes);
-    let routes = routes.with(warp::trace::trace(|info| {
-        let remote_addr = info
-            .remote_addr()
-            .unwrap_or_else(|| std::net::SocketAddr::from((std::net::Ipv4Addr::UNSPECIFIED, 0)))
-            .ip();
-        let span = tracing::info_span!("request", %remote_addr);
-        span.in_scope(|| {
-            tracing::info!("Request to {}", info.path());
-            tracing::debug!(
-                "by {}, using {} {:?}",
-                info.user_agent().unwrap_or("unknown"),
-                remote_addr,
-                info.version(),
-            );
-        });
-        span
-    }));
-
-    let addr = IpAddr::from([0; 8]);
+            });
+            routes::router(req, span).await
+        }))
+    };
 
     if CONFIG.tls {
-        warp::serve(routes)
-            .tls()
-            .cert_path(&CONFIG.cert)
-            .key_path(&CONFIG.key)
-            .run((addr, CONFIG.port))
-            .await;
+        let tls_cfg = {
+            let certs = rustls_pemfile::certs(&mut std::io::BufReader::new(
+                std::fs::File::open(&CONFIG.cert).context("Couldn't open cert file")?,
+            ))
+            .context("Couldn't read certs")?
+            .into_iter()
+            .map(tokio_rustls::rustls::Certificate)
+            .collect();
+
+            let key = match rustls_pemfile::read_one(&mut std::io::BufReader::new(
+                std::fs::File::open(&CONFIG.key).context("Couldn't open cert file")?,
+            ))
+            .context("Couldn't read key")?
+            .context("No private key")?
+            {
+                rustls_pemfile::Item::PKCS8Key(vec) | rustls_pemfile::Item::RSAKey(vec) => {
+                    tokio_rustls::rustls::PrivateKey(vec)
+                }
+                _ => anyhow::bail!("No PKCS8 or RSA formatted private key"),
+            };
+
+            let mut cfg = tokio_rustls::rustls::ServerConfig::builder()
+                .with_safe_defaults()
+                .with_no_client_auth()
+                .with_single_cert(certs, key)
+                .context("Couldn't build TLS config")?;
+            cfg.alpn_protocols = vec![b"http/1.1".to_vec()];
+            std::sync::Arc::new(cfg)
+        };
+
+        let mut tls_listener = HyperTlsAcceptor {
+            listener: tcp,
+            acceptor: tokio_rustls::TlsAcceptor::from(tls_cfg),
+            accept_future: None,
+            remote_addr: None,
+        };
+
+        // Ignore result, because it will never be an error
+        loop {
+            let _res = hyper::server::Server::builder(&mut tls_listener)
+                .serve(make_service_fn(|conn: &ConnWithAddr| {
+                    let remote_addr = conn.addr;
+                    make_svc(remote_addr)
+                }))
+                .await
+                .context("HTTPS server error")
+                .or_else(|e| {
+                    tracing::warn!("{:?}", e);
+                    anyhow::Ok(())
+                });
+        }
     } else {
-        warp::serve(routes).run((addr, CONFIG.port)).await;
+        hyper::server::Server::builder(
+            AddrIncoming::from_listener(tcp).context("Couldn't convert TCP listener")?,
+        )
+        .serve(make_service_fn(|conn: &hyper::server::conn::AddrStream| {
+            let remote_addr = conn.remote_addr();
+            make_svc(remote_addr)
+        }))
+        .await
+        .context("HTTP server error")?;
     }
 
     Ok(())
