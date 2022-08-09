@@ -70,22 +70,52 @@ pub fn assets_route(req: Request<Body>) -> anyhow::Result<Response<Body>> {
 #[tracing::instrument(skip_all)]
 pub async fn login_route(mut req: Request<Body>) -> anyhow::Result<Response<Body>> {
     let token: String;
+    let mut response = Response::new(Body::empty());
     if CONFIG.pass {
-        let shasum = digest::digest(
-            &digest::SHA512,
-            &hyper::body::to_bytes(req.body_mut()).await?,
-        )
-        .as_ref()
-        .iter()
-        .map(|b| format!("{:02x}", b))
-        .collect::<String>();
+        let shasum = hex::encode(
+            digest::digest(
+                &digest::SHA512,
+                &hyper::body::to_bytes(req.body_mut()).await?,
+            )
+            .as_ref(),
+        );
         if shasum == CONFIG.hash {
             let timestamp = jsonwebtoken::get_current_timestamp();
+
+            let csrf = match crate::shared::get_csrf_token(&req) {
+                Ok(Some(cookie)) => cookie,
+                Err(err) => {
+                    tracing::warn!("{:#}", err);
+                    return Ok(Response::builder()
+                        .status(StatusCode::BAD_REQUEST)
+                        .body("Invalid CSRF token".into())?);
+                }
+                Ok(None) => {
+                    let mut buf = [0u8; 32].to_vec();
+                    handle_error!(
+                        getrandom::getrandom(&mut buf)
+                            .context("Couldn't generate random CSRF token"),
+                        return Ok(Response::builder()
+                            .status(StatusCode::BAD_REQUEST)
+                            .body("Couldn't generate random CSRF token".into())?)
+                    );
+                    response.headers_mut().insert(
+                        hyper::header::SET_COOKIE,
+                        hyper::header::HeaderValue::from_str(&format!(
+                            "CSRF_TOKEN={}; HttpOnly",
+                            hex::encode(&buf)
+                        ))
+                        .context("Couldn't set CSRF token")?,
+                    );
+                    buf
+                }
+            };
 
             let claims = crate::shared::JWTClaims {
                 iss: "DietPi Dashboard".to_string(),
                 iat: timestamp,
                 exp: timestamp + CONFIG.expiry,
+                csrf: hex::encode(digest::digest(&digest::SHA256, &csrf).as_ref()),
             };
 
             token = handle_error!(
@@ -100,7 +130,9 @@ pub async fn login_route(mut req: Request<Body>) -> anyhow::Result<Response<Body
                     .body("Error creating login token".into())?)
             );
 
-            return Ok(Response::new(token.into()));
+            *response.body_mut() = token.into();
+
+            return Ok(response);
         }
         return Ok(Response::builder()
             .status(StatusCode::UNAUTHORIZED)

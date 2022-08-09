@@ -1,3 +1,4 @@
+use anyhow::Context;
 use serde::{Deserialize, Serialize};
 
 pub static CONFIG: once_cell::sync::Lazy<crate::config::Config> =
@@ -33,6 +34,26 @@ pub fn remove_color_codes(s: &str) -> String {
         .replace("[31m", "")
         .replace("[38;5;154m", "")
         .replace("[J", "")
+}
+
+pub fn get_csrf_token(req: &hyper::Request<hyper::Body>) -> anyhow::Result<Option<Vec<u8>>> {
+    let cookie = if let Some(cookie) = req.headers().get(hyper::header::COOKIE) {
+        cookie.to_str().context("Invalid cookie list")?
+    } else {
+        return Ok(None);
+    };
+    let mut cookie_slice = cookie.split(['=', ';']).map(str::trim);
+    if !cookie_slice.any(|x| x == "CSRF_TOKEN") {
+        return Ok(None);
+    }
+    Ok(Some(
+        hex::decode(if let Some(csrf) = cookie_slice.next() {
+            csrf
+        } else {
+            return Ok(None);
+        })
+        .context("Invalid CSRF token")?,
+    ))
 }
 
 #[derive(Serialize, Default)]
@@ -184,6 +205,7 @@ pub struct JWTClaims {
     pub iss: String,
     pub exp: u64,
     pub iat: u64,
+    pub csrf: String,
 }
 
 #[derive(Serialize, Default)]

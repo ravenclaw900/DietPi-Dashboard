@@ -14,7 +14,7 @@ fn main() {
                     concat!(env!("CARGO_MANIFEST_DIR"), "/frontend/.yarn")
                 ]
             )
-            .unwrap()
+            .expect("Couldn't get frontend directory")
         );
 
         std::process::Command::new("sh")

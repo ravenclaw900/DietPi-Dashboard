@@ -1,4 +1,5 @@
 #![warn(clippy::pedantic)]
+#![warn(clippy::unwrap_used)]
 #![allow(clippy::too_many_lines)]
 use crate::shared::CONFIG;
 use anyhow::Context;
@@ -99,7 +100,9 @@ impl hyper::server::accept::Accept for &mut HyperTlsAcceptor {
                             ));
                         }
                     };
-                    let remote_addr = self.remote_addr.take().unwrap();
+                    let remote_addr = self.remote_addr.take().unwrap_or_else(|| {
+                        std::net::SocketAddr::from((std::net::Ipv4Addr::UNSPECIFIED, 0))
+                    });
                     return Poll::Ready(Some(Ok(ConnWithAddr {
                         conn: tls,
                         addr: remote_addr,

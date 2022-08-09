@@ -250,10 +250,12 @@ pub async fn term_handler(socket: tokio_tungstenite::WebSocketStream<hyper::upgr
 
     // Reap PID, unwrap is safe because all references will have been dropped
     handle_error!(
-        Arc::get_mut(&mut cmd)
-            .unwrap()
-            .wait()
-            .context("Couldn't close terminal"),
+        handle_error!(
+            Arc::get_mut(&mut cmd).context("PTY still has references"),
+            return
+        )
+        .wait()
+        .context("Couldn't close terminal"),
         return
     );
 
@@ -271,11 +273,13 @@ async fn create_zip_file(req: &shared::FileRequest) -> anyhow::Result<Vec<u8>> {
         for entry in walkdir::WalkDir::new(&src_path) {
             let entry = entry.context("Couldn't get data for recursive entry")?;
             let path = entry.path();
-            // 'unwrap' is safe here because path is canonicalized
-            let name = std::path::Path::new(&src_path.file_name().unwrap()).join(
-                // Here too, because the path should always be a child
-                path.strip_prefix(&src_path).unwrap(),
-            );
+            let name =
+                std::path::Path::new(&src_path.file_name().context("Couldn't get file name")?)
+                    .join(
+                        // Here too, because the path should always be a child
+                        path.strip_prefix(&src_path)
+                            .context("Path isn't a child of source")?,
+                    );
             let name = name.to_string_lossy().to_string();
             if path.is_file() {
                 tracing::debug!("Adding file {} to zip", &name);
