@@ -20,7 +20,7 @@ fn validate_token(token: &str, fingerprint: &str) -> bool {
         &jsonwebtoken::DecodingKey::from_secret(CONFIG.secret.as_bytes()),
         &validator,
     ) {
-        if dbg!(claims.claims.fingerprint) != dbg!(fingerprint) {
+        if claims.claims.fingerprint != fingerprint {
             return false;
         }
     } else {
@@ -45,14 +45,13 @@ pub async fn socket_handler(
             if data.is_close() {
                 break;
             }
-            let data_str = if let Message::Text(text) = data {
+            let data_str = if let Message::Binary(text) = data {
                 text
             } else {
                 continue;
             };
             req = handle_error!(
-                serde_json::from_str(&data_str)
-                    .with_context(|| format!("Couldn't parse JSON {}", data_str)),
+                rmp_serde::decode::from_slice(&data_str).context("Couldn't parse MessagePack"),
                 continue
             );
             tracing::debug!("Got request {:?}", req);
@@ -219,20 +218,22 @@ pub async fn term_handler(
             loop {
                 if let Some(Ok(data)) = socket_recv.next().await {
                     match data {
-                        Message::Text(data_str) => {
-                            if data_str.get(..4) == Some("size") {
+                        Message::Binary(data_str) => {
+                            if data_str.get(..4) == Some(b"size") {
                                 let json: TTYSize = handle_error!(
-                                    serde_json::from_str(&data_str[4..]).with_context(|| format!(
-                                        "Couldn't deserialize pty size from {}",
-                                        &data_str
-                                    )),
+                                    rmp_serde::decode::from_slice(&data_str[4..]).with_context(
+                                        || format!(
+                                            "Couldn't deserialize pty size from {:?}",
+                                            &data_str
+                                        )
+                                    ),
                                     continue
                                 );
                                 tracing::debug!("Got size message {:?}", json);
                                 handle_error!(cmd
                                     .resize_pty(&pty_process::Size::new(json.rows, json.cols))
                                     .context("Couldn't resize pty"));
-                            } else if cmd.pty().write_all(data_str.as_bytes()).is_err() {
+                            } else if cmd.pty().write_all(&data_str).is_err() {
                                 tracing::debug!("Terminal closed, breaking");
                                 break;
                             }
@@ -394,9 +395,9 @@ async fn file_handler_helper(
 }
 
 fn get_file_req(data: &Message) -> anyhow::Result<shared::FileRequest> {
-    if let Message::Text(data_str) = data {
-        let req = serde_json::from_str(data_str)
-            .with_context(|| format!("Couldn't parse JSON from {}", data_str))?;
+    if let Message::Binary(data_str) = data {
+        let req = rmp_serde::decode::from_slice(data_str)
+            .with_context(|| format!("Couldn't parse JSON from {:?}", data_str))?;
         Ok(req)
     } else {
         Err(anyhow::anyhow!(

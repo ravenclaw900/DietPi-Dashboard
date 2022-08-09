@@ -21,7 +21,7 @@ macro_rules! handle_error {
 #[macro_export]
 macro_rules! json_msg {
     ($e: expr, $handler:expr) => {
-        Message::text(handle_error!(serde_json::to_string($e).context("Couldn't serialize json"), $handler))
+        Message::binary(handle_error!(rmp_serde::encode::to_vec($e).context("Couldn't serialize json"), $handler))
     };
 }
 
