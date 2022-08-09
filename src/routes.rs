@@ -82,7 +82,7 @@ pub async fn login_route(mut req: Request<Body>) -> anyhow::Result<Response<Body
         if shasum == CONFIG.hash {
             let timestamp = jsonwebtoken::get_current_timestamp();
 
-            let csrf = match crate::shared::get_csrf_token(&req) {
+            let fingerprint = match crate::shared::get_csrf_token(&req) {
                 Ok(Some(cookie)) => cookie,
                 Err(err) => {
                     tracing::warn!("{:#}", err);
@@ -102,7 +102,7 @@ pub async fn login_route(mut req: Request<Body>) -> anyhow::Result<Response<Body
                     response.headers_mut().insert(
                         hyper::header::SET_COOKIE,
                         hyper::header::HeaderValue::from_str(&format!(
-                            "CSRF_TOKEN={}; HttpOnly",
+                            "CSRF_TOKEN={}; Path=/; Max-Age=86400; HttpOnly",
                             hex::encode(&buf)
                         ))
                         .context("Couldn't set CSRF token")?,
@@ -115,7 +115,7 @@ pub async fn login_route(mut req: Request<Body>) -> anyhow::Result<Response<Body
                 iss: "DietPi Dashboard".to_string(),
                 iat: timestamp,
                 exp: timestamp + CONFIG.expiry,
-                csrf: hex::encode(digest::digest(&digest::SHA256, &csrf).as_ref()),
+                fingerprint: hex::encode(digest::digest(&digest::SHA256, &fingerprint).as_ref()),
             };
 
             token = handle_error!(
@@ -195,7 +195,7 @@ pub fn websocket<F, O>(
 ) -> anyhow::Result<Response<Body>>
 where
     O: Future<Output = ()> + std::marker::Send,
-    F: Fn(tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>) -> O
+    F: Fn(tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>, String) -> O
         + std::marker::Send
         + std::marker::Sync
         + 'static,
@@ -204,6 +204,14 @@ where
         .headers()
         .get(header::SEC_WEBSOCKET_KEY)
         .context("Failed to read key from headers")?;
+
+    let cookie = if let Ok(Some(cookie)) = crate::shared::get_csrf_token(&req) {
+        hex::encode(digest::digest(&digest::SHA256, &cookie).as_ref())
+    } else {
+        return Ok(Response::builder()
+            .status(StatusCode::FORBIDDEN)
+            .body(Body::empty())?);
+    };
 
     if req.headers().get(header::CONNECTION) != Some(&HeaderValue::from_static("Upgrade"))
         || req.headers().get(header::UPGRADE) != Some(&HeaderValue::from_static("websocket"))
@@ -233,7 +241,7 @@ where
                     None,
                 )
                 .await;
-                func(ws).instrument(span).await;
+                func(ws, cookie).instrument(span).await;
             }
             Err(e) => eprintln!("upgrade error: {}", e),
         }

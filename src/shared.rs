@@ -205,7 +205,7 @@ pub struct JWTClaims {
     pub iss: String,
     pub exp: u64,
     pub iat: u64,
-    pub csrf: String,
+    pub fingerprint: String,
 }
 
 #[derive(Serialize, Default)]

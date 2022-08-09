@@ -11,17 +11,19 @@ use tracing::{instrument, Instrument};
 use crate::{handle_error, page_handlers, shared, systemdata, CONFIG};
 
 #[instrument(level = "debug")]
-fn validate_token(token: &str) -> bool {
+fn validate_token(token: &str, fingerprint: &str) -> bool {
     let mut validator = jsonwebtoken::Validation::new(jsonwebtoken::Algorithm::HS256);
     validator.set_issuer(&["DietPi Dashboard"]);
     validator.set_required_spec_claims(&["exp", "iat"]);
-    if jsonwebtoken::decode::<shared::JWTClaims>(
+    if let Ok(claims) = jsonwebtoken::decode::<shared::JWTClaims>(
         token,
         &jsonwebtoken::DecodingKey::from_secret(CONFIG.secret.as_bytes()),
         &validator,
-    )
-    .is_err()
-    {
+    ) {
+        if dbg!(claims.claims.fingerprint) != dbg!(fingerprint) {
+            return false;
+        }
+    } else {
         tracing::debug!("Invalid token");
         return false;
     }
@@ -29,7 +31,10 @@ fn validate_token(token: &str) -> bool {
 }
 
 #[instrument(skip_all)]
-pub async fn socket_handler(socket: tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>) {
+pub async fn socket_handler(
+    socket: tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>,
+    fingerprint: String,
+) {
     let (mut socket_send, mut socket_recv) = socket.split();
     let (data_send, mut data_recv) = mpsc::channel(1);
     tokio::task::spawn(async move {
@@ -57,7 +62,7 @@ pub async fn socket_handler(socket: tokio_tungstenite::WebSocketStream<hyper::up
                     continue;
                 }
             }
-            if CONFIG.pass && !validate_token(&token) {
+            if CONFIG.pass && !validate_token(&token, &fingerprint) {
                 if !first_message {
                     tracing::debug!("Requesting login");
                     if let Err(err) = data_send.send(None).await {
@@ -141,14 +146,17 @@ struct TTYSize {
 }
 
 #[instrument(skip_all)]
-pub async fn term_handler(socket: tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>) {
+pub async fn term_handler(
+    socket: tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>,
+    fingerprint: String,
+) {
     let (mut socket_send, mut socket_recv) = socket.split();
 
     if crate::CONFIG.pass {
         if let Some(Ok(Message::Text(token))) = socket_recv.next().await {
             // Stop from panicking, return from function with invalid token instead
             if token.get(..5) == Some("token") {
-                if !validate_token(&token[5..]) {
+                if !validate_token(&token[5..], &fingerprint) {
                     return;
                 }
             } else {
@@ -399,7 +407,10 @@ fn get_file_req(data: &Message) -> anyhow::Result<shared::FileRequest> {
 }
 
 #[instrument(skip_all)]
-pub async fn file_handler(socket: tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>) {
+pub async fn file_handler(
+    socket: tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>,
+    fingerprint: String,
+) {
     let (mut socket_send, mut socket_recv) = socket.split();
     let mut req: shared::FileRequest;
 
@@ -412,7 +423,7 @@ pub async fn file_handler(socket: tokio_tungstenite::WebSocketStream<hyper::upgr
 
         tracing::debug!("Got file request {:?}", req);
 
-        if CONFIG.pass && !validate_token(&req.token) {
+        if CONFIG.pass && !validate_token(&req.token, &fingerprint) {
             continue;
         }
 
