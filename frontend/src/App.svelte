@@ -232,7 +232,11 @@
             reopenSocket = true;
         }
         let proto = window.location.protocol == "https:" ? "wss" : "ws";
+        try {
         socket = new WebSocket(`${proto}://${url}/ws`);
+        } catch {
+            
+        }
         socket.onopen = socketOpenListener;
         socket.onmessage = socketMessageListener;
         socket.onclose = socketCloseListener;

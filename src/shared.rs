@@ -36,24 +36,37 @@ pub fn remove_color_codes(s: &str) -> String {
         .replace("[J", "")
 }
 
-pub fn get_csrf_token(req: &hyper::Request<hyper::Body>) -> anyhow::Result<Option<Vec<u8>>> {
+pub fn get_token_from_list<'a>(
+    token_list: &'a str,
+    pat: [char; 2],
+    token_name: &str,
+) -> Option<&'a str> {
+    let mut iter = token_list.split(pat).map(str::trim);
+    if !iter.any(|x| x == token_name) {
+        return None;
+    }
+    if let Some(next) = iter.next() {
+        return Some(next);
+    }
+    None
+}
+
+pub fn get_fingerprint(req: &hyper::Request<hyper::Body>) -> anyhow::Result<Option<String>> {
     let cookie = if let Some(cookie) = req.headers().get(hyper::header::COOKIE) {
         cookie.to_str().context("Invalid cookie list")?
     } else {
         return Ok(None);
     };
-    let mut cookie_slice = cookie.split(['=', ';']).map(str::trim);
-    if !cookie_slice.any(|x| x == "CSRF_TOKEN") {
-        return Ok(None);
-    }
-    Ok(Some(
-        hex::decode(if let Some(csrf) = cookie_slice.next() {
-            csrf
+    let fingerprint_option = get_token_from_list(cookie, ['=', ';'], "FINGERPRINT");
+    Ok(Some(hex::encode(ring::digest::digest(
+        &ring::digest::SHA256,
+        &hex::decode(if let Some(fingerprint) = fingerprint_option {
+            fingerprint
         } else {
             return Ok(None);
         })
-        .context("Invalid CSRF token")?,
-    ))
+        .context("Invalid fingerprint token")?,
+    ))))
 }
 
 #[derive(Serialize, Default)]
@@ -184,8 +197,6 @@ pub struct FileRequest {
     pub cmd: String,
     #[serde(default)]
     pub path: String,
-    #[serde(default)]
-    pub token: String,
     #[serde(default)]
     pub arg: String,
 }

@@ -10,8 +10,23 @@ use tracing::{instrument, Instrument};
 
 use crate::{handle_error, page_handlers, shared, systemdata, CONFIG};
 
+enum TokenState {
+    InvalidToken,
+    ValidToken,
+    NoFingerprint,
+}
+
+impl TokenState {
+    fn as_bool(&self) -> bool {
+        if let TokenState::ValidToken = self {
+            return true;
+        }
+        false
+    }
+}
+
 #[instrument(level = "debug")]
-fn validate_token(token: &str, fingerprint: &str) -> bool {
+fn validate_token(token: &str, fingerprint: Option<&str>) -> TokenState {
     let mut validator = jsonwebtoken::Validation::new(jsonwebtoken::Algorithm::HS256);
     validator.set_issuer(&["DietPi Dashboard"]);
     validator.set_required_spec_claims(&["exp", "iat"]);
@@ -20,20 +35,25 @@ fn validate_token(token: &str, fingerprint: &str) -> bool {
         &jsonwebtoken::DecodingKey::from_secret(CONFIG.secret.as_bytes()),
         &validator,
     ) {
-        if dbg!(claims.claims.fingerprint) != dbg!(fingerprint) {
-            return false;
+        if let Some(fingerprint) = fingerprint {
+            if claims.claims.fingerprint != fingerprint {
+                return TokenState::InvalidToken;
+            }
+        } else {
+            return TokenState::NoFingerprint;
         }
     } else {
         tracing::debug!("Invalid token");
-        return false;
+        return TokenState::InvalidToken;
     }
-    true
+    TokenState::ValidToken
 }
 
 #[instrument(skip_all)]
 pub async fn socket_handler(
     socket: tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>,
-    fingerprint: String,
+    fingerprint: Option<String>,
+    _token: String,
 ) {
     let (mut socket_send, mut socket_recv) = socket.split();
     let (data_send, mut data_recv) = mpsc::channel(1);
@@ -62,24 +82,31 @@ pub async fn socket_handler(
                     continue;
                 }
             }
-            if CONFIG.pass && !validate_token(&token, &fingerprint) {
-                if !first_message {
-                    tracing::debug!("Requesting login");
-                    if let Err(err) = data_send.send(None).await {
-                        tracing::error!("Internal error: couldn't initiate login: {}", err);
-                        break;
+            if CONFIG.pass {
+                let validation = validate_token(&token, fingerprint.as_deref());
+                if !validation.as_bool() {
+                    if !first_message {
+                        tracing::debug!("Requesting login");
+                        if let Err(err) = data_send.send(None).await {
+                            tracing::error!("Internal error: couldn't initiate login: {}", err);
+                            break;
+                        }
                     }
+                    handle_error!(data_send
+                        .send(Some(shared::Request {
+                            page: "/login".to_string(),
+                            token: None,
+                            cmd: String::new(),
+                            args: Vec::new(),
+                        }))
+                        .await
+                        .context("Internal error: couldn't send login request"));
                 }
-                handle_error!(data_send
-                    .send(Some(shared::Request {
-                        page: "/login".to_string(),
-                        token: None,
-                        cmd: String::new(),
-                        args: Vec::new(),
-                    }))
-                    .await
-                    .context("Internal error: couldn't send login request"));
-                continue;
+                match validation {
+                    TokenState::InvalidToken => continue,
+                    TokenState::NoFingerprint => return,
+                    TokenState::ValidToken => {}
+                }
             }
             if req.cmd.is_empty() {
                 // Quit out of handler
@@ -148,21 +175,13 @@ struct TTYSize {
 #[instrument(skip_all)]
 pub async fn term_handler(
     socket: tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>,
-    fingerprint: String,
+    fingerprint: Option<String>,
+    token: String,
 ) {
     let (mut socket_send, mut socket_recv) = socket.split();
 
-    if crate::CONFIG.pass {
-        if let Some(Ok(Message::Text(token))) = socket_recv.next().await {
-            // Stop from panicking, return from function with invalid token instead
-            if token.get(..5) == Some("token") {
-                if !validate_token(&token[5..], &fingerprint) {
-                    return;
-                }
-            } else {
-                return;
-            }
-        }
+    if crate::CONFIG.pass && !validate_token(&token, fingerprint.as_deref()).as_bool() {
+        return;
     }
 
     // We use std::process::Command here because it lets us read and write without a mutable reference (even though it should require one?)
@@ -409,7 +428,8 @@ fn get_file_req(data: &Message) -> anyhow::Result<shared::FileRequest> {
 #[instrument(skip_all)]
 pub async fn file_handler(
     socket: tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>,
-    fingerprint: String,
+    fingerprint: Option<String>,
+    token: String,
 ) {
     let (mut socket_send, mut socket_recv) = socket.split();
     let mut req: shared::FileRequest;
@@ -423,8 +443,8 @@ pub async fn file_handler(
 
         tracing::debug!("Got file request {:?}", req);
 
-        if CONFIG.pass && !validate_token(&req.token, &fingerprint) {
-            continue;
+        if CONFIG.pass && !validate_token(&token, fingerprint.as_deref()).as_bool() {
+            return;
         }
 
         loop {

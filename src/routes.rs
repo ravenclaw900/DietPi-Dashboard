@@ -82,32 +82,32 @@ pub async fn login_route(mut req: Request<Body>) -> anyhow::Result<Response<Body
         if shasum == CONFIG.hash {
             let timestamp = jsonwebtoken::get_current_timestamp();
 
-            let fingerprint = match crate::shared::get_csrf_token(&req) {
+            let fingerprint = match crate::shared::get_fingerprint(&req) {
                 Ok(Some(cookie)) => cookie,
                 Err(err) => {
                     tracing::warn!("{:#}", err);
-                    return Ok(Response::builder()
-                        .status(StatusCode::BAD_REQUEST)
-                        .body("Invalid CSRF token".into())?);
+                    *response.status_mut() = StatusCode::BAD_REQUEST;
+                    *response.body_mut() = "Invalid fingerprint token".into();
+                    return Ok(response);
                 }
                 Ok(None) => {
                     let mut buf = [0u8; 32].to_vec();
                     handle_error!(
                         getrandom::getrandom(&mut buf)
-                            .context("Couldn't generate random CSRF token"),
+                            .context("Couldn't generate random fingerprint token"),
                         return Ok(Response::builder()
                             .status(StatusCode::BAD_REQUEST)
-                            .body("Couldn't generate random CSRF token".into())?)
+                            .body("Couldn't generate random fingerprint token".into())?)
                     );
                     response.headers_mut().insert(
                         hyper::header::SET_COOKIE,
                         hyper::header::HeaderValue::from_str(&format!(
-                            "CSRF_TOKEN={}; Path=/; Max-Age=86400; HttpOnly",
+                            "FINGERPRINT={}; Path=/; HttpOnly",
                             hex::encode(&buf)
                         ))
-                        .context("Couldn't set CSRF token")?,
+                        .context("Couldn't set fingerprint token")?,
                     );
-                    buf
+                    hex::encode(digest::digest(&digest::SHA256, &buf).as_ref())
                 }
             };
 
@@ -115,7 +115,7 @@ pub async fn login_route(mut req: Request<Body>) -> anyhow::Result<Response<Body
                 iss: "DietPi Dashboard".to_string(),
                 iat: timestamp,
                 exp: timestamp + CONFIG.expiry,
-                fingerprint: hex::encode(digest::digest(&digest::SHA256, &fingerprint).as_ref()),
+                fingerprint,
             };
 
             token = handle_error!(
@@ -125,22 +125,24 @@ pub async fn login_route(mut req: Request<Body>) -> anyhow::Result<Response<Body
                     &jsonwebtoken::EncodingKey::from_secret(CONFIG.secret.as_ref()),
                 )
                 .context("Error creating login token"),
-                return Ok(Response::builder()
-                    .status(StatusCode::INTERNAL_SERVER_ERROR)
-                    .body("Error creating login token".into())?)
+                return Ok({
+                    *response.status_mut() = StatusCode::INTERNAL_SERVER_ERROR;
+                    *response.body_mut() = "Couldn't create login token".into();
+                    response
+                })
             );
 
             *response.body_mut() = token.into();
 
             return Ok(response);
         }
-        return Ok(Response::builder()
-            .status(StatusCode::UNAUTHORIZED)
-            .body("Unauthorized".into())?);
+        *response.status_mut() = StatusCode::UNAUTHORIZED;
+        *response.body_mut() = "Invalid password".into();
+        return Ok(response);
     }
-    Ok(Response::builder()
-        .status(StatusCode::NO_CONTENT)
-        .body("No login needed".into())?)
+    *response.status_mut() = StatusCode::NO_CONTENT;
+    *response.body_mut() = "No login needed".into();
+    Ok(response)
 }
 
 #[cfg(feature = "frontend")]
@@ -192,10 +194,15 @@ pub fn websocket<F, O>(
     mut req: Request<Body>,
     func: F,
     span: tracing::Span,
+    token: String,
 ) -> anyhow::Result<Response<Body>>
 where
     O: Future<Output = ()> + std::marker::Send,
-    F: Fn(tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>, String) -> O
+    F: Fn(
+            tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>,
+            Option<String>,
+            String,
+        ) -> O
         + std::marker::Send
         + std::marker::Sync
         + 'static,
@@ -205,11 +212,11 @@ where
         .get(header::SEC_WEBSOCKET_KEY)
         .context("Failed to read key from headers")?;
 
-    let cookie = if let Ok(Some(cookie)) = crate::shared::get_csrf_token(&req) {
-        hex::encode(digest::digest(&digest::SHA256, &cookie).as_ref())
+    let cookie = if let Ok(cookie) = crate::shared::get_fingerprint(&req) {
+        cookie
     } else {
         return Ok(Response::builder()
-            .status(StatusCode::FORBIDDEN)
+            .status(StatusCode::BAD_REQUEST)
             .body(Body::empty())?);
     };
 
@@ -241,7 +248,7 @@ where
                     None,
                 )
                 .await;
-                func(ws, cookie).instrument(span).await;
+                func(ws, cookie, token).instrument(span).await;
             }
             Err(e) => eprintln!("upgrade error: {}", e),
         }
@@ -252,31 +259,81 @@ where
 pub async fn router(req: Request<Body>, span: tracing::Span) -> anyhow::Result<Response<Body>> {
     let mut response = Response::new(Body::empty());
 
-    match (req.method(), req.uri().path().trim_end_matches('/')) {
+    match (
+        req.method(),
+        req.uri().path().trim_end_matches('/'),
+        // Make a String to avoid lifetime errors
+        req.uri().query().map(str::to_string),
+    ) {
         #[cfg(feature = "frontend")]
-        (&Method::GET, "/favicon.png") => {
+        (&Method::GET, "/favicon.png", _) => {
             let _guard = span.enter();
             response = favicon_route()?;
         }
         #[cfg(feature = "frontend")]
-        (&Method::GET, path) if path.starts_with("/assets") => {
+        (&Method::GET, path, _) if path.starts_with("/assets") => {
             let _guard = span.enter();
             response = assets_route(req)?;
         }
-        (&Method::GET, "/ws") => {
-            response = websocket(req, crate::socket_handlers::socket_handler, span)?;
+        (&Method::GET, "/ws", _) => {
+            response = websocket(
+                req,
+                crate::socket_handlers::socket_handler,
+                span,
+                String::new(),
+            )?;
         }
-        (&Method::GET, "/ws/term") => {
-            response = websocket(req, crate::socket_handlers::term_handler, span)?;
+        (&Method::GET, "/ws/term", Some(token)) if crate::CONFIG.pass => {
+            let token = crate::shared::get_token_from_list(&token, ['=', ';'], "token");
+            if let Some(token) = token {
+                response = websocket(
+                    req,
+                    crate::socket_handlers::term_handler,
+                    span,
+                    token.to_string(),
+                )?;
+            } else {
+                *response.status_mut() = StatusCode::UNAUTHORIZED;
+                *response.body_mut() = "No token".into();
+                return Ok(response);
+            }
         }
-        (&Method::GET, "/ws/file") => {
-            response = websocket(req, crate::socket_handlers::file_handler, span)?;
+        (&Method::GET, "/ws/file", Some(token)) if crate::CONFIG.pass => {
+            let token = crate::shared::get_token_from_list(&token, ['=', ';'], "token");
+            if let Some(token) = token {
+                response = websocket(
+                    req,
+                    crate::socket_handlers::file_handler,
+                    span,
+                    token.to_string(),
+                )?;
+            } else {
+                *response.status_mut() = StatusCode::UNAUTHORIZED;
+                *response.body_mut() = "No token".into();
+                return Ok(response);
+            }
         }
-        (&Method::POST, "/login") => {
+        (&Method::GET, "/ws/term", _) if !crate::CONFIG.pass => {
+            response = websocket(
+                req,
+                crate::socket_handlers::term_handler,
+                span,
+                String::new(),
+            )?;
+        }
+        (&Method::GET, "/ws/file", _) if !crate::CONFIG.pass => {
+            response = websocket(
+                req,
+                crate::socket_handlers::file_handler,
+                span,
+                String::new(),
+            )?;
+        }
+        (&Method::POST, "/login", _) => {
             response = login_route(req).instrument(span).await?;
         }
         #[cfg(feature = "frontend")]
-        (&Method::GET, _) => {
+        (&Method::GET, _, _) => {
             let _guard = span.enter();
             response = main_route()?;
         }
