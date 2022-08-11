@@ -1,5 +1,6 @@
 #![warn(clippy::pedantic)]
 #![allow(clippy::too_many_lines)]
+#![warn(rust_2018_idioms)]
 use crate::shared::CONFIG;
 use anyhow::Context;
 use futures::FutureExt;
@@ -16,7 +17,7 @@ mod socket_handlers;
 mod systemdata;
 
 #[cfg(feature = "frontend")]
-static DIR: include_dir::Dir = include_dir::include_dir!("$CARGO_MANIFEST_DIR/frontend/dist");
+static DIR: include_dir::Dir<'_> = include_dir::include_dir!("$CARGO_MANIFEST_DIR/frontend/dist");
 
 struct ConnWithAddr {
     conn: tokio_rustls::server::TlsStream<tokio::net::TcpStream>,
@@ -70,7 +71,7 @@ impl hyper::server::accept::Accept for &mut HyperTlsAcceptor {
 
     fn poll_accept(
         mut self: std::pin::Pin<&mut Self>,
-        cx: &mut std::task::Context,
+        cx: &mut std::task::Context<'_>,
     ) -> Poll<Option<Result<Self::Conn, Self::Error>>> {
         if self.accept_future.is_none() {
             match self.listener.poll_accept(cx) {
