@@ -526,7 +526,7 @@ __metadata:
     tslib: ^2.4.0
     typescript: ^4.7.4
     uplot: ^1.6.22
-    vite: ^3.0.5
+    vite: ^3.0.6
     vite-plugin-replace: ^0.1.1
     vite-plugin-windicss: ^1.8.7
     windicss: ^3.5.6
@@ -1693,9 +1693,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rollup@npm:^2.75.6":
-  version: 2.77.1
-  resolution: "rollup@npm:2.77.1"
+"rollup@npm:>=2.75.6 <2.77.0 || ~2.77.0":
+  version: 2.77.3
+  resolution: "rollup@npm:2.77.3"
   dependencies:
     fsevents: ~2.3.2
   dependenciesMeta:
@@ -1703,7 +1703,7 @@ __metadata:
       optional: true
   bin:
     rollup: dist/bin/rollup
-  checksum: 57a03a2490cd12008ab96d8ed98f6551bf2c4e328f0bceffdaa8a67a98acaa6221bc9294fc459c800324d8459c0837716c1f428ac2680beddd6bc20e1d8cb98a
+  checksum: b179c68249584565ddb5664a241e8e48c293b2207718d885b08ee25797d98857a383f06b544bb89819407da5a71557f4713309a278f61c4778bb32b1d3321a1c
   languageName: node
   linkType: hard
 
@@ -2155,15 +2155,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^3.0.5":
-  version: 3.0.5
-  resolution: "vite@npm:3.0.5"
+"vite@npm:^3.0.6":
+  version: 3.0.6
+  resolution: "vite@npm:3.0.6"
   dependencies:
     esbuild: ^0.14.47
     fsevents: ~2.3.2
     postcss: ^8.4.16
     resolve: ^1.22.1
-    rollup: ^2.75.6
+    rollup: ">=2.75.6 <2.77.0 || ~2.77.0"
   peerDependencies:
     less: "*"
     sass: "*"
@@ -2183,7 +2183,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: c00ec43356469032fa261872b028740526d5a5726132cb306741e2d9dca241dcb7b0b5d39181d5ebc39c5e82396511080640fa302c66e713a622e8bfa1f14a8d
+  checksum: 73e9015e9432b81093da1d00a4086afc5e8f1da415e4b15277c4c6a6997990983b94a5021f7e39e3204731ee1f526e4b71bd7cd0476d0d38f7da63e116cd6448
   languageName: node
   linkType: hard
 
