@@ -92,16 +92,45 @@ pub struct NetData {
     pub received: u64,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 pub struct Request {
     #[serde(default)]
-    pub page: String,
+    page: Option<String>,
     #[serde(default)]
-    pub cmd: String,
+    cmd: Option<String>,
     #[serde(default)]
-    pub args: Vec<String>,
+    args: Option<Vec<String>>,
     #[serde(default)]
-    pub token: Option<String>,
+    token: Option<String>,
+}
+
+#[derive(Debug)]
+pub enum RequestTypes {
+    Page(String),
+    Cmd {
+        cmd: String,
+        args: Option<Vec<String>>,
+    },
+    Token(String),
+}
+
+impl TryFrom<Request> for RequestTypes {
+    type Error = anyhow::Error;
+
+    fn try_from(value: Request) -> Result<Self, Self::Error> {
+        if let Some(page) = value.page {
+            Ok(Self::Page(page))
+        } else if let Some(cmd) = value.cmd {
+            Ok(Self::Cmd {
+                cmd,
+                args: value.args,
+            })
+        } else if let Some(token) = value.token {
+            Ok(Self::Token(token))
+        } else {
+            Err(anyhow::anyhow!("All fields are None"))
+        }
+    }
 }
 
 #[derive(Serialize)]

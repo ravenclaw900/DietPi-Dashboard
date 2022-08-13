@@ -186,25 +186,26 @@
             body: password,
         };
         fetch(`${window.location.protocol}//${node}/login/`, options).then(
-            (response) =>
+            (response) => {
+                password = "";
+                if (response.status == 401) {
+                    passwordMessage = true;
+                    setTimeout(() => (passwordMessage = false), 2000);
+                    return;
+                }
                 response.text().then((body) => {
-                    password = "";
-                    if (body == "Unauthorized") {
-                        passwordMessage = true;
-                        setTimeout(() => (passwordMessage = false), 2000);
-                    } else {
-                        token = body;
-                        let obj =
-                            localStorage.getItem("tokens") == null
-                                ? {}
-                                : JSON.parse(localStorage.getItem("tokens"));
-                        obj[node] = body;
-                        localStorage.setItem("tokens", JSON.stringify(obj));
-                        loginDialog = false;
-                        socket.send(JSON.stringify({ token }));
-                        pollServer(window.location.pathname);
-                    }
-                })
+                    token = body;
+                    let obj =
+                        localStorage.getItem("tokens") == null
+                            ? {}
+                            : JSON.parse(localStorage.getItem("tokens"));
+                    obj[node] = body;
+                    localStorage.setItem("tokens", JSON.stringify(obj));
+                    loginDialog = false;
+                    socket.send(JSON.stringify({ token }));
+                    pollServer(window.location.pathname);
+                });
+            }
         );
     }
 

@@ -59,7 +59,7 @@ pub async fn socket_handler(
     let (data_send, mut data_recv) = mpsc::channel(1);
     tokio::task::spawn(async move {
         let mut first_message = true;
-        let mut req: shared::Request;
+        let mut req: shared::RequestTypes;
         let mut token = String::new();
         while let Some(Ok(data)) = socket_recv.next().await {
             if data.is_close() {
@@ -71,13 +71,17 @@ pub async fn socket_handler(
                 continue;
             };
             req = handle_error!(
-                serde_json::from_str(&data_str)
-                    .with_context(|| format!("Couldn't parse JSON {}", data_str)),
+                shared::RequestTypes::try_from(handle_error!(
+                    serde_json::from_str::<shared::Request>(&data_str)
+                        .with_context(|| format!("Couldn't parse JSON {}", data_str)),
+                    continue
+                ))
+                .context("Invalid request"),
                 continue
             );
             tracing::debug!("Got request {:?}", req);
             if CONFIG.pass {
-                if let Some(req_token) = req.token {
+                if let shared::RequestTypes::Token(req_token) = req {
                     token = req_token;
                     continue;
                 }
@@ -93,12 +97,7 @@ pub async fn socket_handler(
                         }
                     }
                     handle_error!(data_send
-                        .send(Some(shared::Request {
-                            page: "/login".to_string(),
-                            token: None,
-                            cmd: String::new(),
-                            args: Vec::new(),
-                        }))
+                        .send(Some(shared::RequestTypes::Page("/login".to_string())))
                         .await
                         .context("Internal error: couldn't send login request"));
                 }
@@ -108,7 +107,7 @@ pub async fn socket_handler(
                     TokenState::ValidToken => {}
                 }
             }
-            if req.cmd.is_empty() {
+            if let shared::RequestTypes::Page(_) = req {
                 // Quit out of handler
                 if first_message {
                     tracing::debug!("First message, not sending quit");
@@ -135,33 +134,43 @@ pub async fn socket_handler(
         return;
     }
     while let Some(Some(message)) = data_recv.recv().await {
-        if match message.page.as_str() {
-            "/" => page_handlers::main_handler(&mut socket_send, &mut data_recv).await,
-            "/process" => page_handlers::process_handler(&mut socket_send, &mut data_recv).await,
-            "/software" => page_handlers::software_handler(&mut socket_send, &mut data_recv).await,
-            "/management" => {
-                page_handlers::management_handler(&mut socket_send, &mut data_recv).await
-            }
-            "/service" => page_handlers::service_handler(&mut socket_send, &mut data_recv).await,
-            "/browser" => page_handlers::browser_handler(&mut socket_send, &mut data_recv).await,
-            "/login" => {
-                tracing::debug!("Sending login message");
-                // Internal poll, see other thread
-                if socket_send
-                    .send(Message::text("{\"reauth\": true}"))
-                    .await
-                    .is_err()
-                {
-                    break;
+        if let shared::RequestTypes::Page(page) = message {
+            if match page.as_str() {
+                "/" => page_handlers::main_handler(&mut socket_send, &mut data_recv).await,
+                "/process" => {
+                    page_handlers::process_handler(&mut socket_send, &mut data_recv).await
                 }
-                false
+                "/software" => {
+                    page_handlers::software_handler(&mut socket_send, &mut data_recv).await
+                }
+                "/management" => {
+                    page_handlers::management_handler(&mut socket_send, &mut data_recv).await
+                }
+                "/service" => {
+                    page_handlers::service_handler(&mut socket_send, &mut data_recv).await
+                }
+                "/browser" => {
+                    page_handlers::browser_handler(&mut socket_send, &mut data_recv).await
+                }
+                "/login" => {
+                    tracing::debug!("Sending login message");
+                    // Internal poll, see other thread
+                    if socket_send
+                        .send(Message::text("{\"reauth\": true}"))
+                        .await
+                        .is_err()
+                    {
+                        break;
+                    }
+                    false
+                }
+                _ => {
+                    tracing::debug!("Got page {}, not handling", page);
+                    false
+                }
+            } {
+                break;
             }
-            _ => {
-                tracing::debug!("Got page {}, not handling", message.page);
-                false
-            }
-        } {
-            break;
         }
     }
 }
