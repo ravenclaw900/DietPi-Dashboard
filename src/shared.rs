@@ -1,3 +1,4 @@
+use anyhow::Context;
 use serde::{Deserialize, Serialize};
 
 pub static CONFIG: once_cell::sync::Lazy<crate::config::Config> =
@@ -35,6 +36,39 @@ pub fn remove_color_codes(s: &str) -> String {
         .replace("[J", "")
 }
 
+pub fn get_token_from_list<'a>(
+    token_list: &'a str,
+    pat: [char; 2],
+    token_name: &str,
+) -> Option<&'a str> {
+    let mut iter = token_list.split(pat).map(str::trim);
+    if !iter.any(|x| x == token_name) {
+        return None;
+    }
+    if let Some(next) = iter.next() {
+        return Some(next);
+    }
+    None
+}
+
+pub fn get_fingerprint(req: &hyper::Request<hyper::Body>) -> anyhow::Result<Option<String>> {
+    let cookie = if let Some(cookie) = req.headers().get(hyper::header::COOKIE) {
+        cookie.to_str().context("Invalid cookie list")?
+    } else {
+        return Ok(None);
+    };
+    let fingerprint_option = get_token_from_list(cookie, ['=', ';'], "FINGERPRINT");
+    Ok(Some(hex::encode(ring::digest::digest(
+        &ring::digest::SHA256,
+        &hex::decode(if let Some(fingerprint) = fingerprint_option {
+            fingerprint
+        } else {
+            return Ok(None);
+        })
+        .context("Invalid fingerprint token")?,
+    ))))
+}
+
 #[derive(Serialize, Default)]
 pub struct SysData {
     pub cpu: f32,
@@ -58,16 +92,45 @@ pub struct NetData {
     pub received: u64,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 pub struct Request {
     #[serde(default)]
-    pub page: String,
+    page: Option<String>,
     #[serde(default)]
-    pub cmd: String,
+    cmd: Option<String>,
     #[serde(default)]
-    pub args: Vec<String>,
+    args: Option<Vec<String>>,
     #[serde(default)]
-    pub token: String,
+    token: Option<String>,
+}
+
+#[derive(Debug)]
+pub enum RequestTypes {
+    Page(String),
+    Cmd {
+        cmd: String,
+        args: Option<Vec<String>>,
+    },
+    Token(String),
+}
+
+impl TryFrom<Request> for RequestTypes {
+    type Error = anyhow::Error;
+
+    fn try_from(value: Request) -> Result<Self, Self::Error> {
+        if let Some(page) = value.page {
+            Ok(Self::Page(page))
+        } else if let Some(cmd) = value.cmd {
+            Ok(Self::Cmd {
+                cmd,
+                args: value.args,
+            })
+        } else if let Some(token) = value.token {
+            Ok(Self::Token(token))
+        } else {
+            Err(anyhow::anyhow!("All fields are None"))
+        }
+    }
 }
 
 #[derive(Serialize)]
@@ -164,8 +227,6 @@ pub struct FileRequest {
     #[serde(default)]
     pub path: String,
     #[serde(default)]
-    pub token: String,
-    #[serde(default)]
     pub arg: String,
 }
 
@@ -184,6 +245,7 @@ pub struct JWTClaims {
     pub iss: String,
     pub exp: u64,
     pub iat: u64,
+    pub fingerprint: String,
 }
 
 #[derive(Serialize, Default)]

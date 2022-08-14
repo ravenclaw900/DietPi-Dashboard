@@ -61,7 +61,11 @@
     const fileSocket = new WebSocket(
         `${
             window.location.protocol == "https:" ? "wss" : "ws"
-        }://${node}/ws/file`
+        }://${node}/ws/file${
+            login
+                ? `?token=${JSON.parse(localStorage.getItem("tokens"))[node]}`
+                : ""
+        }`
     );
     fileSocket.onmessage = (e: MessageEvent) => {
         if (typeof e.data == "string") {
@@ -124,22 +128,13 @@
     }
 
     function fileSend(path: string, cmd: string, arg: string) {
-        let json;
-        if (login) {
-            json = JSON.stringify({
+        fileSocket.send(
+            JSON.stringify({
                 cmd,
                 path,
                 arg,
-                token: JSON.parse(localStorage.getItem("tokens"))[node],
-            });
-        } else {
-            json = JSON.stringify({
-                cmd,
-                path,
-                arg,
-            });
-        }
-        fileSocket.send(json);
+            })
+        );
     }
 
     function rename(oldname: string, newname: string) {

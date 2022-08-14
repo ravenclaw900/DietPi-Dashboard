@@ -11,12 +11,16 @@
     let termDiv: HTMLDivElement;
 
     let proto = window.location.protocol == "https:" ? "wss" : "ws";
-    let socket = new WebSocket(`${proto}://${node}/ws/term`);
+    let socket = new WebSocket(
+        `${proto}://${node}/ws/term${token ? `?token=${token}` : ""}`
+    );
 
     $: token,
         node,
         (socket.onopen = () => {}),
-        ((socket = new WebSocket(`${proto}://${node}/ws/term`)),
+        ((socket = new WebSocket(
+            `${proto}://${node}/ws/term${token ? `?token=${token}` : ""}`
+        )),
         (socket.onopen = socketOpen));
 
     const fitAddon = new FitAddon();
@@ -36,9 +40,6 @@
     };
 
     let socketOpen = () => {
-        if (token) {
-            socket.send(`token${token}`);
-        }
         termDiv.replaceChildren();
         const attachAddon = new AttachAddon(socket);
         terminal.loadAddon(attachAddon);

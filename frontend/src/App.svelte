@@ -121,6 +121,7 @@
                 } else {
                     // Or use stored token
                     token = obj[node];
+                    socket.send(JSON.stringify({ token }));
                     pollServer(window.location.pathname);
                 }
             } else {
@@ -134,7 +135,7 @@
                 updateCheck();
             }
         }
-        if (socketData.error == true) {
+        if (socketData.reauth == true) {
             loginDialog = true;
         }
         if (navPage) {
@@ -162,18 +163,11 @@
     function pollServer(page: string) {
         if (page != "/terminal") {
             // Terminal doesn't work if sent
-            let json: string;
-            if (login) {
-                json = JSON.stringify({
+            socket.send(
+                JSON.stringify({
                     page,
-                    token,
-                });
-            } else {
-                json = JSON.stringify({
-                    page,
-                });
-            }
-            socket.send(json);
+                })
+            );
         }
     }
 
@@ -192,24 +186,26 @@
             body: password,
         };
         fetch(`${window.location.protocol}//${node}/login/`, options).then(
-            (response) =>
+            (response) => {
+                password = "";
+                if (response.status == 401) {
+                    passwordMessage = true;
+                    setTimeout(() => (passwordMessage = false), 2000);
+                    return;
+                }
                 response.text().then((body) => {
-                    password = "";
-                    if (body == "Unauthorized") {
-                        passwordMessage = true;
-                        setTimeout(() => (passwordMessage = false), 2000);
-                    } else {
-                        token = body;
-                        let obj =
-                            localStorage.getItem("tokens") == null
-                                ? {}
-                                : JSON.parse(localStorage.getItem("tokens"));
-                        obj[node] = body;
-                        localStorage.setItem("tokens", JSON.stringify(obj));
-                        loginDialog = false;
-                        pollServer(window.location.pathname);
-                    }
-                })
+                    token = body;
+                    let obj =
+                        localStorage.getItem("tokens") == null
+                            ? {}
+                            : JSON.parse(localStorage.getItem("tokens"));
+                    obj[node] = body;
+                    localStorage.setItem("tokens", JSON.stringify(obj));
+                    loginDialog = false;
+                    socket.send(JSON.stringify({ token }));
+                    pollServer(window.location.pathname);
+                });
+            }
         );
     }
 

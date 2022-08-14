@@ -8,13 +8,17 @@ use tokio::time::sleep;
 use tokio_tungstenite::tungstenite::Message;
 use tracing::instrument;
 
-use crate::{handle_error, json_msg, shared, systemdata};
+use crate::{
+    handle_error, json_msg,
+    shared::{self, RequestTypes},
+    systemdata,
+};
 
 type SocketSend = SplitSink<
     tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>,
     tokio_tungstenite::tungstenite::Message,
 >;
-type RecvChannel = Receiver<Option<shared::Request>>;
+type RecvChannel = Receiver<Option<shared::RequestTypes>>;
 
 #[instrument(level = "debug", skip_all)]
 fn main_handler_getter(
@@ -72,27 +76,26 @@ pub async fn main_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChan
 }
 
 #[instrument(level = "debug", skip_all)]
-fn process_handler_helper(data: &shared::Request) -> anyhow::Result<()> {
-    let process = psutil::process::Process::new(
-        data.args[0]
-            .parse::<u32>()
-            .with_context(|| format!("Invalid pid {}", data.args[0]))?,
-    )
-    .with_context(|| format!("Couldn't make process from pid {}", data.args[0]))?;
-    tracing::info!(
-        "{}ing process {}",
-        data.cmd.trim_end_matches('e'),
-        process.pid()
-    );
-    match data.cmd.as_str() {
-        "terminate" => process.terminate(),
-        "kill" => process.kill(),
-        "suspend" => process.suspend(),
-        "resume" => process.resume(),
-        _ => (Ok(())),
+fn process_handler_helper(cmd: &str, arg: Option<&str>) -> anyhow::Result<()> {
+    if let Some(arg) = arg {
+        let process = psutil::process::Process::new(
+            arg.parse::<u32>()
+                .with_context(|| format!("Invalid pid {}", arg))?,
+        )
+        .with_context(|| format!("Couldn't make process from pid {}", arg))?;
+        tracing::info!("{}ing process {}", cmd.trim_end_matches('e'), process.pid());
+        match cmd {
+            "terminate" => process.terminate(),
+            "kill" => process.kill(),
+            "suspend" => process.suspend(),
+            "resume" => process.resume(),
+            _ => (Ok(())),
+        }
+        .with_context(|| format!("Couldn't {} process {}", cmd, process.pid()))?;
+        Ok(())
+    } else {
+        Err(anyhow::anyhow!("No argument"))
     }
-    .with_context(|| format!("Couldn't {} process {}", data.cmd, process.pid()))?;
-    Ok(())
 }
 
 #[instrument(skip_all)]
@@ -100,10 +103,10 @@ pub async fn process_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
     loop {
         tokio::select! {
             biased;
-            data = data_recv.recv() => if let Some(Some(data)) = data {
-                handle_error!(process_handler_helper(&data));
-            } else {
-                return false;
+            data = data_recv.recv() => match data {
+                Some(Some(RequestTypes::Cmd { cmd, args: Some(args) })) => handle_error!(process_handler_helper(&cmd, args.get(0).map(String::as_str))),
+                Some(Some(_)) => {}
+                _ => return false,
             },
             res = socket_send
                 .send(json_msg!(
@@ -123,20 +126,22 @@ pub async fn process_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
 
 #[instrument(level = "debug", skip_all)]
 pub async fn software_handler_helper(
-    data: &shared::Request,
+    cmd: &str,
+    args: &[String],
 ) -> anyhow::Result<shared::DPSoftwareList> {
     // We don't just want to run dietpi-software without args
-    anyhow::ensure!(!data.args.is_empty(), "Empty dietpi-software args");
+    anyhow::ensure!(!args.is_empty(), "Empty DietPi-Software args");
 
-    let mut cmd = tokio::process::Command::new("/boot/dietpi/dietpi-software");
-    let mut arg_list = vec![data.cmd.as_str()];
-    for element in &data.args {
+    let mut software_cmd = tokio::process::Command::new("/boot/dietpi/dietpi-software");
+    let mut arg_list = vec![cmd];
+    for element in args {
         arg_list.push(element.as_str());
     }
-    tracing::info!("{}ing software with ID(s) {:?}", data.cmd, data.args);
+    tracing::info!("{}ing software with ID(s) {:?}", cmd, args);
     let out = shared::remove_color_codes(
         std::str::from_utf8(
-            &cmd.args(arg_list)
+            &software_cmd
+                .args(arg_list)
                 .output()
                 .await
                 .context("Couldn't get DietPi-Software output")?
@@ -172,13 +177,19 @@ pub async fn software_handler(socket_send: &mut SocketSend, data_recv: &mut Recv
         return true;
     }
     while let Some(Some(data)) = data_recv.recv().await {
-        let out = handle_error!(
-            software_handler_helper(&data).await,
-            shared::DPSoftwareList::default()
-        );
-        if socket_send.send(json_msg!(&out, continue)).await.is_err() {
-            tracing::debug!("Socket send failed, returning");
-            return true;
+        if let RequestTypes::Cmd {
+            cmd,
+            args: Some(args),
+        } = data
+        {
+            let out = handle_error!(
+                software_handler_helper(&cmd, &args).await,
+                shared::DPSoftwareList::default()
+            );
+            if socket_send.send(json_msg!(&out, continue)).await.is_err() {
+                tracing::debug!("Socket send failed, returning");
+                return true;
+            }
         }
     }
     false
@@ -198,12 +209,14 @@ pub async fn management_handler(socket_send: &mut SocketSend, data_recv: &mut Re
         return true;
     }
     while let Some(Some(data)) = data_recv.recv().await {
-        tracing::info!("Running command {}", &data.cmd);
-        // Don't care about the Ok value, so remove it to make the type checker happy
-        handle_error!(Command::new(&data.cmd)
-            .spawn()
-            .map(|_| ())
-            .with_context(|| format!("Couldn't spawn command {}", &data.cmd)));
+        if let RequestTypes::Cmd { cmd, args: _ } = data {
+            tracing::info!("Running command {}", &cmd);
+            // Don't care about the Ok value, so remove it to make the type checker happy
+            handle_error!(Command::new(&cmd)
+                .spawn()
+                .map(|_| ())
+                .with_context(|| format!("Couldn't spawn command {}", &cmd)));
+        }
     }
     false
 }
@@ -224,23 +237,31 @@ pub async fn service_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
         return true;
     }
     while let Some(Some(data)) = data_recv.recv().await {
-        handle_error!(Command::new("systemctl")
-            .args([&data.cmd, data.args[0].as_str()])
-            .spawn()
-            .map(|_| ()) // Don't care about the Ok value, so remove it to make the type checker happy
-            .with_context(|| format!("Couldn't {} service {}", &data.cmd, &data.args[0])));
-        if socket_send
-            .send(json_msg!(
-                &shared::ServiceList {
-                    services: handle_error!(systemdata::services().await, Vec::new()),
-                },
-                continue
-            ))
-            .await
-            .is_err()
+        if let RequestTypes::Cmd {
+            cmd,
+            args: Some(args),
+        } = data
         {
-            tracing::debug!("Socket send failed, returning");
-            return true;
+            if let Some(arg) = args.get(0) {
+                handle_error!(Command::new("systemctl")
+                    .args([&cmd, arg])
+                    .spawn()
+                    .map(|_| ()) // Don't care about the Ok value, so remove it to make the type checker happy
+                    .with_context(|| format!("Couldn't {} service {}", &cmd, arg)));
+                if socket_send
+                    .send(json_msg!(
+                        &shared::ServiceList {
+                            services: handle_error!(systemdata::services().await, Vec::new()),
+                        },
+                        continue
+                    ))
+                    .await
+                    .is_err()
+                {
+                    tracing::debug!("Socket send failed, returning");
+                    return true;
+                }
+            }
         }
     }
     false
@@ -257,62 +278,62 @@ async fn browser_refresh(path: &std::path::Path) -> anyhow::Result<shared::Brows
 }
 
 #[instrument(level = "debug", skip_all)]
-async fn browser_handler_helper(data: &shared::Request) -> anyhow::Result<shared::BrowserList> {
+async fn browser_handler_helper(cmd: &str, args: &[String]) -> anyhow::Result<shared::BrowserList> {
     use tokio::fs;
 
-    tracing::debug!("Command is {}", &data.cmd);
+    tracing::debug!("Command is {}", cmd);
 
-    match data.cmd.as_str() {
-        "cd" => {
-            return Ok(shared::BrowserList {
-                contents: systemdata::browser_dir(std::path::Path::new(&data.args[0])).await?,
-            });
-        }
-        "copy" => {
-            let mut num = 2;
-            while std::path::Path::new(&format!("{} {}", &data.args[0], num)).exists() {
-                num += 1;
+    if let Some(arg) = args.get(0) {
+        match cmd {
+            "cd" => {
+                return Ok(shared::BrowserList {
+                    contents: systemdata::browser_dir(std::path::Path::new(arg)).await?,
+                });
             }
-            fs::copy(&data.args[0], format!("{} {}", &data.args[0], num))
-                .await
-                .with_context(|| {
-                    format!("Couldn't copy file {0} to {0} {1}", &data.args[0], num)
-                })?;
+            "copy" => {
+                let mut num = 2;
+                while std::path::Path::new(&format!("{} {}", arg, num)).exists() {
+                    num += 1;
+                }
+                fs::copy(arg, format!("{} {}", arg, num))
+                    .await
+                    .with_context(|| format!("Couldn't copy file {0} to {0} {1}", arg, num))?;
+            }
+            "rm" => {
+                fs::remove_file(arg)
+                    .await
+                    .with_context(|| format!("Couldn't delete file at {}", arg))?;
+            }
+            "rmdir" => {
+                fs::remove_dir_all(arg)
+                    .await
+                    .with_context(|| format!("Couldn't delete directory at {}", arg))?;
+            }
+            "mkdir" => {
+                fs::create_dir(arg)
+                    .await
+                    .with_context(|| format!("Couldn't create directory at {}", arg))?;
+            }
+            "mkfile" => {
+                fs::write(arg, "")
+                    .await
+                    .with_context(|| format!("Couldn't create file at {}", arg))?;
+            }
+            "rename" => {
+                if let Some(arg1) = args.get(1) {
+                    fs::rename(arg, arg1)
+                        .await
+                        .with_context(|| format!("Couldn't rename file {} to {}", arg, arg1))?;
+                } else {
+                    return Err(anyhow::anyhow!("No second argument"));
+                }
+            }
+            _ => tracing::debug!("Got command {}, not handling", cmd),
         }
-        "rm" => {
-            fs::remove_file(&data.args[0])
-                .await
-                .with_context(|| format!("Couldn't delete file at {}", &data.args[0]))?;
-        }
-        "rmdir" => {
-            fs::remove_dir_all(&data.args[0])
-                .await
-                .with_context(|| format!("Couldn't delete directory at {}", &data.args[0]))?;
-        }
-        "mkdir" => {
-            fs::create_dir(&data.args[0])
-                .await
-                .with_context(|| format!("Couldn't create directory at {}", &data.args[0]))?;
-        }
-        "mkfile" => {
-            fs::write(&data.args[0], "")
-                .await
-                .with_context(|| format!("Couldn't create file at {}", &data.args[0]))?;
-        }
-        "rename" => {
-            fs::rename(&data.args[0], &data.args[1])
-                .await
-                .with_context(|| {
-                    format!(
-                        "Couldn't rename file {} to {}",
-                        &data.args[0], &data.args[1]
-                    )
-                })?;
-        }
-        _ => tracing::debug!("Got command {}, not handling", &data.cmd),
+        browser_refresh(std::path::Path::new(arg)).await
+    } else {
+        Err(anyhow::anyhow!("No argument"))
     }
-
-    browser_refresh(std::path::Path::new(&data.args[0])).await
 }
 
 #[instrument(skip_all)]
@@ -340,19 +361,25 @@ pub async fn browser_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
 
     'outer: while let Some(Some(mut data)) = data_recv.recv().await {
         loop {
-            tokio::select! {
-                res = browser_handler_helper(&data) => {
-                    let list = handle_error!(res, shared::BrowserList::default());
-                    if socket_send.send(json_msg!(&list, continue)).await.is_err() {
-                        tracing::debug!("Socket send failed, returning");
-                        return true;
-                    }
-                    break;
-                },
-                recv = data_recv.recv() => match recv {
-                    Some(Some(data_tmp)) => data = data_tmp,
-                    _ => break 'outer,
-                },
+            if let RequestTypes::Cmd {
+                cmd,
+                args: Some(args),
+            } = &data
+            {
+                tokio::select! {
+                    res = browser_handler_helper(cmd, args) => {
+                        let list = handle_error!(res, shared::BrowserList::default());
+                        if socket_send.send(json_msg!(&list, continue)).await.is_err() {
+                            tracing::debug!("Socket send failed, returning");
+                            return true;
+                        }
+                        break;
+                    },
+                    recv = data_recv.recv() => match recv {
+                        Some(Some(data_tmp)) => data = data_tmp,
+                        _ => break 'outer,
+                    },
+                }
             }
         }
     }
