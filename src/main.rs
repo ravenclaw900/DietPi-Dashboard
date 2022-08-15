@@ -117,17 +117,16 @@ impl hyper::server::accept::Accept for &mut HyperTlsAcceptor {
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> anyhow::Result<()> {
-    {
-        let log_level = tracing_subscriber::filter::LevelFilter::from_str(&CONFIG.log_level)
-            .context("Couldn't parse log level")?;
-        tracing::subscriber::set_global_default(
-            tracing_subscriber::FmtSubscriber::builder()
-                .with_max_level(log_level)
-                .with_timer(tracing_subscriber::fmt::time::uptime())
-                .finish(),
-        )
-        .context("Couldn't init logger")?;
-    }
+    tracing::subscriber::set_global_default(
+        tracing_subscriber::FmtSubscriber::builder()
+            .with_max_level(
+                tracing_subscriber::filter::LevelFilter::from_str(&CONFIG.log_level)
+                    .context("Couldn't parse log level")?,
+            )
+            .with_timer(tracing_subscriber::fmt::time::uptime())
+            .finish(),
+    )
+    .context("Couldn't init logger")?;
 
     let addr = std::net::SocketAddr::from((IpAddr::from([0; 8]), CONFIG.port));
 

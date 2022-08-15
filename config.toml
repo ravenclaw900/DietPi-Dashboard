@@ -1,3 +1,7 @@
+# Config version
+# DO NOT CHANGE
+version = "1"
+
 # Log level
 # - Options: "off", "error", "warn", "info", "debug", "trace"
 # - Default: "info"

@@ -326,7 +326,7 @@ pub async fn global() -> shared::GlobalData {
     shared::GlobalData {
         update,
         login: CONFIG.pass,
-        version: env!("CARGO_PKG_VERSION").to_string(),
+        version: env!("CARGO_PKG_VERSION"),
         update_check: CONFIG.update_check,
         #[cfg(feature = "frontend")]
         nodes: CONFIG.nodes.clone(),

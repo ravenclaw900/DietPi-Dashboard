@@ -192,7 +192,7 @@ pub struct ServiceList {
 #[derive(Serialize)]
 pub struct GlobalData {
     pub update: String,
-    pub version: String,
+    pub version: &'static str,
     pub login: bool,
     pub update_check: bool,
     #[cfg(feature = "frontend")]
