@@ -121,7 +121,7 @@ async fn main() -> anyhow::Result<()> {
         tracing_subscriber::FmtSubscriber::builder()
             .with_max_level(
                 tracing_subscriber::filter::LevelFilter::from_str(&CONFIG.log_level)
-                    .context("Couldn't parse log level"),
+                    .context("Couldn't parse log level")?,
             )
             .with_timer(tracing_subscriber::fmt::time::uptime())
             .finish(),
