@@ -1,12 +1,11 @@
 use anyhow::Context;
+use async_tungstenite::tungstenite::Message;
+use futures_util::sink::SinkExt;
 use futures_util::stream::SplitSink;
 use futures_util::FutureExt;
-use futures_util::SinkExt;
+use smol::channel::Receiver;
 use smol::process::Command;
 use std::time::Duration;
-use tokio::sync::mpsc::Receiver;
-use tokio::time::sleep;
-use tokio_tungstenite::tungstenite::Message;
 use tracing::instrument;
 
 use crate::{
@@ -16,8 +15,8 @@ use crate::{
 };
 
 type SocketSend = SplitSink<
-    tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>,
-    tokio_tungstenite::tungstenite::Message,
+    async_tungstenite::WebSocketStream<async_compat::Compat<hyper::upgrade::Upgraded>>,
+    async_tungstenite::tungstenite::Message,
 >;
 type RecvChannel = Receiver<Option<shared::RequestTypes>>;
 
@@ -61,11 +60,11 @@ pub async fn main_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChan
 
     loop {
         futures_util::select_biased! {
-            data = data_recv.recv().fuse() => if let Some(Some(_)) = data {} else { return false },
+            data = data_recv.recv().fuse() => if let Ok(Some(_)) = data {} else { return false },
             res = socket_send
             .send(json_msg!(&handle_error!(main_handler_getter(&mut cpu_collector, &mut net_collector, &mut prev_data), shared::SysData::default()), continue)).fuse()
             => {
-                sleep(Duration::from_secs(1)).await;
+                smol::unblock(|| std::thread::sleep(Duration::from_secs(1))).await;
                 if res.is_err() {
                     tracing::debug!("Socket send failed, returning");
                     return true;
@@ -103,8 +102,8 @@ pub async fn process_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
     loop {
         futures_util::select_biased! {
             data = data_recv.recv().fuse() => match data {
-                Some(Some(RequestTypes::Cmd { cmd, args: Some(args) })) => handle_error!(process_handler_helper(&cmd, args.get(0).map(String::as_str))),
-                Some(Some(_)) => {}
+                Ok(Some(RequestTypes::Cmd { cmd, args: Some(args) })) => handle_error!(process_handler_helper(&cmd, args.get(0).map(String::as_str))),
+                Ok(Some(_)) => {}
                 _ => return false,
             },
             res = socket_send
@@ -113,7 +112,7 @@ pub async fn process_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
                         processes: handle_error!(systemdata::processes().await, Vec::new()),
                     }, continue
                 )).fuse() => {
-                    sleep(Duration::from_secs(1)).await;
+                    smol::unblock(|| std::thread::sleep(Duration::from_secs(1))).await;
                     if res.is_err() {
                         tracing::debug!("Socket send failed, returning");
                         return true;
@@ -175,7 +174,7 @@ pub async fn software_handler(socket_send: &mut SocketSend, data_recv: &mut Recv
         tracing::debug!("Socket send failed, returning");
         return true;
     }
-    while let Some(Some(data)) = data_recv.recv().await {
+    while let Ok(Some(data)) = data_recv.recv().await {
         if let RequestTypes::Cmd {
             cmd,
             args: Some(args),
@@ -207,7 +206,7 @@ pub async fn management_handler(socket_send: &mut SocketSend, data_recv: &mut Re
         tracing::debug!("Socket send failed, returning");
         return true;
     }
-    while let Some(Some(data)) = data_recv.recv().await {
+    while let Ok(Some(data)) = data_recv.recv().await {
         if let RequestTypes::Cmd { cmd, args: _ } = data {
             tracing::info!("Running command {}", &cmd);
             // Don't care about the Ok value, so remove it to make the type checker happy
@@ -235,7 +234,7 @@ pub async fn service_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
         tracing::debug!("Socket send failed, returning");
         return true;
     }
-    while let Some(Some(data)) = data_recv.recv().await {
+    while let Ok(Some(data)) = data_recv.recv().await {
         if let RequestTypes::Cmd {
             cmd,
             args: Some(args),
@@ -358,7 +357,7 @@ pub async fn browser_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
         return true;
     }
 
-    'outer: while let Some(Some(mut data)) = data_recv.recv().await {
+    'outer: while let Ok(Some(mut data)) = data_recv.recv().await {
         loop {
             if let RequestTypes::Cmd {
                 cmd,
@@ -375,7 +374,7 @@ pub async fn browser_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
                         break;
                     },
                     recv = data_recv.recv().fuse() => match recv {
-                        Some(Some(data_tmp)) => data = data_tmp,
+                        Ok(Some(data_tmp)) => data = data_tmp,
                         _ => break 'outer,
                     },
                 }

@@ -199,7 +199,7 @@ pub fn websocket<F, O>(
 where
     O: Future<Output = ()> + std::marker::Send,
     F: Fn(
-            tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>,
+            async_tungstenite::WebSocketStream<async_compat::Compat<hyper::upgrade::Upgraded>>,
             Option<String>,
             String,
         ) -> O
@@ -235,16 +235,16 @@ where
         .header(header::UPGRADE, "websocket")
         .header(
             "Sec-WebSocket-Accept",
-            &tokio_tungstenite::tungstenite::handshake::derive_accept_key(key.as_bytes()),
+            &async_tungstenite::tungstenite::handshake::derive_accept_key(key.as_bytes()),
         )
         .body(Body::from("switching to websocket protocol"));
 
-    tokio::spawn(async move {
+    smol::spawn(async move {
         match hyper::upgrade::on(&mut req).await {
             Ok(upgraded) => {
-                let ws = tokio_tungstenite::WebSocketStream::from_raw_socket(
-                    upgraded,
-                    tokio_tungstenite::tungstenite::protocol::Role::Server,
+                let ws = async_tungstenite::WebSocketStream::from_raw_socket(
+                    async_compat::Compat::new(upgraded),
+                    async_tungstenite::tungstenite::protocol::Role::Server,
                     None,
                 )
                 .await;
@@ -252,7 +252,8 @@ where
             }
             Err(e) => eprintln!("upgrade error: {}", e),
         }
-    });
+    })
+    .detach();
     Ok(resp?)
 }
 

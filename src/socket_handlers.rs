@@ -1,14 +1,16 @@
 use anyhow::Context;
-use futures::{FutureExt, SinkExt, StreamExt};
+use async_tungstenite::tungstenite::Message;
+use futures_util::{FutureExt, SinkExt, StreamExt};
 use pty_process::Command;
+use smol::channel;
 use smol::io::{AsyncReadExt, AsyncWriteExt};
 use std::io::{Read, Write};
 use std::sync::Arc;
-use tokio::sync::mpsc;
-use tokio_tungstenite::tungstenite::Message;
 use tracing::{instrument, Instrument};
 
 use crate::{handle_error, page_handlers, shared, systemdata, CONFIG};
+
+type Websocket = async_tungstenite::WebSocketStream<async_compat::Compat<hyper::upgrade::Upgraded>>;
 
 enum TokenState {
     InvalidToken,
@@ -50,14 +52,10 @@ fn validate_token(token: &str, fingerprint: Option<&str>) -> TokenState {
 }
 
 #[instrument(skip_all)]
-pub async fn socket_handler(
-    socket: tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>,
-    fingerprint: Option<String>,
-    _token: String,
-) {
+pub async fn socket_handler(socket: Websocket, fingerprint: Option<String>, _token: String) {
     let (mut socket_send, mut socket_recv) = socket.split();
-    let (data_send, mut data_recv) = mpsc::channel(1);
-    tokio::task::spawn(async move {
+    let (data_send, mut data_recv) = channel::bounded(1);
+    smol::spawn(async move {
         let mut first_message = true;
         let mut req: shared::RequestTypes;
         let mut token = String::new();
@@ -124,7 +122,8 @@ pub async fn socket_handler(
                 break;
             }
         }
-    });
+    })
+    .detach();
     // Send global message (shown on all pages)
     if socket_send
         .send(crate::json_msg!(&systemdata::global().await, return))
@@ -133,7 +132,7 @@ pub async fn socket_handler(
     {
         return;
     }
-    while let Some(Some(message)) = data_recv.recv().await {
+    while let Ok(Some(message)) = data_recv.recv().await {
         if let shared::RequestTypes::Page(page) = message {
             if match page.as_str() {
                 "/" => page_handlers::main_handler(&mut socket_send, &mut data_recv).await,
@@ -182,11 +181,7 @@ struct TTYSize {
 }
 
 #[instrument(skip_all)]
-pub async fn term_handler(
-    socket: tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>,
-    fingerprint: Option<String>,
-    token: String,
-) {
+pub async fn term_handler(socket: Websocket, fingerprint: Option<String>, token: String) {
     let (mut socket_send, mut socket_recv) = socket.split();
 
     if crate::CONFIG.pass && !validate_token(&token, fingerprint.as_deref()).as_bool() {
@@ -209,21 +204,17 @@ pub async fn term_handler(
     ));
     let mut cmd_read = Arc::clone(&cmd);
 
-    futures::join!(
+    futures_util::join!(
         async {
             loop {
                 // Don't care about partial reads, it's in a loop
                 #[allow(clippy::unused_io_amount)]
-                let result = handle_error!(
-                    tokio::task::spawn_blocking(move || {
-                        let mut data = [0; 256];
-                        let res = cmd_read.pty().read(&mut data);
-                        (res, data, cmd_read)
-                    })
-                    .await
-                    .context("Couldn't spawn tokio reader thread"),
-                    break
-                );
+                let result = smol::unblock(move || {
+                    let mut data = [0; 256];
+                    let res = cmd_read.pty().read(&mut data);
+                    (res, data, cmd_read)
+                })
+                .await;
                 cmd_read = result.2;
                 if result.0.is_ok() {
                     if socket_send
@@ -335,7 +326,7 @@ async fn create_zip_file(req: &shared::FileRequest) -> anyhow::Result<Vec<u8>> {
                         .with_context(|| format!("Couldn't read file {}, skipping", &name)),
                     continue
                 );
-                let tup = tokio::task::spawn_blocking(
+                let tup = smol::unblock(
                     move || -> (zip::ZipWriter<std::io::Cursor<Vec<u8>>>, Vec<u8>, anyhow::Result<()>) {
                         if let Err(err) = zip_file.write_all(&file_buf) {
                             return (zip_file, file_buf, Err(err.into()));
@@ -343,8 +334,7 @@ async fn create_zip_file(req: &shared::FileRequest) -> anyhow::Result<Vec<u8>> {
                         (zip_file, file_buf, Ok(()))
                     },
                 )
-                .await
-                .context("Couldn't spawn zip task")?;
+                .await;
                 zip_file = tup.0;
                 file_buf = tup.1;
                 handle_error!(tup
@@ -435,11 +425,7 @@ fn get_file_req(data: &Message) -> anyhow::Result<shared::FileRequest> {
 }
 
 #[instrument(skip_all)]
-pub async fn file_handler(
-    socket: tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>,
-    fingerprint: Option<String>,
-    token: String,
-) {
+pub async fn file_handler(socket: Websocket, fingerprint: Option<String>, token: String) {
     let (mut socket_send, mut socket_recv) = socket.split();
     let mut req: shared::FileRequest;
 
@@ -457,7 +443,7 @@ pub async fn file_handler(
         }
 
         loop {
-            futures::select! {
+            futures_util::select! {
                 result = file_handler_helper(&req).fuse() => {
                     match handle_error!(result, continue) {
                         Some(FileHandlerHelperReturns::String(file)) => {

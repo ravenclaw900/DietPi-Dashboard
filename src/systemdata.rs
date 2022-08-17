@@ -5,7 +5,6 @@ use smol::process::Command;
 use smol::stream::StreamExt;
 use std::str::from_utf8;
 use std::time::Duration;
-use tokio::time::sleep;
 use tracing::instrument;
 
 use crate::shared;
@@ -111,7 +110,7 @@ pub async fn processes() -> anyhow::Result<Vec<shared::ProcessData>> {
             continue;
         }
     }
-    sleep(Duration::from_millis(500)).await;
+    smol::unblock(|| std::thread::sleep(Duration::from_millis(500))).await;
     for mut element in processes.into_iter().flatten() {
         // Errors shouldn't return, just skip the process
         let process = if let Ok(process) = get_process_data(&mut element) {

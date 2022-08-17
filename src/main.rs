@@ -79,13 +79,11 @@ impl hyper::server::accept::Accept for SmolTcpAdaptor<'_> {
     type Error = std::io::Error;
 
     fn poll_accept(
-        self: std::pin::Pin<&mut Self>,
+        mut self: std::pin::Pin<&mut Self>,
         cx: &mut std::task::Context<'_>,
     ) -> Poll<Option<Result<Self::Conn, Self::Error>>> {
         // There's probably a better solution than the 3 layers of mapping
-        self.0
-            .poll_next(cx)
-            .map(|x| x.map(|y| y.map(|z| Compat::new(z))))
+        self.0.poll_next(cx).map(|x| x.map(|y| y.map(Compat::new)))
     }
 }
 
