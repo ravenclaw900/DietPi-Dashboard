@@ -23,6 +23,7 @@ static DIR: include_dir::Dir<'_> = include_dir::include_dir!("$CARGO_MANIFEST_DI
 
 type AsyncTlsStream = Compat<async_rustls::server::TlsStream<smol::net::TcpStream>>;
 
+#[derive(Clone)]
 struct SmolExecutor;
 
 impl<F: smol::future::Future + Send + 'static> hyper::rt::Executor<F> for SmolExecutor {
@@ -162,6 +163,7 @@ fn main() -> anyhow::Result<()> {
             // Ignore result, because it will never be an error
             loop {
                 let _res = hyper::server::Server::builder(&mut tls_listener)
+                    .executor(SmolExecutor)
                     .serve(make_service_fn(|conn: &AsyncTlsStream| {
                         let remote_addr =
                             conn.get_ref().get_ref().0.peer_addr().unwrap_or_else(|_| {
@@ -178,6 +180,7 @@ fn main() -> anyhow::Result<()> {
             }
         } else {
             hyper::server::Server::builder(SmolTcpAdaptor(tcp.incoming()))
+                .executor(SmolExecutor)
                 .serve(make_service_fn(|conn: &Compat<smol::net::TcpStream>| {
                     let remote_addr = conn.get_ref().peer_addr().unwrap_or_else(|_| {
                         std::net::SocketAddr::from((std::net::Ipv4Addr::UNSPECIFIED, 0))
