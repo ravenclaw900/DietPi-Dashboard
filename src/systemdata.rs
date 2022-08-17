@@ -1,9 +1,10 @@
 use anyhow::Context;
 use psutil::{cpu, disk, host, memory, network, process, sensors};
+use smol::fs;
+use smol::process::Command;
+use smol::stream::StreamExt;
 use std::str::from_utf8;
 use std::time::Duration;
-use tokio::fs;
-use tokio::process::Command;
 use tokio::time::sleep;
 use tracing::instrument;
 
@@ -340,7 +341,7 @@ pub async fn browser_dir(path: &std::path::Path) -> anyhow::Result<Vec<shared::B
         .await
         .with_context(|| format!("Couldn't read path {}", path.display()))?;
     let mut file_list = Vec::new();
-    while let Ok(Some(file)) = dir.next_entry().await {
+    while let Some(Ok(file)) = dir.next().await {
         // Resolve all symlinks
         let path = fs::canonicalize(file.path())
             .await

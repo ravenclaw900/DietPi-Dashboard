@@ -1,8 +1,9 @@
 use anyhow::Context;
-use futures::stream::SplitSink;
-use futures::SinkExt;
+use futures_util::stream::SplitSink;
+use futures_util::FutureExt;
+use futures_util::SinkExt;
+use smol::process::Command;
 use std::time::Duration;
-use tokio::process::Command;
 use tokio::sync::mpsc::Receiver;
 use tokio::time::sleep;
 use tokio_tungstenite::tungstenite::Message;
@@ -59,11 +60,10 @@ pub async fn main_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChan
     };
 
     loop {
-        tokio::select! {
-            biased;
-            data = data_recv.recv() => if let Some(Some(_)) = data {} else { return false },
+        futures_util::select_biased! {
+            data = data_recv.recv().fuse() => if let Some(Some(_)) = data {} else { return false },
             res = socket_send
-            .send(json_msg!(&handle_error!(main_handler_getter(&mut cpu_collector, &mut net_collector, &mut prev_data), shared::SysData::default()), continue))
+            .send(json_msg!(&handle_error!(main_handler_getter(&mut cpu_collector, &mut net_collector, &mut prev_data), shared::SysData::default()), continue)).fuse()
             => {
                 sleep(Duration::from_secs(1)).await;
                 if res.is_err() {
@@ -101,9 +101,8 @@ fn process_handler_helper(cmd: &str, arg: Option<&str>) -> anyhow::Result<()> {
 #[instrument(skip_all)]
 pub async fn process_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) -> bool {
     loop {
-        tokio::select! {
-            biased;
-            data = data_recv.recv() => match data {
+        futures_util::select_biased! {
+            data = data_recv.recv().fuse() => match data {
                 Some(Some(RequestTypes::Cmd { cmd, args: Some(args) })) => handle_error!(process_handler_helper(&cmd, args.get(0).map(String::as_str))),
                 Some(Some(_)) => {}
                 _ => return false,
@@ -113,7 +112,7 @@ pub async fn process_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
                     &shared::ProcessList {
                         processes: handle_error!(systemdata::processes().await, Vec::new()),
                     }, continue
-                )) => {
+                )).fuse() => {
                     sleep(Duration::from_secs(1)).await;
                     if res.is_err() {
                         tracing::debug!("Socket send failed, returning");
@@ -132,7 +131,7 @@ pub async fn software_handler_helper(
     // We don't just want to run dietpi-software without args
     anyhow::ensure!(!args.is_empty(), "Empty DietPi-Software args");
 
-    let mut software_cmd = tokio::process::Command::new("/boot/dietpi/dietpi-software");
+    let mut software_cmd = smol::process::Command::new("/boot/dietpi/dietpi-software");
     let mut arg_list = vec![cmd];
     for element in args {
         arg_list.push(element.as_str());
@@ -279,7 +278,7 @@ async fn browser_refresh(path: &std::path::Path) -> anyhow::Result<shared::Brows
 
 #[instrument(level = "debug", skip_all)]
 async fn browser_handler_helper(cmd: &str, args: &[String]) -> anyhow::Result<shared::BrowserList> {
-    use tokio::fs;
+    use smol::fs;
 
     tracing::debug!("Command is {}", cmd);
 
@@ -366,8 +365,8 @@ pub async fn browser_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
                 args: Some(args),
             } = &data
             {
-                tokio::select! {
-                    res = browser_handler_helper(cmd, args) => {
+                futures_util::select! {
+                    res = browser_handler_helper(cmd, args).fuse() => {
                         let list = handle_error!(res, shared::BrowserList::default());
                         if socket_send.send(json_msg!(&list, continue)).await.is_err() {
                             tracing::debug!("Socket send failed, returning");
@@ -375,7 +374,7 @@ pub async fn browser_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
                         }
                         break;
                     },
-                    recv = data_recv.recv() => match recv {
+                    recv = data_recv.recv().fuse() => match recv {
                         Some(Some(data_tmp)) => data = data_tmp,
                         _ => break 'outer,
                     },

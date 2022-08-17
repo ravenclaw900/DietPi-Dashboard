@@ -3,7 +3,7 @@ use crate::shared::CONFIG;
 #[cfg(feature = "frontend")]
 use crate::DIR;
 use anyhow::Context;
-use futures::Future;
+use futures_util::Future;
 use hyper::http::{header, HeaderValue};
 use hyper::{Body, Method, Request, Response, StatusCode};
 use ring::digest;

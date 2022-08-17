@@ -6,9 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tokio = { version = "1", features = ["rt", "macros", "time", "sync", "fs", "process"] }
 include_dir = {version = "0.7.2", optional = true}
-futures = "0.3.23"
 pty-process = "0.2.0"
 psutil = "3.2.2"
 infer = { version = "0.9.0", default-features = false }
@@ -25,11 +23,14 @@ serde_json = "1.0.83"
 tracing = { version = "0.1.36", features = ["release_max_level_debug"] }
 tracing-subscriber = "0.3.15"
 hyper = { version = "0.14.20", features = ["server", "http1", "tcp"] }
-tokio-tungstenite = "0.17.2"
-tokio-rustls = "0.23.4"
 rustls-pemfile = "1.0.1"
 getrandom = "0.2.7"
 hex = "0.4.3"
+smol = "1.2.5"
+async-rustls = "0.2.0"
+futures-util = { version = "0.3.23", features = ["sink"] }
+async-compat = "0.2.1"
+soketto = { version = "0.7.1", features = ["http"] }
 
 [features]
 default = ["frontend"]

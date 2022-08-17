@@ -1,9 +1,9 @@
 use anyhow::Context;
-use futures::{SinkExt, StreamExt};
+use futures::{FutureExt, SinkExt, StreamExt};
 use pty_process::Command;
+use smol::io::{AsyncReadExt, AsyncWriteExt};
 use std::io::{Read, Write};
 use std::sync::Arc;
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::sync::mpsc;
 use tokio_tungstenite::tungstenite::Message;
 use tracing::{instrument, Instrument};
@@ -209,7 +209,7 @@ pub async fn term_handler(
     ));
     let mut cmd_read = Arc::clone(&cmd);
 
-    tokio::join!(
+    futures::join!(
         async {
             loop {
                 // Don't care about partial reads, it's in a loop
@@ -300,7 +300,7 @@ pub async fn term_handler(
 
 #[instrument(level = "debug", skip_all)]
 async fn create_zip_file(req: &shared::FileRequest) -> anyhow::Result<Vec<u8>> {
-    let src_path = tokio::fs::canonicalize(&req.path)
+    let src_path = smol::fs::canonicalize(&req.path)
         .await
         .with_context(|| format!("Invalid source path {}", &req.path))?;
     if src_path.is_dir() {
@@ -324,7 +324,7 @@ async fn create_zip_file(req: &shared::FileRequest) -> anyhow::Result<Vec<u8>> {
                     .start_file(&name, zip::write::FileOptions::default())
                     .with_context(|| format!("Couldn't add file {} to zip", &name))?;
                 let mut file = handle_error!(
-                    tokio::fs::File::open(path)
+                    smol::fs::File::open(path)
                         .await
                         .with_context(|| format!("Couldn't open file {}, skipping", &name)),
                     continue
@@ -364,7 +364,7 @@ async fn create_zip_file(req: &shared::FileRequest) -> anyhow::Result<Vec<u8>> {
             .into_inner());
     }
     tracing::debug!("Source path is file, returning file data");
-    tokio::fs::read(&src_path)
+    smol::fs::read(&src_path)
         .await
         .with_context(|| format!("Couldn't read file {}", src_path.display()))
 }
@@ -373,7 +373,7 @@ async fn create_zip_file(req: &shared::FileRequest) -> anyhow::Result<Vec<u8>> {
 enum FileHandlerHelperReturns {
     String(String),
     SizeBuf(shared::FileSize, Vec<u8>),
-    StreamUpload(usize, tokio::fs::File),
+    StreamUpload(usize, smol::fs::File),
 }
 
 #[instrument(level = "debug", skip_all)]
@@ -384,7 +384,7 @@ async fn file_handler_helper(
     match req.cmd.as_str() {
         "open" => {
             return Ok(Some(FileHandlerHelperReturns::String(
-                tokio::fs::read_to_string(&req.path)
+                smol::fs::read_to_string(&req.path)
                     .await
                     .with_context(|| format!("Couldn't read file {}", &req.path))?,
             )))
@@ -405,7 +405,7 @@ async fn file_handler_helper(
             )));
         }
         "up" => {
-            let file = tokio::fs::File::create(&req.path)
+            let file = smol::fs::File::create(&req.path)
                 .await
                 .with_context(|| format!("Couldn't create file at {}", &req.path))?;
             return Ok(Some(FileHandlerHelperReturns::StreamUpload(
@@ -413,7 +413,7 @@ async fn file_handler_helper(
                 file,
             )));
         }
-        "save" => tokio::fs::write(&req.path, &req.arg)
+        "save" => smol::fs::write(&req.path, &req.arg)
             .await
             .with_context(|| format!("Couldn't save file {}", &req.path))?,
         _ => tracing::debug!("Got command {}, not handling", &req.cmd),
@@ -457,8 +457,8 @@ pub async fn file_handler(
         }
 
         loop {
-            tokio::select! {
-                result = file_handler_helper(&req) => {
+            futures::select! {
+                result = file_handler_helper(&req).fuse() => {
                     match handle_error!(result, continue) {
                         Some(FileHandlerHelperReturns::String(file)) => {
                             if socket_send.send(Message::text(file)).await.is_err() {
@@ -493,7 +493,7 @@ pub async fn file_handler(
                     }
                     break;
                 },
-                recv = socket_recv.next() => match recv {
+                recv = socket_recv.next().fuse() => match recv {
                     Some(Ok(req_tmp)) => req = handle_error!(get_file_req(&req_tmp), continue 'outer),
                     _ => break 'outer,
                 },
