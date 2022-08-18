@@ -15,7 +15,7 @@ use crate::{
 };
 
 type SocketSend = SplitSink<
-    async_tungstenite::WebSocketStream<async_compat::Compat<hyper::upgrade::Upgraded>>,
+    async_tungstenite::WebSocketStream<crate::shared::HyperUpgradeAdaptor>,
     async_tungstenite::tungstenite::Message,
 >;
 type RecvChannel = Receiver<Option<shared::RequestTypes>>;

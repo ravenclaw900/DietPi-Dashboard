@@ -35,19 +35,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "async-compat"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9b48b4ff0c2026db683dea961cd8ea874737f56cffca86fa84415eaddc51c00d"
-dependencies = [
- "futures-core",
- "futures-io",
- "once_cell",
- "pin-project-lite",
- "tokio",
-]
-
-[[package]]
 name = "async-executor"
 version = "1.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -333,7 +320,6 @@ name = "dietpi-dashboard"
 version = "0.6.0"
 dependencies = [
  "anyhow",
- "async-compat",
  "async-rustls",
  "async-tungstenite",
  "figment",
@@ -355,6 +341,7 @@ dependencies = [
  "serde",
  "serde_json",
  "smol",
+ "tokio",
  "tracing",
  "tracing-subscriber",
  "walkdir",

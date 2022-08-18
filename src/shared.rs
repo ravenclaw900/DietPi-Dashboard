@@ -1,5 +1,6 @@
 use anyhow::Context;
 use serde::{Deserialize, Serialize};
+use tokio::io::{AsyncRead, AsyncWrite};
 
 pub static CONFIG: once_cell::sync::Lazy<crate::config::Config> =
     once_cell::sync::Lazy::new(crate::config::config);
@@ -67,6 +68,44 @@ pub fn get_fingerprint(req: &hyper::Request<hyper::Body>) -> anyhow::Result<Opti
         })
         .context("Invalid fingerprint token")?,
     ))))
+}
+
+pub struct HyperUpgradeAdaptor(pub hyper::upgrade::Upgraded);
+
+impl smol::io::AsyncRead for HyperUpgradeAdaptor {
+    fn poll_read(
+        mut self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+        buf: &mut [u8],
+    ) -> std::task::Poll<std::io::Result<usize>> {
+        let mut buf = tokio::io::ReadBuf::new(buf);
+        smol::ready!(std::pin::Pin::new(&mut self.0).poll_read(cx, &mut buf))?;
+        std::task::Poll::Ready(Ok(buf.filled().len()))
+    }
+}
+
+impl smol::io::AsyncWrite for HyperUpgradeAdaptor {
+    fn poll_write(
+        mut self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+        buf: &[u8],
+    ) -> std::task::Poll<std::io::Result<usize>> {
+        std::pin::Pin::new(&mut self.0).poll_write(cx, buf)
+    }
+
+    fn poll_flush(
+        mut self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+    ) -> std::task::Poll<std::io::Result<()>> {
+        std::pin::Pin::new(&mut self.0).poll_flush(cx)
+    }
+
+    fn poll_close(
+        mut self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+    ) -> std::task::Poll<std::io::Result<()>> {
+        std::pin::Pin::new(&mut self.0).poll_shutdown(cx)
+    }
 }
 
 #[derive(Serialize, Default)]

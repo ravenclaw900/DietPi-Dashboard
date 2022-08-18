@@ -199,7 +199,7 @@ pub fn websocket<F, O>(
 where
     O: Future<Output = ()> + std::marker::Send,
     F: Fn(
-            async_tungstenite::WebSocketStream<async_compat::Compat<hyper::upgrade::Upgraded>>,
+            async_tungstenite::WebSocketStream<crate::shared::HyperUpgradeAdaptor>,
             Option<String>,
             String,
         ) -> O
@@ -243,7 +243,7 @@ where
         match hyper::upgrade::on(&mut req).await {
             Ok(upgraded) => {
                 let ws = async_tungstenite::WebSocketStream::from_raw_socket(
-                    async_compat::Compat::new(upgraded),
+                    crate::shared::HyperUpgradeAdaptor(upgraded),
                     async_tungstenite::tungstenite::protocol::Role::Server,
                     None,
                 )

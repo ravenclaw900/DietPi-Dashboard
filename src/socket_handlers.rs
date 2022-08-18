@@ -10,7 +10,7 @@ use tracing::{instrument, Instrument};
 
 use crate::{handle_error, page_handlers, shared, systemdata, CONFIG};
 
-type Websocket = async_tungstenite::WebSocketStream<async_compat::Compat<hyper::upgrade::Upgraded>>;
+type Websocket = async_tungstenite::WebSocketStream<crate::shared::HyperUpgradeAdaptor>;
 
 enum TokenState {
     InvalidToken,

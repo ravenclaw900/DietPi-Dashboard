@@ -28,9 +28,9 @@ getrandom = "0.2.7"
 hex = "0.4.3"
 smol = "1.2.5"
 async-rustls = "0.2.0"
-async-compat = "0.2.1"
 futures-util = "0.3.23"
 async-tungstenite = "0.17.2"
+tokio = "1.20.1"
 
 [features]
 default = ["frontend"]
