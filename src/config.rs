@@ -31,8 +31,8 @@ pub struct Config {
 }
 
 impl Default for Config {
-    fn default() -> Config {
-        Config {
+    fn default() -> Self {
+        Self {
             log_level: "info".to_string(),
 
             port: 5252,

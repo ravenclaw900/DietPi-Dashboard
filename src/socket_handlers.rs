@@ -19,8 +19,8 @@ enum TokenState {
 }
 
 impl TokenState {
-    fn as_bool(&self) -> bool {
-        if let TokenState::ValidToken = self {
+    const fn as_bool(&self) -> bool {
+        if let Self::ValidToken = self {
             return true;
         }
         false
@@ -267,7 +267,7 @@ pub async fn term_handler(socket: Websocket, fingerprint: Option<String>, token:
                 } else {
                     tracing::debug!("Exiting terminal");
                     // Stop bash by writing "exit", since it won't respond to a SIGTERM
-                    let _write = cmd.pty().write_all("exit\n".as_bytes());
+                    let _write = cmd.pty().write_all(b"exit\n");
                     break;
                 }
             }
