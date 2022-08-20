@@ -146,7 +146,7 @@
         }
     };
     const socketOpenListener = () => {
-        console.log("Connected");
+        console.info("Connected");
         shown = true;
         loginDialog = false;
     };
@@ -154,7 +154,7 @@
         console.error(e);
     };
     const socketCloseListener = (e: CloseEvent) => {
-        console.log("Disconnected", reopenSocket);
+        console.info("Disconnected, reconnecting:", reopenSocket);
         if (reopenSocket) {
             setTimeout(() => connectSocket(node), 1000);
         } else {

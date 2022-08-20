@@ -57,26 +57,6 @@
             prettyBytes(socketData.disk.total),
         ]));
 
-    function getSize() {
-        if (portrait) {
-            return {
-                width: Math.max(
-                    (window.innerWidth / 100) * 70,
-                    document.getElementById("chart").getBoundingClientRect()
-                        .width - 20
-                ),
-                height: (window.innerHeight / 100) * 50,
-            };
-        } else {
-            return {
-                height: (window.innerHeight / 100) * 70,
-                width:
-                    document.getElementById("chart").getBoundingClientRect()
-                        .width - 20,
-            };
-        }
-    }
-
     function getTempMsg(temp: number) {
         if (temp >= 70) {
             return "WARNING: Reducing the life of your device";
@@ -107,11 +87,25 @@
         }
     }
 
+    function resizeUplot(uplot: uPlot, entry: Element) {
+        uplot.setSize({
+            width: Math.min(
+                entry.clientWidth - 10,
+                (window.innerWidth / 100) * (portrait ? 70 : 50)
+            ),
+            height: Math.min(
+                entry.clientHeight - 20,
+                (window.innerHeight / 100) * (portrait ? 50 : 70)
+            ),
+        });
+    }
+
     let uplot: uPlot;
 
     onMount(() => {
         let opts: uPlot.Options = {
-            ...getSize(),
+            width: 100,
+            height: 100,
             series: [
                 {},
                 {
@@ -216,6 +210,12 @@
         if (socketData.swap != undefined && socketData.swap.total == 0) {
             uplot.setSeries(3, { show: false });
         }
+
+        let observer = new ResizeObserver((entries, _) =>
+            resizeUplot(uplot, entries[0].target)
+        );
+
+        observer.observe(document.getElementById("chart"));
     });
 
     let handle1 = setInterval(() => {
@@ -259,7 +259,6 @@
 <svelte:window
     on:resize={() => {
         portrait = window.innerHeight > window.innerWidth;
-        uplot.setSize(getSize());
     }}
 />
 
