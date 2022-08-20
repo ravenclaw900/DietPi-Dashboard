@@ -356,7 +356,7 @@
                                 />
                             </FaLayers>
                         {:else}
-                            <Fa icon={faEnvelope} />
+                            <Fa icon={faEnvelope} size="lg" />
                         {/if}
                     </span>
                 </div>
