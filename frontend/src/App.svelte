@@ -147,6 +147,7 @@
     const socketOpenListener = () => {
         console.log("Connected");
         shown = true;
+        loginDialog = false;
     };
     const socketErrorListener = (e: ErrorEvent) => {
         console.error(e);
