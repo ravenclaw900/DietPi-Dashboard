@@ -220,9 +220,18 @@ where
             .body(Body::empty())?);
     };
 
-    if req.headers().get(header::CONNECTION) != Some(&HeaderValue::from_static("Upgrade"))
-        || req.headers().get(header::UPGRADE) != Some(&HeaderValue::from_static("websocket"))
-        || req.headers().get(header::SEC_WEBSOCKET_VERSION) != Some(&HeaderValue::from_static("13"))
+    if !(req
+        .headers()
+        .get(header::CONNECTION)
+        .and_then(|x| x.to_str().ok())
+        .map_or(false, |x| x.contains("Upgrade"))
+        && req
+            .headers()
+            .get(header::UPGRADE)
+            .and_then(|x| x.to_str().ok())
+            .map_or(false, |x| x.contains("websocket"))
+        && req.headers().get(header::SEC_WEBSOCKET_VERSION)
+            == Some(&HeaderValue::from_static("13")))
     {
         return Ok(Response::builder()
             .status(StatusCode::BAD_REQUEST)
