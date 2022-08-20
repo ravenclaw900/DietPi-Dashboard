@@ -152,7 +152,7 @@
             disabled={installArray.length == 0 || running}
         >
             {#if running}
-                <Fa icon={faCircleNotch} class="animate-spin" />
+                <Fa icon={faCircleNotch} spin />
             {/if}
             {installTable ? "Uni" : "I"}nstall{nameList}
         </button>

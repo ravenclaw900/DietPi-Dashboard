@@ -8,6 +8,7 @@
     import Terminal from "./pages/Terminal.svelte";
     import NavbarLink from "./components/NavbarLink.svelte";
     import Fa from "svelte-fa";
+    import FaLayers from "svelte-fa/src/fa-layers.svelte";
     import {
         faTachometerAlt,
         faMicrochip,
@@ -20,8 +21,8 @@
         faSun,
         faMoon,
         faEnvelope,
-        faEnvelopeOpenText,
         faCog,
+        faCircle,
     } from "@fortawesome/free-solid-svg-icons";
     import Management from "./pages/Management.svelte";
     import FileBrowser from "./pages/FileBrowser.svelte";
@@ -342,10 +343,21 @@
                         class="cursor-pointer"
                         on:click={() =>
                             (notificationsShown = !notificationsShown)}
-                        ><Fa
-                            icon={notify ? faEnvelopeOpenText : faEnvelope}
-                            size="lg"
-                        />
+                        >{#if notify}
+                            <FaLayers size="lg">
+                                <Fa icon={faEnvelope} />
+                                <Fa
+                                    icon={faCircle}
+                                    scale={0.5}
+                                    translateX={0.25}
+                                    translateY={0.25}
+                                    color="tomato"
+                                    class="animate-pulse"
+                                />
+                            </FaLayers>
+                        {:else}
+                            <Fa icon={faEnvelope} />
+                        {/if}
                     </span>
                 </div>
                 {#if nodes.length != 0}
