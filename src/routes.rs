@@ -71,6 +71,10 @@ pub fn assets_route(req: Request<Body>) -> anyhow::Result<Response<Body>> {
 pub async fn login_route(mut req: Request<Body>) -> anyhow::Result<Response<Body>> {
     let token: String;
     let mut response = Response::new(Body::empty());
+    response.headers_mut().insert(
+        header::ACCESS_CONTROL_ALLOW_ORIGIN,
+        HeaderValue::from_static("*"),
+    );
     if CONFIG.pass {
         let shasum = hex::encode(
             digest::digest(
