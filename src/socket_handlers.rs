@@ -212,8 +212,6 @@ pub async fn term_handler(
     tokio::join!(
         async {
             loop {
-                // Don't care about partial reads, it's in a loop
-                #[allow(clippy::unused_io_amount)]
                 let result = handle_error!(
                     tokio::task::spawn_blocking(move || {
                         let mut data = [0; 256];
@@ -225,11 +223,9 @@ pub async fn term_handler(
                     break
                 );
                 cmd_read = result.2;
-                if result.0.is_ok() {
+                if let Ok(read) = result.0 {
                     if socket_send
-                        .send(Message::binary(
-                            result.1.split(|num| *num == 0).next().unwrap_or(&result.1),
-                        )) // Should never be None, but return data just in case
+                        .send(Message::binary(&result.1[..read]))
                         .await
                         .is_err()
                     {
