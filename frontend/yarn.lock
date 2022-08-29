@@ -520,7 +520,7 @@ __metadata:
     svelte: ^3.49.0
     svelte-check: ^2.9.0
     svelte-fa: ^3.0.3
-    svelte-language-server: ^0.14.32
+    svelte-language-server: ^0.14.33
     svelte-preprocess: ^4.10.7
     svelte-routing: ^1.6.0
     tslib: ^2.4.0
@@ -1555,12 +1555,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:2.5.1":
-  version: 2.5.1
-  resolution: "prettier@npm:2.5.1"
+"prettier@npm:2.7.1":
+  version: 2.7.1
+  resolution: "prettier@npm:2.7.1"
   bin:
     prettier: bin-prettier.js
-  checksum: 21b9408476ea1c544b0e45d51ceb94a84789ff92095abb710942d780c862d0daebdb29972d47f6b4d0f7ebbfb0ffbf56cc2cfa3e3e9d1cca54864af185b15b66
+  checksum: 55a4409182260866ab31284d929b3cb961e5fdb91fe0d2e099dac92eaecec890f36e524b4c19e6ceae839c99c6d7195817579cdffc8e2c80da0cb794463a748b
   languageName: node
   linkType: hard
 
@@ -1929,16 +1929,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"svelte-language-server@npm:^0.14.32":
-  version: 0.14.32
-  resolution: "svelte-language-server@npm:0.14.32"
+"svelte-language-server@npm:^0.14.33":
+  version: 0.14.33
+  resolution: "svelte-language-server@npm:0.14.33"
   dependencies:
     "@jridgewell/trace-mapping": ^0.3.9
     chokidar: ^3.4.1
     estree-walker: ^2.0.1
     fast-glob: ^3.2.7
     lodash: ^4.17.21
-    prettier: 2.5.1
+    prettier: 2.7.1
     prettier-plugin-svelte: ~2.7.0
     svelte: ^3.49.0
     svelte-preprocess: ~4.10.1
@@ -1953,7 +1953,7 @@ __metadata:
     vscode-uri: ~3.0.0
   bin:
     svelteserver: bin/server.js
-  checksum: dc596738515db8b6bdf16e077002f6512c41a65d55d527c66cd778afbf6dbe61a07389f86ab796734eb765c8c236f31422d74ca2caa225b1da6089e5cc1eb106
+  checksum: 434cb6c1bf0750c8d904edf444b96ab9cd9ae9c65e43e290a704e76ab3b912f73ba8a6ead931b4954872a55a1f0bae1c40924a432c89071ed58194e0ed49d278
   languageName: node
   linkType: hard
 
