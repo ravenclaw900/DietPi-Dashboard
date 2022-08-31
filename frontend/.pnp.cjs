@@ -33,7 +33,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         [null, {\
           "packageLocation": "./",\
           "packageDependencies": [\
-            ["@fortawesome/free-solid-svg-icons", "npm:6.1.2"],\
+            ["@fortawesome/free-solid-svg-icons", "npm:6.2.0"],\
             ["@sveltejs/vite-plugin-svelte", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:1.0.3"],\
             ["@tsconfig/svelte", "npm:3.0.0"],\
             ["@types/autosize", "npm:4.0.1"],\
@@ -103,20 +103,20 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@fortawesome/fontawesome-common-types", [\
-        ["npm:6.1.2", {\
-          "packageLocation": "./.yarn/cache/@fortawesome-fontawesome-common-types-npm-6.1.2-2b22fda699-16ba97f732.zip/node_modules/@fortawesome/fontawesome-common-types/",\
+        ["npm:6.2.0", {\
+          "packageLocation": "./.yarn/cache/@fortawesome-fontawesome-common-types-npm-6.2.0-baf560576e-1d0a3340dc.zip/node_modules/@fortawesome/fontawesome-common-types/",\
           "packageDependencies": [\
-            ["@fortawesome/fontawesome-common-types", "npm:6.1.2"]\
+            ["@fortawesome/fontawesome-common-types", "npm:6.2.0"]\
           ],\
           "linkType": "HARD"\
         }]\
       ]],\
       ["@fortawesome/free-solid-svg-icons", [\
-        ["npm:6.1.2", {\
-          "packageLocation": "./.yarn/cache/@fortawesome-free-solid-svg-icons-npm-6.1.2-5e8bb67106-b7258cd092.zip/node_modules/@fortawesome/free-solid-svg-icons/",\
+        ["npm:6.2.0", {\
+          "packageLocation": "./.yarn/cache/@fortawesome-free-solid-svg-icons-npm-6.2.0-28111f7af7-b5edf24be4.zip/node_modules/@fortawesome/free-solid-svg-icons/",\
           "packageDependencies": [\
-            ["@fortawesome/free-solid-svg-icons", "npm:6.1.2"],\
-            ["@fortawesome/fontawesome-common-types", "npm:6.1.2"]\
+            ["@fortawesome/free-solid-svg-icons", "npm:6.2.0"],\
+            ["@fortawesome/fontawesome-common-types", "npm:6.2.0"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -669,7 +669,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./",\
           "packageDependencies": [\
             ["dietpi-dashboard", "workspace:."],\
-            ["@fortawesome/free-solid-svg-icons", "npm:6.1.2"],\
+            ["@fortawesome/free-solid-svg-icons", "npm:6.2.0"],\
             ["@sveltejs/vite-plugin-svelte", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:1.0.3"],\
             ["@tsconfig/svelte", "npm:3.0.0"],\
             ["@types/autosize", "npm:4.0.1"],\
