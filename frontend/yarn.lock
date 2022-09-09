@@ -524,7 +524,7 @@ __metadata:
     pretty-bytes: ^6.0.0
     pretty-ms: ^8.0.0
     semver-compare-multi: ^1.0.3
-    svelte: ^3.50.0
+    svelte: ^3.50.1
     svelte-check: ^2.9.0
     svelte-fa: ^3.0.3
     svelte-language-server: ^0.14.33
@@ -2053,10 +2053,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"svelte@npm:^3.49.0, svelte@npm:^3.50.0":
-  version: 3.50.0
-  resolution: "svelte@npm:3.50.0"
-  checksum: cc8e8fd14bac3add208b00b9c2ffd64d343f29f84a626899762b3c9d00010cab5f49dce44d376acb270f996c860ad49b727d2bf140f434f2b959061b22249548
+"svelte@npm:^3.49.0, svelte@npm:^3.50.1":
+  version: 3.50.1
+  resolution: "svelte@npm:3.50.1"
+  checksum: 58d2d8f2c2cdb1695ca41290d241780ad662aeb4d8af8def372820a5fac3185245d6abf5ac7bbae17b9033d907ccab0aa071d0650bc3f0379c5c3818001e41c5
   languageName: node
   linkType: hard
 
