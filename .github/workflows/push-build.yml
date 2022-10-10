@@ -46,7 +46,7 @@ jobs:
           toolchain: stable
           profile: minimal
           target: ${{ matrix.job.target }}
-      - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v2
         with:
           key: ${{ matrix.job.pretty }}
       - name: Setup tmate session
