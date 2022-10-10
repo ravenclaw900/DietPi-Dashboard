@@ -122,7 +122,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ]],\
       ["@fortawesome/fontawesome-common-types", [\
         ["npm:6.2.0", {\
-          "packageLocation": "./.yarn/cache/@fortawesome-fontawesome-common-types-npm-6.2.0-baf560576e-1d0a3340dc.zip/node_modules/@fortawesome/fontawesome-common-types/",\
+          "packageLocation": "./.yarn/unplugged/@fortawesome-fontawesome-common-types-npm-6.2.0-baf560576e/node_modules/@fortawesome/fontawesome-common-types/",\
           "packageDependencies": [\
             ["@fortawesome/fontawesome-common-types", "npm:6.2.0"]\
           ],\
@@ -131,7 +131,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ]],\
       ["@fortawesome/free-solid-svg-icons", [\
         ["npm:6.2.0", {\
-          "packageLocation": "./.yarn/cache/@fortawesome-free-solid-svg-icons-npm-6.2.0-28111f7af7-b5edf24be4.zip/node_modules/@fortawesome/free-solid-svg-icons/",\
+          "packageLocation": "./.yarn/unplugged/@fortawesome-free-solid-svg-icons-npm-6.2.0-28111f7af7/node_modules/@fortawesome/free-solid-svg-icons/",\
           "packageDependencies": [\
             ["@fortawesome/free-solid-svg-icons", "npm:6.2.0"],\
             ["@fortawesome/fontawesome-common-types", "npm:6.2.0"]\
@@ -777,7 +777,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ]],\
       ["esbuild", [\
         ["npm:0.15.10", {\
-          "packageLocation": "./.yarn/cache/esbuild-npm-0.15.10-cd7bf58045-bc2daadb95.zip/node_modules/esbuild/",\
+          "packageLocation": "./.yarn/unplugged/esbuild-npm-0.15.10-cd7bf58045/node_modules/esbuild/",\
           "packageDependencies": [\
             ["esbuild", "npm:0.15.10"],\
             ["@esbuild/android-arm", "npm:0.15.10"],\
@@ -2313,14 +2313,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ]],\
       ["svelte-preprocess", [\
         ["npm:4.10.7", {\
-          "packageLocation": "./.yarn/cache/svelte-preprocess-npm-4.10.7-d83f53f087-51a0820c14.zip/node_modules/svelte-preprocess/",\
+          "packageLocation": "./.yarn/unplugged/svelte-preprocess-virtual-b1f0dcabbc/node_modules/svelte-preprocess/",\
           "packageDependencies": [\
             ["svelte-preprocess", "npm:4.10.7"]\
           ],\
           "linkType": "SOFT"\
         }],\
         ["virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:4.10.7", {\
-          "packageLocation": "./.yarn/__virtual__/svelte-preprocess-virtual-b1f0dcabbc/0/cache/svelte-preprocess-npm-4.10.7-d83f53f087-51a0820c14.zip/node_modules/svelte-preprocess/",\
+          "packageLocation": "./.yarn/unplugged/svelte-preprocess-virtual-b1f0dcabbc/node_modules/svelte-preprocess/",\
           "packageDependencies": [\
             ["svelte-preprocess", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:4.10.7"],\
             ["@babel/core", null],\
@@ -2379,7 +2379,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }],\
         ["virtual:ec72c2fb408bb09d8937fb23d7a882bfcf8631566d1c4aab1cb5da6f8904820708b5c310ec0b047bfa4015ad2246d1aa4ed0b67f86b179f30042883913fb673c#npm:4.10.7", {\
-          "packageLocation": "./.yarn/__virtual__/svelte-preprocess-virtual-a742641bf4/0/cache/svelte-preprocess-npm-4.10.7-d83f53f087-51a0820c14.zip/node_modules/svelte-preprocess/",\
+          "packageLocation": "./.yarn/unplugged/svelte-preprocess-virtual-a742641bf4/node_modules/svelte-preprocess/",\
           "packageDependencies": [\
             ["svelte-preprocess", "virtual:ec72c2fb408bb09d8937fb23d7a882bfcf8631566d1c4aab1cb5da6f8904820708b5c310ec0b047bfa4015ad2246d1aa4ed0b67f86b179f30042883913fb673c#npm:4.10.7"],\
             ["@babel/core", null],\

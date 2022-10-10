@@ -43,18 +43,14 @@ pub fn assets_route(req: Request<Body>) -> anyhow::Result<Response<Body>> {
                 _ => HeaderValue::from_str(&format!("text/{}", ext))?,
             },
         )
-        .body(
-            match DIR.get_file(path) {
-                Some(file) => file.contents(),
-                None => {
-                    tracing::warn!("Couldn't get asset {}", path);
-                    return Ok(Response::builder()
-                        .status(StatusCode::NOT_FOUND)
-                        .body("Asset not found".into())?);
-                }
-            }
-            .into(),
-        )?;
+        .body(if let Some(file) = DIR.get_file(path) {
+            file.contents().into()
+        } else {
+            tracing::warn!("Couldn't get asset {}", path);
+            return Ok(Response::builder()
+                .status(StatusCode::NOT_FOUND)
+                .body("Asset not found".into())?);
+        })?;
 
     #[cfg(all(feature = "frontend", not(debug_assertions)))]
     if ext != "png" {

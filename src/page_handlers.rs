@@ -89,7 +89,7 @@ fn process_handler_helper(cmd: &str, arg: Option<&str>) -> anyhow::Result<()> {
             "kill" => process.kill(),
             "suspend" => process.suspend(),
             "resume" => process.resume(),
-            _ => (Ok(())),
+            _ => Ok(()),
         }
         .with_context(|| format!("Couldn't {} process {}", cmd, process.pid()))?;
         Ok(())
