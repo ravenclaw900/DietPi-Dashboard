@@ -540,7 +540,7 @@ __metadata:
     tslib: ^2.4.0
     typescript: ^4.8.4
     uplot: ^1.6.22
-    vite: ^3.1.6
+    vite: ^3.1.7
     vite-plugin-replace: ^0.1.1
     vite-plugin-windicss: ^1.8.8
     windicss: ^3.5.6
@@ -2175,9 +2175,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^3.1.6":
-  version: 3.1.6
-  resolution: "vite@npm:3.1.6"
+"vite@npm:^3.1.7":
+  version: 3.1.7
+  resolution: "vite@npm:3.1.7"
   dependencies:
     esbuild: ^0.15.9
     fsevents: ~2.3.2
@@ -2203,7 +2203,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 393369af4da85aef8718d2236fceb238410c130cc740462c317c6ae4d9c04c519c1591cf8fef2ccc61195e41db54c0d892b3f9a10d3ed0e3c8ae8f0cffaa46ed
+  checksum: cd0a0bb11777d9006f408a67ef1063c1771baaf091f9e4f102f0fdaec77559784b76788e80a398ac8fe2fc90027e83712ae860ed51510b81c4153d8c5ca5fb37
   languageName: node
   linkType: hard
 
