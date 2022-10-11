@@ -18,7 +18,7 @@
     "@types/semver-compare-multi": "^1.0.0",
     "postcss": "^8.4.17",
     "svelte": "^3.50.1",
-    "svelte-check": "^2.9.1",
+    "svelte-check": "^2.9.2",
     "svelte-fa": "^3.0.3",
     "svelte-language-server": "^0.14.37",
     "svelte-preprocess": "^4.10.7",
