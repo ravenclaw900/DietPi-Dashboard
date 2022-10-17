@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 tokio = { version = "1", features = ["rt", "macros", "time", "sync", "fs", "process"] }
-include_dir = {version = "0.7.2", optional = true}
+include_dir = {version = "0.7.3", optional = true}
 futures = "0.3.24"
 pty-process = "0.2.0"
 psutil = "3.2.2"
