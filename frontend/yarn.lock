@@ -544,9 +544,9 @@ __metadata:
     vite-plugin-replace: ^0.1.1
     vite-plugin-windicss: ^1.8.8
     windicss: ^3.5.6
-    xterm: ^4.19.0
-    xterm-addon-attach: ^0.6.0
-    xterm-addon-fit: ^0.5.0
+    xterm: ^5.0.0
+    xterm-addon-attach: ^0.7.0
+    xterm-addon-fit: ^0.6.0
   dependenciesMeta:
     "@tsconfig/svelte@3.0.0":
       unplugged: true
@@ -2375,28 +2375,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"xterm-addon-attach@npm:^0.6.0":
+"xterm-addon-attach@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "xterm-addon-attach@npm:0.7.0"
+  peerDependencies:
+    xterm: ^5.0.0
+  checksum: 34aa34622a5a80505f542e9c03ebd5590005cadde2fffbfea6a4827df1785402979dcd4889871f82f3acec187d69953f88c851b4309cd9781bc86eb15a526f61
+  languageName: node
+  linkType: hard
+
+"xterm-addon-fit@npm:^0.6.0":
   version: 0.6.0
-  resolution: "xterm-addon-attach@npm:0.6.0"
+  resolution: "xterm-addon-fit@npm:0.6.0"
   peerDependencies:
-    xterm: ^4.0.0
-  checksum: 2482be3ec015d6d3e1b9b70be4d16a4119217d667bc06bf6546ace7ceca6ed1926e21888656b79baf3570bf5ce6e543644b5d00cebad1194eba9a97bd1cddd31
+    xterm: ^5.0.0
+  checksum: 6115e130a58a5ec3d17b424bd0420f3d871e9a6bb455ca62e67c10724534eafbdd205dd35c4707d8037efe8107c09486b48cb4369ba2e3ac97ab78f805195319
   languageName: node
   linkType: hard
 
-"xterm-addon-fit@npm:^0.5.0":
-  version: 0.5.0
-  resolution: "xterm-addon-fit@npm:0.5.0"
-  peerDependencies:
-    xterm: ^4.0.0
-  checksum: 884d9f360893335c87e4514beeda2af6dbebf38a89b8518f1126d9c4611aefc1598b750bb43a953b79fdf1179c40d70c77a9169ae10f07e0abbbdb39b919b33f
-  languageName: node
-  linkType: hard
-
-"xterm@npm:^4.19.0":
-  version: 4.19.0
-  resolution: "xterm@npm:4.19.0"
-  checksum: 4385e08d6f1e26d0db295ba55f0ed9c304686a72c2cfdd32502cf59de23ae9c93434d469fc3735f44375602f209f767a1ba643a86be6f8e0f1cf7e5bfdccde87
+"xterm@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "xterm@npm:5.0.0"
+  checksum: c2f1d02a708d3d02bebf052dfdf54ecd1b619386bed8f27ed42483d398a3e0bc3595fc855c600db99fd3a91f6d3e8feabe118f1f8f14bbed92d8b3d77277ab92
   languageName: node
   linkType: hard
 
