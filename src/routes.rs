@@ -169,7 +169,7 @@ pub fn main_route() -> anyhow::Result<Response<Body>> {
     );
     headers.insert("X-Robots-Tag", header::HeaderValue::from_static("none"));
     headers.insert(
-        "X-Permitted-Cross-Domain_Policies",
+        "X-Permitted-Cross-Domain-Policies",
         header::HeaderValue::from_static("none"),
     );
     headers.insert(
