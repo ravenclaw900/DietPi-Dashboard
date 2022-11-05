@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "@fortawesome/free-solid-svg-icons": "^6.2.0",
-    "@sveltejs/vite-plugin-svelte": "^1.0.9",
+    "@sveltejs/vite-plugin-svelte": "^1.1.0",
     "@tsconfig/svelte": "^3.0.0",
     "@types/autosize": "^4.0.1",
     "@types/microlight": "^0.0.0",
