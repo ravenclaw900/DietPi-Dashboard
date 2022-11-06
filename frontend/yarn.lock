@@ -145,25 +145,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rollup/pluginutils@npm:^4.2.1":
-  version: 4.2.1
-  resolution: "@rollup/pluginutils@npm:4.2.1"
+"@sveltejs/vite-plugin-svelte@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "@sveltejs/vite-plugin-svelte@npm:1.1.0"
   dependencies:
-    estree-walker: ^2.0.1
-    picomatch: ^2.2.2
-  checksum: 6bc41f22b1a0f1efec3043899e4d3b6b1497b3dea4d94292d8f83b4cf07a1073ecbaedd562a22d11913ff7659f459677b01b09e9598a98936e746780ecc93a12
-  languageName: node
-  linkType: hard
-
-"@sveltejs/vite-plugin-svelte@npm:^1.0.9":
-  version: 1.0.9
-  resolution: "@sveltejs/vite-plugin-svelte@npm:1.0.9"
-  dependencies:
-    "@rollup/pluginutils": ^4.2.1
     debug: ^4.3.4
     deepmerge: ^4.2.2
     kleur: ^4.1.5
-    magic-string: ^0.26.5
+    magic-string: ^0.26.7
     svelte-hmr: ^0.15.0
   peerDependencies:
     diff-match-patch: ^1.0.5
@@ -172,7 +161,7 @@ __metadata:
   peerDependenciesMeta:
     diff-match-patch:
       optional: true
-  checksum: 3ec5c8f09b3ebc7f747d1d7a030deb39628e7a014d033cc583cb56fb958279d9a09b3b161a0c6766d58129f1962ea74409624394b0f3ebb74c612127c68db834
+  checksum: 401a146aed79b9888b1dcb349c6e79f67502f8233d0208c50446f33b64c790f7e86dfe33fbf0482e485b024f7845438290277155731d81d3ef5208cb7e6dd2fa
   languageName: node
   linkType: hard
 
@@ -521,7 +510,7 @@ __metadata:
   resolution: "dietpi-dashboard@workspace:."
   dependencies:
     "@fortawesome/free-solid-svg-icons": ^6.2.0
-    "@sveltejs/vite-plugin-svelte": ^1.0.9
+    "@sveltejs/vite-plugin-svelte": ^1.1.0
     "@tsconfig/svelte": ^3.0.0
     "@types/autosize": ^4.0.1
     "@types/microlight": ^0.0.0
@@ -537,16 +526,16 @@ __metadata:
     svelte-language-server: ^0.14.37
     svelte-preprocess: ^4.10.7
     svelte-routing: ^1.6.0
-    tslib: ^2.4.0
+    tslib: ^2.4.1
     typescript: ^4.8.4
     uplot: ^1.6.22
-    vite: ^3.1.8
+    vite: ^3.2.2
     vite-plugin-replace: ^0.1.1
     vite-plugin-windicss: ^1.8.8
     windicss: ^3.5.6
-    xterm: ^4.19.0
-    xterm-addon-attach: ^0.6.0
-    xterm-addon-fit: ^0.5.0
+    xterm: ^5.0.0
+    xterm-addon-attach: ^0.7.0
+    xterm-addon-fit: ^0.6.0
   dependenciesMeta:
     "@tsconfig/svelte@3.0.0":
       unplugged: true
@@ -1206,7 +1195,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"magic-string@npm:^0.26.2, magic-string@npm:^0.26.5":
+"magic-string@npm:^0.26.2, magic-string@npm:^0.26.7":
   version: 0.26.7
   resolution: "magic-string@npm:0.26.7"
   dependencies:
@@ -1547,14 +1536,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"picomatch@npm:^2.0.4, picomatch@npm:^2.2.1, picomatch@npm:^2.2.2, picomatch@npm:^2.3.1":
+"picomatch@npm:^2.0.4, picomatch@npm:^2.2.1, picomatch@npm:^2.3.1":
   version: 2.3.1
   resolution: "picomatch@npm:2.3.1"
   checksum: 050c865ce81119c4822c45d3c84f1ced46f93a0126febae20737bd05ca20589c564d6e9226977df859ed5e03dc73f02584a2b0faad36e896936238238b0446cf
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.4.16, postcss@npm:^8.4.18":
+"postcss@npm:^8.4.18":
   version: 8.4.18
   resolution: "postcss@npm:8.4.18"
   dependencies:
@@ -1713,9 +1702,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rollup@npm:~2.78.0":
-  version: 2.78.1
-  resolution: "rollup@npm:2.78.1"
+"rollup@npm:^2.79.1":
+  version: 2.79.1
+  resolution: "rollup@npm:2.79.1"
   dependencies:
     fsevents: ~2.3.2
   dependenciesMeta:
@@ -1723,7 +1712,7 @@ __metadata:
       optional: true
   bin:
     rollup: dist/bin/rollup
-  checksum: 9034814383ca5bdb4bea6d499270aeb31cdb0bb884f81b0c6a1d19c63cc973f040e6ee09b7af8a7169dd231c090f4b44ef8b99c4bfdf884aceeb3dcefb8cfa14
+  checksum: 6a2bf167b3587d4df709b37d149ad0300692cc5deb510f89ac7bdc77c8738c9546ae3de9322b0968e1ed2b0e984571f5f55aae28fa7de4cfcb1bc5402a4e2be6
   languageName: node
   linkType: hard
 
@@ -2093,10 +2082,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.0.3, tslib@npm:^2.4.0":
-  version: 2.4.0
-  resolution: "tslib@npm:2.4.0"
-  checksum: 8c4aa6a3c5a754bf76aefc38026134180c053b7bd2f81338cb5e5ebf96fefa0f417bff221592bf801077f5bf990562f6264fecbc42cd3309b33872cb6fc3b113
+"tslib@npm:^2.0.3, tslib@npm:^2.4.1":
+  version: 2.4.1
+  resolution: "tslib@npm:2.4.1"
+  checksum: 19480d6e0313292bd6505d4efe096a6b31c70e21cf08b5febf4da62e95c265c8f571f7b36fcc3d1a17e068032f59c269fab3459d6cd3ed6949eafecf64315fca
   languageName: node
   linkType: hard
 
@@ -2175,19 +2164,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^3.1.8":
-  version: 3.1.8
-  resolution: "vite@npm:3.1.8"
+"vite@npm:^3.2.2":
+  version: 3.2.2
+  resolution: "vite@npm:3.2.2"
   dependencies:
     esbuild: ^0.15.9
     fsevents: ~2.3.2
-    postcss: ^8.4.16
+    postcss: ^8.4.18
     resolve: ^1.22.1
-    rollup: ~2.78.0
+    rollup: ^2.79.1
   peerDependencies:
     less: "*"
     sass: "*"
     stylus: "*"
+    sugarss: "*"
     terser: ^5.4.0
   dependenciesMeta:
     fsevents:
@@ -2199,11 +2189,13 @@ __metadata:
       optional: true
     stylus:
       optional: true
+    sugarss:
+      optional: true
     terser:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 982696ad134577dd9915c4c3548ad36ddcf5dc6d341058548a670a13d860e4cdaaf2b320a59221f178018df089d148b9980e9a344316bef12b698a1c1abc7390
+  checksum: 7197ac91c612dda922367a95afa1b210353d6168d41845c186e2217bda1328d17b021b93d8089e336f9533b94645ae5dca18bb10937759f559c87006dd957fcd
   languageName: node
   linkType: hard
 
@@ -2375,28 +2367,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"xterm-addon-attach@npm:^0.6.0":
+"xterm-addon-attach@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "xterm-addon-attach@npm:0.7.0"
+  peerDependencies:
+    xterm: ^5.0.0
+  checksum: 34aa34622a5a80505f542e9c03ebd5590005cadde2fffbfea6a4827df1785402979dcd4889871f82f3acec187d69953f88c851b4309cd9781bc86eb15a526f61
+  languageName: node
+  linkType: hard
+
+"xterm-addon-fit@npm:^0.6.0":
   version: 0.6.0
-  resolution: "xterm-addon-attach@npm:0.6.0"
+  resolution: "xterm-addon-fit@npm:0.6.0"
   peerDependencies:
-    xterm: ^4.0.0
-  checksum: 2482be3ec015d6d3e1b9b70be4d16a4119217d667bc06bf6546ace7ceca6ed1926e21888656b79baf3570bf5ce6e543644b5d00cebad1194eba9a97bd1cddd31
+    xterm: ^5.0.0
+  checksum: 6115e130a58a5ec3d17b424bd0420f3d871e9a6bb455ca62e67c10724534eafbdd205dd35c4707d8037efe8107c09486b48cb4369ba2e3ac97ab78f805195319
   languageName: node
   linkType: hard
 
-"xterm-addon-fit@npm:^0.5.0":
-  version: 0.5.0
-  resolution: "xterm-addon-fit@npm:0.5.0"
-  peerDependencies:
-    xterm: ^4.0.0
-  checksum: 884d9f360893335c87e4514beeda2af6dbebf38a89b8518f1126d9c4611aefc1598b750bb43a953b79fdf1179c40d70c77a9169ae10f07e0abbbdb39b919b33f
-  languageName: node
-  linkType: hard
-
-"xterm@npm:^4.19.0":
-  version: 4.19.0
-  resolution: "xterm@npm:4.19.0"
-  checksum: 4385e08d6f1e26d0db295ba55f0ed9c304686a72c2cfdd32502cf59de23ae9c93434d469fc3735f44375602f209f767a1ba643a86be6f8e0f1cf7e5bfdccde87
+"xterm@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "xterm@npm:5.0.0"
+  checksum: c2f1d02a708d3d02bebf052dfdf54ecd1b619386bed8f27ed42483d398a3e0bc3595fc855c600db99fd3a91f6d3e8feabe118f1f8f14bbed92d8b3d77277ab92
   languageName: node
   linkType: hard
 
