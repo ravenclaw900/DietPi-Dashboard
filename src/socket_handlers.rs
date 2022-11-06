@@ -79,7 +79,12 @@ pub async fn socket_handler(
                 .context("Invalid request"),
                 continue
             );
-            tracing::debug!("Got request {:?}", req);
+            // Don't print token
+            if let shared::RequestTypes::Token(_) = req {
+                tracing::debug!("Got token message");
+            } else {
+                tracing::debug!("Got request {:?}", req);
+            }
             if CONFIG.pass {
                 if let shared::RequestTypes::Token(req_token) = req {
                     token = req_token;
@@ -201,7 +206,7 @@ pub async fn term_handler(
         if crate::CONFIG.terminal_user == "manual" {
             &mut pre_cmd
         } else {
-            pre_cmd.args(&["-f", &crate::CONFIG.terminal_user])
+            pre_cmd.args(["-f", &crate::CONFIG.terminal_user])
         }
         .spawn_pty(None)
         .context("Couldn't spawn pty"),
