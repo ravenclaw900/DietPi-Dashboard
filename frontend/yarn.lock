@@ -2052,14 +2052,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"svelte@npm:^3.49.0":
-  version: 3.52.0
-  resolution: "svelte@npm:3.52.0"
-  checksum: a1fcbf63901055ee0224872aaf1e7736920ce8b9ced5b132c3d62506e11d125aa86ad1b889a08601ffa2b92fb96adc66e1b1c0c866d2f681788403d3e5f7b39e
-  languageName: node
-  linkType: hard
-
-"svelte@npm:^3.53.0":
+"svelte@npm:^3.49.0, svelte@npm:^3.53.0":
   version: 3.53.0
   resolution: "svelte@npm:3.53.0"
   checksum: 1686246271c2da38452defc86919f709b8e2341ceb362e4624dd39182614e260e5b8d83bfbdf3a67105b3834b2c07b69a9f7dde427634aa17f2d2dd5faad2f29
