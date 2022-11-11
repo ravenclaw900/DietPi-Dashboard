@@ -40,7 +40,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/microlight", "npm:0.0.0"],\
             ["@types/semver-compare-multi", "npm:1.0.0"],\
             ["microlight", "npm:0.0.7"],\
-            ["postcss", "npm:8.4.18"],\
+            ["postcss", "npm:8.4.19"],\
             ["pretty-bytes", "npm:6.0.0"],\
             ["pretty-ms", "npm:8.0.0"],\
             ["semver-compare-multi", "npm:1.0.3"],\
@@ -682,7 +682,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/microlight", "npm:0.0.0"],\
             ["@types/semver-compare-multi", "npm:1.0.0"],\
             ["microlight", "npm:0.0.7"],\
-            ["postcss", "npm:8.4.18"],\
+            ["postcss", "npm:8.4.19"],\
             ["pretty-bytes", "npm:6.0.0"],\
             ["pretty-ms", "npm:8.0.0"],\
             ["semver-compare-multi", "npm:1.0.3"],\
@@ -1794,10 +1794,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["postcss", [\
-        ["npm:8.4.18", {\
-          "packageLocation": "./.yarn/cache/postcss-npm-8.4.18-f1d73c0a84-9349fd9984.zip/node_modules/postcss/",\
+        ["npm:8.4.19", {\
+          "packageLocation": "./.yarn/cache/postcss-npm-8.4.19-164042496a-62782723a3.zip/node_modules/postcss/",\
           "packageDependencies": [\
-            ["postcss", "npm:8.4.18"],\
+            ["postcss", "npm:8.4.19"],\
             ["nanoid", "npm:3.3.4"],\
             ["picocolors", "npm:1.0.0"],\
             ["source-map-js", "npm:1.0.2"]\
@@ -2329,7 +2329,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["less", null],\
             ["magic-string", "npm:0.25.9"],\
             ["node-sass", null],\
-            ["postcss", "npm:8.4.18"],\
+            ["postcss", "npm:8.4.19"],\
             ["postcss-load-config", null],\
             ["pug", null],\
             ["sass", null],\
@@ -2605,7 +2605,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["esbuild", "npm:0.15.10"],\
             ["fsevents", "patch:fsevents@npm%3A2.3.2#~builtin<compat/fsevents>::version=2.3.2&hash=18f3a7"],\
             ["less", null],\
-            ["postcss", "npm:8.4.18"],\
+            ["postcss", "npm:8.4.19"],\
             ["resolve", "patch:resolve@npm%3A1.22.1#~builtin<compat/resolve>::version=1.22.1&hash=07638b"],\
             ["rollup", "npm:2.79.1"],\
             ["sass", null],\
