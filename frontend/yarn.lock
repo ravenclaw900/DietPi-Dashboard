@@ -145,15 +145,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sveltejs/vite-plugin-svelte@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "@sveltejs/vite-plugin-svelte@npm:1.1.1"
+"@sveltejs/vite-plugin-svelte@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@sveltejs/vite-plugin-svelte@npm:1.2.0"
   dependencies:
     debug: ^4.3.4
     deepmerge: ^4.2.2
     kleur: ^4.1.5
     magic-string: ^0.26.7
-    svelte-hmr: ^0.15.0
+    svelte-hmr: ^0.15.1
+    vitefu: ^0.2.1
   peerDependencies:
     diff-match-patch: ^1.0.5
     svelte: ^3.44.0
@@ -161,7 +162,7 @@ __metadata:
   peerDependenciesMeta:
     diff-match-patch:
       optional: true
-  checksum: 2818682eff4c2ae49196cc32880ec50b4ff2871d73a1bf9a30545e6ba0911a2ddae374dec3ed0b664984ba9833a1684e0328b03d5fad2c6ff99777322b2789b7
+  checksum: c78ce263baf824570fb6af0918cd561e310a73e9b3cef0cfa6f0a40a24a2892e314f4b21d9c3e320aa651efb0183e9f1f2f13de2d1b7b9b46c6b7f4f423a054b
   languageName: node
   linkType: hard
 
@@ -510,7 +511,7 @@ __metadata:
   resolution: "dietpi-dashboard@workspace:."
   dependencies:
     "@fortawesome/free-solid-svg-icons": ^6.2.0
-    "@sveltejs/vite-plugin-svelte": ^1.1.1
+    "@sveltejs/vite-plugin-svelte": ^1.2.0
     "@tsconfig/svelte": ^3.0.0
     "@types/autosize": ^4.0.1
     "@types/microlight": ^0.0.0
@@ -1929,12 +1930,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"svelte-hmr@npm:^0.15.0":
-  version: 0.15.0
-  resolution: "svelte-hmr@npm:0.15.0"
+"svelte-hmr@npm:^0.15.1":
+  version: 0.15.1
+  resolution: "svelte-hmr@npm:0.15.1"
   peerDependencies:
     svelte: ">=3.19.0"
-  checksum: e15581769aa5a6f8e1eeaf3f47a34b579c76f5a72d2ae1ba32cca6ab71b73d721defde472f1d4b924f8ade0d5bb6a7a04aa1817c3b4705c45dffa2732df07a83
+  checksum: af2e5c356ed6467d6567ce1b908bc077c9d08a89f3ffda81e63989c1c3f374a88b1b67453e86e3674320aa10e7cdf42a10dc551900997b627b4702db447f2bf3
   languageName: node
   linkType: hard
 
@@ -2199,6 +2200,18 @@ __metadata:
   bin:
     vite: bin/vite.js
   checksum: 3c7c618f7fb471cdfaf7f8eb769cb5f4174447e1103cd6221cbc2ae1ea1102bc28dd6a621ead250e6aa42c1e9ee3c8092666ea81078e1d88d2325c484218fd0a
+  languageName: node
+  linkType: hard
+
+"vitefu@npm:^0.2.1":
+  version: 0.2.1
+  resolution: "vitefu@npm:0.2.1"
+  peerDependencies:
+    vite: ^3.0.0
+  peerDependenciesMeta:
+    vite:
+      optional: true
+  checksum: e604b88523cd157a3a20df23e66d7fb36d7751b8a97f171ada7b64120109be694a326827f57c86d6417dd160864ff6be338c1fde58fb6ca23efa345f6dc6ccc5
   languageName: node
   linkType: hard
 
