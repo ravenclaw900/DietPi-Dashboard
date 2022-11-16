@@ -10,7 +10,7 @@
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
   "devDependencies": {
-    "@fortawesome/free-solid-svg-icons": "^6.2.0",
+    "@fortawesome/free-solid-svg-icons": "^6.2.1",
     "@sveltejs/vite-plugin-svelte": "^1.2.0",
     "@tsconfig/svelte": "^3.0.0",
     "@types/autosize": "^4.0.1",
