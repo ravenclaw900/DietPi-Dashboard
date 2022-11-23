@@ -145,9 +145,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sveltejs/vite-plugin-svelte@npm:^1.2.0":
-  version: 1.2.0
-  resolution: "@sveltejs/vite-plugin-svelte@npm:1.2.0"
+"@sveltejs/vite-plugin-svelte@npm:^1.3.0":
+  version: 1.3.0
+  resolution: "@sveltejs/vite-plugin-svelte@npm:1.3.0"
   dependencies:
     debug: ^4.3.4
     deepmerge: ^4.2.2
@@ -162,7 +162,7 @@ __metadata:
   peerDependenciesMeta:
     diff-match-patch:
       optional: true
-  checksum: c78ce263baf824570fb6af0918cd561e310a73e9b3cef0cfa6f0a40a24a2892e314f4b21d9c3e320aa651efb0183e9f1f2f13de2d1b7b9b46c6b7f4f423a054b
+  checksum: be0805debcd22eec5f2004e243503af73588842bed4b8c135cb8289908b712c0080dbc699b9949c77213d3fe9cc16e7dffe3df7061242e95bcec7a6015da6307
   languageName: node
   linkType: hard
 
@@ -511,7 +511,7 @@ __metadata:
   resolution: "dietpi-dashboard@workspace:."
   dependencies:
     "@fortawesome/free-solid-svg-icons": ^6.2.1
-    "@sveltejs/vite-plugin-svelte": ^1.2.0
+    "@sveltejs/vite-plugin-svelte": ^1.3.0
     "@tsconfig/svelte": ^3.0.0
     "@types/autosize": ^4.0.1
     "@types/microlight": ^0.0.0

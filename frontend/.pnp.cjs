@@ -34,7 +34,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./",\
           "packageDependencies": [\
             ["@fortawesome/free-solid-svg-icons", "npm:6.2.1"],\
-            ["@sveltejs/vite-plugin-svelte", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:1.2.0"],\
+            ["@sveltejs/vite-plugin-svelte", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:1.3.0"],\
             ["@tsconfig/svelte", "npm:3.0.0"],\
             ["@types/autosize", "npm:4.0.1"],\
             ["@types/microlight", "npm:0.0.0"],\
@@ -122,7 +122,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ]],\
       ["@fortawesome/fontawesome-common-types", [\
         ["npm:6.2.1", {\
-          "packageLocation": "./.yarn/cache/@fortawesome-fontawesome-common-types-npm-6.2.1-0d35c18eaf-1a6e202bea.zip/node_modules/@fortawesome/fontawesome-common-types/",\
+          "packageLocation": "./.yarn/unplugged/@fortawesome-fontawesome-common-types-npm-6.2.1-0d35c18eaf/node_modules/@fortawesome/fontawesome-common-types/",\
           "packageDependencies": [\
             ["@fortawesome/fontawesome-common-types", "npm:6.2.1"]\
           ],\
@@ -131,7 +131,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ]],\
       ["@fortawesome/free-solid-svg-icons", [\
         ["npm:6.2.1", {\
-          "packageLocation": "./.yarn/cache/@fortawesome-free-solid-svg-icons-npm-6.2.1-ea5991f75e-a24170b676.zip/node_modules/@fortawesome/free-solid-svg-icons/",\
+          "packageLocation": "./.yarn/unplugged/@fortawesome-free-solid-svg-icons-npm-6.2.1-ea5991f75e/node_modules/@fortawesome/free-solid-svg-icons/",\
           "packageDependencies": [\
             ["@fortawesome/free-solid-svg-icons", "npm:6.2.1"],\
             ["@fortawesome/fontawesome-common-types", "npm:6.2.1"]\
@@ -231,17 +231,17 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@sveltejs/vite-plugin-svelte", [\
-        ["npm:1.2.0", {\
-          "packageLocation": "./.yarn/cache/@sveltejs-vite-plugin-svelte-npm-1.2.0-d25d4c1dc1-c78ce263ba.zip/node_modules/@sveltejs/vite-plugin-svelte/",\
+        ["npm:1.3.0", {\
+          "packageLocation": "./.yarn/cache/@sveltejs-vite-plugin-svelte-npm-1.3.0-a45810d3de-be0805debc.zip/node_modules/@sveltejs/vite-plugin-svelte/",\
           "packageDependencies": [\
-            ["@sveltejs/vite-plugin-svelte", "npm:1.2.0"]\
+            ["@sveltejs/vite-plugin-svelte", "npm:1.3.0"]\
           ],\
           "linkType": "SOFT"\
         }],\
-        ["virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:1.2.0", {\
-          "packageLocation": "./.yarn/__virtual__/@sveltejs-vite-plugin-svelte-virtual-8f2e4e209d/0/cache/@sveltejs-vite-plugin-svelte-npm-1.2.0-d25d4c1dc1-c78ce263ba.zip/node_modules/@sveltejs/vite-plugin-svelte/",\
+        ["virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:1.3.0", {\
+          "packageLocation": "./.yarn/__virtual__/@sveltejs-vite-plugin-svelte-virtual-b3b59e0837/0/cache/@sveltejs-vite-plugin-svelte-npm-1.3.0-a45810d3de-be0805debc.zip/node_modules/@sveltejs/vite-plugin-svelte/",\
           "packageDependencies": [\
-            ["@sveltejs/vite-plugin-svelte", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:1.2.0"],\
+            ["@sveltejs/vite-plugin-svelte", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:1.3.0"],\
             ["@types/diff-match-patch", null],\
             ["@types/svelte", null],\
             ["@types/vite", null],\
@@ -251,9 +251,9 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["kleur", "npm:4.1.5"],\
             ["magic-string", "npm:0.26.7"],\
             ["svelte", "npm:3.53.1"],\
-            ["svelte-hmr", "virtual:8f2e4e209d9e99c22520e81ab743620101f9d2d5f2ed887c409a09df807fcc0a691cb1ee8cd697d4383479ccaf31bb74aee87452b314f2b227be2b3e6272199c#npm:0.15.1"],\
+            ["svelte-hmr", "virtual:b3b59e0837c83ec319ec17df43636c3daf4c06610cc89ded7b85444de123d97ea79c5e4f2f8daecb725ce2331090c4d949659042fa34b25980de3d7562656f88#npm:0.15.1"],\
             ["vite", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:3.2.4"],\
-            ["vitefu", "virtual:8f2e4e209d9e99c22520e81ab743620101f9d2d5f2ed887c409a09df807fcc0a691cb1ee8cd697d4383479ccaf31bb74aee87452b314f2b227be2b3e6272199c#npm:0.2.1"]\
+            ["vitefu", "virtual:b3b59e0837c83ec319ec17df43636c3daf4c06610cc89ded7b85444de123d97ea79c5e4f2f8daecb725ce2331090c4d949659042fa34b25980de3d7562656f88#npm:0.2.1"]\
           ],\
           "packagePeers": [\
             "@types/diff-match-patch",\
@@ -677,7 +677,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["dietpi-dashboard", "workspace:."],\
             ["@fortawesome/free-solid-svg-icons", "npm:6.2.1"],\
-            ["@sveltejs/vite-plugin-svelte", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:1.2.0"],\
+            ["@sveltejs/vite-plugin-svelte", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:1.3.0"],\
             ["@tsconfig/svelte", "npm:3.0.0"],\
             ["@types/autosize", "npm:4.0.1"],\
             ["@types/microlight", "npm:0.0.0"],\
@@ -766,7 +766,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ]],\
       ["esbuild", [\
         ["npm:0.15.10", {\
-          "packageLocation": "./.yarn/cache/esbuild-npm-0.15.10-cd7bf58045-bc2daadb95.zip/node_modules/esbuild/",\
+          "packageLocation": "./.yarn/unplugged/esbuild-npm-0.15.10-cd7bf58045/node_modules/esbuild/",\
           "packageDependencies": [\
             ["esbuild", "npm:0.15.10"],\
             ["@esbuild/android-arm", "npm:0.15.10"],\
@@ -2259,10 +2259,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],\
           "linkType": "SOFT"\
         }],\
-        ["virtual:8f2e4e209d9e99c22520e81ab743620101f9d2d5f2ed887c409a09df807fcc0a691cb1ee8cd697d4383479ccaf31bb74aee87452b314f2b227be2b3e6272199c#npm:0.15.1", {\
-          "packageLocation": "./.yarn/__virtual__/svelte-hmr-virtual-12a3f58146/0/cache/svelte-hmr-npm-0.15.1-6d627a3716-af2e5c356e.zip/node_modules/svelte-hmr/",\
+        ["virtual:b3b59e0837c83ec319ec17df43636c3daf4c06610cc89ded7b85444de123d97ea79c5e4f2f8daecb725ce2331090c4d949659042fa34b25980de3d7562656f88#npm:0.15.1", {\
+          "packageLocation": "./.yarn/__virtual__/svelte-hmr-virtual-4c0642b52f/0/cache/svelte-hmr-npm-0.15.1-6d627a3716-af2e5c356e.zip/node_modules/svelte-hmr/",\
           "packageDependencies": [\
-            ["svelte-hmr", "virtual:8f2e4e209d9e99c22520e81ab743620101f9d2d5f2ed887c409a09df807fcc0a691cb1ee8cd697d4383479ccaf31bb74aee87452b314f2b227be2b3e6272199c#npm:0.15.1"],\
+            ["svelte-hmr", "virtual:b3b59e0837c83ec319ec17df43636c3daf4c06610cc89ded7b85444de123d97ea79c5e4f2f8daecb725ce2331090c4d949659042fa34b25980de3d7562656f88#npm:0.15.1"],\
             ["@types/svelte", null],\
             ["svelte", "npm:3.53.1"]\
           ],\
@@ -2302,14 +2302,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ]],\
       ["svelte-preprocess", [\
         ["npm:4.10.7", {\
-          "packageLocation": "./.yarn/cache/svelte-preprocess-npm-4.10.7-d83f53f087-51a0820c14.zip/node_modules/svelte-preprocess/",\
+          "packageLocation": "./.yarn/unplugged/svelte-preprocess-virtual-b1f0dcabbc/node_modules/svelte-preprocess/",\
           "packageDependencies": [\
             ["svelte-preprocess", "npm:4.10.7"]\
           ],\
           "linkType": "SOFT"\
         }],\
         ["virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:4.10.7", {\
-          "packageLocation": "./.yarn/__virtual__/svelte-preprocess-virtual-b1f0dcabbc/0/cache/svelte-preprocess-npm-4.10.7-d83f53f087-51a0820c14.zip/node_modules/svelte-preprocess/",\
+          "packageLocation": "./.yarn/unplugged/svelte-preprocess-virtual-b1f0dcabbc/node_modules/svelte-preprocess/",\
           "packageDependencies": [\
             ["svelte-preprocess", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:4.10.7"],\
             ["@babel/core", null],\
@@ -2368,7 +2368,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }],\
         ["virtual:4febb4621a0ce0f98f4e03a80cf3d7cd841477f97e01a279b782b09c53be12d309d39a5ec272459df54519580363f15aeff0037271dbf9986b8474c18773ff98#npm:4.10.7", {\
-          "packageLocation": "./.yarn/__virtual__/svelte-preprocess-virtual-1374a6348c/0/cache/svelte-preprocess-npm-4.10.7-d83f53f087-51a0820c14.zip/node_modules/svelte-preprocess/",\
+          "packageLocation": "./.yarn/unplugged/svelte-preprocess-virtual-1374a6348c/node_modules/svelte-preprocess/",\
           "packageDependencies": [\
             ["svelte-preprocess", "virtual:4febb4621a0ce0f98f4e03a80cf3d7cd841477f97e01a279b782b09c53be12d309d39a5ec272459df54519580363f15aeff0037271dbf9986b8474c18773ff98#npm:4.10.7"],\
             ["@babel/core", null],\
@@ -2686,10 +2686,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],\
           "linkType": "SOFT"\
         }],\
-        ["virtual:8f2e4e209d9e99c22520e81ab743620101f9d2d5f2ed887c409a09df807fcc0a691cb1ee8cd697d4383479ccaf31bb74aee87452b314f2b227be2b3e6272199c#npm:0.2.1", {\
-          "packageLocation": "./.yarn/__virtual__/vitefu-virtual-d2deb8ae3c/0/cache/vitefu-npm-0.2.1-28063d5832-e604b88523.zip/node_modules/vitefu/",\
+        ["virtual:b3b59e0837c83ec319ec17df43636c3daf4c06610cc89ded7b85444de123d97ea79c5e4f2f8daecb725ce2331090c4d949659042fa34b25980de3d7562656f88#npm:0.2.1", {\
+          "packageLocation": "./.yarn/__virtual__/vitefu-virtual-f78b0bb9d5/0/cache/vitefu-npm-0.2.1-28063d5832-e604b88523.zip/node_modules/vitefu/",\
           "packageDependencies": [\
-            ["vitefu", "virtual:8f2e4e209d9e99c22520e81ab743620101f9d2d5f2ed887c409a09df807fcc0a691cb1ee8cd697d4383479ccaf31bb74aee87452b314f2b227be2b3e6272199c#npm:0.2.1"],\
+            ["vitefu", "virtual:b3b59e0837c83ec319ec17df43636c3daf4c06610cc89ded7b85444de123d97ea79c5e4f2f8daecb725ce2331090c4d949659042fa34b25980de3d7562656f88#npm:0.2.1"],\
             ["@types/vite", null],\
             ["vite", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:3.2.4"]\
           ],\
