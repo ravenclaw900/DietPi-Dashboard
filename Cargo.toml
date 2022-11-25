@@ -54,7 +54,7 @@ opt-level = 3
 opt-level = "s"
 
 [build-dependencies]
-flate2 = "1.0.24"
+flate2 = "1.0.25"
 rerun_in_except = "0.1.2"
 walkdir = "2.3.2"
 
