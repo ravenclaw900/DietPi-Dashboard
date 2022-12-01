@@ -52,7 +52,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["svelte-routing", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:1.6.0"],\
             ["tslib", "npm:2.4.1"],\
             ["typescript", "patch:typescript@npm%3A4.9.3#~builtin<compat/typescript>::version=4.9.3&hash=f456af"],\
-            ["uplot", "npm:1.6.22"],\
+            ["uplot", "npm:1.6.23"],\
             ["vite", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:3.2.4"],\
             ["vite-plugin-replace", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:0.1.1"],\
             ["vite-plugin-windicss", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:1.8.8"],\
@@ -122,7 +122,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ]],\
       ["@fortawesome/fontawesome-common-types", [\
         ["npm:6.2.1", {\
-          "packageLocation": "./.yarn/cache/@fortawesome-fontawesome-common-types-npm-6.2.1-0d35c18eaf-1a6e202bea.zip/node_modules/@fortawesome/fontawesome-common-types/",\
+          "packageLocation": "./.yarn/unplugged/@fortawesome-fontawesome-common-types-npm-6.2.1-0d35c18eaf/node_modules/@fortawesome/fontawesome-common-types/",\
           "packageDependencies": [\
             ["@fortawesome/fontawesome-common-types", "npm:6.2.1"]\
           ],\
@@ -131,7 +131,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ]],\
       ["@fortawesome/free-solid-svg-icons", [\
         ["npm:6.2.1", {\
-          "packageLocation": "./.yarn/cache/@fortawesome-free-solid-svg-icons-npm-6.2.1-ea5991f75e-a24170b676.zip/node_modules/@fortawesome/free-solid-svg-icons/",\
+          "packageLocation": "./.yarn/unplugged/@fortawesome-free-solid-svg-icons-npm-6.2.1-ea5991f75e/node_modules/@fortawesome/free-solid-svg-icons/",\
           "packageDependencies": [\
             ["@fortawesome/free-solid-svg-icons", "npm:6.2.1"],\
             ["@fortawesome/fontawesome-common-types", "npm:6.2.1"]\
@@ -710,7 +710,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["svelte-routing", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:1.6.0"],\
             ["tslib", "npm:2.4.1"],\
             ["typescript", "patch:typescript@npm%3A4.9.3#~builtin<compat/typescript>::version=4.9.3&hash=f456af"],\
-            ["uplot", "npm:1.6.22"],\
+            ["uplot", "npm:1.6.23"],\
             ["vite", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:3.2.4"],\
             ["vite-plugin-replace", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:0.1.1"],\
             ["vite-plugin-windicss", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:1.8.8"],\
@@ -781,7 +781,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ]],\
       ["esbuild", [\
         ["npm:0.15.10", {\
-          "packageLocation": "./.yarn/cache/esbuild-npm-0.15.10-cd7bf58045-bc2daadb95.zip/node_modules/esbuild/",\
+          "packageLocation": "./.yarn/unplugged/esbuild-npm-0.15.10-cd7bf58045/node_modules/esbuild/",\
           "packageDependencies": [\
             ["esbuild", "npm:0.15.10"],\
             ["@esbuild/android-arm", "npm:0.15.10"],\
@@ -2317,14 +2317,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ]],\
       ["svelte-preprocess", [\
         ["npm:4.10.7", {\
-          "packageLocation": "./.yarn/cache/svelte-preprocess-npm-4.10.7-d83f53f087-51a0820c14.zip/node_modules/svelte-preprocess/",\
+          "packageLocation": "./.yarn/unplugged/svelte-preprocess-virtual-b1f0dcabbc/node_modules/svelte-preprocess/",\
           "packageDependencies": [\
             ["svelte-preprocess", "npm:4.10.7"]\
           ],\
           "linkType": "SOFT"\
         }],\
         ["virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:4.10.7", {\
-          "packageLocation": "./.yarn/__virtual__/svelte-preprocess-virtual-b1f0dcabbc/0/cache/svelte-preprocess-npm-4.10.7-d83f53f087-51a0820c14.zip/node_modules/svelte-preprocess/",\
+          "packageLocation": "./.yarn/unplugged/svelte-preprocess-virtual-b1f0dcabbc/node_modules/svelte-preprocess/",\
           "packageDependencies": [\
             ["svelte-preprocess", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:4.10.7"],\
             ["@babel/core", null],\
@@ -2383,7 +2383,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }],\
         ["virtual:1aa6c9bbdbd037fc31af0153da0e74777c575bca54f0048165b68a968b4961d7789f9d2b4aac1adc9713f1027072ba7c40540227ba2216a42fd417b0a7f9c11f#npm:4.10.7", {\
-          "packageLocation": "./.yarn/__virtual__/svelte-preprocess-virtual-462e479602/0/cache/svelte-preprocess-npm-4.10.7-d83f53f087-51a0820c14.zip/node_modules/svelte-preprocess/",\
+          "packageLocation": "./.yarn/unplugged/svelte-preprocess-virtual-462e479602/node_modules/svelte-preprocess/",\
           "packageDependencies": [\
             ["svelte-preprocess", "virtual:1aa6c9bbdbd037fc31af0153da0e74777c575bca54f0048165b68a968b4961d7789f9d2b4aac1adc9713f1027072ba7c40540227ba2216a42fd417b0a7f9c11f#npm:4.10.7"],\
             ["@babel/core", null],\
@@ -2583,10 +2583,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["uplot", [\
-        ["npm:1.6.22", {\
-          "packageLocation": "./.yarn/cache/uplot-npm-1.6.22-c85e8da9e8-4a73835b93.zip/node_modules/uplot/",\
+        ["npm:1.6.23", {\
+          "packageLocation": "./.yarn/cache/uplot-npm-1.6.23-3300fa57ab-4fd2b6340b.zip/node_modules/uplot/",\
           "packageDependencies": [\
-            ["uplot", "npm:1.6.22"]\
+            ["uplot", "npm:1.6.23"]\
           ],\
           "linkType": "HARD"\
         }]\
