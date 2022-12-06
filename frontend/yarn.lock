@@ -532,7 +532,7 @@ __metadata:
     pretty-ms: ^8.0.0
     semver-compare-multi: ^1.0.3
     svelte: ^3.53.1
-    svelte-check: ^2.10.0
+    svelte-check: ^2.10.1
     svelte-fa: ^3.0.3
     svelte-language-server: ^0.14.38
     svelte-preprocess: ^4.10.7
@@ -1913,9 +1913,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"svelte-check@npm:^2.10.0":
-  version: 2.10.0
-  resolution: "svelte-check@npm:2.10.0"
+"svelte-check@npm:^2.10.1":
+  version: 2.10.1
+  resolution: "svelte-check@npm:2.10.1"
   dependencies:
     "@jridgewell/trace-mapping": ^0.3.9
     chokidar: ^3.4.1
@@ -1929,7 +1929,7 @@ __metadata:
     svelte: ^3.24.0
   bin:
     svelte-check: bin/svelte-check
-  checksum: 01618d06e43a102cc795a5faaba2cfd56b38a49d75b600cd6793d25f4f94209ea01090262bb3d2db7b4181607bd8542c15b0f415da261cb37fa065cd40427d53
+  checksum: 2281bfacbacfbd75827d35450ed2f5fc0175d0863b69cc41c497585f8e5b9654c1c1b7acd70093a59729635f7c37e063239466105e75d59d3d3daf828dfc784a
   languageName: node
   linkType: hard
 
