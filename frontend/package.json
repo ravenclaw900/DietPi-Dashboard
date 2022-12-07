@@ -17,7 +17,7 @@
     "@types/microlight": "^0.0.0",
     "@types/semver-compare-multi": "^1.0.0",
     "postcss": "^8.4.19",
-    "svelte": "^3.53.1",
+    "svelte": "^3.54.0",
     "svelte-check": "^2.10.1",
     "svelte-fa": "^3.0.3",
     "svelte-language-server": "^0.14.38",
