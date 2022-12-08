@@ -534,7 +534,7 @@ __metadata:
     svelte: ^3.54.0
     svelte-check: ^2.10.1
     svelte-fa: ^3.0.3
-    svelte-language-server: ^0.14.38
+    svelte-language-server: ^0.14.39
     svelte-preprocess: ^4.10.7
     svelte-routing: ^1.6.0
     tslib: ^2.4.1
@@ -1949,9 +1949,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"svelte-language-server@npm:^0.14.38":
-  version: 0.14.38
-  resolution: "svelte-language-server@npm:0.14.38"
+"svelte-language-server@npm:^0.14.39":
+  version: 0.14.39
+  resolution: "svelte-language-server@npm:0.14.39"
   dependencies:
     "@jridgewell/trace-mapping": ^0.3.9
     "@vscode/emmet-helper": ^2.8.4
@@ -1973,7 +1973,7 @@ __metadata:
     vscode-uri: ~3.0.0
   bin:
     svelteserver: bin/server.js
-  checksum: 4908a5113e7d3b83132129832e2b12da66ea6a310405c4ba1fd4ac0f3dc07548e41f3983521f26cb161beb1e3dd824eaaff9751e9bd0f74ee79f77c3a9af0c3e
+  checksum: 48871ac5aa18996b507968960fed59e13ce541fd7531d88ef9a74b16fc216e99a4bb2a529adc4ad06f5470acfebce90390b4534efd7c56ea6e1836bd123b67f6
   languageName: node
   linkType: hard
 
