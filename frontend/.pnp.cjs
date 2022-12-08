@@ -45,7 +45,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["pretty-ms", "npm:8.0.0"],\
             ["semver-compare-multi", "npm:1.0.3"],\
             ["svelte", "npm:3.54.0"],\
-            ["svelte-check", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:2.10.1"],\
+            ["svelte-check", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:2.10.2"],\
             ["svelte-fa", "npm:3.0.3"],\
             ["svelte-language-server", "npm:0.14.39"],\
             ["svelte-preprocess", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:4.10.7"],\
@@ -699,7 +699,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["pretty-ms", "npm:8.0.0"],\
             ["semver-compare-multi", "npm:1.0.3"],\
             ["svelte", "npm:3.54.0"],\
-            ["svelte-check", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:2.10.1"],\
+            ["svelte-check", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:2.10.2"],\
             ["svelte-fa", "npm:3.0.3"],\
             ["svelte-language-server", "npm:0.14.39"],\
             ["svelte-preprocess", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:4.10.7"],\
@@ -2224,17 +2224,17 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["svelte-check", [\
-        ["npm:2.10.1", {\
-          "packageLocation": "./.yarn/cache/svelte-check-npm-2.10.1-3169621777-2281bfacba.zip/node_modules/svelte-check/",\
+        ["npm:2.10.2", {\
+          "packageLocation": "./.yarn/cache/svelte-check-npm-2.10.2-a924fed3b4-687274f092.zip/node_modules/svelte-check/",\
           "packageDependencies": [\
-            ["svelte-check", "npm:2.10.1"]\
+            ["svelte-check", "npm:2.10.2"]\
           ],\
           "linkType": "SOFT"\
         }],\
-        ["virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:2.10.1", {\
-          "packageLocation": "./.yarn/__virtual__/svelte-check-virtual-0f108365d5/0/cache/svelte-check-npm-2.10.1-3169621777-2281bfacba.zip/node_modules/svelte-check/",\
+        ["virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:2.10.2", {\
+          "packageLocation": "./.yarn/__virtual__/svelte-check-virtual-c095aab70b/0/cache/svelte-check-npm-2.10.2-a924fed3b4-687274f092.zip/node_modules/svelte-check/",\
           "packageDependencies": [\
-            ["svelte-check", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:2.10.1"],\
+            ["svelte-check", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:2.10.2"],\
             ["@jridgewell/trace-mapping", "npm:0.3.14"],\
             ["@types/svelte", null],\
             ["chokidar", "npm:3.5.3"],\
