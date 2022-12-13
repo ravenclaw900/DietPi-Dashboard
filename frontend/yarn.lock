@@ -5,10 +5,10 @@ __metadata:
   version: 6
   cacheKey: 8
 
-"@antfu/utils@npm:^0.5.2":
-  version: 0.5.2
-  resolution: "@antfu/utils@npm:0.5.2"
-  checksum: 9b91446b2dbb823abeeba1cc33d6ebf701a462923408ad4751fbe162da46ae0669c774c2b5435fc77691dc207ce5de5945e693d5163e07d6ef42e376b04c7af4
+"@antfu/utils@npm:^0.7.2":
+  version: 0.7.2
+  resolution: "@antfu/utils@npm:0.7.2"
+  checksum: ada98dde0a06bc10129ad7bc9d0007c1cf7e36eeb9e8ca93ea5173bc1e1d351afee8511c9e8e182b3105b787ce0ce813afc4ab283b511374f1e56a085f60a2c6
   languageName: node
   linkType: hard
 
@@ -81,7 +81,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jridgewell/sourcemap-codec@npm:^1.4.10":
+"@jridgewell/sourcemap-codec@npm:^1.4.10, @jridgewell/sourcemap-codec@npm:^1.4.13":
   version: 1.4.14
   resolution: "@jridgewell/sourcemap-codec@npm:1.4.14"
   checksum: 61100637b6d173d3ba786a5dff019e1a74b1f394f323c1fee337ff390239f053b87266c7a948777f4b1ee68c01a8ad0ab61e5ff4abb5a012a0b091bec391ab97
@@ -234,29 +234,29 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@windicss/config@npm:1.8.8":
-  version: 1.8.8
-  resolution: "@windicss/config@npm:1.8.8"
+"@windicss/config@npm:1.8.10":
+  version: 1.8.10
+  resolution: "@windicss/config@npm:1.8.10"
   dependencies:
     debug: ^4.3.4
-    jiti: ^1.14.0
+    jiti: ^1.16.0
     windicss: ^3.5.6
-  checksum: 152b53fe5e9f3b8bd9709de3221b98c6d1c40688e12bd041c40ef8dcbfc3d930ceb27f338035e268c1f7b6d1e2d4e25bf6cf10e7f7ee762cb9e7cd40891e321e
+  checksum: 1d2c7425377fb145ae0ec1a43615fb6b856b027eb95209abbe84108e8410171fe7fcb892a76551ff9acdbbe0ea9f7fe7623fe130d71c70da124994e52a0e7001
   languageName: node
   linkType: hard
 
-"@windicss/plugin-utils@npm:1.8.8":
-  version: 1.8.8
-  resolution: "@windicss/plugin-utils@npm:1.8.8"
+"@windicss/plugin-utils@npm:1.8.10":
+  version: 1.8.10
+  resolution: "@windicss/plugin-utils@npm:1.8.10"
   dependencies:
-    "@antfu/utils": ^0.5.2
-    "@windicss/config": 1.8.8
+    "@antfu/utils": ^0.7.2
+    "@windicss/config": 1.8.10
     debug: ^4.3.4
-    fast-glob: ^3.2.11
-    magic-string: ^0.26.2
+    fast-glob: ^3.2.12
+    magic-string: ^0.27.0
     micromatch: ^4.0.5
     windicss: ^3.5.6
-  checksum: 99b220ce7de2267fa7fbbe6ba91f594bc1c67e63420a6d9c90e827422e17c294c2a13d6e286de28b2785307bca041aeb1c9d2688f4b71f534f7b44fa576ccecd
+  checksum: 1da24e9812e05de82ded465c742e6bd0df22af6b84cd1da1f53a6c427e04f6bd2a2b59eaed13352a2caa1fc04cc74e095b60fb6e494564353630f4a885efd97c
   languageName: node
   linkType: hard
 
@@ -542,7 +542,7 @@ __metadata:
     uplot: ^1.6.23
     vite: ^3.2.5
     vite-plugin-replace: ^0.1.1
-    vite-plugin-windicss: ^1.8.8
+    vite-plugin-windicss: ^1.8.10
     windicss: ^3.5.6
     xterm: ^5.0.0
     xterm-addon-attach: ^0.7.0
@@ -824,16 +824,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-glob@npm:^3.2.11, fast-glob@npm:^3.2.7":
-  version: 3.2.11
-  resolution: "fast-glob@npm:3.2.11"
+"fast-glob@npm:^3.2.12, fast-glob@npm:^3.2.7":
+  version: 3.2.12
+  resolution: "fast-glob@npm:3.2.12"
   dependencies:
     "@nodelib/fs.stat": ^2.0.2
     "@nodelib/fs.walk": ^1.2.3
     glob-parent: ^5.1.2
     merge2: ^1.3.0
     micromatch: ^4.0.4
-  checksum: f473105324a7780a20c06de842e15ddbb41d3cb7e71d1e4fe6e8373204f22245d54f5ab9e2061e6a1c613047345954d29b022e0e76f5c28b1df9858179a0e6d7
+  checksum: 0b1990f6ce831c7e28c4d505edcdaad8e27e88ab9fa65eedadb730438cfc7cde4910d6c975d6b7b8dc8a73da4773702ebcfcd6e3518e73938bb1383badfe01c2
   languageName: node
   linkType: hard
 
@@ -1135,12 +1135,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jiti@npm:^1.14.0":
-  version: 1.14.0
-  resolution: "jiti@npm:1.14.0"
+"jiti@npm:^1.16.0":
+  version: 1.16.0
+  resolution: "jiti@npm:1.16.0"
   bin:
     jiti: bin/jiti.js
-  checksum: 61e7123caa397b8a53068120b7496b95048b96feba3cc1a263265e9b0bcfb375e90a182e07643a29e5380d92c485918d5e7db3805cc9511404e7e9c93234725b
+  checksum: 28844cd69168fd0491b296d4925e0034cc9f23aba51bdb94b896818e444059092af838f98d406477dc1b6e0ca15a5ff4522e060bf3f289f9e1ca1ee572a54e6b
   languageName: node
   linkType: hard
 
@@ -1158,10 +1158,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"kolorist@npm:^1.5.1":
-  version: 1.5.1
-  resolution: "kolorist@npm:1.5.1"
-  checksum: c113be08834fc03a24699612141c79879fceba9ff9765ad500507fb594ee4fa3465a3453ea90bbc9b0dd82f7ba5dbd79814da28e9ebaf8da27266a0088ba2714
+"kolorist@npm:^1.6.0":
+  version: 1.6.0
+  resolution: "kolorist@npm:1.6.0"
+  checksum: 4d898b782ceaaac3a51d9820a13563fcd0ed516d5493374a0e04ceda93ed4d74f9e267e8da5fb4453e508099b9f6b22e38ac1bff92fdc227081f460c003401c0
   languageName: node
   linkType: hard
 
@@ -1206,12 +1206,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"magic-string@npm:^0.26.2, magic-string@npm:^0.26.7":
+"magic-string@npm:^0.26.7":
   version: 0.26.7
   resolution: "magic-string@npm:0.26.7"
   dependencies:
     sourcemap-codec: ^1.4.8
   checksum: 89b0d60cbb32bbf3d1e23c46ea93db082d18a8230b972027aecb10a40bba51be519ecce0674f995571e3affe917b76b09f59d8dbc9a1b2c9c4102a2b6e8a2b01
+  languageName: node
+  linkType: hard
+
+"magic-string@npm:^0.27.0":
+  version: 0.27.0
+  resolution: "magic-string@npm:0.27.0"
+  dependencies:
+    "@jridgewell/sourcemap-codec": ^1.4.13
+  checksum: 273faaa50baadb7a2df6e442eac34ad611304fc08fe16e24fe2e472fd944bfcb73ffb50d2dc972dc04e92784222002af46868cb9698b1be181c81830fd95a13e
   languageName: node
   linkType: hard
 
@@ -2161,17 +2170,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite-plugin-windicss@npm:^1.8.8":
-  version: 1.8.8
-  resolution: "vite-plugin-windicss@npm:1.8.8"
+"vite-plugin-windicss@npm:^1.8.10":
+  version: 1.8.10
+  resolution: "vite-plugin-windicss@npm:1.8.10"
   dependencies:
-    "@windicss/plugin-utils": 1.8.8
+    "@windicss/plugin-utils": 1.8.10
     debug: ^4.3.4
-    kolorist: ^1.5.1
+    kolorist: ^1.6.0
     windicss: ^3.5.6
   peerDependencies:
-    vite: ^2.0.1 || ^3.0.0
-  checksum: e07c0d43f2359df5944feaa8f46e2f059a30def50698c5c256aecc8a88a2586da1d9d210057fc52a3ede6bf29e1623a2785e766d43ebd8013c2805c5e111fe25
+    vite: ^2.0.1 || ^3.0.0 || ^4.0.0
+  checksum: 46084896b010ea836427131fdb7b929c2ddd8c30f90a7e885dd94053112647bad11eb92f34b54e0dc8385aa6252e2e085cd6907614dc2805d08676c171cbfa3e
   languageName: node
   linkType: hard
 
