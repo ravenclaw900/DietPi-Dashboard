@@ -55,7 +55,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["uplot", "npm:1.6.23"],\
             ["vite", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:3.2.5"],\
             ["vite-plugin-replace", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:0.1.1"],\
-            ["vite-plugin-windicss", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:1.8.8"],\
+            ["vite-plugin-windicss", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:1.8.10"],\
             ["windicss", "npm:3.5.6"],\
             ["xterm", "npm:5.0.0"],\
             ["xterm-addon-attach", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:0.7.0"],\
@@ -65,10 +65,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@antfu/utils", [\
-        ["npm:0.5.2", {\
-          "packageLocation": "./.yarn/cache/@antfu-utils-npm-0.5.2-8c99b8b224-9b91446b2d.zip/node_modules/@antfu/utils/",\
+        ["npm:0.7.2", {\
+          "packageLocation": "./.yarn/cache/@antfu-utils-npm-0.7.2-ec5ccb7df5-ada98dde0a.zip/node_modules/@antfu/utils/",\
           "packageDependencies": [\
-            ["@antfu/utils", "npm:0.5.2"]\
+            ["@antfu/utils", "npm:0.7.2"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -122,7 +122,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ]],\
       ["@fortawesome/fontawesome-common-types", [\
         ["npm:6.2.1", {\
-          "packageLocation": "./.yarn/cache/@fortawesome-fontawesome-common-types-npm-6.2.1-0d35c18eaf-1a6e202bea.zip/node_modules/@fortawesome/fontawesome-common-types/",\
+          "packageLocation": "./.yarn/unplugged/@fortawesome-fontawesome-common-types-npm-6.2.1-0d35c18eaf/node_modules/@fortawesome/fontawesome-common-types/",\
           "packageDependencies": [\
             ["@fortawesome/fontawesome-common-types", "npm:6.2.1"]\
           ],\
@@ -131,7 +131,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ]],\
       ["@fortawesome/free-solid-svg-icons", [\
         ["npm:6.2.1", {\
-          "packageLocation": "./.yarn/cache/@fortawesome-free-solid-svg-icons-npm-6.2.1-ea5991f75e-a24170b676.zip/node_modules/@fortawesome/free-solid-svg-icons/",\
+          "packageLocation": "./.yarn/unplugged/@fortawesome-free-solid-svg-icons-npm-6.2.1-ea5991f75e/node_modules/@fortawesome/free-solid-svg-icons/",\
           "packageDependencies": [\
             ["@fortawesome/free-solid-svg-icons", "npm:6.2.1"],\
             ["@fortawesome/fontawesome-common-types", "npm:6.2.1"]\
@@ -351,27 +351,27 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@windicss/config", [\
-        ["npm:1.8.8", {\
-          "packageLocation": "./.yarn/cache/@windicss-config-npm-1.8.8-ffcb23a60a-152b53fe5e.zip/node_modules/@windicss/config/",\
+        ["npm:1.8.10", {\
+          "packageLocation": "./.yarn/cache/@windicss-config-npm-1.8.10-647251061b-1d2c742537.zip/node_modules/@windicss/config/",\
           "packageDependencies": [\
-            ["@windicss/config", "npm:1.8.8"],\
+            ["@windicss/config", "npm:1.8.10"],\
             ["debug", "virtual:b86a9fb34323a98c6519528ed55faa0d9b44ca8879307c0b29aa384bde47ff59a7d0c9051b31246f14521dfb71ba3c5d6d0b35c29fffc17bf875aa6ad977d9e8#npm:4.3.4"],\
-            ["jiti", "npm:1.14.0"],\
+            ["jiti", "npm:1.16.0"],\
             ["windicss", "npm:3.5.6"]\
           ],\
           "linkType": "HARD"\
         }]\
       ]],\
       ["@windicss/plugin-utils", [\
-        ["npm:1.8.8", {\
-          "packageLocation": "./.yarn/cache/@windicss-plugin-utils-npm-1.8.8-0eed39fc2e-99b220ce7d.zip/node_modules/@windicss/plugin-utils/",\
+        ["npm:1.8.10", {\
+          "packageLocation": "./.yarn/cache/@windicss-plugin-utils-npm-1.8.10-a3790a3e3f-1da24e9812.zip/node_modules/@windicss/plugin-utils/",\
           "packageDependencies": [\
-            ["@windicss/plugin-utils", "npm:1.8.8"],\
-            ["@antfu/utils", "npm:0.5.2"],\
-            ["@windicss/config", "npm:1.8.8"],\
+            ["@windicss/plugin-utils", "npm:1.8.10"],\
+            ["@antfu/utils", "npm:0.7.2"],\
+            ["@windicss/config", "npm:1.8.10"],\
             ["debug", "virtual:b86a9fb34323a98c6519528ed55faa0d9b44ca8879307c0b29aa384bde47ff59a7d0c9051b31246f14521dfb71ba3c5d6d0b35c29fffc17bf875aa6ad977d9e8#npm:4.3.4"],\
-            ["fast-glob", "npm:3.2.11"],\
-            ["magic-string", "npm:0.26.7"],\
+            ["fast-glob", "npm:3.2.12"],\
+            ["magic-string", "npm:0.27.0"],\
             ["micromatch", "npm:4.0.5"],\
             ["windicss", "npm:3.5.6"]\
           ],\
@@ -709,7 +709,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["uplot", "npm:1.6.23"],\
             ["vite", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:3.2.5"],\
             ["vite-plugin-replace", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:0.1.1"],\
-            ["vite-plugin-windicss", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:1.8.8"],\
+            ["vite-plugin-windicss", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:1.8.10"],\
             ["windicss", "npm:3.5.6"],\
             ["xterm", "npm:5.0.0"],\
             ["xterm-addon-attach", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:0.7.0"],\
@@ -777,7 +777,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ]],\
       ["esbuild", [\
         ["npm:0.15.10", {\
-          "packageLocation": "./.yarn/cache/esbuild-npm-0.15.10-cd7bf58045-bc2daadb95.zip/node_modules/esbuild/",\
+          "packageLocation": "./.yarn/unplugged/esbuild-npm-0.15.10-cd7bf58045/node_modules/esbuild/",\
           "packageDependencies": [\
             ["esbuild", "npm:0.15.10"],\
             ["@esbuild/android-arm", "npm:0.15.10"],\
@@ -1000,6 +1000,18 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/fast-glob-npm-3.2.11-bc01135fef-f473105324.zip/node_modules/fast-glob/",\
           "packageDependencies": [\
             ["fast-glob", "npm:3.2.11"],\
+            ["@nodelib/fs.stat", "npm:2.0.5"],\
+            ["@nodelib/fs.walk", "npm:1.2.8"],\
+            ["glob-parent", "npm:5.1.2"],\
+            ["merge2", "npm:1.4.1"],\
+            ["micromatch", "npm:4.0.5"]\
+          ],\
+          "linkType": "HARD"\
+        }],\
+        ["npm:3.2.12", {\
+          "packageLocation": "./.yarn/cache/fast-glob-npm-3.2.12-162763bbae-0b1990f6ce.zip/node_modules/fast-glob/",\
+          "packageDependencies": [\
+            ["fast-glob", "npm:3.2.12"],\
             ["@nodelib/fs.stat", "npm:2.0.5"],\
             ["@nodelib/fs.walk", "npm:1.2.8"],\
             ["glob-parent", "npm:5.1.2"],\
@@ -1344,10 +1356,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["jiti", [\
-        ["npm:1.14.0", {\
-          "packageLocation": "./.yarn/cache/jiti-npm-1.14.0-ee0f8625c7-61e7123caa.zip/node_modules/jiti/",\
+        ["npm:1.16.0", {\
+          "packageLocation": "./.yarn/cache/jiti-npm-1.16.0-a3cbfd13e3-28844cd691.zip/node_modules/jiti/",\
           "packageDependencies": [\
-            ["jiti", "npm:1.14.0"]\
+            ["jiti", "npm:1.16.0"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -1371,10 +1383,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["kolorist", [\
-        ["npm:1.5.1", {\
-          "packageLocation": "./.yarn/cache/kolorist-npm-1.5.1-eeeb366851-c113be0883.zip/node_modules/kolorist/",\
+        ["npm:1.6.0", {\
+          "packageLocation": "./.yarn/cache/kolorist-npm-1.6.0-d7d152ff92-4d898b782c.zip/node_modules/kolorist/",\
           "packageDependencies": [\
-            ["kolorist", "npm:1.5.1"]\
+            ["kolorist", "npm:1.6.0"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -1429,6 +1441,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["magic-string", "npm:0.26.7"],\
             ["sourcemap-codec", "npm:1.4.8"]\
+          ],\
+          "linkType": "HARD"\
+        }],\
+        ["npm:0.27.0", {\
+          "packageLocation": "./.yarn/cache/magic-string-npm-0.27.0-a60a83c0b4-273faaa50b.zip/node_modules/magic-string/",\
+          "packageDependencies": [\
+            ["magic-string", "npm:0.27.0"],\
+            ["@jridgewell/sourcemap-codec", "npm:1.4.14"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -2313,14 +2333,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ]],\
       ["svelte-preprocess", [\
         ["npm:4.10.7", {\
-          "packageLocation": "./.yarn/cache/svelte-preprocess-npm-4.10.7-d83f53f087-51a0820c14.zip/node_modules/svelte-preprocess/",\
+          "packageLocation": "./.yarn/unplugged/svelte-preprocess-virtual-b1f0dcabbc/node_modules/svelte-preprocess/",\
           "packageDependencies": [\
             ["svelte-preprocess", "npm:4.10.7"]\
           ],\
           "linkType": "SOFT"\
         }],\
         ["virtual:034a114555accc33159dd34d64e413fbec345f8924260fa88bd062299ed5f9da11ea4584a87276dc265abaaeade2008358807c57d7ec702dc6ffab8bf425822d#npm:4.10.7", {\
-          "packageLocation": "./.yarn/__virtual__/svelte-preprocess-virtual-c299ff0c2c/0/cache/svelte-preprocess-npm-4.10.7-d83f53f087-51a0820c14.zip/node_modules/svelte-preprocess/",\
+          "packageLocation": "./.yarn/unplugged/svelte-preprocess-virtual-c299ff0c2c/node_modules/svelte-preprocess/",\
           "packageDependencies": [\
             ["svelte-preprocess", "virtual:034a114555accc33159dd34d64e413fbec345f8924260fa88bd062299ed5f9da11ea4584a87276dc265abaaeade2008358807c57d7ec702dc6ffab8bf425822d#npm:4.10.7"],\
             ["@babel/core", null],\
@@ -2379,7 +2399,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }],\
         ["virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:4.10.7", {\
-          "packageLocation": "./.yarn/__virtual__/svelte-preprocess-virtual-b1f0dcabbc/0/cache/svelte-preprocess-npm-4.10.7-d83f53f087-51a0820c14.zip/node_modules/svelte-preprocess/",\
+          "packageLocation": "./.yarn/unplugged/svelte-preprocess-virtual-b1f0dcabbc/node_modules/svelte-preprocess/",\
           "packageDependencies": [\
             ["svelte-preprocess", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:4.10.7"],\
             ["@babel/core", null],\
@@ -2664,21 +2684,21 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["vite-plugin-windicss", [\
-        ["npm:1.8.8", {\
-          "packageLocation": "./.yarn/cache/vite-plugin-windicss-npm-1.8.8-0824892e16-e07c0d43f2.zip/node_modules/vite-plugin-windicss/",\
+        ["npm:1.8.10", {\
+          "packageLocation": "./.yarn/cache/vite-plugin-windicss-npm-1.8.10-cf9652f73d-46084896b0.zip/node_modules/vite-plugin-windicss/",\
           "packageDependencies": [\
-            ["vite-plugin-windicss", "npm:1.8.8"]\
+            ["vite-plugin-windicss", "npm:1.8.10"]\
           ],\
           "linkType": "SOFT"\
         }],\
-        ["virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:1.8.8", {\
-          "packageLocation": "./.yarn/__virtual__/vite-plugin-windicss-virtual-e6a42bcc5d/0/cache/vite-plugin-windicss-npm-1.8.8-0824892e16-e07c0d43f2.zip/node_modules/vite-plugin-windicss/",\
+        ["virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:1.8.10", {\
+          "packageLocation": "./.yarn/__virtual__/vite-plugin-windicss-virtual-ea36d51ce4/0/cache/vite-plugin-windicss-npm-1.8.10-cf9652f73d-46084896b0.zip/node_modules/vite-plugin-windicss/",\
           "packageDependencies": [\
-            ["vite-plugin-windicss", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:1.8.8"],\
+            ["vite-plugin-windicss", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:1.8.10"],\
             ["@types/vite", null],\
-            ["@windicss/plugin-utils", "npm:1.8.8"],\
+            ["@windicss/plugin-utils", "npm:1.8.10"],\
             ["debug", "virtual:b86a9fb34323a98c6519528ed55faa0d9b44ca8879307c0b29aa384bde47ff59a7d0c9051b31246f14521dfb71ba3c5d6d0b35c29fffc17bf875aa6ad977d9e8#npm:4.3.4"],\
-            ["kolorist", "npm:1.5.1"],\
+            ["kolorist", "npm:1.6.0"],\
             ["vite", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:3.2.5"],\
             ["windicss", "npm:3.5.6"]\
           ],\
