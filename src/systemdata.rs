@@ -174,11 +174,11 @@ pub async fn dpsoftware(
                     }
                     software.id = el1
                         .parse::<i16>()
-                        .with_context(|| format!("Invalid software ID {}", el1))?;
+                        .with_context(|| format!("Invalid software ID {el1}"))?;
                 }
                 1 => {
                     installed = el1.parse::<i8>().with_context(|| {
-                        format!("Invalid installed specifier {} for id {}", el1, software.id)
+                        format!("Invalid installed specifier {el1} for id {}", software.id)
                     })? > 0;
                 }
                 2 => software.name = el1.to_string(),
@@ -289,7 +289,7 @@ pub async fn services() -> anyhow::Result<Vec<shared::ServiceData>> {
                             .to_string();
                     }
                     // Every line after 9 (before is data that's useless to us) should be service error log, format with HTML breaks
-                    9.. => service.log.push_str(format!("{}<br>", el1).as_str()),
+                    9.. => service.log.push_str(format!("{el1}<br>").as_str()),
                     _ => (),
                 }
             }

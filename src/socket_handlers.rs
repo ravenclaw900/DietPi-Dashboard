@@ -73,7 +73,7 @@ pub async fn socket_handler(
             req = handle_error!(
                 shared::RequestTypes::try_from(handle_error!(
                     serde_json::from_str::<shared::Request>(&data_str)
-                        .with_context(|| format!("Couldn't parse JSON {}", data_str)),
+                        .with_context(|| format!("Couldn't parse JSON {data_str}")),
                     continue
                 ))
                 .context("Invalid request"),
@@ -350,13 +350,13 @@ async fn create_zip_file(req: &shared::FileRequest) -> anyhow::Result<Vec<u8>> {
                 file_buf = tup.1;
                 handle_error!(tup
                     .2
-                    .with_context(|| format!("Couldn't write file {} into zip, skipping", name)));
+                    .with_context(|| format!("Couldn't write file {name} into zip, skipping")));
                 file_buf.clear();
             } else if !name.is_empty() {
                 tracing::debug!("Adding directory {} to zip", &name);
                 zip_file
                     .add_directory(&name, zip::write::FileOptions::default())
-                    .with_context(|| format!("Couldn't add directory {} to zip", name))?;
+                    .with_context(|| format!("Couldn't add directory {name} to zip"))?;
             }
         }
         return Ok(zip_file
@@ -425,7 +425,7 @@ async fn file_handler_helper(
 fn get_file_req(data: &Message) -> anyhow::Result<shared::FileRequest> {
     if let Message::Text(data_str) = data {
         let req = serde_json::from_str(data_str)
-            .with_context(|| format!("Couldn't parse JSON from {}", data_str))?;
+            .with_context(|| format!("Couldn't parse JSON from {data_str}"))?;
         Ok(req)
     } else {
         Err(anyhow::anyhow!(

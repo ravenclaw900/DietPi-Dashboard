@@ -80,9 +80,9 @@ fn process_handler_helper(cmd: &str, arg: Option<&str>) -> anyhow::Result<()> {
     if let Some(arg) = arg {
         let process = psutil::process::Process::new(
             arg.parse::<u32>()
-                .with_context(|| format!("Invalid pid {}", arg))?,
+                .with_context(|| format!("Invalid pid {arg}"))?,
         )
-        .with_context(|| format!("Couldn't make process from pid {}", arg))?;
+        .with_context(|| format!("Couldn't make process from pid {arg}"))?;
         tracing::info!("{}ing process {}", cmd.trim_end_matches('e'), process.pid());
         match cmd {
             "terminate" => process.terminate(),
@@ -91,7 +91,7 @@ fn process_handler_helper(cmd: &str, arg: Option<&str>) -> anyhow::Result<()> {
             "resume" => process.resume(),
             _ => Ok(()),
         }
-        .with_context(|| format!("Couldn't {} process {}", cmd, process.pid()))?;
+        .with_context(|| format!("Couldn't {cmd} process {}", process.pid()))?;
         Ok(())
     } else {
         Err(anyhow::anyhow!("No argument"))
@@ -247,7 +247,7 @@ pub async fn service_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
                     .args([&cmd, arg])
                     .spawn()
                     .map(|_| ()) // Don't care about the Ok value, so remove it to make the type checker happy
-                    .with_context(|| format!("Couldn't {} service {}", &cmd, arg)));
+                    .with_context(|| format!("Couldn't {} service {arg}", &cmd)));
                 if socket_send
                     .send(json_msg!(
                         &shared::ServiceList {
@@ -292,38 +292,38 @@ async fn browser_handler_helper(cmd: &str, args: &[String]) -> anyhow::Result<sh
             }
             "copy" => {
                 let mut num = 2;
-                while std::path::Path::new(&format!("{} {}", arg, num)).exists() {
+                while std::path::Path::new(&format!("{arg} {num}")).exists() {
                     num += 1;
                 }
-                fs::copy(arg, format!("{} {}", arg, num))
+                fs::copy(arg, format!("{arg} {num}"))
                     .await
-                    .with_context(|| format!("Couldn't copy file {0} to {0} {1}", arg, num))?;
+                    .with_context(|| format!("Couldn't copy file {arg} to {arg} {num}"))?;
             }
             "rm" => {
                 fs::remove_file(arg)
                     .await
-                    .with_context(|| format!("Couldn't delete file at {}", arg))?;
+                    .with_context(|| format!("Couldn't delete file at {arg}"))?;
             }
             "rmdir" => {
                 fs::remove_dir_all(arg)
                     .await
-                    .with_context(|| format!("Couldn't delete directory at {}", arg))?;
+                    .with_context(|| format!("Couldn't delete directory at {arg}"))?;
             }
             "mkdir" => {
                 fs::create_dir(arg)
                     .await
-                    .with_context(|| format!("Couldn't create directory at {}", arg))?;
+                    .with_context(|| format!("Couldn't create directory at {arg}"))?;
             }
             "mkfile" => {
                 fs::write(arg, "")
                     .await
-                    .with_context(|| format!("Couldn't create file at {}", arg))?;
+                    .with_context(|| format!("Couldn't create file at {arg}"))?;
             }
             "rename" => {
                 if let Some(arg1) = args.get(1) {
                     fs::rename(arg, arg1)
                         .await
-                        .with_context(|| format!("Couldn't rename file {} to {}", arg, arg1))?;
+                        .with_context(|| format!("Couldn't rename file {arg} to {arg1}"))?;
                 } else {
                     return Err(anyhow::anyhow!("No second argument"));
                 }

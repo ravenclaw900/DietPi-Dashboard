@@ -40,7 +40,7 @@ pub fn assets_route(req: Request<Body>) -> anyhow::Result<Response<Body>> {
                 "js" => HeaderValue::from_static("text/javascript"),
                 "svg" => HeaderValue::from_static("image/svg+xml"),
                 "png" => HeaderValue::from_static("image/png"),
-                _ => HeaderValue::from_str(&format!("text/{}", ext))?,
+                _ => HeaderValue::from_str(&format!("text/{ext}"))?,
             },
         )
         .body(if let Some(file) = DIR.get_file(path) {
@@ -259,7 +259,7 @@ where
                 .await;
                 func(ws, cookie, token).instrument(span).await;
             }
-            Err(e) => eprintln!("upgrade error: {}", e),
+            Err(e) => eprintln!("upgrade error: {e}"),
         }
     });
     Ok(resp?)
