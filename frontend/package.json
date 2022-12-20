@@ -36,7 +36,7 @@
     "pretty-ms": "^8.0.0",
     "semver-compare-multi": "^1.0.3",
     "uplot": "^1.6.23",
-    "xterm": "^5.0.0",
+    "xterm": "^5.1.0",
     "xterm-addon-attach": "^0.8.0",
     "xterm-addon-fit": "^0.6.0"
   },
