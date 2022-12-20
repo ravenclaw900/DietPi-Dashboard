@@ -58,7 +58,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["vite-plugin-windicss", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:1.8.10"],\
             ["windicss", "npm:3.5.6"],\
             ["xterm", "npm:5.0.0"],\
-            ["xterm-addon-attach", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:0.7.0"],\
+            ["xterm-addon-attach", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:0.8.0"],\
             ["xterm-addon-fit", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:0.6.0"]\
           ],\
           "linkType": "SOFT"\
@@ -712,7 +712,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["vite-plugin-windicss", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:1.8.10"],\
             ["windicss", "npm:3.5.6"],\
             ["xterm", "npm:5.0.0"],\
-            ["xterm-addon-attach", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:0.7.0"],\
+            ["xterm-addon-attach", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:0.8.0"],\
             ["xterm-addon-fit", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:0.6.0"]\
           ],\
           "linkType": "SOFT"\
@@ -2896,17 +2896,17 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["xterm-addon-attach", [\
-        ["npm:0.7.0", {\
-          "packageLocation": "./.yarn/cache/xterm-addon-attach-npm-0.7.0-3bca22e514-34aa34622a.zip/node_modules/xterm-addon-attach/",\
+        ["npm:0.8.0", {\
+          "packageLocation": "./.yarn/cache/xterm-addon-attach-npm-0.8.0-9981d151b9-2ac70bdd1c.zip/node_modules/xterm-addon-attach/",\
           "packageDependencies": [\
-            ["xterm-addon-attach", "npm:0.7.0"]\
+            ["xterm-addon-attach", "npm:0.8.0"]\
           ],\
           "linkType": "SOFT"\
         }],\
-        ["virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:0.7.0", {\
-          "packageLocation": "./.yarn/__virtual__/xterm-addon-attach-virtual-4daf7c9ab7/0/cache/xterm-addon-attach-npm-0.7.0-3bca22e514-34aa34622a.zip/node_modules/xterm-addon-attach/",\
+        ["virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:0.8.0", {\
+          "packageLocation": "./.yarn/__virtual__/xterm-addon-attach-virtual-573b5048b3/0/cache/xterm-addon-attach-npm-0.8.0-9981d151b9-2ac70bdd1c.zip/node_modules/xterm-addon-attach/",\
           "packageDependencies": [\
-            ["xterm-addon-attach", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:0.7.0"],\
+            ["xterm-addon-attach", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:0.8.0"],\
             ["@types/xterm", null],\
             ["xterm", "npm:5.0.0"]\
           ],\

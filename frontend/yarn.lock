@@ -545,7 +545,7 @@ __metadata:
     vite-plugin-windicss: ^1.8.10
     windicss: ^3.5.6
     xterm: ^5.0.0
-    xterm-addon-attach: ^0.7.0
+    xterm-addon-attach: ^0.8.0
     xterm-addon-fit: ^0.6.0
   dependenciesMeta:
     "@tsconfig/svelte@3.0.0":
@@ -2388,12 +2388,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"xterm-addon-attach@npm:^0.7.0":
-  version: 0.7.0
-  resolution: "xterm-addon-attach@npm:0.7.0"
+"xterm-addon-attach@npm:^0.8.0":
+  version: 0.8.0
+  resolution: "xterm-addon-attach@npm:0.8.0"
   peerDependencies:
     xterm: ^5.0.0
-  checksum: 34aa34622a5a80505f542e9c03ebd5590005cadde2fffbfea6a4827df1785402979dcd4889871f82f3acec187d69953f88c851b4309cd9781bc86eb15a526f61
+  checksum: 2ac70bdd1c97eb05b83b4573132ed9d3686c07ed14212e273800a5693bb0f3ea41c570b49ac90cb95a1e593d5a2764a28c13b649c596054bf5aa87c8489069eb
   languageName: node
   linkType: hard
 
