@@ -59,7 +59,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["windicss", "npm:3.5.6"],\
             ["xterm", "npm:5.1.0"],\
             ["xterm-addon-attach", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:0.8.0"],\
-            ["xterm-addon-fit", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:0.6.0"]\
+            ["xterm-addon-fit", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:0.7.0"]\
           ],\
           "linkType": "SOFT"\
         }]\
@@ -713,7 +713,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["windicss", "npm:3.5.6"],\
             ["xterm", "npm:5.1.0"],\
             ["xterm-addon-attach", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:0.8.0"],\
-            ["xterm-addon-fit", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:0.6.0"]\
+            ["xterm-addon-fit", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:0.7.0"]\
           ],\
           "linkType": "SOFT"\
         }]\
@@ -2918,17 +2918,17 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["xterm-addon-fit", [\
-        ["npm:0.6.0", {\
-          "packageLocation": "./.yarn/cache/xterm-addon-fit-npm-0.6.0-ff7ec8c164-6115e130a5.zip/node_modules/xterm-addon-fit/",\
+        ["npm:0.7.0", {\
+          "packageLocation": "./.yarn/cache/xterm-addon-fit-npm-0.7.0-ca2833b1fc-512d41f80d.zip/node_modules/xterm-addon-fit/",\
           "packageDependencies": [\
-            ["xterm-addon-fit", "npm:0.6.0"]\
+            ["xterm-addon-fit", "npm:0.7.0"]\
           ],\
           "linkType": "SOFT"\
         }],\
-        ["virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:0.6.0", {\
-          "packageLocation": "./.yarn/__virtual__/xterm-addon-fit-virtual-f9f549aa9a/0/cache/xterm-addon-fit-npm-0.6.0-ff7ec8c164-6115e130a5.zip/node_modules/xterm-addon-fit/",\
+        ["virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:0.7.0", {\
+          "packageLocation": "./.yarn/__virtual__/xterm-addon-fit-virtual-87072945c5/0/cache/xterm-addon-fit-npm-0.7.0-ca2833b1fc-512d41f80d.zip/node_modules/xterm-addon-fit/",\
           "packageDependencies": [\
-            ["xterm-addon-fit", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:0.6.0"],\
+            ["xterm-addon-fit", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:0.7.0"],\
             ["@types/xterm", null],\
             ["xterm", "npm:5.1.0"]\
           ],\
