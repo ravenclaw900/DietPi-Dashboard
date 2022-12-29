@@ -430,6 +430,7 @@ pub async fn browser_dir(path: &std::path::Path) -> anyhow::Result<Vec<shared::B
 pub fn temp() -> shared::CPUTemp {
     let temps = sensors::temperatures();
     match &temps.get(
+        // Prefer 'coretemp' sensor for Intel CPUs, otherwise fallback to first in list
         temps
             .iter()
             .filter_map(|x| x.as_ref().ok())
