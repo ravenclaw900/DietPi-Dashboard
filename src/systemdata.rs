@@ -428,7 +428,14 @@ pub async fn browser_dir(path: &std::path::Path) -> anyhow::Result<Vec<shared::B
 // No error message, as there could just be no temperature sensor
 #[allow(clippy::cast_possible_truncation)]
 pub fn temp() -> shared::CPUTemp {
-    match &sensors::temperatures().get(0) {
+    let temps = sensors::temperatures();
+    match &temps.get(
+        temps
+            .iter()
+            .filter_map(|x| x.as_ref().ok())
+            .position(|x| x.unit() == "coretemp")
+            .unwrap_or(0),
+    ) {
         Some(Ok(temp)) => {
             let temp = temp.current();
             shared::CPUTemp {
