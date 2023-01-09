@@ -40,7 +40,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/microlight", "npm:0.0.0"],\
             ["@types/semver-compare-multi", "npm:1.0.0"],\
             ["microlight", "npm:0.0.7"],\
-            ["postcss", "npm:8.4.20"],\
+            ["postcss", "npm:8.4.21"],\
             ["pretty-bytes", "npm:6.0.0"],\
             ["pretty-ms", "npm:8.0.0"],\
             ["semver-compare-multi", "npm:1.0.3"],\
@@ -703,7 +703,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/microlight", "npm:0.0.0"],\
             ["@types/semver-compare-multi", "npm:1.0.0"],\
             ["microlight", "npm:0.0.7"],\
-            ["postcss", "npm:8.4.20"],\
+            ["postcss", "npm:8.4.21"],\
             ["pretty-bytes", "npm:6.0.0"],\
             ["pretty-ms", "npm:8.0.0"],\
             ["semver-compare-multi", "npm:1.0.3"],\
@@ -1832,6 +1832,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["source-map-js", "npm:1.0.2"]\
           ],\
           "linkType": "HARD"\
+        }],\
+        ["npm:8.4.21", {\
+          "packageLocation": "./.yarn/cache/postcss-npm-8.4.21-9ad76bf58d-e39ac60ccd.zip/node_modules/postcss/",\
+          "packageDependencies": [\
+            ["postcss", "npm:8.4.21"],\
+            ["nanoid", "npm:3.3.4"],\
+            ["picocolors", "npm:1.0.0"],\
+            ["source-map-js", "npm:1.0.2"]\
+          ],\
+          "linkType": "HARD"\
         }]\
       ]],\
       ["prettier", [\
@@ -2365,7 +2375,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["less", null],\
             ["magic-string", "npm:0.25.9"],\
             ["node-sass", null],\
-            ["postcss", "npm:8.4.20"],\
+            ["postcss", "npm:8.4.21"],\
             ["postcss-load-config", null],\
             ["pug", null],\
             ["sass", null],\

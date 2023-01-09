@@ -16,7 +16,7 @@
     "@types/autosize": "^4.0.1",
     "@types/microlight": "^0.0.0",
     "@types/semver-compare-multi": "^1.0.0",
-    "postcss": "^8.4.20",
+    "postcss": "^8.4.21",
     "svelte": "^3.55.0",
     "svelte-check": "^2.10.3",
     "svelte-fa": "^3.0.3",
