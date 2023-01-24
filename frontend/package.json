@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "check": "svelte-check --tsconfig ./tsconfig.json"
+    "check": "svelte-check"
   },
   "devDependencies": {
     "@fortawesome/free-solid-svg-icons": "^6.2.1",
@@ -18,7 +18,7 @@
     "@types/semver-compare-multi": "^1.0.0",
     "postcss": "^8.4.21",
     "svelte": "^3.55.1",
-    "svelte-check": "^2.10.3",
+    "svelte-check": "^3.0.3",
     "svelte-fa": "^3.0.3",
     "svelte-language-server": "^0.15.2",
     "svelte-preprocess": "^4.10.7",

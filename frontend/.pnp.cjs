@@ -45,7 +45,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["pretty-ms", "npm:8.0.0"],\
             ["semver-compare-multi", "npm:1.0.3"],\
             ["svelte", "npm:3.55.1"],\
-            ["svelte-check", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:2.10.3"],\
+            ["svelte-check", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:3.0.3"],\
             ["svelte-fa", "npm:3.0.3"],\
             ["svelte-language-server", "npm:0.15.2"],\
             ["svelte-preprocess", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:4.10.7"],\
@@ -888,7 +888,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["pretty-ms", "npm:8.0.0"],\
             ["semver-compare-multi", "npm:1.0.3"],\
             ["svelte", "npm:3.55.1"],\
-            ["svelte-check", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:2.10.3"],\
+            ["svelte-check", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:3.0.3"],\
             ["svelte-fa", "npm:3.0.3"],\
             ["svelte-language-server", "npm:0.15.2"],\
             ["svelte-preprocess", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:4.10.7"],\
@@ -2142,6 +2142,17 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["sourcemap-codec", "npm:1.4.8"]\
           ],\
           "linkType": "HARD"\
+        }],\
+        ["npm:0.11.0", {\
+          "packageLocation": "./.yarn/cache/sorcery-npm-0.11.0-b946159f40-b79a4194f5.zip/node_modules/sorcery/",\
+          "packageDependencies": [\
+            ["sorcery", "npm:0.11.0"],\
+            ["@jridgewell/sourcemap-codec", "npm:1.4.14"],\
+            ["buffer-crc32", "npm:0.2.13"],\
+            ["minimist", "npm:1.2.6"],\
+            ["sander", "npm:0.5.1"]\
+          ],\
+          "linkType": "HARD"\
         }]\
       ]],\
       ["source-map-js", [\
@@ -2233,17 +2244,17 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["svelte-check", [\
-        ["npm:2.10.3", {\
-          "packageLocation": "./.yarn/cache/svelte-check-npm-2.10.3-d909c7c5fd-995a99da45.zip/node_modules/svelte-check/",\
+        ["npm:3.0.3", {\
+          "packageLocation": "./.yarn/cache/svelte-check-npm-3.0.3-9f698c34a0-5b215e8567.zip/node_modules/svelte-check/",\
           "packageDependencies": [\
-            ["svelte-check", "npm:2.10.3"]\
+            ["svelte-check", "npm:3.0.3"]\
           ],\
           "linkType": "SOFT"\
         }],\
-        ["virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:2.10.3", {\
-          "packageLocation": "./.yarn/__virtual__/svelte-check-virtual-4b6d6e9fe1/0/cache/svelte-check-npm-2.10.3-d909c7c5fd-995a99da45.zip/node_modules/svelte-check/",\
+        ["virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:3.0.3", {\
+          "packageLocation": "./.yarn/__virtual__/svelte-check-virtual-3d5f8db7f8/0/cache/svelte-check-npm-3.0.3-9f698c34a0-5b215e8567.zip/node_modules/svelte-check/",\
           "packageDependencies": [\
-            ["svelte-check", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:2.10.3"],\
+            ["svelte-check", "virtual:140306758e8974643aa0ee3ea6c2260fc6e0d50b23825b0b65a5fe2aec69f7bce02ef84c89fcaca8aef350b9ebbfabf3079297fb377eba5429f9fc1c8e6a1c6b#npm:3.0.3"],\
             ["@jridgewell/trace-mapping", "npm:0.3.17"],\
             ["@types/svelte", null],\
             ["chokidar", "npm:3.5.3"],\
@@ -2252,7 +2263,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["picocolors", "npm:1.0.0"],\
             ["sade", "npm:1.8.1"],\
             ["svelte", "npm:3.55.1"],\
-            ["svelte-preprocess", "virtual:4b6d6e9fe1f347759a79fda9a405ceaa70045a1a44bf1485f58bb933a4c3e3b02c9e1aa9fe112e035e4d9776edf41bc0b3b665dc309573a7a415bac2535a58ca#npm:4.10.7"],\
+            ["svelte-preprocess", "virtual:901b7acfedf5ddc505e74cb6da152a80f17de9041df1bb34718f7003d1ed0722f79dac9ee2b5276ecc5043641d7f299c22eb5f6b15b84973b358fbe263ffc553#npm:5.0.1"],\
             ["typescript", "patch:typescript@npm%3A4.9.4#~builtin<compat/typescript>::version=4.9.4&hash=f456af"]\
           ],\
           "packagePeers": [\
@@ -2307,7 +2318,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["prettier", "npm:2.8.1"],\
             ["prettier-plugin-svelte", "virtual:901b7acfedf5ddc505e74cb6da152a80f17de9041df1bb34718f7003d1ed0722f79dac9ee2b5276ecc5043641d7f299c22eb5f6b15b84973b358fbe263ffc553#npm:2.9.0"],\
             ["svelte", "npm:3.55.1"],\
-            ["svelte-preprocess", "virtual:901b7acfedf5ddc505e74cb6da152a80f17de9041df1bb34718f7003d1ed0722f79dac9ee2b5276ecc5043641d7f299c22eb5f6b15b84973b358fbe263ffc553#npm:5.0.0"],\
+            ["svelte-preprocess", "virtual:901b7acfedf5ddc505e74cb6da152a80f17de9041df1bb34718f7003d1ed0722f79dac9ee2b5276ecc5043641d7f299c22eb5f6b15b84973b358fbe263ffc553#npm:5.0.1"],\
             ["svelte2tsx", "virtual:901b7acfedf5ddc505e74cb6da152a80f17de9041df1bb34718f7003d1ed0722f79dac9ee2b5276ecc5043641d7f299c22eb5f6b15b84973b358fbe263ffc553#npm:0.6.0"],\
             ["typescript", "patch:typescript@npm%3A4.9.4#~builtin<compat/typescript>::version=4.9.4&hash=f456af"],\
             ["vscode-css-languageservice", "npm:6.2.1"],\
@@ -2328,10 +2339,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],\
           "linkType": "SOFT"\
         }],\
-        ["npm:5.0.0", {\
-          "packageLocation": "./.yarn/cache/svelte-preprocess-npm-5.0.0-b1f1b1e27a-ef70e62869.zip/node_modules/svelte-preprocess/",\
+        ["npm:5.0.1", {\
+          "packageLocation": "./.yarn/cache/svelte-preprocess-npm-5.0.1-79e8d119ac-80b317b256.zip/node_modules/svelte-preprocess/",\
           "packageDependencies": [\
-            ["svelte-preprocess", "npm:5.0.0"]\
+            ["svelte-preprocess", "npm:5.0.1"]\
           ],\
           "linkType": "SOFT"\
         }],\
@@ -2394,69 +2405,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],\
           "linkType": "HARD"\
         }],\
-        ["virtual:4b6d6e9fe1f347759a79fda9a405ceaa70045a1a44bf1485f58bb933a4c3e3b02c9e1aa9fe112e035e4d9776edf41bc0b3b665dc309573a7a415bac2535a58ca#npm:4.10.7", {\
-          "packageLocation": "./.yarn/__virtual__/svelte-preprocess-virtual-d0e852a338/0/cache/svelte-preprocess-npm-4.10.7-d83f53f087-51a0820c14.zip/node_modules/svelte-preprocess/",\
+        ["virtual:901b7acfedf5ddc505e74cb6da152a80f17de9041df1bb34718f7003d1ed0722f79dac9ee2b5276ecc5043641d7f299c22eb5f6b15b84973b358fbe263ffc553#npm:5.0.1", {\
+          "packageLocation": "./.yarn/__virtual__/svelte-preprocess-virtual-8acf878731/0/cache/svelte-preprocess-npm-5.0.1-79e8d119ac-80b317b256.zip/node_modules/svelte-preprocess/",\
           "packageDependencies": [\
-            ["svelte-preprocess", "virtual:4b6d6e9fe1f347759a79fda9a405ceaa70045a1a44bf1485f58bb933a4c3e3b02c9e1aa9fe112e035e4d9776edf41bc0b3b665dc309573a7a415bac2535a58ca#npm:4.10.7"],\
-            ["@babel/core", null],\
-            ["@types/babel__core", null],\
-            ["@types/coffeescript", null],\
-            ["@types/less", null],\
-            ["@types/node-sass", null],\
-            ["@types/postcss", null],\
-            ["@types/postcss-load-config", null],\
-            ["@types/pug", "npm:2.0.6"],\
-            ["@types/sass", "npm:1.43.1"],\
-            ["@types/stylus", null],\
-            ["@types/sugarss", null],\
-            ["@types/svelte", null],\
-            ["@types/typescript", null],\
-            ["coffeescript", null],\
-            ["detect-indent", "npm:6.1.0"],\
-            ["less", null],\
-            ["magic-string", "npm:0.25.9"],\
-            ["node-sass", null],\
-            ["postcss", null],\
-            ["postcss-load-config", null],\
-            ["pug", null],\
-            ["sass", null],\
-            ["sorcery", "npm:0.10.0"],\
-            ["strip-indent", "npm:3.0.0"],\
-            ["stylus", null],\
-            ["sugarss", null],\
-            ["svelte", "npm:3.55.1"],\
-            ["typescript", "patch:typescript@npm%3A4.9.4#~builtin<compat/typescript>::version=4.9.4&hash=f456af"]\
-          ],\
-          "packagePeers": [\
-            "@babel/core",\
-            "@types/babel__core",\
-            "@types/coffeescript",\
-            "@types/less",\
-            "@types/node-sass",\
-            "@types/postcss-load-config",\
-            "@types/postcss",\
-            "@types/stylus",\
-            "@types/sugarss",\
-            "@types/svelte",\
-            "@types/typescript",\
-            "coffeescript",\
-            "less",\
-            "node-sass",\
-            "postcss-load-config",\
-            "postcss",\
-            "pug",\
-            "sass",\
-            "stylus",\
-            "sugarss",\
-            "svelte",\
-            "typescript"\
-          ],\
-          "linkType": "HARD"\
-        }],\
-        ["virtual:901b7acfedf5ddc505e74cb6da152a80f17de9041df1bb34718f7003d1ed0722f79dac9ee2b5276ecc5043641d7f299c22eb5f6b15b84973b358fbe263ffc553#npm:5.0.0", {\
-          "packageLocation": "./.yarn/__virtual__/svelte-preprocess-virtual-0216fccfbd/0/cache/svelte-preprocess-npm-5.0.0-b1f1b1e27a-ef70e62869.zip/node_modules/svelte-preprocess/",\
-          "packageDependencies": [\
-            ["svelte-preprocess", "virtual:901b7acfedf5ddc505e74cb6da152a80f17de9041df1bb34718f7003d1ed0722f79dac9ee2b5276ecc5043641d7f299c22eb5f6b15b84973b358fbe263ffc553#npm:5.0.0"],\
+            ["svelte-preprocess", "virtual:901b7acfedf5ddc505e74cb6da152a80f17de9041df1bb34718f7003d1ed0722f79dac9ee2b5276ecc5043641d7f299c22eb5f6b15b84973b358fbe263ffc553#npm:5.0.1"],\
             ["@babel/core", null],\
             ["@types/babel__core", null],\
             ["@types/coffeescript", null],\
@@ -2477,7 +2429,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["postcss-load-config", null],\
             ["pug", null],\
             ["sass", null],\
-            ["sorcery", "npm:0.10.0"],\
+            ["sorcery", "npm:0.11.0"],\
             ["strip-indent", "npm:3.0.0"],\
             ["stylus", null],\
             ["sugarss", null],\
