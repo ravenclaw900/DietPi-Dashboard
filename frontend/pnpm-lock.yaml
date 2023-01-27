@@ -18,9 +18,9 @@ specifiers:
   svelte-language-server: ^0.15.3
   svelte-preprocess: ^5.0.1
   svelte-routing: ^1.6.0
-  tslib: ^2.4.1
+  tslib: ^2.5.0
   typescript: ^4.9.4
-  uplot: ^1.6.23
+  uplot: ^1.6.24
   vite: ^4.0.4
   vite-plugin-replace: ^0.1.1
   vite-plugin-windicss: ^1.8.10
@@ -34,7 +34,7 @@ dependencies:
   pretty-bytes: 6.0.0
   pretty-ms: 8.0.0
   semver-compare-multi: 1.0.3
-  uplot: 1.6.23
+  uplot: 1.6.24
   xterm: 5.1.0
   xterm-addon-attach: 0.8.0_xterm@5.1.0
   xterm-addon-fit: 0.7.0_xterm@5.1.0
@@ -1126,8 +1126,8 @@ packages:
     hasBin: true
     dev: true
 
-  /uplot/1.6.23:
-    resolution: {integrity: sha512-zERH8HUbHE6kYyAqfP58SYuESp9M5jphSrMjsyckAM0DJ8C39SEI19YrpVvTCTLZB5joFUBPOwueRnJCdV2OdQ==}
+  /uplot/1.6.24:
+    resolution: {integrity: sha512-WpH2BsrFrqxkMu+4XBvc0eCDsRBhzoq9crttYeSI0bfxpzR5YoSVzZXOKFVWcVC7sp/aDXrdDPbDZGCtck2PVg==}
     dev: false
 
   /vite-plugin-replace/0.1.1_vite@4.0.4:
