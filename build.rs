@@ -18,13 +18,13 @@ fn main() {
         );
 
         std::process::Command::new("sh")
-            .args(["-c", "yarn install"])
+            .args(["-c", "pnpm install"])
             .current_dir(frontend_path)
             .output()
             .expect("Can't run yarn install");
 
         std::process::Command::new("sh")
-            .args(["-c", "yarn build"])
+            .args(["-c", "pnpm build"])
             .current_dir(frontend_path)
             .output()
             .expect("Can't run yarn build");

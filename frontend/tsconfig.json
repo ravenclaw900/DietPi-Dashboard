@@ -1,5 +1,5 @@
 {
-  "extends": "./.yarn/unplugged/@tsconfig-svelte-npm-3.0.0-afbf48deaf/node_modules/@tsconfig/svelte/tsconfig.json",
+  "extends": "@tsconfig/svelte",
   "compilerOptions": {
     "target": "esnext",
     "useDefineForClassFields": true,

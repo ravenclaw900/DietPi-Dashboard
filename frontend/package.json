@@ -40,10 +40,5 @@
     "xterm-addon-attach": "^0.8.0",
     "xterm-addon-fit": "^0.7.0"
   },
-  "packageManager": "yarn@3.2.2",
-  "dependenciesMeta": {
-    "@tsconfig/svelte@3.0.0": {
-      "unplugged": true
-    }
-  }
+  "packageManager": "pnpm@7.26.0"
 }
