@@ -7,27 +7,21 @@ fn main() {
 
         println!(
             "{}",
-            rerun_in_except::rerun_in_except(
-                frontend_path,
-                &[
-                    dist_path,
-                    concat!(env!("CARGO_MANIFEST_DIR"), "/frontend/.yarn")
-                ]
-            )
-            .expect("Couldn't get frontend directory")
+            rerun_in_except::rerun_in_except(frontend_path, &[dist_path])
+                .expect("Couldn't get frontend directory")
         );
 
         std::process::Command::new("sh")
             .args(["-c", "pnpm install"])
             .current_dir(frontend_path)
             .output()
-            .expect("Can't run yarn install");
+            .expect("Can't run pnpm install");
 
         std::process::Command::new("sh")
             .args(["-c", "pnpm build"])
             .current_dir(frontend_path)
             .output()
-            .expect("Can't run yarn build");
+            .expect("Can't run pnpm build");
 
         if std::env::var("PROFILE").unwrap_or_default() == "release" {
             for i in walkdir::WalkDir::new(dist_path)
