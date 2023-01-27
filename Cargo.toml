@@ -6,8 +6,15 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tokio = { version = "1", features = ["rt", "macros", "time", "sync", "fs", "process"] }
-include_dir = {version = "0.7.3", optional = true}
+tokio = { version = "1", features = [
+    "rt",
+    "macros",
+    "time",
+    "sync",
+    "fs",
+    "process",
+] }
+include_dir = { version = "0.7.3", optional = true }
 futures = "0.3.25"
 pty-process = "0.2.0"
 psutil = "3.2.2"
@@ -58,12 +65,10 @@ flate2 = "1.0.25"
 rerun_in_except = "0.1.2"
 walkdir = "2.3.2"
 
-# Install node.js, enable corepack for yarn, and create required directories
+# Install node.js and enable corepack for pnpm
 [package.metadata.cross.build]
 pre-build = [
-    "curl -fsSL https://deb.nodesource.com/setup_16.x | bash", 
-    "apt-get install -y nodejs", "corepack enable", 
-    "mkdir /.node && chmod 777 /.node", 
-    "mkdir /.yarn && chmod 777 /.yarn", 
-    "mkdir /.cache && chmod 777 /.cache"
+    "curl -fsSL https://deb.nodesource.com/setup_16.x | bash",
+    "apt-get install -y nodejs",
+    "corepack enable",
 ]
