@@ -23,7 +23,7 @@
     "svelte-language-server": "^0.15.3",
     "svelte-preprocess": "^5.0.1",
     "svelte-routing": "^1.6.0",
-    "tslib": "^2.4.1",
+    "tslib": "^2.5.0",
     "typescript": "^4.9.4",
     "vite": "^4.0.4",
     "vite-plugin-replace": "^0.1.1",
