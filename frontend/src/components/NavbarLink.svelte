@@ -1,6 +1,7 @@
-<script>
+<script lang="ts">
     import Fa from "svelte-fa";
-    export let icon;
+    import type { IconDefinition } from "@fortawesome/free-solid-svg-icons";
+    export let icon: IconDefinition;
 </script>
 
 <div
