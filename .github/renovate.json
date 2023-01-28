@@ -3,6 +3,7 @@
     "extends": [
         "config:base"
     ],
+    "timezone": "America/Chicago",
     "schedule": [
         "before 5:00am"
     ],
