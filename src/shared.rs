@@ -10,14 +10,6 @@ pub static ENC_KEY: once_cell::sync::Lazy<jsonwebtoken::EncodingKey> =
         jsonwebtoken::EncodingKey::from_ec_pem(&key_file)
             .expect("Couldn't parse encoding key from private key")
     });
-#[cfg(feature = "frontend")]
-pub static DEC_KEY: once_cell::sync::Lazy<jsonwebtoken::DecodingKey> =
-    once_cell::sync::Lazy::new(|| {
-        let key_file = std::fs::read(&CONFIG.priv_key).expect("Couldn't read private key");
-        jsonwebtoken::DecodingKey::from_ec_pem(&key_file)
-            .expect("Couldn't parse decoding key from private key")
-    });
-#[cfg(not(feature = "frontend"))]
 pub static DEC_KEY: once_cell::sync::Lazy<jsonwebtoken::DecodingKey> =
     once_cell::sync::Lazy::new(|| {
         let key_file = std::fs::read(&CONFIG.pub_key).expect("Couldn't read public key");

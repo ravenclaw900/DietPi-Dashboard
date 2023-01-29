@@ -20,7 +20,9 @@
 #hash = "SHA512 hash of password"
 # Path to private key of frontend node (ECDSA in PKCS#8 format)
 # To generate keypair, use "openssl ecparam -genkey -noout -name prime256v1 | openssl pkcs8 -topk8 -nocrypt | tee dashboard.key | openssl ec -pubout -out dashboard.pub"
-#priv_key = "64-character secret"
+#priv_key = "/path/to/privkey"
+# Path to public key of frontend node (ECDSA in PKCS#8 format)
+#pub_key = "/path/to/pubkey"
 # Token expiry time in seconds
 # - Default: 3600
 #expiry = 3600

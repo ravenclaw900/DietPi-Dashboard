@@ -1,4 +1,6 @@
+#[cfg(feature = "frontend")]
 use crate::handle_error;
+#[cfg(feature = "frontend")]
 use crate::shared::CONFIG;
 #[cfg(feature = "frontend")]
 use crate::DIR;
@@ -6,6 +8,7 @@ use anyhow::Context;
 use futures::Future;
 use hyper::http::{header, HeaderValue};
 use hyper::{Body, Method, Request, Response, StatusCode};
+#[cfg(feature = "frontend")]
 use ring::digest;
 use tracing::Instrument;
 
@@ -63,6 +66,7 @@ pub fn assets_route(req: Request<Body>) -> anyhow::Result<Response<Body>> {
     Ok(reply)
 }
 
+#[cfg(feature = "frontend")]
 #[tracing::instrument(skip_all)]
 pub async fn login_route(mut req: Request<Body>) -> anyhow::Result<Response<Body>> {
     let token: String;
@@ -102,8 +106,9 @@ pub async fn login_route(mut req: Request<Body>) -> anyhow::Result<Response<Body
                     response.headers_mut().insert(
                         hyper::header::SET_COOKIE,
                         hyper::header::HeaderValue::from_str(&format!(
-                            "FINGERPRINT={}; Path=/; HttpOnly",
-                            hex::encode(&buf)
+                            "FINGERPRINT={}; Path=/; Max-Age: {}; HttpOnly",
+                            hex::encode(&buf),
+                            CONFIG.expiry
                         ))
                         .context("Couldn't set fingerprint token")?,
                     );
@@ -338,6 +343,7 @@ pub async fn router(req: Request<Body>, span: tracing::Span) -> anyhow::Result<R
                 String::new(),
             )?;
         }
+        #[cfg(feature = "frontend")]
         (&Method::POST, "/login", _) => {
             response = login_route(req).instrument(span).await?;
         }

@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use crate::shared::TempUnit;
 use figment::{
@@ -8,9 +8,11 @@ use figment::{
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "frontend")]
-const CONFIG_FILE: &'static str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.toml"));
+const CONFIG_FILE: &'static str =
+    include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config-frontend.toml"));
 #[cfg(not(feature = "frontend"))]
-const CONFIG_FILE: &'static str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.toml"));
+const CONFIG_FILE: &'static str =
+    include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config-backend.toml"));
 
 #[derive(Deserialize, Serialize)]
 pub struct Config {
@@ -26,7 +28,6 @@ pub struct Config {
     pub hash: String,
     #[cfg(feature = "frontend")]
     pub priv_key: PathBuf,
-    #[cfg(not(feature = "frontend"))]
     pub pub_key: PathBuf,
     pub expiry: u64,
 
@@ -55,7 +56,6 @@ impl Default for Config {
             hash: String::new(),
             #[cfg(feature = "frontend")]
             priv_key: PathBuf::new(),
-            #[cfg(not(feature = "frontend"))]
             pub_key: PathBuf::new(),
             expiry: 3600,
 
@@ -71,15 +71,36 @@ impl Default for Config {
     }
 }
 
+fn replace_relative_path(file_name: &Path) -> Option<PathBuf> {
+    if file_name.is_relative() && !file_name.as_os_str().is_empty() {
+        return Some(
+            std::env::current_exe()
+                .expect("Couldn't get executable path")
+                .with_file_name(file_name),
+        );
+    }
+    None
+}
+
 pub fn config() -> Config {
-    let mut cfgpath = std::env::current_exe().expect("Couldn't get config path");
-    cfgpath.set_file_name("config.toml");
+    // Guaranteed to be a relative path
+    let cfgpath = replace_relative_path(Path::new("config.toml")).unwrap();
     if !cfgpath.exists() {
         std::fs::write(&cfgpath, CONFIG_FILE).expect("Couldn't write config file");
     }
-    Figment::from(Serialized::defaults(Config::default()))
+    let mut config: Config = Figment::from(Serialized::defaults(Config::default()))
         .merge(Toml::file(cfgpath))
-        .merge(Env::prefixed("DP_DASHBOARD_").ignore(&["hash", "secret"]))
+        .merge(Env::prefixed("DP_DASHBOARD_").ignore(&["hash", "priv_key", "pub_key"]))
         .extract()
-        .expect("Error reading config")
+        .expect("Error reading config");
+    if config.tls {
+        config.cert = replace_relative_path(&config.cert).unwrap_or(config.cert);
+        config.key = replace_relative_path(&config.key).unwrap_or(config.key);
+    }
+    #[cfg(feature = "frontend")]
+    {
+        config.priv_key = replace_relative_path(&config.priv_key).unwrap_or(config.priv_key);
+    }
+    config.pub_key = replace_relative_path(&config.pub_key).unwrap_or(config.pub_key);
+    config
 }
