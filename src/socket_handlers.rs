@@ -30,11 +30,9 @@ fn validate_token(token: &str, fingerprint: Option<&str>) -> TokenState {
     let mut validator = jsonwebtoken::Validation::new(jsonwebtoken::Algorithm::HS256);
     validator.set_issuer(&["DietPi Dashboard"]);
     validator.set_required_spec_claims(&["exp", "iat"]);
-    if let Ok(claims) = jsonwebtoken::decode::<shared::JWTClaims>(
-        token,
-        &jsonwebtoken::DecodingKey::from_secret(CONFIG.secret.as_bytes()),
-        &validator,
-    ) {
+    if let Ok(claims) =
+        jsonwebtoken::decode::<shared::JWTClaims>(token, &crate::shared::DEC_KEY, &validator)
+    {
         if let Some(fingerprint) = fingerprint {
             if claims.claims.fingerprint != fingerprint {
                 return TokenState::InvalidToken;

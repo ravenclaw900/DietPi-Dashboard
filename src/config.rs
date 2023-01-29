@@ -1,9 +1,16 @@
+use std::path::PathBuf;
+
 use crate::shared::TempUnit;
 use figment::{
     providers::{Env, Format, Serialized, Toml},
     Figment,
 };
 use serde::{Deserialize, Serialize};
+
+#[cfg(feature = "frontend")]
+const CONFIG_FILE: &'static str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.toml"));
+#[cfg(not(feature = "frontend"))]
+const CONFIG_FILE: &'static str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config.toml"));
 
 #[derive(Deserialize, Serialize)]
 pub struct Config {
@@ -12,12 +19,15 @@ pub struct Config {
     pub port: u16,
 
     pub tls: bool,
-    pub cert: String,
-    pub key: String,
+    pub cert: PathBuf,
+    pub key: PathBuf,
 
     pub pass: bool,
     pub hash: String,
-    pub secret: String,
+    #[cfg(feature = "frontend")]
+    pub priv_key: PathBuf,
+    #[cfg(not(feature = "frontend"))]
+    pub pub_key: PathBuf,
     pub expiry: u64,
 
     #[cfg(feature = "frontend")]
@@ -38,12 +48,15 @@ impl Default for Config {
             port: 5252,
 
             tls: false,
-            cert: String::new(),
-            key: String::new(),
+            cert: PathBuf::new(),
+            key: PathBuf::new(),
 
             pass: false,
             hash: String::new(),
-            secret: String::new(),
+            #[cfg(feature = "frontend")]
+            priv_key: PathBuf::new(),
+            #[cfg(not(feature = "frontend"))]
+            pub_key: PathBuf::new(),
             expiry: 3600,
 
             #[cfg(feature = "frontend")]
@@ -61,6 +74,9 @@ impl Default for Config {
 pub fn config() -> Config {
     let mut cfgpath = std::env::current_exe().expect("Couldn't get config path");
     cfgpath.set_file_name("config.toml");
+    if !cfgpath.exists() {
+        std::fs::write(&cfgpath, CONFIG_FILE).expect("Couldn't write config file");
+    }
     Figment::from(Serialized::defaults(Config::default()))
         .merge(Toml::file(cfgpath))
         .merge(Env::prefixed("DP_DASHBOARD_").ignore(&["hash", "secret"]))

@@ -18,8 +18,9 @@
 #pass = false
 # To get hash: "echo -n '<PASSWORD>' | sha512sum"
 #hash = "SHA512 hash of password"
-# To get random secret: "openssl rand -hex 32" 
-#secret = "64-character secret"
+# Path to private key of frontend node (ECDSA in PKCS#8 format)
+# To generate keypair, use "openssl ecparam -genkey -noout -name prime256v1 | openssl pkcs8 -topk8 -nocrypt | tee dashboard.key | openssl ec -pubout -out dashboard.pub"
+#priv_key = "64-character secret"
 # Token expiry time in seconds
 # - Default: 3600
 #expiry = 3600

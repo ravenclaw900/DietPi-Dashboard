@@ -120,9 +120,9 @@ pub async fn login_route(mut req: Request<Body>) -> anyhow::Result<Response<Body
 
             token = handle_error!(
                 jsonwebtoken::encode(
-                    &jsonwebtoken::Header::default(),
+                    &jsonwebtoken::Header::new(jsonwebtoken::Algorithm::ES256),
                     &claims,
-                    &jsonwebtoken::EncodingKey::from_secret(CONFIG.secret.as_ref()),
+                    &crate::shared::ENC_KEY,
                 )
                 .context("Error creating login token"),
                 return Ok({

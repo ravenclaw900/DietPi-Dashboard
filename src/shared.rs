@@ -3,6 +3,27 @@ use serde::{Deserialize, Serialize};
 
 pub static CONFIG: once_cell::sync::Lazy<crate::config::Config> =
     once_cell::sync::Lazy::new(crate::config::config);
+#[cfg(feature = "frontend")]
+pub static ENC_KEY: once_cell::sync::Lazy<jsonwebtoken::EncodingKey> =
+    once_cell::sync::Lazy::new(|| {
+        let key_file = std::fs::read(&CONFIG.priv_key).expect("Couldn't read private key");
+        jsonwebtoken::EncodingKey::from_ec_pem(&key_file)
+            .expect("Couldn't parse encoding key from private key")
+    });
+#[cfg(feature = "frontend")]
+pub static DEC_KEY: once_cell::sync::Lazy<jsonwebtoken::DecodingKey> =
+    once_cell::sync::Lazy::new(|| {
+        let key_file = std::fs::read(&CONFIG.priv_key).expect("Couldn't read private key");
+        jsonwebtoken::DecodingKey::from_ec_pem(&key_file)
+            .expect("Couldn't parse decoding key from private key")
+    });
+#[cfg(not(feature = "frontend"))]
+pub static DEC_KEY: once_cell::sync::Lazy<jsonwebtoken::DecodingKey> =
+    once_cell::sync::Lazy::new(|| {
+        let key_file = std::fs::read(&CONFIG.pub_key).expect("Couldn't read public key");
+        jsonwebtoken::DecodingKey::from_ec_pem(&key_file)
+            .expect("Couldn't parse decoding key from public key")
+    });
 
 // Simple error handling macro, print out error and source (if available), and handle error if it exists
 #[macro_export]
