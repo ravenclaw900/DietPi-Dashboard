@@ -12,48 +12,61 @@ use hyper::{Body, Method, Request, Response, StatusCode};
 use ring::digest;
 use tracing::Instrument;
 
+fn modify_response(resp: &mut Response<Body>, status_code: StatusCode, body: &'static str) {
+    *resp.status_mut() = status_code;
+    *resp.body_mut() = body.into();
+}
+
 #[cfg(feature = "frontend")]
 #[tracing::instrument(skip_all)]
 pub fn favicon_route() -> anyhow::Result<Response<Body>> {
-    Ok(Response::builder()
-        .header(header::CONTENT_TYPE, HeaderValue::from_static("image/png"))
-        .body(
-            handle_error!(
-                DIR.get_file("favicon.png").context("Couldn't get favicon"),
-                return Ok(Response::builder()
-                    .status(StatusCode::INTERNAL_SERVER_ERROR)
-                    .body("Couldn't get favicon".into())?)
-            )
-            .contents()
-            .into(),
-        )?)
+    let mut response = Response::new(Body::empty());
+
+    *response.body_mut() = handle_error!(
+        DIR.get_file("favicon.png").context("Couldn't get favicon"),
+        {
+            modify_response(
+                &mut response,
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Couldn't get favicon",
+            );
+            return Ok(response);
+        }
+    )
+    .contents()
+    .into();
+
+    response
+        .headers_mut()
+        .append(header::CONTENT_TYPE, HeaderValue::from_static("image/png"));
+
+    Ok(response)
 }
 
 #[cfg(feature = "frontend")]
 #[tracing::instrument(skip_all)]
 pub fn assets_route(req: Request<Body>) -> anyhow::Result<Response<Body>> {
+    let mut response = Response::new(Body::empty());
     let path = req.uri().path().trim_start_matches('/');
     let ext = path.rsplit('.').next().unwrap_or("plain");
-    #[allow(unused_mut)]
-    // Mute warning, variable is mut because it's used when building for release
-    let mut reply = Response::builder()
-        .header(
-            header::CONTENT_TYPE,
-            match ext {
-                "js" => HeaderValue::from_static("text/javascript"),
-                "svg" => HeaderValue::from_static("image/svg+xml"),
-                "png" => HeaderValue::from_static("image/png"),
-                _ => HeaderValue::from_str(&format!("text/{ext}"))?,
-            },
-        )
-        .body(if let Some(file) = DIR.get_file(path) {
-            file.contents().into()
-        } else {
-            tracing::warn!("Couldn't get asset {}", path);
-            return Ok(Response::builder()
-                .status(StatusCode::NOT_FOUND)
-                .body("Asset not found".into())?);
-        })?;
+
+    *response.body_mut() = if let Some(file) = DIR.get_file(path) {
+        file.contents().into()
+    } else {
+        tracing::warn!("Couldn't get asset {}", path);
+        modify_response(&mut response, StatusCode::NOT_FOUND, "Asset not found");
+        return Ok(response);
+    };
+
+    response.headers_mut().insert(
+        header::CONTENT_TYPE,
+        match ext {
+            "js" => HeaderValue::from_static("text/javascript"),
+            "svg" => HeaderValue::from_static("image/svg+xml"),
+            "png" => HeaderValue::from_static("image/png"),
+            _ => HeaderValue::from_str(&format!("text/{ext}"))?,
+        },
+    );
 
     #[cfg(all(feature = "frontend", not(debug_assertions)))]
     if ext != "png" {
@@ -63,7 +76,7 @@ pub fn assets_route(req: Request<Body>) -> anyhow::Result<Response<Body>> {
         );
     };
 
-    Ok(reply)
+    Ok(response)
 }
 
 #[cfg(feature = "frontend")]
@@ -71,10 +84,7 @@ pub fn assets_route(req: Request<Body>) -> anyhow::Result<Response<Body>> {
 pub async fn login_route(mut req: Request<Body>) -> anyhow::Result<Response<Body>> {
     let token: String;
     let mut response = Response::new(Body::empty());
-    response.headers_mut().insert(
-        header::ACCESS_CONTROL_ALLOW_ORIGIN,
-        HeaderValue::from_static("*"),
-    );
+
     if CONFIG.pass {
         let shasum = hex::encode(
             digest::digest(
@@ -86,6 +96,7 @@ pub async fn login_route(mut req: Request<Body>) -> anyhow::Result<Response<Body
         if shasum == CONFIG.hash {
             let timestamp = jsonwebtoken::get_current_timestamp();
 
+            // Try to get already existing fingerprint, otherwise generate new one
             let fingerprint = match crate::shared::get_fingerprint(&req) {
                 Ok(Some(cookie)) => cookie,
                 Err(err) => {
@@ -95,22 +106,28 @@ pub async fn login_route(mut req: Request<Body>) -> anyhow::Result<Response<Body
                     return Ok(response);
                 }
                 Ok(None) => {
-                    let mut buf = [0u8; 32].to_vec();
+                    let mut buf = [0u8; 32];
                     handle_error!(
                         getrandom::getrandom(&mut buf)
                             .context("Couldn't generate random fingerprint token"),
-                        return Ok(Response::builder()
-                            .status(StatusCode::BAD_REQUEST)
-                            .body("Couldn't generate random fingerprint token".into())?)
+                        {
+                            modify_response(
+                                &mut response,
+                                StatusCode::INTERNAL_SERVER_ERROR,
+                                "Couldn't generate random fingerprint token",
+                            );
+                            return Ok(response);
+                        }
                     );
+                    // Guaranteed to contain only ASCII characters
                     response.headers_mut().insert(
                         hyper::header::SET_COOKIE,
                         hyper::header::HeaderValue::from_str(&format!(
-                            "FINGERPRINT={}; Path=/; Max-Age: {}; HttpOnly",
+                            "FINGERPRINT={}; Path=/; Max-Age={}; HttpOnly",
                             hex::encode(&buf),
                             CONFIG.expiry
                         ))
-                        .context("Couldn't set fingerprint token")?,
+                        .unwrap(),
                     );
                     hex::encode(digest::digest(&digest::SHA256, &buf).as_ref())
                 }
@@ -130,39 +147,49 @@ pub async fn login_route(mut req: Request<Body>) -> anyhow::Result<Response<Body
                     &crate::shared::ENC_KEY,
                 )
                 .context("Error creating login token"),
-                return Ok({
-                    *response.status_mut() = StatusCode::INTERNAL_SERVER_ERROR;
-                    *response.body_mut() = "Couldn't create login token".into();
-                    response
-                })
+                {
+                    modify_response(
+                        &mut response,
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        "Couldn't create login token",
+                    );
+                    return Ok(response);
+                }
             );
 
             *response.body_mut() = token.into();
 
             return Ok(response);
         }
-        *response.status_mut() = StatusCode::UNAUTHORIZED;
-        *response.body_mut() = "Invalid password".into();
+        modify_response(&mut response, StatusCode::UNAUTHORIZED, "Invalid password");
         return Ok(response);
     }
-    *response.status_mut() = StatusCode::NO_CONTENT;
-    *response.body_mut() = "No login needed".into();
+    modify_response(&mut response, StatusCode::NO_CONTENT, "No login needed");
     Ok(response)
 }
 
 #[cfg(feature = "frontend")]
 #[tracing::instrument(skip_all)]
 pub fn main_route() -> anyhow::Result<Response<Body>> {
+    let mut response = Response::new(Body::empty());
+
     let file = handle_error!(
         DIR.get_file("index.html")
             .context("Couldn't get main HTML file"),
-        return Ok(Response::builder()
-            .status(StatusCode::INTERNAL_SERVER_ERROR)
-            .body("Couldn't get main HTML file".into())?)
+        {
+            modify_response(
+                &mut response,
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Couldn't get main HTML file",
+            );
+            return Ok(response);
+        }
     )
     .contents();
-    let mut reply = Response::new(file.into());
-    let headers = reply.headers_mut();
+
+    *response.body_mut() = file.into();
+
+    let headers = response.headers_mut();
 
     headers.insert(
         header::X_CONTENT_TYPE_OPTIONS,
@@ -192,7 +219,7 @@ pub fn main_route() -> anyhow::Result<Response<Body>> {
         header::HeaderValue::from_static("gzip"),
     );
 
-    Ok(reply)
+    Ok(response)
 }
 
 pub fn websocket<F, O>(
