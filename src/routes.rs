@@ -334,8 +334,7 @@ pub async fn router(req: Request<Body>, span: tracing::Span) -> anyhow::Result<R
                     token.to_string(),
                 )?;
             } else {
-                *response.status_mut() = StatusCode::UNAUTHORIZED;
-                *response.body_mut() = "No token".into();
+                modify_response(&mut response, StatusCode::UNAUTHORIZED, "No token");
                 return Ok(response);
             }
         }
@@ -349,8 +348,7 @@ pub async fn router(req: Request<Body>, span: tracing::Span) -> anyhow::Result<R
                     token.to_string(),
                 )?;
             } else {
-                *response.status_mut() = StatusCode::UNAUTHORIZED;
-                *response.body_mut() = "No token".into();
+                modify_response(&mut response, StatusCode::UNAUTHORIZED, "No token");
                 return Ok(response);
             }
         }
@@ -379,10 +377,11 @@ pub async fn router(req: Request<Body>, span: tracing::Span) -> anyhow::Result<R
             let _guard = span.enter();
             response = main_route()?;
         }
-        _ => {
-            *response.status_mut() = StatusCode::METHOD_NOT_ALLOWED;
-            *response.body_mut() = "Method not allowed".into();
-        }
+        _ => modify_response(
+            &mut response,
+            StatusCode::METHOD_NOT_ALLOWED,
+            "Method not allowed",
+        ),
     }
 
     Ok(response)
