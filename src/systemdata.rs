@@ -1,4 +1,5 @@
 use anyhow::Context;
+use infer::MatcherType;
 use psutil::{cpu, disk, host, memory, network, process, sensors};
 use std::str::from_utf8;
 use std::time::Duration;
@@ -365,27 +366,23 @@ pub async fn browser_dir(path: &std::path::Path) -> anyhow::Result<Vec<shared::B
                     .split_once('/')
                     .with_context(|| format!("Couldn't split mime type {}", infertype.mime_type()))?
                     .1;
-                maintype = {
-                    if infer::is_app(&buf) {
-                        "application"
-                    } else if infer::is_archive(&buf) {
-                        "archive"
-                    } else if infer::is_audio(&buf) {
-                        "audio"
-                    } else if infer::is_image(&buf) {
-                        "image"
-                    } else if infer::is_video(&buf) {
-                        "video"
-                    } else {
-                        "unknown"
-                    }
+                maintype = match infertype.matcher_type() {
+                    MatcherType::App => "application",
+                    MatcherType::Archive => "archive",
+                    MatcherType::Audio => "audio",
+                    MatcherType::Image => "image",
+                    MatcherType::Video => "video",
+                    _ => "unknown",
                 };
+                // Making text uppercase is convoluted, but reasonable since Unicode is complicated
+                // Though since all of this is ASCII, a lot of the checks can be skipped
+                let mut maintype_iter = maintype.chars();
                 prettytype = format!(
                     "{} {}{} File",
                     subtype.to_uppercase(),
-                    // Get first character, could (theoretically) panic
-                    &maintype[0..1].to_uppercase(),
-                    &maintype[1..]
+                    // Get first character, known to exist
+                    maintype_iter.next().unwrap().to_ascii_uppercase(),
+                    maintype_iter.as_str()
                 );
             } else if from_utf8(&buf).is_err() {
                 maintype = "unknown";

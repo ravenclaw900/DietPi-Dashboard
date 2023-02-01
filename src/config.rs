@@ -8,11 +8,10 @@ use figment::{
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "frontend")]
-const CONFIG_FILE: &'static str =
+const CONFIG_FILE: &str =
     include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config-frontend.toml"));
 #[cfg(not(feature = "frontend"))]
-const CONFIG_FILE: &'static str =
-    include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config-backend.toml"));
+const CONFIG_FILE: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/config-backend.toml"));
 
 #[derive(Deserialize, Serialize)]
 pub struct Config {
@@ -24,11 +23,14 @@ pub struct Config {
     pub cert: PathBuf,
     pub key: PathBuf,
 
+    #[cfg(feature = "frontend")]
     pub pass: bool,
+    #[cfg(feature = "frontend")]
     pub hash: String,
     #[cfg(feature = "frontend")]
     pub priv_key: PathBuf,
     pub pub_key: PathBuf,
+    #[cfg(feature = "frontend")]
     pub expiry: u64,
 
     #[cfg(feature = "frontend")]
@@ -52,11 +54,14 @@ impl Default for Config {
             cert: PathBuf::new(),
             key: PathBuf::new(),
 
+            #[cfg(feature = "frontend")]
             pass: false,
+            #[cfg(feature = "frontend")]
             hash: String::new(),
             #[cfg(feature = "frontend")]
             priv_key: PathBuf::new(),
             pub_key: PathBuf::new(),
+            #[cfg(feature = "frontend")]
             expiry: 3600,
 
             #[cfg(feature = "frontend")]
