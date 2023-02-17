@@ -65,9 +65,7 @@ pub async fn socket_handler(
             if data.is_close() {
                 break;
             }
-            let data_str = if let Message::Text(text) = data {
-                text
-            } else {
+            let Message::Text(data_str) = data else {
                 continue;
             };
             req = handle_error!(

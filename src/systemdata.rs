@@ -113,9 +113,7 @@ pub async fn processes() -> anyhow::Result<Vec<shared::ProcessData>> {
     sleep(Duration::from_millis(500)).await;
     for mut element in processes.into_iter().flatten() {
         // Errors shouldn't return, just skip the process
-        let process = if let Ok(process) = get_process_data(&mut element) {
-            process
-        } else {
+        let Ok(process) = get_process_data(&mut element) else {
             continue;
         };
 
@@ -294,12 +292,9 @@ pub async fn services() -> anyhow::Result<Vec<shared::ServiceData>> {
                 }
             }
         } else {
-            let (el1, el2) = match element.split_once('\t') {
-                Some(els) => els,
-                None => continue,
-            };
-            service.name = el1.trim().to_string();
-            match el2.split_once(" since ") {
+            let Some(els) = element.split_once('\t') else { continue };
+            service.name = els.0.trim().to_string();
+            match els.1.split_once(" since ") {
                 Some(statusdate) => {
                     service.status = match statusdate.0.trim() {
                         "active (running)" | "active (exited)" => "active",

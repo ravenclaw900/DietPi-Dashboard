@@ -212,9 +212,7 @@ where
         .get(header::SEC_WEBSOCKET_KEY)
         .context("Failed to read key from headers")?;
 
-    let cookie = if let Ok(cookie) = crate::shared::get_fingerprint(&req) {
-        cookie
-    } else {
+    let Ok(cookie) = crate::shared::get_fingerprint(&req) else {
         return Ok(Response::builder()
             .status(StatusCode::BAD_REQUEST)
             .body(Body::empty())?);
