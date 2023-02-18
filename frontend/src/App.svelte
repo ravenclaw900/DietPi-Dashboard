@@ -2,7 +2,7 @@
     import { navigate, Route, Router } from "svelte-routing";
     import { fade, slide } from "svelte/transition";
     import { cmp } from "semver-compare-multi";
-    import Home from "./pages/Home.svelte";
+    import Home from "./pages/home/Main.svelte";
     import Process from "./pages/Process.svelte";
     import Software from "./pages/Software.svelte";
     import Terminal from "./pages/Terminal.svelte";
@@ -30,10 +30,10 @@
 
     import logo from "./assets/dietpi.png";
     import github from "./assets/github-mark.svg";
-    import type { socketData } from "./types";
+    import { type socketData, PageKind } from "./types";
 
     let socket: WebSocket;
-    let socketData: Partial<socketData> = {};
+    let socketData: socketData;
     let nodes: string[] = [];
     let shown = false;
     let darkMode = false;
@@ -105,7 +105,7 @@
 
     const socketMessageListener = (e: MessageEvent) => {
         socketData = JSON.parse(e.data);
-        if (socketData.update != undefined) {
+        if (socketData.kind == MessageKind.Global) {
             dpUpdate = socketData.update;
             login = socketData.login;
             if (socketData.nodes) {
@@ -136,7 +136,7 @@
                 updateCheck();
             }
         }
-        if (socketData.reauth == true) {
+        if (socketData.kind == MessageKind.Reauth) {
             loginDialog = true;
         }
         if (navPage) {
@@ -435,12 +435,16 @@
         >
             {#if shown}
                 <Router>
-                    <Route path="process"
-                        ><Process {socketData} {socketSend} /></Route
-                    >
-                    <Route path="/"
-                        ><Home {socketData} {darkMode} {tempUnit} /></Route
-                    >
+                    {#if socketData.kind == "process"}
+                        <Route path="process"
+                            ><Process {socketData} {socketSend} /></Route
+                        >
+                    {/if}
+                    {#if socketData.kind == "statistics"}
+                        <Route path="/"
+                            ><Home {socketData} {darkMode} {tempUnit} /></Route
+                        >
+                    {/if}
                     <Route path="software"
                         ><Software {socketData} {socketSend} /></Route
                     >

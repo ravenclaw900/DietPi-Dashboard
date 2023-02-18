@@ -1,23 +1,59 @@
-interface socketData {
-    // Statistics page
+type socketData =
+    | statisticsPage
+    | softwarePage
+    | processPage
+    | servicesPage
+    | browserPage
+    | managementPage
+    | globalSettings
+    | reauthenticate;
+
+export enum MessageKind {
+    Statistics,
+    Software,
+    Process,
+    Service,
+    Browser,
+    Management,
+    Global,
+    Reauth,
+}
+
+interface statisticsPage {
+    kind: MessageKind.Statistics;
     cpu: number;
     ram: usage;
     swap: usage;
     disk: usage;
     network: net;
     temp: temp;
-    // Software page
-    uninstalled: software[];
-    installed: software[];
+}
+
+interface softwarePage {
+    kind: MessageKind.Software;
+    uninstalled: softwareItem[];
+    installed: softwareItem[];
     response: string;
-    // Process page
-    processes: processes[];
-    // Services page
-    services: services[];
-    // File browser page
-    contents: browser[];
+}
+
+interface processPage {
+    kind: MessageKind.Process;
+    processes: processItem[];
+}
+
+interface servicesPage {
+    kind: MessageKind.Service;
+    services: serviceItem[];
+}
+
+interface browserPage {
+    kind: MessageKind.Browser;
+    contents: browserItem[];
     textdata: string;
-    // Management page
+}
+
+interface managementPage {
+    kind: MessageKind.Management;
     hostname: string;
     uptime: number;
     arch: string;
@@ -27,17 +63,24 @@ interface socketData {
     upgrades: number;
     nic: string;
     ip: string;
-    // Global
+}
+
+interface globalSettings {
+    kind: MessageKind.Global;
     update: string;
     login: boolean;
-    reauth: boolean;
     nodes: string[];
     version: string;
     update_check: boolean;
     temp_unit: "fahrenheit" | "celsius";
 }
 
-interface software {
+interface reauthenticate {
+    kind: MessageKind.Reauth;
+    reauth: true;
+}
+
+interface softwareItem {
     id: number;
     name: string;
     description: string;
@@ -45,7 +88,7 @@ interface software {
     docs: string;
 }
 
-interface processes {
+interface processItem {
     pid: number;
     name: string;
     cpu: number;
@@ -53,14 +96,14 @@ interface processes {
     status: string;
 }
 
-interface services {
+interface serviceItem {
     name: string;
     status: string;
     log: string;
     start: string;
 }
 
-interface browser {
+interface browserItem {
     name: string;
     path: string;
     prettytype: string;
@@ -86,5 +129,15 @@ interface temp {
     fahrenheit: number;
 }
 
-// 'browser' required for selected path in file browser
-export type { socketData, browser };
+// 'browserItem' required for selected path in file browser
+export type {
+    socketData,
+    statisticsPage,
+    softwarePage,
+    processPage,
+    servicesPage,
+    browserPage,
+    managementPage,
+    globalSettings,
+    browserItem,
+};

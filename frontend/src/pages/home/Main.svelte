@@ -1,13 +1,13 @@
 <script lang="ts">
-    import Card from "../components/Card.svelte";
+    import Card from "../../components/Card.svelte";
     import { tweened } from "svelte/motion";
     import prettyBytes from "pretty-bytes";
     import uPlot from "uplot";
     import { onMount, onDestroy } from "svelte";
 
-    import type { socketData } from "../types";
+    import type { statisticsPage } from "../../types";
 
-    export let socketData: Partial<socketData>;
+    export let socketData: statisticsPage;
     export let darkMode: boolean;
     export let tempUnit: "fahrenheit" | "celsius";
 
@@ -31,9 +31,9 @@
         duration: 200,
     });
 
-    let ramData: (string | number)[],
-        swapData: (string | number)[],
-        diskData: (string | number)[];
+    let ramData: [string, string],
+        swapData: [string, string],
+        diskData: [string, string];
 
     let data: uPlot.AlignedData = [[], [], [], [], [], [], [], []];
 

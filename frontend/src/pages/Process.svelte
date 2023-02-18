@@ -11,9 +11,9 @@
     } from "@fortawesome/free-solid-svg-icons";
     import prettyBytes from "pretty-bytes";
 
-    import type { socketData } from "../types";
+    import type { processPage } from "../types";
 
-    export let socketData: Partial<socketData>;
+    export let socketData: processPage;
     export let socketSend: (cmd: string, args: string[]) => void;
 
     let reverse = false;
