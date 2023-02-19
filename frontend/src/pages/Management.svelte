@@ -3,10 +3,10 @@
     import prettyMilliseconds from "pretty-ms";
     import { fade } from "svelte/transition";
 
-    import type { socketData } from "../types";
+    import type { managementPage } from "../types";
 
     export let socketSend: (cmd: string, args: string[]) => void;
-    export let socketData: Partial<socketData>;
+    export let socketData: managementPage;
 
     let uptime: string;
     let dialog = false;

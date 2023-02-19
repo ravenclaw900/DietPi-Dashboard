@@ -6,10 +6,10 @@
     } from "@fortawesome/free-solid-svg-icons";
     import Fa from "svelte-fa";
 
-    import type { socketData } from "../types";
+    import type { servicesPage } from "../types";
 
     export let socketSend: (cmd: string, args: string[]) => void;
-    export let socketData: Partial<socketData>;
+    export let socketData: servicesPage;
 </script>
 
 <main>

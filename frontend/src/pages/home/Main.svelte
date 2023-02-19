@@ -298,7 +298,3 @@
         {/if}
     </Card>
 </main>
-
-<style>
-    @import "uplot/dist/uPlot.min.css";
-</style>

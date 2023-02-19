@@ -1,9 +1,9 @@
 <script lang="ts">
     import Fa from "svelte-fa";
     import { faCircleNotch } from "@fortawesome/free-solid-svg-icons";
-    import type { socketData } from "../types";
+    import type { softwarePage } from "../types";
 
-    export let socketData: Partial<socketData>;
+    export let socketData: softwarePage;
     export let socketSend: (cmd: string, args: string[]) => void;
 
     let installTemp: boolean[] = [];

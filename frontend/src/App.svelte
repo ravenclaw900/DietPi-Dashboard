@@ -30,7 +30,7 @@
 
     import logo from "./assets/dietpi.png";
     import github from "./assets/github-mark.svg";
-    import { type socketData, PageKind } from "./types";
+    import { type socketData, MessageKind } from "./types";
 
     let socket: WebSocket;
     let socketData: socketData;
@@ -435,34 +435,42 @@
         >
             {#if shown}
                 <Router>
-                    {#if socketData.kind == "process"}
+                    {#if socketData.kind == MessageKind.Process}
                         <Route path="process"
                             ><Process {socketData} {socketSend} /></Route
                         >
                     {/if}
-                    {#if socketData.kind == "statistics"}
+                    {#if socketData.kind == MessageKind.Statistics}
                         <Route path="/"
                             ><Home {socketData} {darkMode} {tempUnit} /></Route
                         >
                     {/if}
-                    <Route path="software"
-                        ><Software {socketData} {socketSend} /></Route
-                    >
+                    {#if socketData.kind == MessageKind.Software}
+                        <Route path="software"
+                            ><Software {socketData} {socketSend} /></Route
+                        >
+                    {/if}
                     <Route path="terminal"><Terminal {node} {token} /></Route>
-                    <Route path="management"
-                        ><Management {socketSend} {socketData} /></Route
-                    >
-                    <Route path="browser"
-                        ><FileBrowser
-                            {socketSend}
-                            {socketData}
-                            {node}
-                            {login}
-                        /></Route
-                    >
-                    <Route path="service"
-                        ><Service {socketSend} {socketData} /></Route
-                    >
+                    {#if socketData.kind == MessageKind.Management}
+                        <Route path="management"
+                            ><Management {socketSend} {socketData} /></Route
+                        >
+                    {/if}
+                    {#if socketData.kind == MessageKind.Browser}
+                        <Route path="browser"
+                            ><FileBrowser
+                                {socketSend}
+                                {socketData}
+                                {node}
+                                {login}
+                            /></Route
+                        >
+                    {/if}
+                    {#if socketData.kind == MessageKind.Service}
+                        <Route path="service"
+                            ><Service {socketSend} {socketData} /></Route
+                        >
+                    {/if}
                     <Route path=""><h3>Page not found</h3></Route>
                 </Router>
             {:else}

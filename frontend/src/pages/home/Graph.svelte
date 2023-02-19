@@ -2,9 +2,11 @@
     import Card from "../../components/Card.svelte";
     import prettyBytes from "pretty-bytes";
     import uPlot from "uplot";
+    import type { statisticsPage } from "../../types";
 
     export let darkMode: boolean;
     export let tempUnit: "fahrenheit" | "celsius";
+    export let socketData: statisticsPage;
 
     let opts: uPlot.Options = {
         width: 100,
@@ -106,8 +108,50 @@
             },
         },
     };
+
+    let data: uPlot.AlignedData = [[], [], [], [], [], [], [], []];
+
+    function initChart(el: HTMLDivElement) {
+        let plot = new uPlot(opts, data, el);
+
+        let handle1 = setInterval(() => {
+            let dataPush = data as number[][];
+            if (socketData.ram != undefined) {
+                dataPush[0].push(Math.round(Date.now() / 1000));
+                dataPush[1].push(socketData.cpu);
+                dataPush[2].push(socketData.ram.used / 1000000);
+                dataPush[3].push(socketData.swap.used / 1000000);
+                dataPush[4].push(socketData.disk.used / 1000000);
+                dataPush[5].push(socketData.network.sent / 1000000);
+                dataPush[6].push(socketData.network.received / 1000000);
+            }
+            if (socketData.temp != undefined && socketData.temp.available) {
+                if (uplot.series[7] == undefined) {
+                    uplot.addSeries({
+                        spanGaps: false,
+                        label: "CPU Temperature",
+                        stroke: "#94A3B8",
+                        width: 3,
+                        scale: "deg",
+                        value: (_: any, val: number) =>
+                            val + (tempUnit == "celsius" ? "ºC" : "ºF"),
+                    });
+                }
+                if (tempUnit == "celsius") {
+                    dataPush[7].push(socketData.temp.celsius);
+                } else if (tempUnit == "fahrenheit") {
+                    dataPush[7].push(socketData.temp.fahrenheit);
+                }
+            }
+            uplot.setData(data);
+        }, 2000);
+    }
 </script>
 
 <Card header="System Diagnostics" id="chart">
-    <div />
+    <div use:initChart />
 </Card>
+
+<style>
+    @import "uplot/dist/uPlot.min.css";
+</style>

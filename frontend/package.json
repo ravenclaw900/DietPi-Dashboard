@@ -35,6 +35,7 @@
     "pretty-bytes": "^6.0.0",
     "pretty-ms": "^8.0.0",
     "semver-compare-multi": "^1.0.3",
+    "svelte-websocket-store": "^1.1.33",
     "uplot": "^1.6.24",
     "xterm": "^5.1.0",
     "xterm-addon-attach": "^0.8.0",
