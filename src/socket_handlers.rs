@@ -69,22 +69,18 @@ pub async fn socket_handler(
                 continue;
             };
             req = handle_error!(
-                shared::RequestTypes::try_from(handle_error!(
-                    serde_json::from_str::<shared::Request>(&data_str)
-                        .with_context(|| format!("Couldn't parse JSON {data_str}")),
-                    continue
-                ))
-                .context("Invalid request"),
+                serde_json::from_str::<shared::RequestTypes>(&data_str)
+                    .with_context(|| format!("Couldn't parse JSON {data_str}")),
                 continue
             );
             // Don't print token
-            if let shared::RequestTypes::Token(_) = req {
+            if let shared::RequestTypes::Token { .. } = req {
                 tracing::debug!("Got token message");
             } else {
                 tracing::debug!("Got request {:?}", req);
             }
             if CONFIG.pass {
-                if let shared::RequestTypes::Token(req_token) = req {
+                if let shared::RequestTypes::Token { token: req_token } = req {
                     token = req_token;
                     continue;
                 }
@@ -100,7 +96,9 @@ pub async fn socket_handler(
                         }
                     }
                     handle_error!(data_send
-                        .send(Some(shared::RequestTypes::Page("/login".to_string())))
+                        .send(Some(shared::RequestTypes::Page {
+                            page: "/login".to_string()
+                        }))
                         .await
                         .context("Internal error: couldn't send login request"));
                 }
@@ -110,7 +108,7 @@ pub async fn socket_handler(
                     TokenState::ValidToken => {}
                 }
             }
-            if let shared::RequestTypes::Page(_) = req {
+            if let shared::RequestTypes::Page { .. } = req {
                 // Quit out of handler
                 if first_message {
                     tracing::debug!("First message, not sending quit");
@@ -137,7 +135,7 @@ pub async fn socket_handler(
         return;
     }
     while let Some(Some(message)) = data_recv.recv().await {
-        if let shared::RequestTypes::Page(page) = message {
+        if let shared::RequestTypes::Page { page } = message {
             if match page.as_str() {
                 "/" => page_handlers::main_handler(&mut socket_send, &mut data_recv).await,
                 "/process" => {

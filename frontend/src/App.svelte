@@ -212,20 +212,12 @@
     }
 
     function socketSend(cmd: string, args: string[]) {
-        let json;
-        if (login) {
-            json = JSON.stringify({
+        socket.send(
+            JSON.stringify({
                 cmd,
                 args,
-                token,
-            });
-        } else {
-            json = JSON.stringify({
-                cmd,
-                args,
-            });
-        }
-        socket.send(json);
+            })
+        );
     }
 
     function connectSocket(url: string) {
