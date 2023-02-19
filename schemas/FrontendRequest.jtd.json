@@ -1,0 +1,33 @@
+{
+    "discriminator": "requestType",
+    "mapping": {
+        "COMMAND": {
+            "properties": {
+                "cmd": {
+                    "type": "string"
+                }
+            },
+            "optionalProperties": {
+                "args": {
+                    "elements": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "PAGE": {
+            "properties": {
+                "page": {
+                    "type": "string"
+                }
+            }
+        },
+        "TOKEN": {
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

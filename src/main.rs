@@ -15,6 +15,7 @@ mod routes;
 mod shared;
 mod socket_handlers;
 mod systemdata;
+mod types;
 
 #[cfg(feature = "frontend")]
 static DIR: include_dir::Dir<'_> = include_dir::include_dir!("$CARGO_MANIFEST_DIR/frontend/dist");

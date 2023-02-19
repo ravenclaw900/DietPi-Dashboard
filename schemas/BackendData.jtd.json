@@ -1,0 +1,248 @@
+{
+    "definitions": {
+        "usageData": {
+            "properties": {
+                "used": {
+                    "type": "uint32",
+                    "metadata": {
+                        "rustType": "u64"
+                    }
+                },
+                "total": {
+                    "type": "uint32",
+                    "metadata": {
+                        "rustType": "u64"
+                    }
+                },
+                "percent": {
+                    "type": "float32",
+                    "metadata": {
+                        "rustType": "u64"
+                    }
+                }
+            }
+        },
+        "softwareData": {
+            "properties": {
+                "id": {
+                    "type": "int16"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "dependencies": {
+                    "type": "string"
+                },
+                "docs": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "discriminator": "dataKind",
+    "mapping": {
+        "STATISTIC": {
+            "properties": {
+                "cpu": {
+                    "type": "float32"
+                },
+                "ram": {
+                    "ref": "usageData"
+                },
+                "swap": {
+                    "ref": "usageData"
+                },
+                "disk": {
+                    "ref": "usageData"
+                },
+                "network": {
+                    "properties": {
+                        "sent": {
+                            "type": "uint32",
+                            "metadata": {
+                                "rustType": "u64"
+                            }
+                        },
+                        "received": {
+                            "type": "uint32",
+                            "metadata": {
+                                "rustType": "u64"
+                            }
+                        }
+                    }
+                },
+                "temp": {
+                    "properties": {
+                        "available": {
+                            "type": "boolean"
+                        },
+                        "celsius": {
+                            "type": "int16"
+                        },
+                        "fahrenheit": {
+                            "type": "int16"
+                        }
+                    }
+                }
+            }
+        },
+        "PROCESS": {
+            "properties":  {
+                "processes": {
+                    "elements": {
+                        "properties": {
+                            "pid": {
+                                "type": "uint32"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "cpu": {
+                                "type": "float32"
+                            },
+                            "ram": {
+                                "type": "uint32",
+                                "metadata": {
+                                    "rustType": "u64"
+                                }
+                            },
+                            "status": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "SOFTWARE": {
+            "properties": {
+                "installed": {
+                    "elements": {
+                        "ref": "softwareData"
+                    }
+                },
+                "uninstalled": {
+                    "elements": {
+                        "ref": "softwareData"
+                    }
+                },
+                "response": {
+                    "type": "string"
+                }
+            }
+        },
+        "MANAGEMENT": {
+            "properties": {
+                "hostname": {
+                    "type": "string"
+                },
+                "uptime": {
+                    "type": "uint32"
+                },
+                "arch": {
+                    "type": "string"
+                },
+                "kernelVersion": {
+                    "type": "string"
+                },
+                "dpVersion": {
+                    "type": "string"
+                },
+                "packageNumber": {
+                    "type": "uint32"
+                },
+                "packageUpgrades": {
+                    "type": "uint32"
+                },
+                "netInterface": {
+                    "type": "string"
+                },
+                "ipAddr": {
+                    "type": "string"
+                }
+            }
+        },
+        "SERVICE": {
+            "properties": {
+                "services": {
+                    "elements": {
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "log": {
+                                "type": "string"
+                            },
+                            "status": {
+                                "type": "string"
+                            },
+                            "startTime": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "BROWSER": {
+            "properties": {
+                "contents": {
+                    "elements": {
+                        "properties": {
+                            "filePath": {
+                                "type": "string"
+                            },
+                            "fileName": {
+                                "type": "string"
+                            },
+                            "subType": {
+                                "type": "string"
+                            },
+                            "mainType": {
+                                "type": "string"
+                            },
+                            "prettyType": {
+                                "type": "string"
+                            },
+                            "fileSize": {
+                                "type": "uint32",
+                                "metadata": {
+                                    "rustType": "u64"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "GLOBAL": {
+            "properties": {
+                "dashboardVersion": {
+                    "type": "string"
+                },
+                "loginNeeded": {
+                    "type": "boolean"
+                },
+                "updateCheck": {
+                    "type": "boolean"
+                },
+                "tempUnit": {
+                    "enum": ["celsius", "fahrenheit"]
+                }
+            },
+            "optionalProperties": {
+                "dietpiUpdate": {
+                    "type": "string"
+                },
+                "nodes": {
+                    "elements": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}
