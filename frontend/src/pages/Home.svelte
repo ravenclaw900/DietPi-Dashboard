@@ -5,9 +5,9 @@
     import uPlot from "uplot";
     import { onMount, onDestroy } from "svelte";
 
-    import type { socketData } from "../types";
+    import type { statisticsPage } from "../types";
 
-    export let socketData: Partial<socketData>;
+    export let socketData: statisticsPage;
     export let darkMode: boolean;
     export let tempUnit: "fahrenheit" | "celsius";
 
@@ -37,25 +37,23 @@
 
     let data: uPlot.AlignedData = [[], [], [], [], [], [], [], []];
 
-    $: socketData.cpu != undefined &&
-        (cpuAnimate.set(socketData.cpu),
-        ramAnimate.set(socketData.ram.percent),
-        swapAnimate.set(socketData.swap.percent),
-        diskAnimate.set(socketData.disk.percent));
+    $: cpuAnimate.set(socketData.cpu);
+    $: ramAnimate.set(socketData.ram.percent);
+    $: swapAnimate.set(socketData.swap.percent);
+    $: diskAnimate.set(socketData.disk.percent);
 
-    $: socketData.ram &&
-        ((ramData = [
-            prettyBytes(socketData.ram.used, { binary: true }),
-            prettyBytes(socketData.ram.total, { binary: true }),
-        ]),
-        (swapData = [
-            prettyBytes(socketData.swap.used, { binary: true }),
-            prettyBytes(socketData.swap.total, { binary: true }),
-        ]),
-        (diskData = [
-            prettyBytes(socketData.disk.used),
-            prettyBytes(socketData.disk.total),
-        ]));
+    $: ramData = [
+        prettyBytes(socketData.ram.used, { binary: true }),
+        prettyBytes(socketData.ram.total, { binary: true }),
+    ];
+    $: swapData = [
+        prettyBytes(socketData.swap.used, { binary: true }),
+        prettyBytes(socketData.swap.total, { binary: true }),
+    ];
+    $: diskData = [
+        prettyBytes(socketData.disk.used),
+        prettyBytes(socketData.disk.total),
+    ];
 
     function getTempMsg(temp: number) {
         if (temp >= 70) {
@@ -207,7 +205,7 @@
 
         uplot = new uPlot(opts, data, chart);
 
-        if (socketData.swap != undefined && socketData.swap.total == 0) {
+        if (socketData.swap.total == 0) {
             uplot.setSeries(3, { show: false });
         }
 
@@ -220,16 +218,14 @@
 
     let handle1 = setInterval(() => {
         let dataPush = data as number[][];
-        if (socketData.ram != undefined) {
-            dataPush[0].push(Math.round(Date.now() / 1000));
-            dataPush[1].push(socketData.cpu);
-            dataPush[2].push(socketData.ram.used / 1000000);
-            dataPush[3].push(socketData.swap.used / 1000000);
-            dataPush[4].push(socketData.disk.used / 1000000);
-            dataPush[5].push(socketData.network.sent / 1000000);
-            dataPush[6].push(socketData.network.received / 1000000);
-        }
-        if (socketData.temp != undefined && socketData.temp.available) {
+        dataPush[0].push(Math.round(Date.now() / 1000));
+        dataPush[1].push(socketData.cpu);
+        dataPush[2].push(socketData.ram.used / 1000000);
+        dataPush[3].push(socketData.swap.used / 1000000);
+        dataPush[4].push(socketData.disk.used / 1000000);
+        dataPush[5].push(socketData.network.sent / 1000000);
+        dataPush[6].push(socketData.network.received / 1000000);
+        if (socketData.temp.available) {
             if (uplot.series[7] == undefined) {
                 uplot.addSeries({
                     spanGaps: false,
@@ -270,15 +266,13 @@
         <div bind:this={chart} />
     </Card>
     <Card header="System Stats">
-        {#if ramData != undefined}
-            {#if socketData.temp != undefined && socketData.temp.available}
-                <div class="text-center">
-                    <span class={getTempClass(socketData.temp.celsius)}>
-                        {socketData.temp.celsius}ºC/{socketData.temp
-                            .fahrenheit}ºF</span
-                    >: {getTempMsg(socketData.temp.celsius)}
-                </div>
-            {/if}
+        {#if socketData.temp.available}
+            <div class="text-center">
+                <span class={getTempClass(socketData.temp.celsius)}>
+                    {socketData.temp.celsius}ºC/{socketData.temp
+                        .fahrenheit}ºF</span
+                >: {getTempMsg(socketData.temp.celsius)}
+            </div>
             CPU:<span class="float-right">{socketData.cpu}/100%</span>
             <div class="bg-gray-200 dark:bg-gray-800 w-full h-3 my-1">
                 <div class="bg-green-500 h-3" style="width:{$cpuAnimate}%" />

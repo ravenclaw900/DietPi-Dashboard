@@ -33,7 +33,7 @@
     import type { socketData } from "./types";
 
     let socket: WebSocket;
-    let socketData: Partial<socketData> = {};
+    let socketData: socketData;
     let nodes: string[] = [];
     let shown = false;
     let darkMode = false;
@@ -61,6 +61,8 @@
         dpUpdate != "" ||
         cmp(frontendVersion, backendVersion) != 0 ||
         updateAvailable != "";
+
+    $: console.log(socketData);
 
     // Get dark mode
     if (localStorage.getItem("darkMode") != null) {
@@ -105,7 +107,7 @@
 
     const socketMessageListener = (e: MessageEvent) => {
         socketData = JSON.parse(e.data);
-        if (socketData.update != undefined) {
+        if (socketData.dataKind == "GLOBAL") {
             dpUpdate = socketData.update;
             login = socketData.login;
             if (socketData.nodes) {
@@ -136,7 +138,7 @@
                 updateCheck();
             }
         }
-        if (socketData.reauth == true) {
+        if (socketData.dataKind == "REAUTH") {
             loginDialog = true;
         }
         if (navPage) {
@@ -425,32 +427,44 @@
                 ? ' children:blur-2 children:filter'
                 : ''}"
         >
-            {#if shown}
+            {#if shown && socketData != undefined}
                 <Router>
-                    <Route path="process"
-                        ><Process {socketData} {socketSend} /></Route
-                    >
-                    <Route path="/"
-                        ><Home {socketData} {darkMode} {tempUnit} /></Route
-                    >
-                    <Route path="software"
-                        ><Software {socketData} {socketSend} /></Route
-                    >
+                    {#if socketData.dataKind == "PROCESS"}
+                        <Route path="process"
+                            ><Process {socketData} {socketSend} /></Route
+                        >
+                    {/if}
+                    {#if socketData.dataKind == "STATISTIC"}
+                        <Route path="/"
+                            ><Home {socketData} {darkMode} {tempUnit} /></Route
+                        >
+                    {/if}
+                    {#if socketData.dataKind == "SOFTWARE"}
+                        <Route path="software"
+                            ><Software {socketData} {socketSend} /></Route
+                        >
+                    {/if}
                     <Route path="terminal"><Terminal {node} {token} /></Route>
-                    <Route path="management"
-                        ><Management {socketSend} {socketData} /></Route
-                    >
-                    <Route path="browser"
-                        ><FileBrowser
-                            {socketSend}
-                            {socketData}
-                            {node}
-                            {login}
-                        /></Route
-                    >
-                    <Route path="service"
-                        ><Service {socketSend} {socketData} /></Route
-                    >
+                    {#if socketData.dataKind == "MANAGEMENT"}
+                        <Route path="management"
+                            ><Management {socketSend} {socketData} /></Route
+                        >
+                    {/if}
+                    {#if socketData.dataKind == "BROWSER"}
+                        <Route path="browser"
+                            ><FileBrowser
+                                {socketSend}
+                                {socketData}
+                                {node}
+                                {login}
+                            /></Route
+                        >
+                    {/if}
+                    {#if socketData.dataKind == "SERVICE"}
+                        <Route path="service"
+                            ><Service {socketSend} {socketData} /></Route
+                        >
+                    {/if}
                     <Route path=""><h3>Page not found</h3></Route>
                 </Router>
             {:else}

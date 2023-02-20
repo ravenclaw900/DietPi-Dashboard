@@ -3,20 +3,19 @@
     import prettyMilliseconds from "pretty-ms";
     import { fade } from "svelte/transition";
 
-    import type { socketData } from "../types";
+    import type { managementPage } from "../types";
 
     export let socketSend: (cmd: string, args: string[]) => void;
-    export let socketData: Partial<socketData>;
+    export let socketData: managementPage;
 
     let uptime: string;
     let dialog = false;
     let msg = "";
 
-    $: socketData.uptime &&
-        ((uptime = prettyMilliseconds(socketData.uptime * 60000, {
-            verbose: true,
-        })),
-        (dialog = false));
+    $: (uptime = prettyMilliseconds(socketData.uptime * 60000, {
+        verbose: true,
+    })),
+        (dialog = false);
 
     function sendData(data: string) {
         socketSend(data, []);
