@@ -62,8 +62,6 @@
         cmp(frontendVersion, backendVersion) != 0 ||
         updateAvailable != "";
 
-    $: console.log(socketData);
-
     // Get dark mode
     if (localStorage.getItem("darkMode") != null) {
         darkMode = JSON.parse(localStorage.getItem("darkMode"));
