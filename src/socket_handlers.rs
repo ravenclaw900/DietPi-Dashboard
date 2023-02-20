@@ -55,7 +55,7 @@ pub async fn socket_handler(
     fingerprint: Option<String>,
     _token: String,
 ) {
-    let (mut socket_send, mut socket_recv) = socket.split();
+    let (socket_send, mut socket_recv) = socket.split();
     let (data_send, mut data_recv) = mpsc::channel(1);
     tokio::task::spawn(async move {
         let mut first_message = true;
@@ -126,9 +126,10 @@ pub async fn socket_handler(
             }
         }
     });
+    let mut socket_send = shared::SocketSend(socket_send);
     // Send global message (shown on all pages)
     if socket_send
-        .send(crate::json_msg!(&systemdata::global().await, return))
+        .send(shared::BackendData::Global(systemdata::global().await))
         .await
         .is_err()
     {
@@ -157,7 +158,7 @@ pub async fn socket_handler(
                     tracing::debug!("Sending login message");
                     // Internal poll, see other thread
                     if socket_send
-                        .send(Message::text("{\"reauth\": true}"))
+                        .send(shared::BackendData::Reauth { reauth: true })
                         .await
                         .is_err()
                     {

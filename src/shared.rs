@@ -1,4 +1,5 @@
 use anyhow::Context;
+use futures::SinkExt;
 use serde::{Deserialize, Serialize};
 
 pub static CONFIG: once_cell::sync::Lazy<crate::config::Config> =
@@ -67,6 +68,38 @@ pub fn get_fingerprint(req: &hyper::Request<hyper::Body>) -> anyhow::Result<Opti
         })
         .context("Invalid fingerprint token")?,
     ))))
+}
+
+pub struct SocketSend(
+    pub  futures::stream::SplitSink<
+        tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>,
+        tokio_tungstenite::tungstenite::Message,
+    >,
+);
+
+impl SocketSend {
+    pub async fn send(&mut self, value: BackendData) -> anyhow::Result<()> {
+        Ok(self
+            .0
+            .send(tokio_tungstenite::tungstenite::Message::Text(
+                serde_json::to_string(&value).context("Couldn't serialize JSON")?,
+            ))
+            .await?)
+    }
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "UPPERCASE")]
+#[serde(tag = "dataKind")]
+pub enum BackendData {
+    Statistic(SysData),
+    Process(ProcessList),
+    Software(DPSoftwareList),
+    Management(HostData),
+    Service(ServiceList),
+    Global(GlobalData),
+    Browser(BrowserList),
+    Reauth { reauth: bool },
 }
 
 #[derive(Serialize, Default)]

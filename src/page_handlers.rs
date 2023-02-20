@@ -10,14 +10,10 @@ use tracing::instrument;
 
 use crate::{
     handle_error, json_msg,
-    shared::{self, RequestTypes},
+    shared::{self, RequestTypes, SocketSend},
     systemdata,
 };
 
-type SocketSend = SplitSink<
-    tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>,
-    tokio_tungstenite::tungstenite::Message,
->;
 type RecvChannel = Receiver<Option<shared::RequestTypes>>;
 
 #[instrument(level = "debug", skip_all)]
@@ -63,7 +59,7 @@ pub async fn main_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChan
             biased;
             data = data_recv.recv() => if let Some(Some(_)) = data {} else { return false },
             res = socket_send
-            .send(json_msg!(&handle_error!(main_handler_getter(&mut cpu_collector, &mut net_collector, &mut prev_data), shared::SysData::default()), continue))
+            .send(shared::BackendData::Statistic(handle_error!(main_handler_getter(&mut cpu_collector, &mut net_collector, &mut prev_data), shared::SysData::default())))
             => {
                 sleep(Duration::from_secs(1)).await;
                 if res.is_err() {
@@ -109,10 +105,9 @@ pub async fn process_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
                 _ => return false,
             },
             res = socket_send
-                .send(json_msg!(
-                    &shared::ProcessList {
+                .send(shared::BackendData::Process(shared::ProcessList {
                         processes: handle_error!(systemdata::processes().await, Vec::new()),
-                    }, continue
+                    }
                 )) => {
                     sleep(Duration::from_secs(1)).await;
                     if res.is_err() {
@@ -162,14 +157,11 @@ pub async fn software_handler_helper(
 pub async fn software_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) -> bool {
     let software = handle_error!(systemdata::dpsoftware().await, (Vec::new(), Vec::new()));
     if socket_send
-        .send(json_msg!(
-            &shared::DPSoftwareList {
-                uninstalled: software.0,
-                installed: software.1,
-                response: String::new(),
-            },
-            return false
-        ))
+        .send(shared::BackendData::Software(shared::DPSoftwareList {
+            uninstalled: software.0,
+            installed: software.1,
+            response: String::new(),
+        }))
         .await
         .is_err()
     {
@@ -182,11 +174,14 @@ pub async fn software_handler(socket_send: &mut SocketSend, data_recv: &mut Recv
             args: Some(args),
         } = data
         {
-            let out = handle_error!(
-                software_handler_helper(&cmd, &args).await,
-                shared::DPSoftwareList::default()
-            );
-            if socket_send.send(json_msg!(&out, continue)).await.is_err() {
+            if socket_send
+                .send(shared::BackendData::Software(handle_error!(
+                    software_handler_helper(&cmd, &args).await,
+                    shared::DPSoftwareList::default()
+                )))
+                .await
+                .is_err()
+            {
                 tracing::debug!("Socket send failed, returning");
                 return true;
             }
@@ -198,10 +193,10 @@ pub async fn software_handler(socket_send: &mut SocketSend, data_recv: &mut Recv
 #[instrument(skip_all)]
 pub async fn management_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) -> bool {
     if socket_send
-        .send(json_msg!(
-            &handle_error!(systemdata::host().await, shared::HostData::default()),
-            return false
-        ))
+        .send(shared::BackendData::Management(handle_error!(
+            systemdata::host().await,
+            shared::HostData::default()
+        )))
         .await
         .is_err()
     {
@@ -224,12 +219,9 @@ pub async fn management_handler(socket_send: &mut SocketSend, data_recv: &mut Re
 #[instrument(skip_all)]
 pub async fn service_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) -> bool {
     if socket_send
-        .send(json_msg!(
-            &shared::ServiceList {
-                services: handle_error!(systemdata::services().await, Vec::new()),
-            },
-            return false
-        ))
+        .send(shared::BackendData::Service(shared::ServiceList {
+            services: handle_error!(systemdata::services().await, Vec::new()),
+        }))
         .await
         .is_err()
     {
@@ -249,12 +241,9 @@ pub async fn service_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
                     .map(|_| ()) // Don't care about the Ok value, so remove it to make the type checker happy
                     .with_context(|| format!("Couldn't {} service {arg}", &cmd)));
                 if socket_send
-                    .send(json_msg!(
-                        &shared::ServiceList {
-                            services: handle_error!(systemdata::services().await, Vec::new()),
-                        },
-                        continue
-                    ))
+                    .send(shared::BackendData::Service(shared::ServiceList {
+                        services: handle_error!(systemdata::services().await, Vec::new()),
+                    }))
                     .await
                     .is_err()
                 {
@@ -340,18 +329,15 @@ async fn browser_handler_helper(cmd: &str, args: &[String]) -> anyhow::Result<sh
 pub async fn browser_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChannel) -> bool {
     // Get initial listing of $HOME
     if socket_send
-        .send(json_msg!(
-            &shared::BrowserList {
-                contents: handle_error!(
-                    systemdata::browser_dir(std::path::Path::new(
-                        &std::env::var_os("HOME").unwrap_or_else(|| "/root".into()),
-                    ))
-                    .await,
-                    Vec::new()
-                ),
-            },
-            return false
-        ))
+        .send(shared::BackendData::Browser(shared::BrowserList {
+            contents: handle_error!(
+                systemdata::browser_dir(std::path::Path::new(
+                    &std::env::var_os("HOME").unwrap_or_else(|| "/root".into()),
+                ))
+                .await,
+                Vec::new()
+            ),
+        }))
         .await
         .is_err()
     {
@@ -368,8 +354,7 @@ pub async fn browser_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
             {
                 tokio::select! {
                     res = browser_handler_helper(cmd, args) => {
-                        let list = handle_error!(res, shared::BrowserList::default());
-                        if socket_send.send(json_msg!(&list, continue)).await.is_err() {
+                        if socket_send.send(shared::BackendData::Browser(handle_error!(res, shared::BrowserList::default()))).await.is_err() {
                             tracing::debug!("Socket send failed, returning");
                             return true;
                         }
