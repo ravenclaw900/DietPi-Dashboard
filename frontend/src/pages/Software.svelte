@@ -1,9 +1,9 @@
 <script lang="ts">
     import Fa from "svelte-fa";
     import { faCircleNotch } from "@fortawesome/free-solid-svg-icons";
-    import type { socketData } from "../types";
+    import type { softwarePage } from "../types";
 
-    export let socketData: Partial<socketData>;
+    export let socketData: softwarePage;
     export let socketSend: (cmd: string, args: string[]) => void;
 
     let installTemp: boolean[] = [];
@@ -80,69 +80,67 @@
 </script>
 
 <main>
-    {#if socketData.uninstalled}
-        <div class="border-b-2 border-gray-500">
-            <button
-                class="border-1 border-b-0 border-gray-500 p-1 focus:outline-none"
-                on:click={() => (installTable = false)}
-                class:bg-gray-200={!installTable}
-                class:dark:bg-gray-700={!installTable}>Not installed</button
-            >
-            <button
-                class="border-1 border-b-0 border-gray-500 p-1 focus:outline-none"
-                on:click={() => (installTable = true)}
-                class:bg-gray-200={installTable}
-                class:dark:bg-gray-700={installTable}>Installed</button
-            >
-        </div>
-        <table
-            class="border border-gray-300 dark:border-gray-700 w-full table-fixed break-words"
+    <div class="border-b-2 border-gray-500">
+        <button
+            class="border-1 border-b-0 border-gray-500 p-1 focus:outline-none"
+            on:click={() => (installTable = false)}
+            class:bg-gray-200={!installTable}
+            class:dark:bg-gray-700={!installTable}>Not installed</button
         >
-            <tr class="table-header">
-                <th>ID</th>
-                <th>{installTable ? "Uninstall" : "Install"}</th>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Dependencies</th>
-                <th>Documentation link</th>
-            </tr>
-            {#each socketData[installTable ? "installed" : "uninstalled"] as software}
-                {#if software.id != -1}
-                    <tr
-                        class="mt-32 even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800  dark:border-gray-600 border-t-2 border-gray-300 border-opacity-50"
+        <button
+            class="border-1 border-b-0 border-gray-500 p-1 focus:outline-none"
+            on:click={() => (installTable = true)}
+            class:bg-gray-200={installTable}
+            class:dark:bg-gray-700={installTable}>Installed</button
+        >
+    </div>
+    <table
+        class="border border-gray-300 dark:border-gray-700 w-full table-fixed break-words"
+    >
+        <tr class="table-header">
+            <th>ID</th>
+            <th>{installTable ? "Uninstall" : "Install"}</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Dependencies</th>
+            <th>Documentation link</th>
+        </tr>
+        {#each socketData[installTable ? "installed" : "uninstalled"] as software}
+            {#if software.id != -1}
+                <tr
+                    class="mt-32 even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800  dark:border-gray-600 border-t-2 border-gray-300 border-opacity-50"
+                >
+                    <td class="p-2">{software.id}</td>
+                    <td class="p-2"
+                        ><input
+                            type="checkbox"
+                            on:click={() =>
+                                (installTemp[software.id] =
+                                    !installTemp[software.id])}
+                            bind:checked={installTemp[software.id]}
+                            disabled={running}
+                        /></td
                     >
-                        <td class="p-2">{software.id}</td>
-                        <td class="p-2"
-                            ><input
-                                type="checkbox"
-                                on:click={() =>
-                                    (installTemp[software.id] =
-                                        !installTemp[software.id])}
-                                bind:checked={installTemp[software.id]}
-                                disabled={running}
-                            /></td
-                        >
-                        <td class="p-2">{software.name}</td>
-                        <td class="p-2">{software.description}</td>
-                        <td class="p-2">{software.dependencies}</td>
-                        <td class="p-2">
-                            {#if software.docs.substring(0, 5) == "https"}
-                                <a
-                                    href={software.docs}
-                                    class="text-blue-500 underline"
-                                    target="_blank"
-                                >
-                                    {software.docs}
-                                </a>
-                            {:else}
+                    <td class="p-2">{software.name}</td>
+                    <td class="p-2">{software.description}</td>
+                    <td class="p-2">{software.dependencies}</td>
+                    <td class="p-2">
+                        {#if software.docs.substring(0, 5) == "https"}
+                            <a
+                                href={software.docs}
+                                class="text-blue-500 underline"
+                                target="_blank"
+                            >
                                 {software.docs}
-                            {/if}
-                        </td>
-                    </tr>
-                {/if}
-            {/each}
-        </table>
-    {/if}
+                            </a>
+                        {:else}
+                            {software.docs}
+                        {/if}
+                    </td>
+                </tr>
+            {/if}
+        {/each}
+    </table>
     <div class="flex justify-center my-2">
         <button
             on:click={sendSoftware}

@@ -11,9 +11,9 @@
     } from "@fortawesome/free-solid-svg-icons";
     import prettyBytes from "pretty-bytes";
 
-    import type { socketData } from "../types";
+    import type { processPage } from "../types";
 
-    export let socketData: Partial<socketData>;
+    export let socketData: processPage;
     export let socketSend: (cmd: string, args: string[]) => void;
 
     let reverse = false;
@@ -28,11 +28,13 @@
     let ramIcon = faSort;
     let statusIcon = faSort;
 
-    $: cpuSort && socketData.processes && sortCPU(reverse);
-    $: pidSort && socketData.processes && sortPid(reverse);
-    $: nameSort && socketData.processes && sortName(reverse);
-    $: ramSort && socketData.processes && sortRAM(reverse);
-    $: statusSort && socketData.processes && sortStatus(reverse);
+    $: cpuSort && sortCPU(reverse);
+    $: pidSort && sortPid(reverse);
+    $: nameSort && sortName(reverse);
+    $: ramSort && sortRAM(reverse);
+    $: statusSort && sortStatus(reverse);
+
+    // TODO: DRY much?
 
     function sortCPU(reverse: boolean) {
         socketData.processes.sort((a, b) => {
@@ -215,124 +217,120 @@
 </script>
 
 <main>
-    {#if socketData.processes}
-        <table
-            class="border border-gray-300 dark:border-gray-700 w-full table-fixed break-words min-w-50"
-        >
-            <tr class="table-header">
-                <th
-                    >PID<span on:click={setPid}
-                        ><Fa
-                            icon={pidIcon}
-                            class="float-right cursor-pointer"
-                        /></span
-                    ></th
+    <table
+        class="border border-gray-300 dark:border-gray-700 w-full table-fixed break-words min-w-50"
+    >
+        <tr class="table-header">
+            <th
+                >PID<span on:click={setPid}
+                    ><Fa
+                        icon={pidIcon}
+                        class="float-right cursor-pointer"
+                    /></span
+                ></th
+            >
+            <th
+                >Name<span on:click={setName}
+                    ><Fa
+                        icon={nameIcon}
+                        class="float-right cursor-pointer"
+                    /></span
+                ></th
+            >
+            <th
+                >Status<span on:click={setStatus}
+                    ><Fa
+                        icon={statusIcon}
+                        class="float-right cursor-pointer"
+                    /></span
+                ></th
+            >
+            <th
+                >CPU Usage<span on:click={setCPU}
+                    ><Fa
+                        icon={cpuIcon}
+                        class="float-right cursor-pointer"
+                    /></span
+                ></th
+            >
+            <th
+                >RAM Usage<span on:click={setRAM}
+                    ><Fa
+                        icon={ramIcon}
+                        class="float-right cursor-pointer"
+                    /></span
+                ></th
+            >
+            <th>Actions</th>
+        </tr>
+        {#each socketData.processes as process}
+            <tr
+                class="mt-32 even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800  dark:border-gray-600 border-t-2 border-gray-300 border-opacity-50"
+            >
+                <td class="p-2">{process.pid}</td>
+                <td class="p-2">{process.name}</td>
+                <td class="p-2">{process.status}</td>
+                <td class="p-2">{process.cpu}%</td>
+                <td class="p-2"
+                    >{prettyBytes(process.ram, {
+                        binary: true,
+                        maximumFractionDigits: 0,
+                    })}</td
                 >
-                <th
-                    >Name<span on:click={setName}
-                        ><Fa
-                            icon={nameIcon}
-                            class="float-right cursor-pointer"
-                        /></span
-                    ></th
-                >
-                <th
-                    >Status<span on:click={setStatus}
-                        ><Fa
-                            icon={statusIcon}
-                            class="float-right cursor-pointer"
-                        /></span
-                    ></th
-                >
-                <th
-                    >CPU Usage<span on:click={setCPU}
-                        ><Fa
-                            icon={cpuIcon}
-                            class="float-right cursor-pointer"
-                        /></span
-                    ></th
-                >
-                <th
-                    >RAM Usage<span on:click={setRAM}
-                        ><Fa
-                            icon={ramIcon}
-                            class="float-right cursor-pointer"
-                        /></span
-                    ></th
-                >
-                <th>Actions</th>
-            </tr>
-            {#each socketData.processes as process}
-                <tr
-                    class="mt-32 even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800  dark:border-gray-600 border-t-2 border-gray-300 border-opacity-50"
-                >
-                    <td class="p-2">{process.pid}</td>
-                    <td class="p-2">{process.name}</td>
-                    <td class="p-2">{process.status}</td>
-                    <td class="p-2">{process.cpu}%</td>
-                    <td class="p-2"
-                        >{prettyBytes(process.ram, {
-                            binary: true,
-                            maximumFractionDigits: 0,
-                        })}</td
-                    >
-                    <td class="p-2 space-x-2">
-                        {#if process.name != "dietpi-dashboar"}
+                <td class="p-2 space-x-2">
+                    {#if process.name != "dietpi-dashboar"}
+                        <span
+                            on:click={() =>
+                                socketSend("terminate", [
+                                    process.pid.toString(),
+                                ])}
+                            title="Terminate"
+                            ><Fa
+                                icon={faBan}
+                                class="btn rounded-sm p-0.5"
+                                size="lg"
+                            /></span
+                        >
+                        <span
+                            on:click={() =>
+                                socketSend("kill", [process.pid.toString()])}
+                            title="Kill"
+                            ><Fa
+                                icon={faSkull}
+                                class="btn rounded-sm p-0.5"
+                                size="lg"
+                            /></span
+                        >
+                        {#if process.status != "stopped"}
                             <span
                                 on:click={() =>
-                                    socketSend("terminate", [
+                                    socketSend("suspend", [
                                         process.pid.toString(),
                                     ])}
-                                title="Terminate"
+                                title="Suspend"
                                 ><Fa
-                                    icon={faBan}
+                                    icon={faPause}
                                     class="btn rounded-sm p-0.5"
                                     size="lg"
                                 /></span
                             >
+                        {:else}
                             <span
                                 on:click={() =>
-                                    socketSend("kill", [
+                                    socketSend("resume", [
                                         process.pid.toString(),
                                     ])}
-                                title="Kill"
+                                title="Resume"
                                 ><Fa
-                                    icon={faSkull}
+                                    icon={faPlay}
                                     class="btn rounded-sm p-0.5"
                                     size="lg"
                                 /></span
                             >
-                            {#if process.status != "stopped"}
-                                <span
-                                    on:click={() =>
-                                        socketSend("suspend", [
-                                            process.pid.toString(),
-                                        ])}
-                                    title="Suspend"
-                                    ><Fa
-                                        icon={faPause}
-                                        class="btn rounded-sm p-0.5"
-                                        size="lg"
-                                    /></span
-                                >
-                            {:else}
-                                <span
-                                    on:click={() =>
-                                        socketSend("resume", [
-                                            process.pid.toString(),
-                                        ])}
-                                    title="Resume"
-                                    ><Fa
-                                        icon={faPlay}
-                                        class="btn rounded-sm p-0.5"
-                                        size="lg"
-                                    /></span
-                                >
-                            {/if}
                         {/if}
-                    </td>
-                </tr>
-            {/each}
-        </table>
-    {/if}
+                    {/if}
+                </td>
+            </tr>
+        {/each}
+    </table>
 </main>

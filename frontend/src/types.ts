@@ -1,23 +1,48 @@
-interface socketData {
-    // Statistics page
+type socketData =
+    | statisticsPage
+    | softwarePage
+    | processPage
+    | servicesPage
+    | browserPage
+    | managementPage
+    | globalSettings
+    | reauthenticate;
+
+interface statisticsPage {
+    dataKind: "STATISTIC";
     cpu: number;
     ram: usage;
     swap: usage;
     disk: usage;
     network: net;
     temp: temp;
-    // Software page
-    uninstalled: software[];
-    installed: software[];
+}
+
+interface softwarePage {
+    dataKind: "SOFTWARE";
+    uninstalled: softwareItem[];
+    installed: softwareItem[];
     response: string;
-    // Process page
-    processes: processes[];
-    // Services page
-    services: services[];
-    // File browser page
-    contents: browser[];
+}
+
+interface processPage {
+    dataKind: "PROCESS";
+    processes: processItem[];
+}
+
+interface servicesPage {
+    dataKind: "SERVICE";
+    services: serviceItem[];
+}
+
+interface browserPage {
+    dataKind: "BROWSER";
+    contents: browserItem[];
     textdata: string;
-    // Management page
+}
+
+interface managementPage {
+    dataKind: "MANAGEMENT";
     hostname: string;
     uptime: number;
     arch: string;
@@ -27,17 +52,24 @@ interface socketData {
     upgrades: number;
     nic: string;
     ip: string;
-    // Global
+}
+
+interface globalSettings {
+    dataKind: "GLOBAL";
     update: string;
     login: boolean;
-    reauth: boolean;
     nodes: string[];
     version: string;
     update_check: boolean;
     temp_unit: "fahrenheit" | "celsius";
 }
 
-interface software {
+interface reauthenticate {
+    dataKind: "REAUTH";
+    reauth: true;
+}
+
+interface softwareItem {
     id: number;
     name: string;
     description: string;
@@ -45,7 +77,7 @@ interface software {
     docs: string;
 }
 
-interface processes {
+interface processItem {
     pid: number;
     name: string;
     cpu: number;
@@ -53,14 +85,14 @@ interface processes {
     status: string;
 }
 
-interface services {
+interface serviceItem {
     name: string;
     status: string;
     log: string;
     start: string;
 }
 
-interface browser {
+interface browserItem {
     name: string;
     path: string;
     prettytype: string;
@@ -86,5 +118,15 @@ interface temp {
     fahrenheit: number;
 }
 
-// 'browser' required for selected path in file browser
-export type { socketData, browser };
+// 'browserItem' required for selected path in file browser
+export type {
+    socketData,
+    statisticsPage,
+    softwarePage,
+    processPage,
+    servicesPage,
+    browserPage,
+    managementPage,
+    globalSettings,
+    browserItem,
+};

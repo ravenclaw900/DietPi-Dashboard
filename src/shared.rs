@@ -1,4 +1,5 @@
 use anyhow::Context;
+use futures::SinkExt;
 use serde::{Deserialize, Serialize};
 
 pub static CONFIG: once_cell::sync::Lazy<crate::config::Config> =
@@ -15,13 +16,6 @@ macro_rules! handle_error {
                 $($handler)?
             }
         }
-    };
-}
-
-#[macro_export]
-macro_rules! json_msg {
-    ($e: expr, $handler:expr) => {
-        Message::text(handle_error!(serde_json::to_string($e).context("Couldn't serialize json"), $handler))
     };
 }
 
@@ -69,6 +63,38 @@ pub fn get_fingerprint(req: &hyper::Request<hyper::Body>) -> anyhow::Result<Opti
     ))))
 }
 
+pub struct SocketSend(
+    pub  futures::stream::SplitSink<
+        tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>,
+        tokio_tungstenite::tungstenite::Message,
+    >,
+);
+
+impl SocketSend {
+    pub async fn send(&mut self, value: BackendData) -> anyhow::Result<()> {
+        Ok(self
+            .0
+            .send(tokio_tungstenite::tungstenite::Message::Text(
+                serde_json::to_string(&value).context("Couldn't serialize JSON")?,
+            ))
+            .await?)
+    }
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "UPPERCASE")]
+#[serde(tag = "dataKind")]
+pub enum BackendData {
+    Statistic(SysData),
+    Process(ProcessList),
+    Software(DPSoftwareList),
+    Management(HostData),
+    Service(ServiceList),
+    Global(GlobalData),
+    Browser(BrowserList),
+    Reauth { reauth: bool },
+}
+
 #[derive(Serialize, Default)]
 pub struct SysData {
     pub cpu: f32,
@@ -92,45 +118,19 @@ pub struct NetData {
     pub received: u64,
 }
 
-#[derive(Deserialize)]
-pub struct Request {
-    #[serde(default)]
-    page: Option<String>,
-    #[serde(default)]
-    cmd: Option<String>,
-    #[serde(default)]
-    args: Option<Vec<String>>,
-    #[serde(default)]
-    token: Option<String>,
-}
-
-#[derive(Debug)]
+#[derive(Deserialize, Debug)]
+#[serde(untagged)]
 pub enum RequestTypes {
-    Page(String),
+    Page {
+        page: String,
+    },
     Cmd {
         cmd: String,
         args: Option<Vec<String>>,
     },
-    Token(String),
-}
-
-impl TryFrom<Request> for RequestTypes {
-    type Error = anyhow::Error;
-
-    fn try_from(value: Request) -> Result<Self, Self::Error> {
-        if let Some(page) = value.page {
-            Ok(Self::Page(page))
-        } else if let Some(cmd) = value.cmd {
-            Ok(Self::Cmd {
-                cmd,
-                args: value.args,
-            })
-        } else if let Some(token) = value.token {
-            Ok(Self::Token(token))
-        } else {
-            Err(anyhow::anyhow!("All fields are None"))
-        }
-    }
+    Token {
+        token: String,
+    },
 }
 
 #[derive(Serialize)]

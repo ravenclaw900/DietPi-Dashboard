@@ -55,7 +55,7 @@ pub async fn socket_handler(
     fingerprint: Option<String>,
     _token: String,
 ) {
-    let (mut socket_send, mut socket_recv) = socket.split();
+    let (socket_send, mut socket_recv) = socket.split();
     let (data_send, mut data_recv) = mpsc::channel(1);
     tokio::task::spawn(async move {
         let mut first_message = true;
@@ -69,22 +69,18 @@ pub async fn socket_handler(
                 continue;
             };
             req = handle_error!(
-                shared::RequestTypes::try_from(handle_error!(
-                    serde_json::from_str::<shared::Request>(&data_str)
-                        .with_context(|| format!("Couldn't parse JSON {data_str}")),
-                    continue
-                ))
-                .context("Invalid request"),
+                serde_json::from_str::<shared::RequestTypes>(&data_str)
+                    .with_context(|| format!("Couldn't parse JSON {data_str}")),
                 continue
             );
             // Don't print token
-            if let shared::RequestTypes::Token(_) = req {
+            if let shared::RequestTypes::Token { .. } = req {
                 tracing::debug!("Got token message");
             } else {
                 tracing::debug!("Got request {:?}", req);
             }
             if CONFIG.pass {
-                if let shared::RequestTypes::Token(req_token) = req {
+                if let shared::RequestTypes::Token { token: req_token } = req {
                     token = req_token;
                     continue;
                 }
@@ -100,7 +96,9 @@ pub async fn socket_handler(
                         }
                     }
                     handle_error!(data_send
-                        .send(Some(shared::RequestTypes::Page("/login".to_string())))
+                        .send(Some(shared::RequestTypes::Page {
+                            page: "/login".to_string()
+                        }))
                         .await
                         .context("Internal error: couldn't send login request"));
                 }
@@ -110,7 +108,7 @@ pub async fn socket_handler(
                     TokenState::ValidToken => {}
                 }
             }
-            if let shared::RequestTypes::Page(_) = req {
+            if let shared::RequestTypes::Page { .. } = req {
                 // Quit out of handler
                 if first_message {
                     tracing::debug!("First message, not sending quit");
@@ -128,16 +126,17 @@ pub async fn socket_handler(
             }
         }
     });
+    let mut socket_send = shared::SocketSend(socket_send);
     // Send global message (shown on all pages)
     if socket_send
-        .send(crate::json_msg!(&systemdata::global().await, return))
+        .send(shared::BackendData::Global(systemdata::global().await))
         .await
         .is_err()
     {
         return;
     }
     while let Some(Some(message)) = data_recv.recv().await {
-        if let shared::RequestTypes::Page(page) = message {
+        if let shared::RequestTypes::Page { page } = message {
             if match page.as_str() {
                 "/" => page_handlers::main_handler(&mut socket_send, &mut data_recv).await,
                 "/process" => {
@@ -159,7 +158,7 @@ pub async fn socket_handler(
                     tracing::debug!("Sending login message");
                     // Internal poll, see other thread
                     if socket_send
-                        .send(Message::text("{\"reauth\": true}"))
+                        .send(shared::BackendData::Reauth { reauth: true })
                         .await
                         .is_err()
                     {
@@ -466,7 +465,7 @@ pub async fn file_handler(
                         }
                         Some(FileHandlerHelperReturns::SizeBuf(size, buf)) => {
                             if socket_send
-                                .send(crate::json_msg!(&size, continue))
+                                .send(Message::text(handle_error!(serde_json::to_string(&size).context("Couldn't serialize json"), continue)))
                                 .await
                                 .is_err()
                             {
