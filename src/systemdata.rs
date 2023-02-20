@@ -202,7 +202,7 @@ pub async fn host() -> anyhow::Result<shared::HostData> {
     let dp_file = fs::read_to_string("/boot/dietpi/.version")
         .await
         .context("Couldn't get DietPi version")?;
-    let dp_version: Vec<&str> = dp_file.split(&['=', '\n'][..]).collect();
+    let dp_version: Vec<&str> = dp_file.split(['=', '\n']).collect();
     // Much faster than 'apt list --installed'
     // Count number of newlines
     let installed_pkgs = Command::new("dpkg")
@@ -227,14 +227,7 @@ pub async fn host() -> anyhow::Result<shared::HostData> {
         arch = "armv7l";
     }
     let addrs = &if_addrs::get_if_addrs().context("Couldn't get IP addresses")?;
-    // Start with first address (probably loopback), and loop to try to get an actual one
-    let mut addr = &addrs[0];
-    for i in addrs {
-        if !i.is_loopback() {
-            addr = i;
-            break;
-        }
-    }
+    let addr = addrs.iter().find(|x| !x.is_loopback()).unwrap_or(&addrs[0]);
     Ok(shared::HostData {
         hostname: info.hostname().to_string(),
         uptime,
