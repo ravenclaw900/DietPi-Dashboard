@@ -465,7 +465,7 @@ pub async fn file_handler(
                         }
                         Some(FileHandlerHelperReturns::SizeBuf(size, buf)) => {
                             if socket_send
-                                .send(crate::json_msg!(&size, continue))
+                                .send(Message::text(handle_error!(serde_json::to_string(&size).context("Couldn't serialize json"), continue)))
                                 .await
                                 .is_err()
                             {

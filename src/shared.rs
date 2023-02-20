@@ -19,13 +19,6 @@ macro_rules! handle_error {
     };
 }
 
-#[macro_export]
-macro_rules! json_msg {
-    ($e: expr, $handler:expr) => {
-        Message::text(handle_error!(serde_json::to_string($e).context("Couldn't serialize json"), $handler))
-    };
-}
-
 pub fn remove_color_codes(s: &str) -> String {
     s.replace('\u{1b}', "")
         .replace("[33m", "")

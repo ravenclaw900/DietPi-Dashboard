@@ -1,15 +1,12 @@
 use anyhow::Context;
-use futures::stream::SplitSink;
-use futures::SinkExt;
 use std::time::Duration;
 use tokio::process::Command;
 use tokio::sync::mpsc::Receiver;
 use tokio::time::sleep;
-use tokio_tungstenite::tungstenite::Message;
 use tracing::instrument;
 
 use crate::{
-    handle_error, json_msg,
+    handle_error,
     shared::{self, RequestTypes, SocketSend},
     systemdata,
 };
