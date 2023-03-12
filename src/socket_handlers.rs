@@ -25,7 +25,7 @@ impl TokenState {
     }
 }
 
-#[instrument(level = "debug")]
+#[instrument(level = "debug", skip_all)]
 fn validate_token(token: &str, fingerprint: Option<&str>) -> TokenState {
     let mut validator = jsonwebtoken::Validation::new(jsonwebtoken::Algorithm::HS256);
     validator.set_issuer(&["DietPi Dashboard"]);
