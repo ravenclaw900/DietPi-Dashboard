@@ -361,7 +361,7 @@ pub async fn browser_dir(path: &std::path::Path) -> anyhow::Result<Vec<shared::B
             maintype = "dir";
             subtype = "";
             prettytype = "Directory".to_string();
-        } else {
+        } else if metadata.is_file() {
             let buf = fs::read(&path)
                 .await
                 .with_context(|| format!("Couldn't read directory {}", &path.display()))?;
@@ -406,6 +406,10 @@ pub async fn browser_dir(path: &std::path::Path) -> anyhow::Result<Vec<shared::B
                 maintype = "text";
                 prettytype = "Plain Text File".to_string();
             }
+        } else {
+            maintype = "notafile";
+            subtype = "notafile";
+            prettytype = "Special File".to_string();
         }
         file_list.push(shared::BrowserData {
             path: crate::handle_error!(
