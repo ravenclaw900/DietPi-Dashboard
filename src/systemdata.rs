@@ -342,7 +342,7 @@ pub async fn browser_dir(path: &std::path::Path) -> anyhow::Result<Vec<shared::B
                     } else if x.is_symlink() {
                         "symlink"
                     } else {
-                        unreachable!()
+                        "something else"
                     }
                 })
                 .unwrap_or("unknown")
