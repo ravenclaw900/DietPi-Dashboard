@@ -15,7 +15,7 @@ tokio = { version = "1", features = [
     "process",
 ] }
 include_dir = { version = "0.7.3", optional = true }
-futures = "0.3.26"
+futures = "0.3.27"
 pty-process = "0.2.0"
 psutil = "3.2.2"
 infer = { version = "0.13.0", default-features = false }
