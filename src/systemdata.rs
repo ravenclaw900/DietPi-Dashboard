@@ -378,19 +378,20 @@ pub async fn browser_dir(path: &std::path::Path) -> anyhow::Result<Vec<shared::B
                 maintype = "unknown".to_string();
                 subtype = "unknown".to_string();
                 prettytype = "Binary file".to_string();
-            } else if mime_type == mime_guess::mime::TEXT_STAR
+            } else if mime_type.type_() == mime_guess::mime::TEXT
                 || mime_type == mime_guess::mime::APPLICATION_JAVASCRIPT // Javascript and JSON are also text files, for our purposes
                 || mime_type == mime_guess::mime::APPLICATION_JSON
             {
+                println!("Text file");
                 maintype = "text".to_string();
-                subtype = mime_type.subtype().as_str().to_string();
+                subtype = mime_type.subtype().as_str().replace("x-", "");
 
                 let subtype_upper = uppercase_first_letter(&subtype);
 
                 prettytype = format!("{}{} File", subtype_upper.0, subtype_upper.1);
             } else {
                 maintype = mime_type.type_().as_str().to_string();
-                subtype = mime_type.subtype().as_str().to_string();
+                subtype = mime_type.subtype().as_str().replace("x-", "");
 
                 let maintype_upper = uppercase_first_letter(&maintype);
                 let subtype_upper = subtype.to_ascii_uppercase();
