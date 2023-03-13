@@ -382,7 +382,6 @@ pub async fn browser_dir(path: &std::path::Path) -> anyhow::Result<Vec<shared::B
                 || mime_type == mime_guess::mime::APPLICATION_JAVASCRIPT // Javascript and JSON are also text files, for our purposes
                 || mime_type == mime_guess::mime::APPLICATION_JSON
             {
-                println!("Text file");
                 maintype = "text".to_string();
                 subtype = mime_type.subtype().as_str().replace("x-", "");
 
