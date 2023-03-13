@@ -323,6 +323,8 @@ pub async fn global() -> shared::GlobalData {
 }
 
 fn uppercase_first_letter(word: &str) -> (char, &str) {
+    // There will always be at least one letter in the mime type
+    #[allow(clippy::unwrap_used)]
     let first_letter = word.chars().next().unwrap().to_ascii_uppercase();
     (first_letter, &word[1..])
 }
