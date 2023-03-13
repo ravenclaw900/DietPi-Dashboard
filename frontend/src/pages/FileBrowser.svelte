@@ -354,7 +354,7 @@
                                         currentPath = contents.path;
                                         break;
                                     case "text":
-                                        if (contents.subtype == "large") {
+                                        if (contents.size > 2 * 1000 * 1000) {
                                             if (
                                                 confirm(
                                                     "Can't view files above 2MB, would you like to download instead?"

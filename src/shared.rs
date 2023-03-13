@@ -204,8 +204,8 @@ pub struct GlobalData {
 pub struct BrowserData {
     pub path: String,
     pub name: String,
-    pub subtype: &'static str,
-    pub maintype: &'static str,
+    pub subtype: String,
+    pub maintype: String,
     pub prettytype: String,
     pub size: u64,
 }
