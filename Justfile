@@ -12,6 +12,18 @@ backend target="x86_64-unknown-linux-gnu": frontend
 backend-release target="x86_64-unknown-linux-gnu": frontend
     cargo build --target {{target}} --release
 
+backend-only target="x86_64-unknown-linux-gnu":
+    cargo build --target {{target}} --release --no-default-features
+
+ci target backend-only:
+    #!/bin/bash -eux
+    if {{backend-only}}; then
+        cross build --target {{target}} --release --no-default-features
+    else
+        just frontend
+        cross build --target {{target}} --release
+    fi
+
 dev:
     #!/bin/bash -eux
     cd frontend/

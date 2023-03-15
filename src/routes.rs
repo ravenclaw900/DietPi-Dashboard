@@ -1,6 +1,5 @@
 use crate::handle_error;
 use crate::shared::CONFIG;
-#[cfg(feature = "frontend")]
 use anyhow::Context;
 use futures::Future;
 use hyper::http::{header, HeaderValue};

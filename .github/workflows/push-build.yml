@@ -34,23 +34,26 @@ jobs:
           - { target: arm-unknown-linux-musleabihf, pretty: armv6l }
           - { target: armv7-unknown-linux-musleabihf, pretty: armv7l }
           - { target: aarch64-unknown-linux-musl, pretty: aarch64 }
-          - { target: x86_64-unknown-linux-musl, pretty: x86_64-backend, args: --no-default-features }
-          - { target: arm-unknown-linux-musleabihf, pretty: armv6l-backend, args: --no-default-features }
-          - { target: armv7-unknown-linux-musleabihf, pretty: armv7l-backend, args: --no-default-features }
-          - { target: aarch64-unknown-linux-musl, pretty: aarch64-backend, args: --no-default-features }
+          - { target: x86_64-unknown-linux-musl, pretty: x86_64-backend, backend: true }
+          - { target: arm-unknown-linux-musleabihf, pretty: armv6l-backend, backend: true }
+          - { target: armv7-unknown-linux-musleabihf, pretty: armv7l-backend, backend: true }
+          - { target: aarch64-unknown-linux-musl, pretty: aarch64-backend, backend: true }
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Install rust toolchain
-        uses: actions-rs/toolchain@v1
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        id: toolchain
         with:
-          toolchain: stable
-          profile: minimal
-          target: ${{ matrix.job.target }}
+          targets: ${{ matrix.job.target }}
+          components: clippy, rustfmt
+      - uses: taiki-e/install-action@v2
+          with:
+            tool: just,cross
       - uses: Swatinem/rust-cache@v2
         with:
-          key: ${{ matrix.job.pretty }}
+          key: ${{ matrix.job.pretty }}-${{ steps.toolchain.outputs.cachekey }}
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
@@ -62,11 +65,8 @@ jobs:
       - name: Change backend version to commit hash
         run: set-cargo-version Cargo.toml $(git describe --tags | cut -c 2-)
       - name: Build DietPi-Dashboard
-        uses: actions-rs/cargo@v1
-        with:
-          use-cross: true
-          command: build
-          args: --release --target ${{ matrix.job.target }} ${{ matrix.job.args }}
+        run: |
+          just ci ${{ matrix.job.target }} ${{ matrix.job.backend }}
       - name: Upload binary
         uses: actions/upload-artifact@v3
         with:
