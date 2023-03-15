@@ -11,15 +11,21 @@ use tracing::Instrument;
 vite_embed::generate_vite_html_dev!("$CARGO_MANIFEST_DIR/frontend/index.html", "src/main.ts");
 
 #[cfg(feature = "dev")]
-fn frontend_proxy(path: &str) -> anyhow::Result<Response<Body>> {
-    let vite_resp = vite_embed::vite_proxy_dev(path);
+async fn frontend_proxy(path: &str) -> anyhow::Result<Response<Body>> {
+    let path = path.to_string();
+    let vite_resp = tokio::task::spawn_blocking(move || (vite_embed::vite_proxy_dev(&path), path))
+        .await
+        .expect("Failed to spawn blocking call to frontend");
 
     match vite_resp {
-        Ok(body) => Ok(Response::new(body.into())),
-        Err(vite_embed::RequestError::Status(code, _)) => {
+        (Ok(body), _) => Ok(Response::new(body.into())),
+        (Err(vite_embed::RequestError::Status(code, _)), _) => {
             Ok(Response::builder().status(code).body(Body::empty())?)
         }
-        Err(_) => Err(anyhow::anyhow!("Failed to get {} from dev server", path)),
+        (_, path) => Err(anyhow::anyhow!(
+            "Failed to connect to dev server while getting {}",
+            path
+        )),
     }
 }
 
@@ -273,16 +279,6 @@ pub async fn router(req: Request<Body>, span: tracing::Span) -> anyhow::Result<R
             let _guard = span.enter();
             response = asset_route(req.uri().path());
         }
-        #[cfg(feature = "dev")]
-        (&Method::GET, "/", _) => {
-            let _guard = span.enter();
-            response = Response::new(vite_html_dev().into());
-        }
-        #[cfg(feature = "dev")]
-        (&Method::GET | &Method::POST, _, _) => {
-            let _guard = span.enter();
-            response = frontend_proxy(req.uri().path())?;
-        }
         (&Method::GET, "/ws", _) => {
             response = websocket(
                 req,
@@ -339,6 +335,16 @@ pub async fn router(req: Request<Body>, span: tracing::Span) -> anyhow::Result<R
         }
         (&Method::POST, "/login", _) => {
             response = login_route(req).instrument(span).await?;
+        }
+        #[cfg(feature = "dev")]
+        (&Method::GET, "/", _) => {
+            let _guard = span.enter();
+            response = Response::new(vite_html_dev().into());
+        }
+        #[cfg(feature = "dev")]
+        (&Method::GET | &Method::POST, _, _) => {
+            let _guard = span.enter();
+            response = frontend_proxy(req.uri().path()).await?;
         }
         #[cfg(all(feature = "frontend", not(feature = "dev")))]
         (&Method::GET, _, _) => {
