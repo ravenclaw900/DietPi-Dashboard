@@ -1,7 +1,6 @@
 use crate::handle_error;
 use crate::shared::CONFIG;
 #[cfg(feature = "frontend")]
-use crate::DIR;
 use anyhow::Context;
 use futures::Future;
 use hyper::http::{header, HeaderValue};
@@ -9,24 +8,23 @@ use hyper::{Body, Method, Request, Response, StatusCode};
 use ring::digest;
 use tracing::Instrument;
 
-#[cfg(feature = "frontend")]
-#[tracing::instrument(skip_all)]
-pub fn favicon_route() -> anyhow::Result<Response<Body>> {
-    Ok(Response::builder()
-        .header(header::CONTENT_TYPE, HeaderValue::from_static("image/png"))
-        .body(
-            handle_error!(
-                DIR.get_file("favicon.png").context("Couldn't get favicon"),
-                return Ok(Response::builder()
-                    .status(StatusCode::INTERNAL_SERVER_ERROR)
-                    .body("Couldn't get favicon".into())?)
-            )
-            .contents()
-            .into(),
-        )?)
+#[cfg(feature = "dev")]
+vite_embed::generate_vite_html_dev!("$CARGO_MANIFEST_DIR/frontend/index.html", "src/main.ts");
+
+#[cfg(feature = "dev")]
+fn frontend_proxy(path: &str) -> anyhow::Result<Response<Body>> {
+    let vite_resp = vite_embed::vite_proxy_dev(path);
+
+    match vite_resp {
+        Ok(body) => Ok(Response::new(body.into())),
+        Err(vite_embed::RequestError::Status(code, _)) => {
+            Ok(Response::builder().status(code).body(Body::empty())?)
+        }
+        Err(_) => Err(anyhow::anyhow!("Failed to get {} from dev server", path)),
+    }
 }
 
-#[cfg(feature = "frontend")]
+/*#[cfg(feature = "frontend")]
 #[tracing::instrument(skip_all)]
 pub fn assets_route(req: Request<Body>) -> anyhow::Result<Response<Body>> {
     let path = req.uri().path().trim_start_matches('/');
@@ -61,8 +59,7 @@ pub fn assets_route(req: Request<Body>) -> anyhow::Result<Response<Body>> {
     };
 
     Ok(reply)
-}
-
+}*/
 #[tracing::instrument(skip_all)]
 pub async fn login_route(mut req: Request<Body>) -> anyhow::Result<Response<Body>> {
     let token: String;
@@ -145,7 +142,7 @@ pub async fn login_route(mut req: Request<Body>) -> anyhow::Result<Response<Body
     Ok(response)
 }
 
-#[cfg(feature = "frontend")]
+/*#[cfg(feature = "frontend")]
 #[tracing::instrument(skip_all)]
 pub fn main_route() -> anyhow::Result<Response<Body>> {
     let file = handle_error!(
@@ -188,7 +185,7 @@ pub fn main_route() -> anyhow::Result<Response<Body>> {
     );
 
     Ok(reply)
-}
+}*/
 
 pub fn websocket<F, O>(
     mut req: Request<Body>,
@@ -268,11 +265,11 @@ pub async fn router(req: Request<Body>, span: tracing::Span) -> anyhow::Result<R
 
     match (
         req.method(),
-        req.uri().path().trim_end_matches('/'),
+        req.uri().path(),
         // Make a String to avoid lifetime errors
         req.uri().query().map(str::to_string),
     ) {
-        #[cfg(feature = "frontend")]
+        /*#[cfg(feature = "frontend")]
         (&Method::GET, "/favicon.png", _) => {
             let _guard = span.enter();
             response = favicon_route()?;
@@ -281,7 +278,7 @@ pub async fn router(req: Request<Body>, span: tracing::Span) -> anyhow::Result<R
         (&Method::GET, path, _) if path.starts_with("/assets") => {
             let _guard = span.enter();
             response = assets_route(req)?;
-        }
+        }*/
         (&Method::GET, "/ws", _) => {
             response = websocket(
                 req,
@@ -339,10 +336,15 @@ pub async fn router(req: Request<Body>, span: tracing::Span) -> anyhow::Result<R
         (&Method::POST, "/login", _) => {
             response = login_route(req).instrument(span).await?;
         }
-        #[cfg(feature = "frontend")]
-        (&Method::GET, _, _) => {
+        #[cfg(feature = "dev")]
+        (&Method::GET, "/", _) => {
             let _guard = span.enter();
-            response = main_route()?;
+            response = Response::new(vite_html_dev().into());
+        }
+        #[cfg(feature = "dev")]
+        (&Method::GET | &Method::POST, _, _) => {
+            let _guard = span.enter();
+            response = frontend_proxy(req.uri().path())?;
         }
         _ => {
             *response.status_mut() = StatusCode::METHOD_NOT_ALLOWED;

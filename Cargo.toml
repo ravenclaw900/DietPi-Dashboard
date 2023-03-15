@@ -14,7 +14,6 @@ tokio = { version = "1", features = [
     "fs",
     "process",
 ] }
-include_dir = { version = "0.7.3", optional = true }
 futures = "0.3.26"
 pty-process = "0.2.0"
 psutil = "3.2.2"
@@ -37,10 +36,12 @@ tokio-rustls = "0.23.4"
 rustls-pemfile = "1.0.2"
 getrandom = "0.2.8"
 hex = "0.4.3"
+vite-embed = { git = "https://github.com/ravenclaw900/vite-embed", version = "0.1.0", features = ["prod"], optional = true }
 
 [features]
 default = ["frontend"]
-frontend = ["include_dir"]
+frontend = ["dep:vite-embed"]
+dev = ["frontend", "vite-embed?/dev"]
 
 [profile.release]
 lto = "fat"
@@ -59,11 +60,6 @@ opt-level = 3
 
 [profile.release.package."*"]
 opt-level = "s"
-
-[build-dependencies]
-flate2 = "1.0.25"
-rerun_in_except = "0.1.2"
-walkdir = "2.3.2"
 
 # Install node.js, enable corepack for pnpm, and create required directories
 [package.metadata.cross.build]

@@ -329,6 +329,17 @@ pub async fn browser_dir(path: &std::path::Path) -> anyhow::Result<Vec<shared::B
         .with_context(|| format!("Couldn't read path {}", path.display()))?;
     let mut file_list = Vec::new();
     while let Ok(Some(file)) = dir.next_entry().await {
+        tracing::debug!("Read {} with type {:?}", file.path().display(), file.file_type().await.map(|x| {
+            if x.is_file() {
+                "file"
+            } else if x.is_dir() {
+                "directory"
+            } else if x.is_symlink() {
+                "symlink"
+            } else {
+                unreachable!()
+            }
+        }).unwrap_or("unknown"));
         // Resolve all symlinks
         let path = fs::canonicalize(file.path())
             .await
