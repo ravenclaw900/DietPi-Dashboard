@@ -16,7 +16,7 @@ tokio = { version = "1", features = [
 ] }
 include_dir = { version = "0.7.3", optional = true }
 futures = "0.3.27"
-pty-process = "0.3.0"
+pty-process = { version = "0.3.0", features = ["async"] }
 psutil = "3.2.2"
 infer = { version = "0.13.0", default-features = false }
 ring = "0.16.20"
