@@ -1,8 +1,6 @@
 use anyhow::Context;
 use futures::{SinkExt, StreamExt};
-use pty_process::Command;
-use std::io::{Read, Write};
-use std::sync::Arc;
+use std::io::Write;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::sync::mpsc;
 use tokio_tungstenite::tungstenite::Message;
@@ -195,39 +193,35 @@ pub async fn term_handler(
         return;
     }
 
-    // We use std::process::Command here because it lets us read and write without a mutable reference (even though it should require one?)
-    let mut pre_cmd = std::process::Command::new("/bin/login");
-    pre_cmd.env("TERM", "xterm");
-
-    let mut cmd = Arc::new(handle_error!(
-        if crate::CONFIG.terminal_user == "manual" {
-            &mut pre_cmd
-        } else {
-            pre_cmd.args(["-f", &crate::CONFIG.terminal_user])
-        }
-        .spawn_pty(None)
-        .context("Couldn't spawn pty"),
+    let pty = handle_error!(
+        pty_process::Pty::new().context("Couldn't spawn pty"),
         return
-    ));
-    let mut cmd_read = Arc::clone(&cmd);
+    );
+
+    let mut cmd = pty_process::Command::new("/bin/login");
+    cmd.env("TERM", "xterm");
+
+    if crate::CONFIG.terminal_user != "manual" {
+        cmd.args(["-f", &crate::CONFIG.terminal_user]);
+    }
+
+    let pts = handle_error!(pty.pts().context("Couldn't spawn pts"), return);
+
+    let mut child = handle_error!(
+        cmd.spawn(&pts).context("Couldn't spawn command onto pts"),
+        return
+    );
+
+    let (mut pty_read, mut pty_write) = pty.into_split();
 
     tokio::join!(
         async {
             loop {
-                let result = handle_error!(
-                    tokio::task::spawn_blocking(move || {
-                        let mut data = [0; 256];
-                        let res = cmd_read.pty().read(&mut data);
-                        (res, data, cmd_read)
-                    })
-                    .await
-                    .context("Couldn't spawn tokio reader thread"),
-                    break
-                );
-                cmd_read = result.2;
-                if let Ok(read) = result.0 {
+                let mut data = [0; 256];
+                let read_res = pty_read.read(&mut data).await;
+                if let Ok(num_read) = read_res {
                     if socket_send
-                        .send(Message::binary(&result.1[..read]))
+                        .send(Message::binary(&data[..num_read]))
                         .await
                         .is_err()
                     {
@@ -255,16 +249,16 @@ pub async fn term_handler(
                                     continue
                                 );
                                 tracing::debug!("Got size message {:?}", json);
-                                handle_error!(cmd
-                                    .resize_pty(&pty_process::Size::new(json.rows, json.cols))
+                                handle_error!(pty_write
+                                    .resize(pty_process::Size::new(json.rows, json.cols))
                                     .context("Couldn't resize pty"));
-                            } else if cmd.pty().write_all(data_str.as_bytes()).is_err() {
+                            } else if pty_write.write_all(data_str.as_bytes()).await.is_err() {
                                 tracing::debug!("Terminal closed, breaking");
                                 break;
                             }
                         }
                         Message::Binary(data_bin) => {
-                            if cmd.pty().write_all(&data_bin).is_err() {
+                            if pty_write.write_all(&data_bin).await.is_err() {
                                 tracing::debug!("Terminal closed, breaking");
                                 break;
                             }
@@ -274,7 +268,7 @@ pub async fn term_handler(
                 } else {
                     tracing::debug!("Exiting terminal");
                     // Stop bash by writing "exit", since it won't respond to a SIGTERM
-                    let _write = cmd.pty().write_all(b"exit\n");
+                    let _write = pty_write.write_all(b"exit\n");
                     break;
                 }
             }
@@ -284,12 +278,7 @@ pub async fn term_handler(
 
     // Reap PID, unwrap is safe because all references will have been dropped
     handle_error!(
-        handle_error!(
-            Arc::get_mut(&mut cmd).context("PTY still has references"),
-            return
-        )
-        .wait()
-        .context("Couldn't close terminal"),
+        child.wait().await.context("Couldn't close terminal"),
         return
     );
 
