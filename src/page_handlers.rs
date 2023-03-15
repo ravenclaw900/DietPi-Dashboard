@@ -38,18 +38,19 @@ pub async fn main_handler(socket_send: &mut SocketSend, data_recv: &mut RecvChan
     );
 
     let mut net_collector = psutil::network::NetIoCountersCollector::default();
-    let mut prev_data = if let Ok(counters) = net_collector.net_io_counters() {
-        shared::NetData {
+    let mut prev_data = net_collector.net_io_counters().map_or_else(
+        |_err| {
+            tracing::debug!("Couldn't get original network counter data, starting with u64::MAX");
+            shared::NetData {
+                received: u64::MAX,
+                sent: u64::MAX,
+            }
+        },
+        |counters| shared::NetData {
             received: counters.bytes_recv(),
             sent: counters.bytes_sent(),
-        }
-    } else {
-        tracing::debug!("Couldn't get original network counter data, starting with u64::MAX");
-        shared::NetData {
-            received: u64::MAX,
-            sent: u64::MAX,
-        }
-    };
+        },
+    );
 
     loop {
         tokio::select! {

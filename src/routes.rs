@@ -24,42 +24,82 @@ fn frontend_proxy(path: &str) -> anyhow::Result<Response<Body>> {
     }
 }
 
-/*#[cfg(feature = "frontend")]
-#[tracing::instrument(skip_all)]
-pub fn assets_route(req: Request<Body>) -> anyhow::Result<Response<Body>> {
-    let path = req.uri().path().trim_start_matches('/');
-    let ext = path.rsplit('.').next().unwrap_or("plain");
-    #[allow(unused_mut)]
-    // Mute warning, variable is mut because it's used when building for release
-    let mut reply = Response::builder()
-        .header(
-            header::CONTENT_TYPE,
-            match ext {
-                "js" => HeaderValue::from_static("text/javascript"),
-                "svg" => HeaderValue::from_static("image/svg+xml"),
-                "png" => HeaderValue::from_static("image/png"),
-                _ => HeaderValue::from_str(&format!("text/{ext}"))?,
-            },
-        )
-        .body(if let Some(file) = DIR.get_file(path) {
-            file.contents().into()
-        } else {
-            tracing::warn!("Couldn't get asset {}", path);
-            return Ok(Response::builder()
-                .status(StatusCode::NOT_FOUND)
-                .body("Asset not found".into())?);
-        })?;
+#[cfg(all(feature = "frontend", not(feature = "dev")))]
+vite_embed::generate_vite_prod!(
+    "$CARGO_MANIFEST_DIR/frontend/dist/manifest.json",
+    "src/main.ts",
+    "$CARGO_MANIFEST_DIR/frontend/index.html"
+);
 
-    #[cfg(all(feature = "frontend", not(debug_assertions)))]
-    if ext != "png" {
+#[cfg(all(feature = "frontend", not(feature = "dev")))]
+fn main_route() -> Response<Body> {
+    // index.html is guaranteed to exist, compilation would fail if it didn't
+    #[allow(clippy::unwrap_used)]
+    let mut reply = Response::new(vite_prod("/index.html").unwrap().0.into());
+    let headers = reply.headers_mut();
+
+    headers.insert(
+        header::X_CONTENT_TYPE_OPTIONS,
+        header::HeaderValue::from_static("nosniff"),
+    );
+    headers.insert(
+        header::X_FRAME_OPTIONS,
+        header::HeaderValue::from_static("sameorigin"),
+    );
+    headers.insert("X-Robots-Tag", header::HeaderValue::from_static("none"));
+    headers.insert(
+        "X-Permitted-Cross-Domain-Policies",
+        header::HeaderValue::from_static("none"),
+    );
+    headers.insert(
+        header::REFERRER_POLICY,
+        header::HeaderValue::from_static("no-referrer"),
+    );
+    headers.insert("Content-Security-Policy", header::HeaderValue::from_static("default-src 'self'; style-src 'unsafe-inline' 'self'; connect-src * ws:; object-src 'none';"));
+    headers.insert(
+        header::CONTENT_TYPE,
+        header::HeaderValue::from_static("text/html"),
+    );
+    headers.insert(
+        header::CONTENT_ENCODING,
+        header::HeaderValue::from_static("gzip"),
+    );
+
+    reply
+}
+
+#[cfg(all(feature = "frontend", not(feature = "dev")))]
+fn asset_route(path: &str) -> Response<Body> {
+    let mut reply = Response::new(Body::empty());
+    let Some((data, compressed)) = vite_prod(path) else {
+        *reply.status_mut() = StatusCode::NOT_FOUND;
+        *reply.body_mut() = "Asset not found".into();
+        return reply;
+    };
+
+    if compressed {
         reply.headers_mut().insert(
             header::CONTENT_ENCODING,
             header::HeaderValue::from_static("gzip"),
         );
+    }
+
+    let mime_type = match path.rsplit_once('.').unwrap_or(("plain", "plain")).1 {
+        "js" => HeaderValue::from_static("text/javascript"),
+        "svg" => HeaderValue::from_static("image/svg+xml"),
+        "png" => HeaderValue::from_static("image/png"),
+        "css" => HeaderValue::from_static("text/css"),
+        // There should be no other file types
+        _ => unreachable!(),
     };
 
-    Ok(reply)
-}*/
+    reply.headers_mut().insert(header::CONTENT_TYPE, mime_type);
+
+    *reply.body_mut() = data.into();
+
+    reply
+}
+
 #[tracing::instrument(skip_all)]
 pub async fn login_route(mut req: Request<Body>) -> anyhow::Result<Response<Body>> {
     let token: String;
@@ -141,51 +181,6 @@ pub async fn login_route(mut req: Request<Body>) -> anyhow::Result<Response<Body
     *response.body_mut() = "No login needed".into();
     Ok(response)
 }
-
-/*#[cfg(feature = "frontend")]
-#[tracing::instrument(skip_all)]
-pub fn main_route() -> anyhow::Result<Response<Body>> {
-    let file = handle_error!(
-        DIR.get_file("index.html")
-            .context("Couldn't get main HTML file"),
-        return Ok(Response::builder()
-            .status(StatusCode::INTERNAL_SERVER_ERROR)
-            .body("Couldn't get main HTML file".into())?)
-    )
-    .contents();
-    let mut reply = Response::new(file.into());
-    let headers = reply.headers_mut();
-
-    headers.insert(
-        header::X_CONTENT_TYPE_OPTIONS,
-        header::HeaderValue::from_static("nosniff"),
-    );
-    headers.insert(
-        header::X_FRAME_OPTIONS,
-        header::HeaderValue::from_static("sameorigin"),
-    );
-    headers.insert("X-Robots-Tag", header::HeaderValue::from_static("none"));
-    headers.insert(
-        "X-Permitted-Cross-Domain-Policies",
-        header::HeaderValue::from_static("none"),
-    );
-    headers.insert(
-        header::REFERRER_POLICY,
-        header::HeaderValue::from_static("no-referrer"),
-    );
-    headers.insert("Content-Security-Policy", header::HeaderValue::from_static("default-src 'self'; style-src 'unsafe-inline' 'self'; connect-src * ws:; object-src 'none';"));
-    headers.insert(
-        header::CONTENT_TYPE,
-        header::HeaderValue::from_static("text/html"),
-    );
-    #[cfg(all(feature = "frontend", not(debug_assertions)))]
-    headers.insert(
-        header::CONTENT_ENCODING,
-        header::HeaderValue::from_static("gzip"),
-    );
-
-    Ok(reply)
-}*/
 
 pub fn websocket<F, O>(
     mut req: Request<Body>,
@@ -269,16 +264,26 @@ pub async fn router(req: Request<Body>, span: tracing::Span) -> anyhow::Result<R
         // Make a String to avoid lifetime errors
         req.uri().query().map(str::to_string),
     ) {
-        /*#[cfg(feature = "frontend")]
+        #[cfg(all(feature = "frontend", not(feature = "dev")))]
         (&Method::GET, "/favicon.png", _) => {
             let _guard = span.enter();
-            response = favicon_route()?;
+            response = asset_route("/favicon.png");
         }
-        #[cfg(feature = "frontend")]
+        #[cfg(all(feature = "frontend", not(feature = "dev")))]
         (&Method::GET, path, _) if path.starts_with("/assets") => {
             let _guard = span.enter();
-            response = assets_route(req)?;
-        }*/
+            response = asset_route(req.uri().path());
+        }
+        #[cfg(feature = "dev")]
+        (&Method::GET, "/", _) => {
+            let _guard = span.enter();
+            response = Response::new(vite_html_dev().into());
+        }
+        #[cfg(feature = "dev")]
+        (&Method::GET | &Method::POST, _, _) => {
+            let _guard = span.enter();
+            response = frontend_proxy(req.uri().path())?;
+        }
         (&Method::GET, "/ws", _) => {
             response = websocket(
                 req,
@@ -336,15 +341,10 @@ pub async fn router(req: Request<Body>, span: tracing::Span) -> anyhow::Result<R
         (&Method::POST, "/login", _) => {
             response = login_route(req).instrument(span).await?;
         }
-        #[cfg(feature = "dev")]
-        (&Method::GET, "/", _) => {
+        #[cfg(all(feature = "frontend", not(feature = "dev")))]
+        (&Method::GET, _, _) => {
             let _guard = span.enter();
-            response = Response::new(vite_html_dev().into());
-        }
-        #[cfg(feature = "dev")]
-        (&Method::GET | &Method::POST, _, _) => {
-            let _guard = span.enter();
-            response = frontend_proxy(req.uri().path())?;
+            response = main_route();
         }
         _ => {
             *response.status_mut() = StatusCode::METHOD_NOT_ALLOWED;

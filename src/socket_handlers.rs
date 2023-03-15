@@ -18,7 +18,7 @@ enum TokenState {
 
 impl TokenState {
     const fn as_bool(&self) -> bool {
-        if let Self::ValidToken = self {
+        if matches!(self, Self::ValidToken) {
             return true;
         }
         false

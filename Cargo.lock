@@ -1206,7 +1206,7 @@ checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
 [[package]]
 name = "vite-embed"
 version = "0.1.0"
-source = "git+https://github.com/ravenclaw900/vite-embed#652acca7a4196d6fdcd5f7043e14c4b7147bb22c"
+source = "git+https://github.com/ravenclaw900/vite-embed#6bacdac0c32bee82d9eb1ebcaf66eeb22e026596"
 dependencies = [
  "ureq",
  "vite-embed-macro",
@@ -1215,7 +1215,7 @@ dependencies = [
 [[package]]
 name = "vite-embed-macro"
 version = "0.1.0"
-source = "git+https://github.com/ravenclaw900/vite-embed#652acca7a4196d6fdcd5f7043e14c4b7147bb22c"
+source = "git+https://github.com/ravenclaw900/vite-embed#6bacdac0c32bee82d9eb1ebcaf66eeb22e026596"
 dependencies = [
  "flate2",
  "json",
