@@ -49,8 +49,8 @@ jobs:
           targets: ${{ matrix.job.target }}
           components: clippy, rustfmt
       - uses: taiki-e/install-action@v2
-          with:
-            tool: just,cross
+        with:
+          tool: just,cross
       - uses: Swatinem/rust-cache@v2
         with:
           key: ${{ matrix.job.pretty }}-${{ steps.toolchain.outputs.cachekey }}
