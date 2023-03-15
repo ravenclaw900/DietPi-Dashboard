@@ -48,6 +48,11 @@ jobs:
         with:
           targets: ${{ matrix.job.target }}
           components: clippy, rustfmt
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: pnpm
       - uses: taiki-e/install-action@v2
         with:
           tool: just,cross
