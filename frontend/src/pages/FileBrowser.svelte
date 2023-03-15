@@ -21,6 +21,7 @@
         faEye,
         faFileDownload,
         faFileUpload,
+        faCube,
     } from "@fortawesome/free-solid-svg-icons";
     import Fa from "svelte-fa";
     import prettyBytes from "pretty-bytes";
@@ -189,6 +190,8 @@
                 return faFileArchive;
             case "text":
                 return faFileAlt;
+            case "notafile":
+                return faCube;
             default:
                 return faFile;
         }
@@ -351,7 +354,7 @@
                                         currentPath = contents.path;
                                         break;
                                     case "text":
-                                        if (contents.subtype == "large") {
+                                        if (contents.size > 2 * 1000 * 1000) {
                                             if (
                                                 confirm(
                                                     "Can't view files above 2MB, would you like to download instead?"
@@ -370,6 +373,9 @@
                                             fileSend(contents.path, "open", "");
                                         }
                                         currentPath = contents.path;
+                                        break;
+                                    case "notafile":
+                                        alert("Cannot download special files");
                                         break;
                                     default:
                                         if (
@@ -505,7 +511,7 @@
                             }}
                         /><Fa icon={faFileUpload} size="lg" /></span
                     >
-                    {#if selPath.path != ""}
+                    {#if selPath.path != "" && selPath.maintype != "notafile"}
                         <span
                             class="cursor-pointer"
                             title="Rename"

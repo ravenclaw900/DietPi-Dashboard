@@ -322,24 +322,41 @@ pub async fn global() -> shared::GlobalData {
     }
 }
 
+fn uppercase_first_letter(word: &str) -> (char, &str) {
+    // There will always be at least one letter in the mime type
+    #[allow(clippy::unwrap_used)]
+    let first_letter = word.chars().next().unwrap().to_ascii_uppercase();
+    (first_letter, &word[1..])
+}
+
 #[instrument]
 pub async fn browser_dir(path: &std::path::Path) -> anyhow::Result<Vec<shared::BrowserData>> {
     let mut dir = fs::read_dir(path)
         .await
         .with_context(|| format!("Couldn't read path {}", path.display()))?;
+
     let mut file_list = Vec::new();
+
     while let Ok(Some(file)) = dir.next_entry().await {
-        tracing::debug!("Read {} with type {:?}", file.path().display(), file.file_type().await.map(|x| {
-            if x.is_file() {
-                "file"
-            } else if x.is_dir() {
-                "directory"
-            } else if x.is_symlink() {
-                "symlink"
-            } else {
-                unreachable!()
-            }
-        }).unwrap_or("unknown"));
+        tracing::debug!(
+            "Got {} with type {:?}",
+            file.path().display(),
+            file.file_type()
+                .await
+                .map(|x| {
+                    if x.is_file() {
+                        "file"
+                    } else if x.is_dir() {
+                        "directory"
+                    } else if x.is_symlink() {
+                        "symlink"
+                    } else {
+                        "something else"
+                    }
+                })
+                .unwrap_or("unknown")
+        );
+
         // Resolve all symlinks
         let path = fs::canonicalize(file.path())
             .await
@@ -347,59 +364,50 @@ pub async fn browser_dir(path: &std::path::Path) -> anyhow::Result<Vec<shared::B
         let metadata = fs::metadata(&path)
             .await
             .with_context(|| format!("Couldn't get metadata for path {}", &path.display()))?;
+
         let maintype;
         let subtype;
         let prettytype;
+
         if metadata.is_dir() {
-            maintype = "dir";
-            subtype = "";
+            maintype = "dir".to_string();
+            subtype = String::new();
             prettytype = "Directory".to_string();
-        } else {
-            let buf = fs::read(&path)
-                .await
-                .with_context(|| format!("Couldn't read directory {}", &path.display()))?;
-            if let Some(infertype) = infer::get(&buf) {
-                subtype = infertype
-                    .mime_type()
-                    .split_once('/')
-                    .with_context(|| format!("Couldn't split mime type {}", infertype.mime_type()))?
-                    .1;
-                maintype = {
-                    if infer::is_app(&buf) {
-                        "application"
-                    } else if infer::is_archive(&buf) {
-                        "archive"
-                    } else if infer::is_audio(&buf) {
-                        "audio"
-                    } else if infer::is_image(&buf) {
-                        "image"
-                    } else if infer::is_video(&buf) {
-                        "video"
-                    } else {
-                        "unknown"
-                    }
-                };
+        } else if metadata.is_file() {
+            let mime_type = mime_guess::from_path(&path).first_or_octet_stream();
+
+            if mime_type == mime_guess::mime::APPLICATION_OCTET_STREAM {
+                maintype = "unknown".to_string();
+                subtype = "unknown".to_string();
+                prettytype = "Binary file".to_string();
+            } else if mime_type.type_() == mime_guess::mime::TEXT
+                || mime_type == mime_guess::mime::APPLICATION_JAVASCRIPT // Javascript and JSON are also text files, for our purposes
+                || mime_type == mime_guess::mime::APPLICATION_JSON
+            {
+                maintype = "text".to_string();
+                subtype = mime_type.subtype().as_str().replace("x-", "");
+
+                let subtype_upper = uppercase_first_letter(&subtype);
+
+                prettytype = format!("{}{} File", subtype_upper.0, subtype_upper.1);
+            } else {
+                maintype = mime_type.type_().as_str().to_string();
+                subtype = mime_type.subtype().as_str().replace("x-", "");
+
+                let maintype_upper = uppercase_first_letter(&maintype);
+                let subtype_upper = subtype.to_ascii_uppercase();
+
                 prettytype = format!(
                     "{} {}{} File",
-                    subtype.to_uppercase(),
-                    // Get first character, could (theoretically) panic
-                    &maintype[0..1].to_uppercase(),
-                    &maintype[1..]
+                    subtype_upper, maintype_upper.0, maintype_upper.1
                 );
-            } else if from_utf8(&buf).is_err() {
-                maintype = "unknown";
-                subtype = "unknown";
-                prettytype = "Binary file".to_string();
-            } else {
-                if metadata.len() > 2 * 1000 * 1000 {
-                    subtype = "large";
-                } else {
-                    subtype = "plain";
-                }
-                maintype = "text";
-                prettytype = "Plain Text File".to_string();
             }
+        } else {
+            maintype = "notafile".to_string();
+            subtype = "notafile".to_string();
+            prettytype = "Special File".to_string();
         }
+
         file_list.push(shared::BrowserData {
             path: crate::handle_error!(
                 file.path()
