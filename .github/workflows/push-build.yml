@@ -30,10 +30,10 @@ jobs:
     strategy:
       matrix:
         job:
-          - { target: x86_64-unknown-linux-musl, pretty: x86_64 }
-          - { target: arm-unknown-linux-musleabihf, pretty: armv6l }
-          - { target: armv7-unknown-linux-musleabihf, pretty: armv7l }
-          - { target: aarch64-unknown-linux-musl, pretty: aarch64 }
+          - { target: x86_64-unknown-linux-musl, pretty: x86_64, backend: false }
+          - { target: arm-unknown-linux-musleabihf, pretty: armv6l, backend: false }
+          - { target: armv7-unknown-linux-musleabihf, pretty: armv7l, backend: false }
+          - { target: aarch64-unknown-linux-musl, pretty: aarch64, backend: false }
           - { target: x86_64-unknown-linux-musl, pretty: x86_64-backend, backend: true }
           - { target: arm-unknown-linux-musleabihf, pretty: armv6l-backend, backend: true }
           - { target: armv7-unknown-linux-musleabihf, pretty: armv7l-backend, backend: true }
