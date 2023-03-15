@@ -52,7 +52,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
-          cache: pnpm
+      - name: Enable pnpm
+        run: corepack enable
       - uses: taiki-e/install-action@v2
         with:
           tool: just,cross
