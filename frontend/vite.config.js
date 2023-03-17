@@ -19,7 +19,9 @@ export default defineConfig(({ mode }) => {
       ]
     })],
     build: {
+      manifest: true,
       rollupOptions: {
+        input: "src/main.ts",
         output: {
           manualChunks: {
             xterm: ['xterm', 'xterm-addon-attach', 'xterm-addon-fit']

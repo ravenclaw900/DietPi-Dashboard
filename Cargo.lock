@@ -160,19 +160,16 @@ version = "0.6.1"
 dependencies = [
  "anyhow",
  "figment",
- "flate2",
  "futures",
  "getrandom",
  "hex",
  "hyper",
  "if-addrs",
- "include_dir",
  "jsonwebtoken",
  "mime_guess",
  "once_cell",
  "psutil",
  "pty-process",
- "rerun_in_except",
  "ring",
  "rustls-pemfile",
  "serde",
@@ -182,6 +179,7 @@ dependencies = [
  "tokio-tungstenite",
  "tracing",
  "tracing-subscriber",
+ "vite-embed",
  "walkdir",
  "zip",
 ]
@@ -444,25 +442,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "include_dir"
-version = "0.7.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "18762faeff7122e89e0857b02f7ce6fcc0d101d5e9ad2ad7846cc01d61b7f19e"
-dependencies = [
- "include_dir_macros",
-]
-
-[[package]]
-name = "include_dir_macros"
-version = "0.7.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b139284b5cf57ecfa712bcc66950bb635b31aff41c188e8a4cfc758eca374a3f"
-dependencies = [
- "proc-macro2",
- "quote",
-]
-
-[[package]]
 name = "inlinable_string"
 version = "0.1.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -482,6 +461,12 @@ checksum = "445dde2150c55e483f3d8416706b97ec8e8237c307e5b7b4b8dd15e6af2a0730"
 dependencies = [
  "wasm-bindgen",
 ]
+
+[[package]]
+name = "json"
+version = "0.12.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "078e285eafdfb6c4b434e0d31e8cfcb5115b651496faca5749b88fafd4f23bfd"
 
 [[package]]
 name = "jsonwebtoken"
@@ -788,12 +773,6 @@ checksum = "ec0be4795e2f6a28069bec0b5ff3e2ac9bafc99e6a9a7dc3547996c5c816922c"
 dependencies = [
  "getrandom",
 ]
-
-[[package]]
-name = "rerun_in_except"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "373f2b912b0fdcdb053d0afd04f9c5e989ee3f4a10d3e5bcb45c6b5dc80b8673"
 
 [[package]]
 name = "ring"
@@ -1233,6 +1212,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a156c684c91ea7d62626509bce3cb4e1d9ed5c4d978f7b4352658f96a4c26b4a"
 
 [[package]]
+name = "ureq"
+version = "2.6.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "338b31dd1314f68f3aabf3ed57ab922df95ffcd902476ca7ba3c4ce7b908c46d"
+dependencies = [
+ "base64 0.13.1",
+ "log",
+ "once_cell",
+ "url",
+]
+
+[[package]]
 name = "url"
 version = "2.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1260,6 +1251,25 @@ name = "version_check"
 version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
+
+[[package]]
+name = "vite-embed"
+version = "0.1.0"
+source = "git+https://github.com/ravenclaw900/vite-embed#6bacdac0c32bee82d9eb1ebcaf66eeb22e026596"
+dependencies = [
+ "ureq",
+ "vite-embed-macro",
+]
+
+[[package]]
+name = "vite-embed-macro"
+version = "0.1.0"
+source = "git+https://github.com/ravenclaw900/vite-embed#6bacdac0c32bee82d9eb1ebcaf66eeb22e026596"
+dependencies = [
+ "flate2",
+ "json",
+ "quote",
+]
 
 [[package]]
 name = "walkdir"
