@@ -41,6 +41,7 @@
     export let socketData: browserPage;
     export let node: string;
     export let login: boolean;
+    export let token: string;
 
     let fileDialog: HTMLInputElement;
     let fileText: HTMLTextAreaElement;
@@ -61,7 +62,7 @@
 
     const fileSocket = new WebSocket(
         `${window.location.protocol == "https:" ? "wss" : "ws"}://${node}/ws/file${
-            login ? `?token=${JSON.parse(localStorage.getItem("tokens"))[node]}` : ""
+            login ? `?token=${token}` : ""
         }`
     );
     fileSocket.onmessage = (e: MessageEvent) => {
@@ -191,7 +192,7 @@
         }
     }
 
-    function validateInput(name: string) {
+    function validateInput(name: string | null) {
         if (name) {
             for (let element of socketData.contents) {
                 if (element.name == name) {
@@ -462,22 +463,24 @@
                             class="hidden"
                             bind:this={fileDialog}
                             on:input={() => {
-                                let size = Math.ceil(
-                                    fileDialog.files[0].size / (1000 * 1000)
-                                );
-                                fileSend(
-                                    `${currentPath}/${fileDialog.files[0].name}`,
-                                    "up",
-                                    `${size}`
-                                );
-                                for (
-                                    let i = 0;
-                                    i < fileDialog.files[0].size;
-                                    i += 1000 * 1000
-                                ) {
-                                    fileSocket.send(
-                                        fileDialog.files[0].slice(i, i + 1000 * 1000)
+                                if (fileDialog.files != null) {
+                                    let size = Math.ceil(
+                                        fileDialog.files[0].size / (1000 * 1000)
                                     );
+                                    fileSend(
+                                        `${currentPath}/${fileDialog.files[0].name}`,
+                                        "up",
+                                        `${size}`
+                                    );
+                                    for (
+                                        let i = 0;
+                                        i < fileDialog.files[0].size;
+                                        i += 1000 * 1000
+                                    ) {
+                                        fileSocket.send(
+                                            fileDialog.files[0].slice(i, i + 1000 * 1000)
+                                        );
+                                    }
                                 }
                             }}
                         /><Fa icon={faFileUpload} size="lg" /></span

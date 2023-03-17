@@ -95,7 +95,7 @@
         });
     }
 
-    let uplot: uPlot;
+    let uplot: uPlot | null;
 
     onMount(() => {
         let opts: uPlot.Options = {
@@ -204,10 +204,11 @@
         }
 
         let observer = new ResizeObserver((entries, _) =>
-            resizeUplot(uplot, entries[0].target)
+            resizeUplot(uplot as uPlot, entries[0].target)
         );
 
-        observer.observe(document.getElementById("chart"));
+        // Guaranteed to exist
+        observer.observe(document.getElementById("chart") as HTMLElement);
     });
 
     let handle1 = setInterval(() => {
@@ -219,29 +220,31 @@
         dataPush[4].push(socketData.disk.used / 1000000);
         dataPush[5].push(socketData.network.sent / 1000000);
         dataPush[6].push(socketData.network.received / 1000000);
-        if (socketData.temp.available) {
-            if (uplot.series[7] == undefined) {
-                uplot.addSeries({
-                    spanGaps: false,
-                    label: "CPU Temperature",
-                    stroke: "#94A3B8",
-                    width: 3,
-                    scale: "deg",
-                    value: (_: any, val: number) =>
-                        val + (tempUnit == "celsius" ? "ºC" : "ºF"),
-                });
+        if (uplot != null) {
+            if (socketData.temp.available) {
+                if (uplot.series[7] == undefined) {
+                    uplot.addSeries({
+                        spanGaps: false,
+                        label: "CPU Temperature",
+                        stroke: "#94A3B8",
+                        width: 3,
+                        scale: "deg",
+                        value: (_: any, val: number) =>
+                            val + (tempUnit == "celsius" ? "ºC" : "ºF"),
+                    });
+                }
+                if (tempUnit == "celsius") {
+                    dataPush[7].push(socketData.temp.celsius);
+                } else if (tempUnit == "fahrenheit") {
+                    dataPush[7].push(socketData.temp.fahrenheit);
+                }
             }
-            if (tempUnit == "celsius") {
-                dataPush[7].push(socketData.temp.celsius);
-            } else if (tempUnit == "fahrenheit") {
-                dataPush[7].push(socketData.temp.fahrenheit);
-            }
+            uplot.setData(data);
         }
-        uplot.setData(data);
     }, 2000);
 
     onDestroy(() => {
-        uplot = undefined;
+        uplot = null;
         clearInterval(handle1);
     });
 </script>

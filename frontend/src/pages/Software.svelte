@@ -56,9 +56,10 @@
             } else {
                 nameList += ", ";
             }
-            nameList += socketData[installTable ? "installed" : "uninstalled"].find(
-                o => o.id == installArray[i]
-            ).name;
+            nameList +=
+                socketData[installTable ? "installed" : "uninstalled"].find(
+                    o => o.id == installArray[i]
+                )?.name ?? "";
             if (i == installArray.length - 1) {
                 nameList += ")";
             }

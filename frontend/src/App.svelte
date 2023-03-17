@@ -55,6 +55,9 @@
     let backendVersion = "";
     let updateAvailable = "";
     let node = `${window.location.hostname}:${window.location.port}`;
+    let tokens: Record<string, string> = JSON.parse(
+        localStorage.getItem("tokens") ?? "{}"
+    );
 
     $: node && (((shown = false), (reopenSocket = false)), connectSocket(node));
     $: notify =
@@ -63,16 +66,18 @@
         updateAvailable != "";
 
     // Get dark mode
-    if (localStorage.getItem("darkMode") != null) {
-        darkMode = JSON.parse(localStorage.getItem("darkMode"));
+    let darkModeTemp = localStorage.getItem("darkMode");
+    if (darkModeTemp != null) {
+        darkMode = JSON.parse(darkModeTemp);
     } else {
         darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
     }
 
     const updateCheck = () => {
+        let updateCheckTemp = localStorage.getItem("update-check");
         if (
-            localStorage.getItem("update-check") == null ||
-            JSON.parse(localStorage.getItem("update-check")).lastChecked + 86400 <
+            updateCheckTemp == null ||
+            JSON.parse(updateCheckTemp).lastChecked + 86400 <
                 Math.round(Date.now() / 1000)
         ) {
             fetch(
@@ -92,8 +97,8 @@
                     );
                 })
             );
-        } else if (localStorage.getItem("update-check") != null) {
-            let version = JSON.parse(localStorage.getItem("update-check")).version;
+        } else if (updateCheckTemp != null) {
+            let version = JSON.parse(updateCheckTemp).version;
             if (cmp(version, backendVersion) > 0) {
                 updateAvailable = version;
             }
@@ -112,13 +117,12 @@
             tempUnit = socketData.temp_unit;
             // Get token
             if (login) {
-                let obj = JSON.parse(localStorage.getItem("tokens"));
-                if (obj == null || obj[node] == null) {
+                if (tokens[node] == null) {
                     // Login
                     loginDialog = true;
                 } else {
                     // Or use stored token
-                    token = obj[node];
+                    token = tokens[node];
                     socket.send(JSON.stringify({ token }));
                     pollServer(window.location.pathname);
                 }
@@ -147,7 +151,7 @@
         shown = true;
         loginDialog = false;
     };
-    const socketErrorListener = (e: ErrorEvent) => {
+    const socketErrorListener = (e: Event) => {
         console.error(e);
     };
     const socketCloseListener = (e: CloseEvent) => {
@@ -193,12 +197,8 @@
             }
             response.text().then(body => {
                 token = body;
-                let obj =
-                    localStorage.getItem("tokens") == null
-                        ? {}
-                        : JSON.parse(localStorage.getItem("tokens"));
-                obj[node] = body;
-                localStorage.setItem("tokens", JSON.stringify(obj));
+                tokens[node] = body;
+                localStorage.setItem("tokens", JSON.stringify(tokens));
                 loginDialog = false;
                 socket.send(JSON.stringify({ token }));
                 pollServer(window.location.pathname);
@@ -436,6 +436,7 @@
                                 {socketData}
                                 {node}
                                 {login}
+                                {token}
                             /></Route
                         >
                     {/if}
