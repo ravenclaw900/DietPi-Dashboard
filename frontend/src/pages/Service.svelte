@@ -26,7 +26,7 @@
                 <td class="p-2">{service.name}</td>
                 <td class="p-2">{service.status}</td>
                 <td class="p-2">
-                    {#if service.log != ""}
+                    {#if service.log !== ""}
                         <details>
                             <summary> Show log </summary>
                             {@html service.log}
@@ -35,7 +35,7 @@
                 >
                 <td class="p-2">{service.start}</td>
                 <td class="p-2 space-x-2">
-                    {#if service.status == "inactive" || service.status == "failed"}
+                    {#if service.status === "inactive" || service.status === "failed"}
                         <span
                             on:click={() => socketSend("start", [service.name])}
                             title="Start"

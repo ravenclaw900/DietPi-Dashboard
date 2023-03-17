@@ -61,13 +61,13 @@
 
     $: node && (((shown = false), (reopenSocket = false)), connectSocket(node));
     $: notify =
-        dpUpdate != "" ||
-        cmp(frontendVersion, backendVersion) != 0 ||
-        updateAvailable != "";
+        dpUpdate !== "" ||
+        cmp(frontendVersion, backendVersion) !== 0 ||
+        updateAvailable !== "";
 
     // Get dark mode
     let darkModeTemp = localStorage.getItem("darkMode");
-    if (darkModeTemp != null) {
+    if (darkModeTemp !== null) {
         darkMode = JSON.parse(darkModeTemp);
     } else {
         darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -76,7 +76,7 @@
     const updateCheck = () => {
         let updateCheckTemp = localStorage.getItem("update-check");
         if (
-            updateCheckTemp == null ||
+            updateCheckTemp === null ||
             JSON.parse(updateCheckTemp).lastChecked + 86400 <
                 Math.round(Date.now() / 1000)
         ) {
@@ -97,7 +97,7 @@
                     );
                 })
             );
-        } else if (updateCheckTemp != null) {
+        } else if (updateCheckTemp !== null) {
             let version = JSON.parse(updateCheckTemp).version;
             if (cmp(version, backendVersion) > 0) {
                 updateAvailable = version;
@@ -107,7 +107,7 @@
 
     const socketMessageListener = (e: MessageEvent) => {
         socketData = JSON.parse(e.data);
-        if (socketData.dataKind == "GLOBAL") {
+        if (socketData.dataKind === "GLOBAL") {
             dpUpdate = socketData.update;
             login = socketData.login;
             if (socketData.nodes) {
@@ -117,7 +117,7 @@
             tempUnit = socketData.temp_unit;
             // Get token
             if (login) {
-                if (tokens[node] == null) {
+                if (tokens[node] === null) {
                     // Login
                     loginDialog = true;
                 } else {
@@ -137,7 +137,7 @@
                 updateCheck();
             }
         }
-        if (socketData.dataKind == "REAUTH") {
+        if (socketData.dataKind === "REAUTH") {
             loginDialog = true;
         }
         if (navPage) {
@@ -164,7 +164,7 @@
     };
 
     function pollServer(page: string) {
-        if (page != "/terminal") {
+        if (page !== "/terminal") {
             // Terminal doesn't work if sent
             socket.send(
                 JSON.stringify({
@@ -175,7 +175,7 @@
     }
 
     function changePage(page: string) {
-        if (page != window.location.pathname) {
+        if (page !== window.location.pathname) {
             blur = true;
             pollServer(page);
             navPage = page;
@@ -190,7 +190,7 @@
         };
         fetch(`${window.location.protocol}//${node}/login/`, options).then(response => {
             password = "";
-            if (response.status == 401) {
+            if (response.status === 401) {
                 passwordMessage = true;
                 setTimeout(() => (passwordMessage = false), 2000);
                 return;
@@ -221,7 +221,7 @@
         } else {
             reopenSocket = true;
         }
-        let proto = window.location.protocol == "https:" ? "wss" : "ws";
+        let proto = window.location.protocol === "https:" ? "wss" : "ws";
         socket = new WebSocket(`${proto}://${url}/ws`);
         socket.onopen = socketOpenListener;
         socket.onmessage = socketMessageListener;
@@ -307,7 +307,7 @@
                 ><img src={logo} alt="DietPi logo" class="h-10" /></a
             >
             <div class="flex justify-around">
-                {#if nodes.length != 0}
+                {#if nodes.length !== 0}
                     <select bind:value={node} class="hidden md:inline-block">
                         <option
                             value={`${window.location.hostname}:${window.location.port}`}
@@ -341,7 +341,7 @@
                         {/if}
                     </span>
                 </div>
-                {#if nodes.length != 0}
+                {#if nodes.length !== 0}
                     <span
                         class="cursor-pointer md:hidden"
                         on:click={() => (settingsShown = !settingsShown)}
@@ -366,7 +366,7 @@
                                 >DietPi update available: {dpUpdate}</tr
                             >
                         {/if}
-                        {#if cmp(frontendVersion, backendVersion) != 0}
+                        {#if cmp(frontendVersion, backendVersion) !== 0}
                             <tr class="border-b border-gray-300 border-gray-600"
                                 >Warning: Current node is running a version of
                                 DietPi-Dashboard {cmp(frontendVersion, backendVersion) < 0
@@ -408,28 +408,28 @@
                 ? ' children:blur-2 children:filter'
                 : ''}"
         >
-            {#if shown && socketData != undefined}
+            {#if shown && socketData !== undefined}
                 <Router>
-                    {#if socketData.dataKind == "PROCESS"}
+                    {#if socketData.dataKind === "PROCESS"}
                         <Route path="process"><Process {socketData} {socketSend} /></Route
                         >
                     {/if}
-                    {#if socketData.dataKind == "STATISTIC"}
+                    {#if socketData.dataKind === "STATISTIC"}
                         <Route path="/"><Home {socketData} {darkMode} {tempUnit} /></Route
                         >
                     {/if}
-                    {#if socketData.dataKind == "SOFTWARE"}
+                    {#if socketData.dataKind === "SOFTWARE"}
                         <Route path="software"
                             ><Software {socketData} {socketSend} /></Route
                         >
                     {/if}
                     <Route path="terminal"><Terminal {node} {token} /></Route>
-                    {#if socketData.dataKind == "MANAGEMENT"}
+                    {#if socketData.dataKind === "MANAGEMENT"}
                         <Route path="management"
                             ><Management {socketSend} {socketData} /></Route
                         >
                     {/if}
-                    {#if socketData.dataKind == "BROWSER"}
+                    {#if socketData.dataKind === "BROWSER"}
                         <Route path="browser"
                             ><FileBrowser
                                 {socketSend}
@@ -440,7 +440,7 @@
                             /></Route
                         >
                     {/if}
-                    {#if socketData.dataKind == "SERVICE"}
+                    {#if socketData.dataKind === "SERVICE"}
                         <Route path="service"><Service {socketSend} {socketData} /></Route
                         >
                     {/if}

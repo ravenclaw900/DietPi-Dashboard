@@ -16,7 +16,7 @@
     // Runs once data is received or table is changed
     $: socketData.uninstalled && installTempCreate();
     $: socketData.uninstalled &&
-        installTable != undefined &&
+        installTable !== undefined &&
         ((needInstallTemp = true), installTempCreate());
 
     // Runs every time installTemp array is changed
@@ -42,7 +42,7 @@
     function checkButton() {
         installArray = [];
         for (const i of socketData[installTable ? "installed" : "uninstalled"]) {
-            if (installTemp[i.id] == true) {
+            if (installTemp[i.id] === true) {
                 installArray = [...installArray, i.id];
             }
         }
@@ -51,16 +51,16 @@
     function getNameList() {
         nameList = "";
         for (let i = 0; i < installArray.length; i++) {
-            if (i == 0) {
+            if (i === 0) {
                 nameList += " (";
             } else {
                 nameList += ", ";
             }
             nameList +=
                 socketData[installTable ? "installed" : "uninstalled"].find(
-                    o => o.id == installArray[i]
+                    o => o.id === installArray[i]
                 )?.name ?? "";
-            if (i == installArray.length - 1) {
+            if (i === installArray.length - 1) {
                 nameList += ")";
             }
         }
@@ -104,7 +104,7 @@
             <th>Documentation link</th>
         </tr>
         {#each socketData[installTable ? "installed" : "uninstalled"] as software}
-            {#if software.id != -1}
+            {#if software.id !== -1}
                 <tr
                     class="mt-32 even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800  dark:border-gray-600 border-t-2 border-gray-300 border-opacity-50"
                 >
@@ -122,7 +122,7 @@
                     <td class="p-2">{software.description}</td>
                     <td class="p-2">{software.dependencies}</td>
                     <td class="p-2">
-                        {#if software.docs.substring(0, 5) == "https"}
+                        {#if software.docs.substring(0, 5) === "https"}
                             <a
                                 href={software.docs}
                                 class="text-blue-500 underline"
@@ -144,7 +144,7 @@
             class="rounded border {installTable
                 ? 'bg-red-500 border-red-600 hover:bg-red-700'
                 : 'bg-green-500 border-green-600 hover:bg-green-700'} p-2 disabled:opacity-50"
-            disabled={installArray.length == 0 || running}
+            disabled={installArray.length === 0 || running}
         >
             {#if running}
                 <Fa icon={faCircleNotch} spin />
@@ -152,7 +152,7 @@
             {installTable ? "Uni" : "I"}nstall{nameList}
         </button>
     </div>
-    {#if socketData.response != ""}
+    {#if socketData.response !== ""}
         <textarea
             class="w-full bg-gray-200 h-72 rounded dark:bg-gray-800"
             value={socketData.response}

@@ -181,7 +181,7 @@
                     scale: "deg",
                     values: (_: any, vals: number[]) =>
                         vals.map(
-                            (v: number) => +v + (tempUnit == "celsius" ? "ºC" : "ºF")
+                            (v: number) => +v + (tempUnit === "celsius" ? "ºC" : "ºF")
                         ),
                     grid: { show: false },
                     stroke: "#94A3B8",
@@ -199,7 +199,7 @@
 
         uplot = new uPlot(opts, data, chart);
 
-        if (socketData.swap.total == 0) {
+        if (socketData.swap.total === 0) {
             uplot.setSeries(3, { show: false });
         }
 
@@ -220,9 +220,9 @@
         dataPush[4].push(socketData.disk.used / 1000000);
         dataPush[5].push(socketData.network.sent / 1000000);
         dataPush[6].push(socketData.network.received / 1000000);
-        if (uplot != null) {
+        if (uplot !== null) {
             if (socketData.temp.available) {
-                if (uplot.series[7] == undefined) {
+                if (uplot.series[7] === undefined) {
                     uplot.addSeries({
                         spanGaps: false,
                         label: "CPU Temperature",
@@ -230,12 +230,12 @@
                         width: 3,
                         scale: "deg",
                         value: (_: any, val: number) =>
-                            val + (tempUnit == "celsius" ? "ºC" : "ºF"),
+                            val + (tempUnit === "celsius" ? "ºC" : "ºF"),
                     });
                 }
-                if (tempUnit == "celsius") {
+                if (tempUnit === "celsius") {
                     dataPush[7].push(socketData.temp.celsius);
-                } else if (tempUnit == "fahrenheit") {
+                } else if (tempUnit === "fahrenheit") {
                     dataPush[7].push(socketData.temp.fahrenheit);
                 }
             }

@@ -23,9 +23,9 @@
         setTimeout(() => {
             dialog = true;
         }, 1000);
-        if (data == "reboot") {
+        if (data === "reboot") {
             msg = "Waiting for device to finish...";
-        } else if (data == "poweroff") {
+        } else if (data === "poweroff") {
             msg = "You can close this page";
         }
     }

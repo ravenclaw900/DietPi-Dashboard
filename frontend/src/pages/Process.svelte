@@ -50,9 +50,9 @@
     }
 
     function setCPU() {
-        if (cpuSort == true) {
+        if (cpuSort === true) {
             reverse = !reverse;
-            if (cpuIcon == faSortUp) {
+            if (cpuIcon === faSortUp) {
                 cpuIcon = faSortDown;
             } else {
                 cpuIcon = faSortUp;
@@ -86,9 +86,9 @@
     }
 
     function setName() {
-        if (nameSort == true) {
+        if (nameSort === true) {
             reverse = !reverse;
-            if (nameIcon == faSortUp) {
+            if (nameIcon === faSortUp) {
                 nameIcon = faSortDown;
             } else {
                 nameIcon = faSortUp;
@@ -122,9 +122,9 @@
     }
 
     function setPid() {
-        if (pidSort == true) {
+        if (pidSort === true) {
             reverse = !reverse;
-            if (pidIcon == faSortUp) {
+            if (pidIcon === faSortUp) {
                 pidIcon = faSortDown;
             } else {
                 pidIcon = faSortUp;
@@ -158,9 +158,9 @@
     }
 
     function setRAM() {
-        if (ramSort == true) {
+        if (ramSort === true) {
             reverse = !reverse;
-            if (ramIcon == faSortUp) {
+            if (ramIcon === faSortUp) {
                 ramIcon = faSortDown;
             } else {
                 ramIcon = faSortUp;
@@ -194,9 +194,9 @@
     }
 
     function setStatus() {
-        if (statusSort == true) {
+        if (statusSort === true) {
             reverse = !reverse;
-            if (statusIcon == faSortUp) {
+            if (statusIcon === faSortUp) {
                 statusIcon = faSortDown;
             } else {
                 statusIcon = faSortUp;
@@ -263,7 +263,7 @@
                     })}</td
                 >
                 <td class="p-2 space-x-2">
-                    {#if process.name != "dietpi-dashboar"}
+                    {#if process.name !== "dietpi-dashboar"}
                         <span
                             on:click={() =>
                                 socketSend("terminate", [process.pid.toString()])}
@@ -283,7 +283,7 @@
                                 size="lg"
                             /></span
                         >
-                        {#if process.status != "stopped"}
+                        {#if process.status !== "stopped"}
                             <span
                                 on:click={() =>
                                     socketSend("suspend", [process.pid.toString()])}
