@@ -9,6 +9,8 @@ specifiers:
   '@types/semver-compare-multi': ^1.0.0
   microlight: ^0.0.7
   postcss: ^8.4.21
+  prettier: ^2.8.4
+  prettier-plugin-svelte: ^2.9.0
   pretty-bytes: ^6.0.0
   pretty-ms: ^8.0.0
   semver-compare-multi: ^1.0.3
@@ -47,6 +49,8 @@ devDependencies:
   '@types/microlight': 0.0.0
   '@types/semver-compare-multi': 1.0.0
   postcss: 8.4.21
+  prettier: 2.8.4
+  prettier-plugin-svelte: 2.9.0_jrsxveqmsx2uadbqiuq74wlc4u
   svelte: 3.55.1
   svelte-check: 3.0.3_pehl75e5jsy22vp33udjja4soi
   svelte-fa: 3.0.3
@@ -829,8 +833,24 @@ packages:
       svelte: 3.55.1
     dev: true
 
+  /prettier-plugin-svelte/2.9.0_jrsxveqmsx2uadbqiuq74wlc4u:
+    resolution: {integrity: sha512-3doBi5NO4IVgaNPtwewvrgPpqAcvNv0NwJNflr76PIGgi9nf1oguQV1Hpdm9TI2ALIQVn/9iIwLpBO5UcD2Jiw==}
+    peerDependencies:
+      prettier: ^1.16.4 || ^2.0.0
+      svelte: ^3.2.0
+    dependencies:
+      prettier: 2.8.4
+      svelte: 3.55.1
+    dev: true
+
   /prettier/2.8.1:
     resolution: {integrity: sha512-lqGoSJBQNJidqCHE80vqZJHWHRFoNYsSpP9AjFhlhi9ODCJA541svILes/+/1GM3VaL/abZi7cpFzOpdR9UPKg==}
+    engines: {node: '>=10.13.0'}
+    hasBin: true
+    dev: true
+
+  /prettier/2.8.4:
+    resolution: {integrity: sha512-vIS4Rlc2FNh0BySk3Wkd6xmwxB0FpOndW5fisM5H8hsZSxU2VWVB5CWIkIjWvrHjIhxk2g3bfMKM87zNTrZddw==}
     engines: {node: '>=10.13.0'}
     hasBin: true
     dev: true

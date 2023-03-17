@@ -27,8 +27,7 @@
             installTemp = [];
             for (
                 let i = 0;
-                i <
-                socketData[installTable ? "installed" : "uninstalled"].length;
+                i < socketData[installTable ? "installed" : "uninstalled"].length;
                 i++
             ) {
                 installTemp[
@@ -42,9 +41,7 @@
 
     function checkButton() {
         installArray = [];
-        for (const i of socketData[
-            installTable ? "installed" : "uninstalled"
-        ]) {
+        for (const i of socketData[installTable ? "installed" : "uninstalled"]) {
             if (installTemp[i.id] == true) {
                 installArray = [...installArray, i.id];
             }
@@ -59,9 +56,9 @@
             } else {
                 nameList += ", ";
             }
-            nameList += socketData[
-                installTable ? "installed" : "uninstalled"
-            ].find((o) => o.id == installArray[i]).name;
+            nameList += socketData[installTable ? "installed" : "uninstalled"].find(
+                o => o.id == installArray[i]
+            ).name;
             if (i == installArray.length - 1) {
                 nameList += ")";
             }
@@ -71,7 +68,7 @@
     function sendSoftware() {
         socketSend(
             installTable ? "uninstall" : "install",
-            installArray.map((val) => {
+            installArray.map(val => {
                 return val.toString();
             })
         );
@@ -115,8 +112,7 @@
                         ><input
                             type="checkbox"
                             on:click={() =>
-                                (installTemp[software.id] =
-                                    !installTemp[software.id])}
+                                (installTemp[software.id] = !installTemp[software.id])}
                             bind:checked={installTemp[software.id]}
                             disabled={running}
                         /></td

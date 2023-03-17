@@ -50,10 +50,7 @@
         prettyBytes(socketData.swap.used, { binary: true }),
         prettyBytes(socketData.swap.total, { binary: true }),
     ];
-    $: diskData = [
-        prettyBytes(socketData.disk.used),
-        prettyBytes(socketData.disk.total),
-    ];
+    $: diskData = [prettyBytes(socketData.disk.used), prettyBytes(socketData.disk.total)];
 
     function getTempMsg(temp: number) {
         if (temp >= 70) {
@@ -155,8 +152,7 @@
                     stroke: "#ec4899",
                     width: 3,
                     scale: "mb",
-                    value: (_: uPlot, val: number) =>
-                        prettyBytes(val * 1000000),
+                    value: (_: uPlot, val: number) => prettyBytes(val * 1000000),
                 },
             ],
             axes: [
@@ -185,8 +181,7 @@
                     scale: "deg",
                     values: (_: any, vals: number[]) =>
                         vals.map(
-                            (v: number) =>
-                                +v + (tempUnit == "celsius" ? "ºC" : "ºF")
+                            (v: number) => +v + (tempUnit == "celsius" ? "ºC" : "ºF")
                         ),
                     grid: { show: false },
                     stroke: "#94A3B8",
@@ -197,8 +192,7 @@
                 "%": {
                     auto: false,
                     // Hide CPU axis when CPU series is disabled
-                    range: (u: uPlot) =>
-                        u.series[1].show ? [0, 100] : [null, null],
+                    range: (u: uPlot) => (u.series[1].show ? [0, 100] : [null, null]),
                 },
             },
         };
@@ -269,8 +263,7 @@
         {#if socketData.temp.available}
             <div class="text-center">
                 <span class={getTempClass(socketData.temp.celsius)}>
-                    {socketData.temp.celsius}ºC/{socketData.temp
-                        .fahrenheit}ºF</span
+                    {socketData.temp.celsius}ºC/{socketData.temp.fahrenheit}ºF</span
                 >: {getTempMsg(socketData.temp.celsius)}
             </div>
             CPU:<span class="float-right">{socketData.cpu}/100%</span>

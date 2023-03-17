@@ -33,7 +33,7 @@
         socket.send(`size${size}`);
     };
 
-    terminal.onResize((e) => sendSize(e));
+    terminal.onResize(e => sendSize(e));
 
     window.onresize = () => {
         fitAddon.fit();

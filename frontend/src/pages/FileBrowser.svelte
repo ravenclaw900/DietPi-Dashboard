@@ -60,12 +60,8 @@
     let binURL = "";
 
     const fileSocket = new WebSocket(
-        `${
-            window.location.protocol == "https:" ? "wss" : "ws"
-        }://${node}/ws/file${
-            login
-                ? `?token=${JSON.parse(localStorage.getItem("tokens"))[node]}`
-                : ""
+        `${window.location.protocol == "https:" ? "wss" : "ws"}://${node}/ws/file${
+            login ? `?token=${JSON.parse(localStorage.getItem("tokens"))[node]}` : ""
         }`
     );
     fileSocket.onmessage = (e: MessageEvent) => {
@@ -163,9 +159,7 @@
             let endPos = fileText.selectionEnd;
 
             let tabAdded =
-                fileData.substring(0, startPos) +
-                "\t" +
-                fileData.substring(endPos);
+                fileData.substring(0, startPos) + "\t" + fileData.substring(endPos);
 
             fileText.value = tabAdded;
             fileData = tabAdded;
@@ -294,9 +288,7 @@
                             saved = false;
                             if (fileText) {
                                 fileText.style.height = "auto";
-                                fileText.style.height = `${
-                                    fileText.scrollHeight + 10
-                                }px`;
+                                fileText.style.height = `${fileText.scrollHeight + 10}px`;
                                 fileDiv.style.height = "auto";
                             }
                         }}
@@ -331,9 +323,7 @@
                     <h2>Receiving {currentSlices}MB out of {maxSlices}MB</h2>
                 {/if}
             {:else if socketData.contents != undefined}
-                <table
-                    class="w-full bg-white table-fixed dark:bg-black min-w-50"
-                >
+                <table class="w-full bg-white table-fixed dark:bg-black min-w-50">
                     <tr>
                         <th class="px-2">Name</th>
                         <th class="px-2">Kind</th>
@@ -345,8 +335,7 @@
                             contents.path
                                 ? ' !bg-dplime-dark'
                                 : ''}"
-                            class:hidden={!showHidden &&
-                                contents.name[0] == "."}
+                            class:hidden={!showHidden && contents.name[0] == "."}
                             on:dblclick={() => {
                                 switch (contents.maintype) {
                                     case "dir":
@@ -360,11 +349,7 @@
                                                     "Can't view files above 2MB, would you like to download instead?"
                                                 )
                                             ) {
-                                                fileSend(
-                                                    selPath.path,
-                                                    "dl",
-                                                    ""
-                                                );
+                                                fileSend(selPath.path, "dl", "");
                                                 downloading = true;
                                             } else {
                                                 break;
@@ -393,14 +378,9 @@
                         >
                             <td class="px-2"
                                 ><Fa
-                                    icon={getIcon(
-                                        contents.maintype,
-                                        contents.subtype
-                                    )}
+                                    icon={getIcon(contents.maintype, contents.subtype)}
                                     class="mr-2"
-                                /><span class="break-words"
-                                    >{contents.name}</span
-                                ></td
+                                /><span class="break-words">{contents.name}</span></td
                             >
                             <td class="px-2">{contents.prettytype}</td>
                             <td class="px-2"
@@ -446,11 +426,7 @@
                     title="{showHidden ? 'Hide' : 'Show'} Hidden Files"
                     on:click={() => {
                         showHidden = !showHidden;
-                    }}
-                    ><Fa
-                        icon={showHidden ? faEye : faEyeSlash}
-                        size="lg"
-                    /></span
+                    }}><Fa icon={showHidden ? faEye : faEyeSlash} size="lg" /></span
                 >
                 {#if currentPath != "/"}
                     <span
@@ -469,9 +445,7 @@
                         class="cursor-pointer"
                         title="New File"
                         on:click={() => {
-                            let name = prompt(
-                                "Please enter the name of the new file"
-                            );
+                            let name = prompt("Please enter the name of the new file");
                             if (validateInput(name)) {
                                 sendCmd(`${currentPath}/${name}`, "mkfile");
                             }
@@ -502,10 +476,7 @@
                                     i += 1000 * 1000
                                 ) {
                                     fileSocket.send(
-                                        fileDialog.files[0].slice(
-                                            i,
-                                            i + 1000 * 1000
-                                        )
+                                        fileDialog.files[0].slice(i, i + 1000 * 1000)
                                     );
                                 }
                             }}
@@ -520,10 +491,7 @@
                                     "Please enter the new name of the file"
                                 );
                                 if (validateInput(name)) {
-                                    rename(
-                                        selPath.path,
-                                        `${currentPath}/${name}`
-                                    );
+                                    rename(selPath.path, `${currentPath}/${name}`);
                                 }
                             }}><Fa icon={faICursor} size="lg" /></span
                         >
@@ -554,11 +522,7 @@
                                 ) {
                                     sendCmd(
                                         selPath.path,
-                                        `rm${
-                                            selPath.maintype == "dir"
-                                                ? "dir"
-                                                : ""
-                                        }`
+                                        `rm${selPath.maintype == "dir" ? "dir" : ""}`
                                     );
                                 }
                             }}><Fa icon={faTrash} size="lg" /></span

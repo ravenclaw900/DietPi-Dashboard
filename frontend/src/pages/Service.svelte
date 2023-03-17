@@ -1,9 +1,5 @@
 <script lang="ts">
-    import {
-        faSquare,
-        faPlay,
-        faRedoAlt,
-    } from "@fortawesome/free-solid-svg-icons";
+    import { faSquare, faPlay, faRedoAlt } from "@fortawesome/free-solid-svg-icons";
     import Fa from "svelte-fa";
 
     import type { servicesPage } from "../types";
@@ -59,8 +55,7 @@
                                 size="lg"
                             /></span
                         ><span
-                            on:click={() =>
-                                socketSend("restart", [service.name])}
+                            on:click={() => socketSend("restart", [service.name])}
                             title="Restart"
                             ><Fa
                                 icon={faRedoAlt}

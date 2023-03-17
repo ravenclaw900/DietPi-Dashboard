@@ -72,14 +72,13 @@
     const updateCheck = () => {
         if (
             localStorage.getItem("update-check") == null ||
-            JSON.parse(localStorage.getItem("update-check")).lastChecked +
-                86400 <
+            JSON.parse(localStorage.getItem("update-check")).lastChecked + 86400 <
                 Math.round(Date.now() / 1000)
         ) {
             fetch(
                 "https://api.github.com/repos/ravenclaw900/DietPi-Dashboard/releases/latest"
-            ).then((response) =>
-                response.text().then((body) => {
+            ).then(response =>
+                response.text().then(body => {
                     let version = JSON.parse(body).name.substring(1);
                     if (cmp(version, backendVersion) > 0) {
                         updateAvailable = version;
@@ -94,9 +93,7 @@
                 })
             );
         } else if (localStorage.getItem("update-check") != null) {
-            let version = JSON.parse(
-                localStorage.getItem("update-check")
-            ).version;
+            let version = JSON.parse(localStorage.getItem("update-check")).version;
             if (cmp(version, backendVersion) > 0) {
                 updateAvailable = version;
             }
@@ -187,28 +184,26 @@
             method: "POST",
             body: password,
         };
-        fetch(`${window.location.protocol}//${node}/login/`, options).then(
-            (response) => {
-                password = "";
-                if (response.status == 401) {
-                    passwordMessage = true;
-                    setTimeout(() => (passwordMessage = false), 2000);
-                    return;
-                }
-                response.text().then((body) => {
-                    token = body;
-                    let obj =
-                        localStorage.getItem("tokens") == null
-                            ? {}
-                            : JSON.parse(localStorage.getItem("tokens"));
-                    obj[node] = body;
-                    localStorage.setItem("tokens", JSON.stringify(obj));
-                    loginDialog = false;
-                    socket.send(JSON.stringify({ token }));
-                    pollServer(window.location.pathname);
-                });
+        fetch(`${window.location.protocol}//${node}/login/`, options).then(response => {
+            password = "";
+            if (response.status == 401) {
+                passwordMessage = true;
+                setTimeout(() => (passwordMessage = false), 2000);
+                return;
             }
-        );
+            response.text().then(body => {
+                token = body;
+                let obj =
+                    localStorage.getItem("tokens") == null
+                        ? {}
+                        : JSON.parse(localStorage.getItem("tokens"));
+                obj[node] = body;
+                localStorage.setItem("tokens", JSON.stringify(obj));
+                loginDialog = false;
+                socket.send(JSON.stringify({ token }));
+                pollServer(window.location.pathname);
+            });
+        });
     }
 
     function socketSend(cmd: string, args: string[]) {
@@ -265,9 +260,7 @@
                     >
                 </form>
                 {#if passwordMessage}
-                    <h6 class="text-red-500" transition:fade>
-                        Incorrect password
-                    </h6>
+                    <h6 class="text-red-500" transition:fade>Incorrect password</h6>
                 {/if}
             </div>
         </div>
@@ -310,10 +303,7 @@
             <span on:click={() => (menu = !menu)} class="justify-self-start"
                 ><Fa icon={faBars} class="p-1 ml-1 btn" size="3x" /></span
             >
-            <a
-                href="https://dietpi.com"
-                class="justify-self-center"
-                target="_blank"
+            <a href="https://dietpi.com" class="justify-self-center" target="_blank"
                 ><img src={logo} alt="DietPi logo" class="h-10" /></a
             >
             <div class="flex justify-around">
@@ -333,8 +323,7 @@
                 <div>
                     <span
                         class="cursor-pointer"
-                        on:click={() =>
-                            (notificationsShown = !notificationsShown)}
+                        on:click={() => (notificationsShown = !notificationsShown)}
                         >{#if notify}
                             <FaLayers size="lg">
                                 <Fa icon={faEnvelope} />
@@ -369,10 +358,7 @@
             </div>
         </header>
         {#if notificationsShown}
-            <div
-                class="p-2 bg-gray-50 dark:bg-gray-800 dark:text-white"
-                transition:slide
-            >
+            <div class="p-2 bg-gray-50 dark:bg-gray-800 dark:text-white" transition:slide>
                 <div class="min-h-10">
                     <table class="w-full">
                         {#if dpUpdate}
@@ -383,10 +369,7 @@
                         {#if cmp(frontendVersion, backendVersion) != 0}
                             <tr class="border-b border-gray-300 border-gray-600"
                                 >Warning: Current node is running a version of
-                                DietPi-Dashboard {cmp(
-                                    frontendVersion,
-                                    backendVersion
-                                ) < 0
+                                DietPi-Dashboard {cmp(frontendVersion, backendVersion) < 0
                                     ? "greater"
                                     : "lower"} than the main node (main: {frontendVersion},
                                 node: {backendVersion})</tr
@@ -428,13 +411,11 @@
             {#if shown && socketData != undefined}
                 <Router>
                     {#if socketData.dataKind == "PROCESS"}
-                        <Route path="process"
-                            ><Process {socketData} {socketSend} /></Route
+                        <Route path="process"><Process {socketData} {socketSend} /></Route
                         >
                     {/if}
                     {#if socketData.dataKind == "STATISTIC"}
-                        <Route path="/"
-                            ><Home {socketData} {darkMode} {tempUnit} /></Route
+                        <Route path="/"><Home {socketData} {darkMode} {tempUnit} /></Route
                         >
                     {/if}
                     {#if socketData.dataKind == "SOFTWARE"}
@@ -459,8 +440,7 @@
                         >
                     {/if}
                     {#if socketData.dataKind == "SERVICE"}
-                        <Route path="service"
-                            ><Service {socketSend} {socketData} /></Route
+                        <Route path="service"><Service {socketSend} {socketData} /></Route
                         >
                     {/if}
                     <Route path=""><h3>Page not found</h3></Route>
@@ -485,9 +465,7 @@
                     target="_blank">More Info</a
                 >
             </div>
-            <a
-                href="https://github.com/ravenclaw900/DietPi-Dashboard"
-                target="_blank"
+            <a href="https://github.com/ravenclaw900/DietPi-Dashboard" target="_blank"
                 ><img
                     src={github}
                     width="30px"

@@ -223,42 +223,27 @@
         <tr class="table-header">
             <th
                 >PID<span on:click={setPid}
-                    ><Fa
-                        icon={pidIcon}
-                        class="float-right cursor-pointer"
-                    /></span
+                    ><Fa icon={pidIcon} class="float-right cursor-pointer" /></span
                 ></th
             >
             <th
                 >Name<span on:click={setName}
-                    ><Fa
-                        icon={nameIcon}
-                        class="float-right cursor-pointer"
-                    /></span
+                    ><Fa icon={nameIcon} class="float-right cursor-pointer" /></span
                 ></th
             >
             <th
                 >Status<span on:click={setStatus}
-                    ><Fa
-                        icon={statusIcon}
-                        class="float-right cursor-pointer"
-                    /></span
+                    ><Fa icon={statusIcon} class="float-right cursor-pointer" /></span
                 ></th
             >
             <th
                 >CPU Usage<span on:click={setCPU}
-                    ><Fa
-                        icon={cpuIcon}
-                        class="float-right cursor-pointer"
-                    /></span
+                    ><Fa icon={cpuIcon} class="float-right cursor-pointer" /></span
                 ></th
             >
             <th
                 >RAM Usage<span on:click={setRAM}
-                    ><Fa
-                        icon={ramIcon}
-                        class="float-right cursor-pointer"
-                    /></span
+                    ><Fa icon={ramIcon} class="float-right cursor-pointer" /></span
                 ></th
             >
             <th>Actions</th>
@@ -281,9 +266,7 @@
                     {#if process.name != "dietpi-dashboar"}
                         <span
                             on:click={() =>
-                                socketSend("terminate", [
-                                    process.pid.toString(),
-                                ])}
+                                socketSend("terminate", [process.pid.toString()])}
                             title="Terminate"
                             ><Fa
                                 icon={faBan}
@@ -292,8 +275,7 @@
                             /></span
                         >
                         <span
-                            on:click={() =>
-                                socketSend("kill", [process.pid.toString()])}
+                            on:click={() => socketSend("kill", [process.pid.toString()])}
                             title="Kill"
                             ><Fa
                                 icon={faSkull}
@@ -304,9 +286,7 @@
                         {#if process.status != "stopped"}
                             <span
                                 on:click={() =>
-                                    socketSend("suspend", [
-                                        process.pid.toString(),
-                                    ])}
+                                    socketSend("suspend", [process.pid.toString()])}
                                 title="Suspend"
                                 ><Fa
                                     icon={faPause}
@@ -317,9 +297,7 @@
                         {:else}
                             <span
                                 on:click={() =>
-                                    socketSend("resume", [
-                                        process.pid.toString(),
-                                    ])}
+                                    socketSend("resume", [process.pid.toString()])}
                                 title="Resume"
                                 ><Fa
                                     icon={faPlay}
