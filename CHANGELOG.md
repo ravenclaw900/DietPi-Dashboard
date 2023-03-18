@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.6.1](https://github.com/ravenclaw900/DietPi-Dashboard/compare/v0.6.0...v0.6.1) (2022-08-15)
+
+
+### Features
+
+* **backend:** make warp listen on both IPv4 and IPv6 ([#216](https://github.com/ravenclaw900/DietPi-Dashboard/issues/216)) ([8bcf1b2](https://github.com/ravenclaw900/DietPi-Dashboard/commit/8bcf1b25ed62930f2164e84f122dbc852f103242))
+* **backend:** store files in binary as compressed ([#263](https://github.com/ravenclaw900/DietPi-Dashboard/issues/263)) ([cd80f5a](https://github.com/ravenclaw900/DietPi-Dashboard/commit/cd80f5a6b01856bbe6f361199ad07d1140e1f62d))
+* **dashboard:** add CPU temperature ([#232](https://github.com/ravenclaw900/DietPi-Dashboard/issues/232)) ([6567d10](https://github.com/ravenclaw900/DietPi-Dashboard/commit/6567d10b2f88aca09c8292d85f479a397c3a5a1e))
+
+
+### Bug Fixes
+
+* **backend:** add error handling ([#247](https://github.com/ravenclaw900/DietPi-Dashboard/issues/247)) ([1acbd83](https://github.com/ravenclaw900/DietPi-Dashboard/commit/1acbd8303997517769249dc235585b4e7b7cf954))
+* **backend:** quit socket_handler if there's a websocket error ([#312](https://github.com/ravenclaw900/DietPi-Dashboard/issues/312)) ([5bb4142](https://github.com/ravenclaw900/DietPi-Dashboard/commit/5bb41421f98170754c7f42ac512ba7ef258a6394))
+* **backend:** remove useless `take` call when getting software ([711952e](https://github.com/ravenclaw900/DietPi-Dashboard/commit/711952e97260d0da7ae23d9f690673260265d94c))
+* **backend:** replace blocking functions with async functions ([#270](https://github.com/ravenclaw900/DietPi-Dashboard/issues/270)) ([aa6e69f](https://github.com/ravenclaw900/DietPi-Dashboard/commit/aa6e69fcddb78af1a3b25bc9a08f8249447ca406))
+* **dashboard:** fix error about cpu temp when changing nodes ([495fe5e](https://github.com/ravenclaw900/DietPi-Dashboard/commit/495fe5e48113613f957ba47693c32cf6d9b840f0))
+* **dashboard:** fix typescript errors ([0c1934c](https://github.com/ravenclaw900/DietPi-Dashboard/commit/0c1934c2ccb88eed2c2286c6fac63c106e892488))
+* **deps:** update rust crate serde to 1.0.140 ([#309](https://github.com/ravenclaw900/DietPi-Dashboard/issues/309)) ([0dc7565](https://github.com/ravenclaw900/DietPi-Dashboard/commit/0dc756501283f23d04f4947c0b61fd4b25f30fb5))
+* **deps:** update rust crate tracing-subscriber to 0.3.15 ([#310](https://github.com/ravenclaw900/DietPi-Dashboard/issues/310)) ([79e8be4](https://github.com/ravenclaw900/DietPi-Dashboard/commit/79e8be473e97a2ad7bef2d12be8aa677d678ba57))
+* **filebrowser:** fix "couldn't get parent of path" error ([7817b65](https://github.com/ravenclaw900/DietPi-Dashboard/commit/7817b655db767ff1f4cf9b91df253c389069287e))
+* **filebrowser:** give file editor black background on dark mode without syntax highlighting ([07be869](https://github.com/ravenclaw900/DietPi-Dashboard/commit/07be869c97418e1c1a7fa42081438d6a8ac05d7f)), closes [#218](https://github.com/ravenclaw900/DietPi-Dashboard/issues/218)
+* **frontend:** make websocket reconnect ([#325](https://github.com/ravenclaw900/DietPi-Dashboard/issues/325)) ([0db5fb0](https://github.com/ravenclaw900/DietPi-Dashboard/commit/0db5fb0a842e126a12a0f484c43fe58e819776d1))
+* **services:** fix dashboard sometimes crashing when reloading services page ([657f5e9](https://github.com/ravenclaw900/DietPi-Dashboard/commit/657f5e964b55b482dd99402069d8df9239bd0d97))
+
 ## [0.6.0](https://github.com/ravenclaw900/DietPi-Dashboard/compare/v0.5.0...v0.6.0) (2022-04-08)
 
 

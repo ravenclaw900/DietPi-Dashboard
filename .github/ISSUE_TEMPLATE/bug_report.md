@@ -26,6 +26,7 @@ assignees: ''
 4. See error
 
 **Error log**
+<!-- If possible, enable debug logging in the config file -->
 <!-- Run `journalctl -u dietpi-dashboard` to get -->
 
 **Additional context**

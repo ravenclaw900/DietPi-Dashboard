@@ -42,5 +42,5 @@
 
 # Preferred temperature unit
 # - Options: fahrenheit, celsius
-# - Default: celsius
-#temp_unit = celsius
+# - Default: "celsius"
+#temp_unit = "celsius"

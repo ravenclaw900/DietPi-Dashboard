@@ -1,105 +1,80 @@
 name: Build
-on: push
+on: 
+  push:
+  workflow_dispatch:
+    inputs:
+      debug_enabled:
+        description: 'Run the build with tmate debugging enabled'     
+        required: false
+        default: false
 
 jobs:
-  build:
-    if: "!startsWith(github.event.head_commit.message, 'docs') && !startsWith(github.event.head_commit.message, 'style')"
+  fmt_clippy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - name: Setup pnpm
+        run: corepack enable
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
       - name: Lint (rustfmt)
-        working-directory: src/backend
         run: cargo fmt -- --check
-      - name: Install other Rust targets
-        run: |
-          rustup target add x86_64-unknown-linux-musl
-          rustup target add arm-unknown-linux-musleabihf
-          rustup target add armv7-unknown-linux-musleabihf
-          rustup target add aarch64-unknown-linux-musl
-      - name: Restore Rust cache
-        uses: Swatinem/rust-cache@v1
-        with:
-          working-directory: src/backend
       - name: Lint (clippy)
-        working-directory: src/backend
-        run: |
-          mkdir dist
-          cargo clippy --all-targets --all-features -- -D warnings
-      - name: Install Rust dependencies
-        run: cargo install cross set-cargo-version
-      - name: Install Yarn Dependencies
-        working-directory: src/frontend
-        run: yarn install
+        run: cargo clippy --all-targets --all-features -- -D warnings
+      
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        job:
+          - { target: x86_64-unknown-linux-musl, pretty: x86_64, backend: false }
+          - { target: arm-unknown-linux-musleabihf, pretty: armv6l, backend: false }
+          - { target: armv7-unknown-linux-musleabihf, pretty: armv7l, backend: false }
+          - { target: aarch64-unknown-linux-musl, pretty: aarch64, backend: false }
+          - { target: x86_64-unknown-linux-musl, pretty: x86_64-backend, backend: true }
+          - { target: arm-unknown-linux-musleabihf, pretty: armv6l-backend, backend: true }
+          - { target: armv7-unknown-linux-musleabihf, pretty: armv7l-backend, backend: true }
+          - { target: aarch64-unknown-linux-musl, pretty: aarch64-backend, backend: true }
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        id: toolchain
+        with:
+          targets: ${{ matrix.job.target }}
+          components: clippy, rustfmt
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Enable pnpm
+        run: corepack enable
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: just,cross
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.job.pretty }}-${{ steps.toolchain.outputs.cachekey }}
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
+      - name: Install set-cargo-version
+        run: cargo install set-cargo-version
       - name: Change frontend version to commit hash
-        working-directory: src/frontend
+        working-directory: frontend
         run: npm version $(git describe --tags) --allow-same-version
       - name: Change backend version to commit hash
-        run: set-cargo-version src/backend/Cargo.toml $(git describe --tags | cut -c 2-)
-      - name: Build frontend
-        working-directory: src/frontend
-        run: yarn build
-      - name: Compress frontend files
-        run: make compress
-      - name: Build x86_64
-        working-directory: src/backend
-        run: cross build --release --target x86_64-unknown-linux-musl --features compression
-      - name: Delete build artifacts
+        run: set-cargo-version Cargo.toml $(git describe --tags | cut -c 2-)
+      - name: Build DietPi-Dashboard
         run: |
-          rm -r src/backend/target/release/build/*
-          rm src/backend/target/release/deps/*.so
-      - name: Build armv6l
-        working-directory: src/backend
-        run: cross build --release --target arm-unknown-linux-musleabihf --features compression
-      - name: Build armv7l
-        working-directory: src/backend
-        run: cross build --release --target armv7-unknown-linux-musleabihf --features compression
-      - name: Build aarch64
-        working-directory: src/backend
-        run: cross build --release --target aarch64-unknown-linux-musl --features compression
-      - uses: actions/upload-artifact@v2
+          just ci ${{ matrix.job.target }} ${{ matrix.job.backend }}
+      - name: Upload binary
+        uses: actions/upload-artifact@v3
         with:
-          name: dietpi-dashboard-x86_64
-          path: src/backend/target/x86_64-unknown-linux-musl/release/dietpi-dashboard
-      - uses: actions/upload-artifact@v2
-        with:
-          name: dietpi-dashboard-armv6l
-          path: src/backend/target/arm-unknown-linux-musleabihf/release/dietpi-dashboard
-      - uses: actions/upload-artifact@v2
-        with:
-          name: dietpi-dashboard-armv7l
-          path: src/backend/target/armv7-unknown-linux-musleabihf/release/dietpi-dashboard
-      - uses: actions/upload-artifact@v2
-        with:
-          name: dietpi-dashboard-aarch64
-          path: src/backend/target/aarch64-unknown-linux-musl/release/dietpi-dashboard
-      - name: Build x86_64 (backend only)
-        working-directory: src/backend
-        run: cross build --release --target x86_64-unknown-linux-musl --no-default-features
-      - name: Build armv6l (backend only)
-        working-directory: src/backend
-        run: cross build --release --target arm-unknown-linux-musleabihf --no-default-features
-      - name: Build armv7l (backend only)
-        working-directory: src/backend
-        run: cross build --release --target armv7-unknown-linux-musleabihf --no-default-features
-      - name: Build aarch64 (backend only)
-        working-directory: src/backend
-        run: cross build --release --target aarch64-unknown-linux-musl --no-default-features
-      - uses: actions/upload-artifact@v2
-        with:
-          name: dietpi-dashboard-x86_64-backend
-          path: src/backend/target/x86_64-unknown-linux-musl/release/dietpi-dashboard
-      - uses: actions/upload-artifact@v2
-        with:
-          name: dietpi-dashboard-armv6l-backend
-          path: src/backend/target/arm-unknown-linux-musleabihf/release/dietpi-dashboard
-      - uses: actions/upload-artifact@v2
-        with:
-          name: dietpi-dashboard-armv7l-backend
-          path: src/backend/target/armv7-unknown-linux-musleabihf/release/dietpi-dashboard
-      - uses: actions/upload-artifact@v2
-        with:
-          name: dietpi-dashboard-aarch64-backend
-          path: src/backend/target/aarch64-unknown-linux-musl/release/dietpi-dashboard
-
+          name: dietpi-dashboard-${{ matrix.job.pretty }}
+          path: target/${{ matrix.job.target }}/release/dietpi-dashboard
