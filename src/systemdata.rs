@@ -459,3 +459,147 @@ pub fn temp() -> shared::CPUTemp {
         },
     }
 }
+
+#[allow(clippy::float_cmp)] // All it's doing is rounding, so there shouldn't be any floating point errors
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn check_round() {
+        assert_eq!(round_percent(56.7396), 56.74);
+        assert_eq!(round_percent(99.989), 99.99);
+        assert_eq!(round_percent(99.999), 100.00);
+        assert_eq!(round_percent(31.25), 31.25);
+        assert_eq!(round_percent(20.323), 20.32);
+        assert_eq!(round_percent(0.105), 0.11);
+        assert_eq!(round_percent(0.001), 0.0);
+    }
+
+    #[tokio::test]
+    async fn validate_cpu() {
+        let output = cpu().await;
+        assert!((0.0..=100.0).contains(&output));
+    }
+
+    #[allow(clippy::cast_precision_loss)]
+    fn usage_test(used: u64, total: u64, percent_test: f32) {
+        assert!(used <= total);
+        if total != 0 {
+            assert_eq!(
+                round_percent((used as f32 / total as f32) * 100.0),
+                percent_test
+            );
+        }
+    }
+
+    #[test]
+    fn validate_ram() {
+        let output = ram();
+        assert!(output.total > 0);
+        usage_test(output.used, output.total, output.percent);
+    }
+
+    #[test]
+    fn validate_swap() {
+        let output = swap();
+        usage_test(output.used, output.total, output.percent);
+    }
+
+    // Disk percent is actually a measure of user space used, so we can't validate here
+    #[tokio::test]
+    async fn validate_disk() {
+        let output = disk();
+        assert!(output.used <= output.total);
+        assert!(output.used < output.total);
+    }
+
+    #[tokio::test]
+    async fn validate_network() {
+        let mut output = network();
+        assert_eq!(output.sent, 0);
+        assert_eq!(output.received, 0);
+        // Just make sure that it works
+        for _ in 0..20 {
+            sleep(Duration::from_millis(100)).await;
+            let old_sent = BYTES_SENT.load(Relaxed);
+            let old_recv = BYTES_RECV.load(Relaxed);
+            output = network();
+            assert_eq!(BYTES_SENT.load(Relaxed), output.sent + old_sent);
+            assert_eq!(BYTES_RECV.load(Relaxed), output.received + old_recv);
+        }
+    }
+
+    // Very little to actually validate here, just make sure that there are no errors
+    #[tokio::test]
+    async fn validate_processes() {
+        for _ in 0..30 {
+            processes().await;
+        }
+    }
+
+    #[test]
+    fn validate_software() {
+        let output = dpsoftware();
+        let cmd = Command::new("/boot/dietpi/dietpi-software")
+            .arg("list")
+            .output()
+            .unwrap()
+            .stdout;
+        let mut install_counter = 0;
+        let mut uninstall_counter = 0;
+        for i in from_utf8(&cmd).unwrap().lines().skip(4) {
+            if i.contains("DISABLED") {
+                continue;
+            }
+            if i.split_once('|')
+                .unwrap()
+                .1
+                .trim()
+                .trim_start_matches('=')
+                .starts_with('0')
+            {
+                uninstall_counter += 1;
+            } else {
+                install_counter += 1;
+            }
+        }
+        assert_eq!(uninstall_counter, output.0.len());
+        assert_eq!(install_counter, output.1.len());
+    }
+
+    #[test]
+    fn validate_host() {
+        let output = host();
+
+        assert_eq!(
+            output.kernel,
+            from_utf8(&Command::new("uname").arg("-r").output().unwrap().stdout)
+                .unwrap()
+                .trim_end_matches('\n')
+        );
+
+        // The IP address shouldn't be the loopback
+        assert_ne!(output.nic, "127.0.0.1");
+
+        assert_eq!(
+            output.hostname,
+            from_utf8(&Command::new("hostname").output().unwrap().stdout)
+                .unwrap()
+                .trim_end_matches('\n')
+        );
+    }
+
+    #[test]
+    fn validate_services() {
+        let output = services();
+        for i in output {
+            if i.status == "running" || i.status == "exited" {
+                assert_ne!(i.start, "");
+                assert_eq!(i.log, "");
+            } else if i.status == "failed" {
+                assert_ne!(i.log, "");
+            }
+        }
+    }
+}
