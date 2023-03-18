@@ -55,31 +55,35 @@
     let backendVersion = "";
     let updateAvailable = "";
     let node = `${window.location.hostname}:${window.location.port}`;
+    let tokens: Record<string, string> = JSON.parse(
+        localStorage.getItem("tokens") ?? "{}"
+    );
 
     $: node && (((shown = false), (reopenSocket = false)), connectSocket(node));
     $: notify =
-        dpUpdate != "" ||
-        cmp(frontendVersion, backendVersion) != 0 ||
-        updateAvailable != "";
+        dpUpdate !== "" ||
+        cmp(frontendVersion, backendVersion) !== 0 ||
+        updateAvailable !== "";
 
     // Get dark mode
-    if (localStorage.getItem("darkMode") != null) {
-        darkMode = JSON.parse(localStorage.getItem("darkMode"));
+    let darkModeTemp = localStorage.getItem("darkMode");
+    if (darkModeTemp !== null) {
+        darkMode = JSON.parse(darkModeTemp);
     } else {
         darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
     }
 
     const updateCheck = () => {
+        let updateCheckTemp = localStorage.getItem("update-check");
         if (
-            localStorage.getItem("update-check") == null ||
-            JSON.parse(localStorage.getItem("update-check")).lastChecked +
-                86400 <
+            updateCheckTemp === null ||
+            JSON.parse(updateCheckTemp).lastChecked + 86400 <
                 Math.round(Date.now() / 1000)
         ) {
             fetch(
                 "https://api.github.com/repos/ravenclaw900/DietPi-Dashboard/releases/latest"
-            ).then((response) =>
-                response.text().then((body) => {
+            ).then(response =>
+                response.text().then(body => {
                     let version = JSON.parse(body).name.substring(1);
                     if (cmp(version, backendVersion) > 0) {
                         updateAvailable = version;
@@ -93,10 +97,8 @@
                     );
                 })
             );
-        } else if (localStorage.getItem("update-check") != null) {
-            let version = JSON.parse(
-                localStorage.getItem("update-check")
-            ).version;
+        } else if (updateCheckTemp !== null) {
+            let version = JSON.parse(updateCheckTemp).version;
             if (cmp(version, backendVersion) > 0) {
                 updateAvailable = version;
             }
@@ -105,7 +107,7 @@
 
     const socketMessageListener = (e: MessageEvent) => {
         socketData = JSON.parse(e.data);
-        if (socketData.dataKind == "GLOBAL") {
+        if (socketData.dataKind === "GLOBAL") {
             dpUpdate = socketData.update;
             login = socketData.login;
             if (socketData.nodes) {
@@ -115,13 +117,12 @@
             tempUnit = socketData.temp_unit;
             // Get token
             if (login) {
-                let obj = JSON.parse(localStorage.getItem("tokens"));
-                if (obj == null || obj[node] == null) {
+                if (tokens[node] === null) {
                     // Login
                     loginDialog = true;
                 } else {
                     // Or use stored token
-                    token = obj[node];
+                    token = tokens[node];
                     socket.send(JSON.stringify({ token }));
                     pollServer(window.location.pathname);
                 }
@@ -136,7 +137,7 @@
                 updateCheck();
             }
         }
-        if (socketData.dataKind == "REAUTH") {
+        if (socketData.dataKind === "REAUTH") {
             loginDialog = true;
         }
         if (navPage) {
@@ -150,7 +151,7 @@
         shown = true;
         loginDialog = false;
     };
-    const socketErrorListener = (e: ErrorEvent) => {
+    const socketErrorListener = (e: Event) => {
         console.error(e);
     };
     const socketCloseListener = (e: CloseEvent) => {
@@ -163,7 +164,7 @@
     };
 
     function pollServer(page: string) {
-        if (page != "/terminal") {
+        if (page !== "/terminal") {
             // Terminal doesn't work if sent
             socket.send(
                 JSON.stringify({
@@ -174,7 +175,7 @@
     }
 
     function changePage(page: string) {
-        if (page != window.location.pathname) {
+        if (page !== window.location.pathname) {
             blur = true;
             pollServer(page);
             navPage = page;
@@ -187,28 +188,22 @@
             method: "POST",
             body: password,
         };
-        fetch(`${window.location.protocol}//${node}/login/`, options).then(
-            (response) => {
-                password = "";
-                if (response.status == 401) {
-                    passwordMessage = true;
-                    setTimeout(() => (passwordMessage = false), 2000);
-                    return;
-                }
-                response.text().then((body) => {
-                    token = body;
-                    let obj =
-                        localStorage.getItem("tokens") == null
-                            ? {}
-                            : JSON.parse(localStorage.getItem("tokens"));
-                    obj[node] = body;
-                    localStorage.setItem("tokens", JSON.stringify(obj));
-                    loginDialog = false;
-                    socket.send(JSON.stringify({ token }));
-                    pollServer(window.location.pathname);
-                });
+        fetch(`${window.location.protocol}//${node}/login/`, options).then(response => {
+            password = "";
+            if (response.status === 401) {
+                passwordMessage = true;
+                setTimeout(() => (passwordMessage = false), 2000);
+                return;
             }
-        );
+            response.text().then(body => {
+                token = body;
+                tokens[node] = body;
+                localStorage.setItem("tokens", JSON.stringify(tokens));
+                loginDialog = false;
+                socket.send(JSON.stringify({ token }));
+                pollServer(window.location.pathname);
+            });
+        });
     }
 
     function socketSend(cmd: string, args: string[]) {
@@ -226,7 +221,7 @@
         } else {
             reopenSocket = true;
         }
-        let proto = window.location.protocol == "https:" ? "wss" : "ws";
+        let proto = window.location.protocol === "https:" ? "wss" : "ws";
         socket = new WebSocket(`${proto}://${url}/ws`);
         socket.onopen = socketOpenListener;
         socket.onmessage = socketMessageListener;
@@ -265,9 +260,7 @@
                     >
                 </form>
                 {#if passwordMessage}
-                    <h6 class="text-red-500" transition:fade>
-                        Incorrect password
-                    </h6>
+                    <h6 class="text-red-500" transition:fade>Incorrect password</h6>
                 {/if}
             </div>
         </div>
@@ -310,14 +303,11 @@
             <span on:click={() => (menu = !menu)} class="justify-self-start"
                 ><Fa icon={faBars} class="p-1 ml-1 btn" size="3x" /></span
             >
-            <a
-                href="https://dietpi.com"
-                class="justify-self-center"
-                target="_blank"
+            <a href="https://dietpi.com" class="justify-self-center" target="_blank"
                 ><img src={logo} alt="DietPi logo" class="h-10" /></a
             >
             <div class="flex justify-around">
-                {#if nodes.length != 0}
+                {#if nodes.length !== 0}
                     <select bind:value={node} class="hidden md:inline-block">
                         <option
                             value={`${window.location.hostname}:${window.location.port}`}
@@ -333,8 +323,7 @@
                 <div>
                     <span
                         class="cursor-pointer"
-                        on:click={() =>
-                            (notificationsShown = !notificationsShown)}
+                        on:click={() => (notificationsShown = !notificationsShown)}
                         >{#if notify}
                             <FaLayers size="lg">
                                 <Fa icon={faEnvelope} />
@@ -352,7 +341,7 @@
                         {/if}
                     </span>
                 </div>
-                {#if nodes.length != 0}
+                {#if nodes.length !== 0}
                     <span
                         class="cursor-pointer md:hidden"
                         on:click={() => (settingsShown = !settingsShown)}
@@ -369,10 +358,7 @@
             </div>
         </header>
         {#if notificationsShown}
-            <div
-                class="p-2 bg-gray-50 dark:bg-gray-800 dark:text-white"
-                transition:slide
-            >
+            <div class="p-2 bg-gray-50 dark:bg-gray-800 dark:text-white" transition:slide>
                 <div class="min-h-10">
                     <table class="w-full">
                         {#if dpUpdate}
@@ -380,13 +366,10 @@
                                 >DietPi update available: {dpUpdate}</tr
                             >
                         {/if}
-                        {#if cmp(frontendVersion, backendVersion) != 0}
+                        {#if cmp(frontendVersion, backendVersion) !== 0}
                             <tr class="border-b border-gray-300 border-gray-600"
                                 >Warning: Current node is running a version of
-                                DietPi-Dashboard {cmp(
-                                    frontendVersion,
-                                    backendVersion
-                                ) < 0
+                                DietPi-Dashboard {cmp(frontendVersion, backendVersion) < 0
                                     ? "greater"
                                     : "lower"} than the main node (main: {frontendVersion},
                                 node: {backendVersion})</tr
@@ -425,42 +408,40 @@
                 ? ' children:blur-2 children:filter'
                 : ''}"
         >
-            {#if shown && socketData != undefined}
+            {#if shown && socketData !== undefined}
                 <Router>
-                    {#if socketData.dataKind == "PROCESS"}
-                        <Route path="process"
-                            ><Process {socketData} {socketSend} /></Route
+                    {#if socketData.dataKind === "PROCESS"}
+                        <Route path="process"><Process {socketData} {socketSend} /></Route
                         >
                     {/if}
-                    {#if socketData.dataKind == "STATISTIC"}
-                        <Route path="/"
-                            ><Home {socketData} {darkMode} {tempUnit} /></Route
+                    {#if socketData.dataKind === "STATISTIC"}
+                        <Route path="/"><Home {socketData} {darkMode} {tempUnit} /></Route
                         >
                     {/if}
-                    {#if socketData.dataKind == "SOFTWARE"}
+                    {#if socketData.dataKind === "SOFTWARE"}
                         <Route path="software"
                             ><Software {socketData} {socketSend} /></Route
                         >
                     {/if}
                     <Route path="terminal"><Terminal {node} {token} /></Route>
-                    {#if socketData.dataKind == "MANAGEMENT"}
+                    {#if socketData.dataKind === "MANAGEMENT"}
                         <Route path="management"
                             ><Management {socketSend} {socketData} /></Route
                         >
                     {/if}
-                    {#if socketData.dataKind == "BROWSER"}
+                    {#if socketData.dataKind === "BROWSER"}
                         <Route path="browser"
                             ><FileBrowser
                                 {socketSend}
                                 {socketData}
                                 {node}
                                 {login}
+                                {token}
                             /></Route
                         >
                     {/if}
-                    {#if socketData.dataKind == "SERVICE"}
-                        <Route path="service"
-                            ><Service {socketSend} {socketData} /></Route
+                    {#if socketData.dataKind === "SERVICE"}
+                        <Route path="service"><Service {socketSend} {socketData} /></Route
                         >
                     {/if}
                     <Route path=""><h3>Page not found</h3></Route>
@@ -485,9 +466,7 @@
                     target="_blank">More Info</a
                 >
             </div>
-            <a
-                href="https://github.com/ravenclaw900/DietPi-Dashboard"
-                target="_blank"
+            <a href="https://github.com/ravenclaw900/DietPi-Dashboard" target="_blank"
                 ><img
                     src={github}
                     width="30px"

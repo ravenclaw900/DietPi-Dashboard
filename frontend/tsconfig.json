@@ -14,7 +14,8 @@
      */
     "allowJs": true,
     "checkJs": true,
-    "noImplicitAny": true
+    "noImplicitAny": true,
+    "strict": true
   },
   "include": [
     "src/**/*.d.ts",

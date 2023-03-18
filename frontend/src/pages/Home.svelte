@@ -50,10 +50,7 @@
         prettyBytes(socketData.swap.used, { binary: true }),
         prettyBytes(socketData.swap.total, { binary: true }),
     ];
-    $: diskData = [
-        prettyBytes(socketData.disk.used),
-        prettyBytes(socketData.disk.total),
-    ];
+    $: diskData = [prettyBytes(socketData.disk.used), prettyBytes(socketData.disk.total)];
 
     function getTempMsg(temp: number) {
         if (temp >= 70) {
@@ -98,7 +95,7 @@
         });
     }
 
-    let uplot: uPlot;
+    let uplot: uPlot | null;
 
     onMount(() => {
         let opts: uPlot.Options = {
@@ -155,8 +152,7 @@
                     stroke: "#ec4899",
                     width: 3,
                     scale: "mb",
-                    value: (_: uPlot, val: number) =>
-                        prettyBytes(val * 1000000),
+                    value: (_: uPlot, val: number) => prettyBytes(val * 1000000),
                 },
             ],
             axes: [
@@ -185,8 +181,7 @@
                     scale: "deg",
                     values: (_: any, vals: number[]) =>
                         vals.map(
-                            (v: number) =>
-                                +v + (tempUnit == "celsius" ? "ºC" : "ºF")
+                            (v: number) => +v + (tempUnit === "celsius" ? "ºC" : "ºF")
                         ),
                     grid: { show: false },
                     stroke: "#94A3B8",
@@ -197,23 +192,23 @@
                 "%": {
                     auto: false,
                     // Hide CPU axis when CPU series is disabled
-                    range: (u: uPlot) =>
-                        u.series[1].show ? [0, 100] : [null, null],
+                    range: (u: uPlot) => (u.series[1].show ? [0, 100] : [null, null]),
                 },
             },
         };
 
         uplot = new uPlot(opts, data, chart);
 
-        if (socketData.swap.total == 0) {
+        if (socketData.swap.total === 0) {
             uplot.setSeries(3, { show: false });
         }
 
         let observer = new ResizeObserver((entries, _) =>
-            resizeUplot(uplot, entries[0].target)
+            resizeUplot(uplot as uPlot, entries[0].target)
         );
 
-        observer.observe(document.getElementById("chart"));
+        // Guaranteed to exist
+        observer.observe(document.getElementById("chart") as HTMLElement);
     });
 
     let handle1 = setInterval(() => {
@@ -225,29 +220,31 @@
         dataPush[4].push(socketData.disk.used / 1000000);
         dataPush[5].push(socketData.network.sent / 1000000);
         dataPush[6].push(socketData.network.received / 1000000);
-        if (socketData.temp.available) {
-            if (uplot.series[7] == undefined) {
-                uplot.addSeries({
-                    spanGaps: false,
-                    label: "CPU Temperature",
-                    stroke: "#94A3B8",
-                    width: 3,
-                    scale: "deg",
-                    value: (_: any, val: number) =>
-                        val + (tempUnit == "celsius" ? "ºC" : "ºF"),
-                });
+        if (uplot !== null) {
+            if (socketData.temp.available) {
+                if (uplot.series[7] === undefined) {
+                    uplot.addSeries({
+                        spanGaps: false,
+                        label: "CPU Temperature",
+                        stroke: "#94A3B8",
+                        width: 3,
+                        scale: "deg",
+                        value: (_: any, val: number) =>
+                            val + (tempUnit === "celsius" ? "ºC" : "ºF"),
+                    });
+                }
+                if (tempUnit === "celsius") {
+                    dataPush[7].push(socketData.temp.celsius);
+                } else if (tempUnit === "fahrenheit") {
+                    dataPush[7].push(socketData.temp.fahrenheit);
+                }
             }
-            if (tempUnit == "celsius") {
-                dataPush[7].push(socketData.temp.celsius);
-            } else if (tempUnit == "fahrenheit") {
-                dataPush[7].push(socketData.temp.fahrenheit);
-            }
+            uplot.setData(data);
         }
-        uplot.setData(data);
     }, 2000);
 
     onDestroy(() => {
-        uplot = undefined;
+        uplot = null;
         clearInterval(handle1);
     });
 </script>
@@ -269,8 +266,7 @@
         {#if socketData.temp.available}
             <div class="text-center">
                 <span class={getTempClass(socketData.temp.celsius)}>
-                    {socketData.temp.celsius}ºC/{socketData.temp
-                        .fahrenheit}ºF</span
+                    {socketData.temp.celsius}ºC/{socketData.temp.fahrenheit}ºF</span
                 >: {getTempMsg(socketData.temp.celsius)}
             </div>
             CPU:<span class="float-right">{socketData.cpu}/100%</span>

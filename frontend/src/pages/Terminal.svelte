@@ -10,7 +10,7 @@
 
     let termDiv: HTMLDivElement;
 
-    let proto = window.location.protocol == "https:" ? "wss" : "ws";
+    let proto = window.location.protocol === "https:" ? "wss" : "ws";
     let socket = new WebSocket(
         `${proto}://${node}/ws/term${token ? `?token=${token}` : ""}`
     );
@@ -33,7 +33,7 @@
         socket.send(`size${size}`);
     };
 
-    terminal.onResize((e) => sendSize(e));
+    terminal.onResize(e => sendSize(e));
 
     window.onresize = () => {
         fitAddon.fit();

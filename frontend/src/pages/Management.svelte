@@ -23,9 +23,9 @@
         setTimeout(() => {
             dialog = true;
         }, 1000);
-        if (data == "reboot") {
+        if (data === "reboot") {
             msg = "Waiting for device to finish...";
-        } else if (data == "poweroff") {
+        } else if (data === "poweroff") {
             msg = "You can close this page";
         }
     }
@@ -45,9 +45,7 @@
         </div>
     {/if}
     <Card header="System Information">
-        <table
-            class="border border-gray-100 dark:border-gray-900 h-full w-full"
-        >
+        <table class="border border-gray-100 dark:border-gray-900 h-full w-full">
             <tr
                 class="even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800"
             >

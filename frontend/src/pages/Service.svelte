@@ -1,9 +1,5 @@
 <script lang="ts">
-    import {
-        faSquare,
-        faPlay,
-        faRedoAlt,
-    } from "@fortawesome/free-solid-svg-icons";
+    import { faSquare, faPlay, faRedoAlt } from "@fortawesome/free-solid-svg-icons";
     import Fa from "svelte-fa";
 
     import type { servicesPage } from "../types";
@@ -30,7 +26,7 @@
                 <td class="p-2">{service.name}</td>
                 <td class="p-2">{service.status}</td>
                 <td class="p-2">
-                    {#if service.log != ""}
+                    {#if service.log !== ""}
                         <details>
                             <summary> Show log </summary>
                             {@html service.log}
@@ -39,7 +35,7 @@
                 >
                 <td class="p-2">{service.start}</td>
                 <td class="p-2 space-x-2">
-                    {#if service.status == "inactive" || service.status == "failed"}
+                    {#if service.status === "inactive" || service.status === "failed"}
                         <span
                             on:click={() => socketSend("start", [service.name])}
                             title="Start"
@@ -59,8 +55,7 @@
                                 size="lg"
                             /></span
                         ><span
-                            on:click={() =>
-                                socketSend("restart", [service.name])}
+                            on:click={() => socketSend("restart", [service.name])}
                             title="Restart"
                             ><Fa
                                 icon={faRedoAlt}

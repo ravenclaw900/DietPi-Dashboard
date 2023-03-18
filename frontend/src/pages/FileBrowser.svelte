@@ -41,6 +41,7 @@
     export let socketData: browserPage;
     export let node: string;
     export let login: boolean;
+    export let token: string;
 
     let fileDialog: HTMLInputElement;
     let fileText: HTMLTextAreaElement;
@@ -60,16 +61,12 @@
     let binURL = "";
 
     const fileSocket = new WebSocket(
-        `${
-            window.location.protocol == "https:" ? "wss" : "ws"
-        }://${node}/ws/file${
-            login
-                ? `?token=${JSON.parse(localStorage.getItem("tokens"))[node]}`
-                : ""
+        `${window.location.protocol === "https:" ? "wss" : "ws"}://${node}/ws/file${
+            login ? `?token=${token}` : ""
         }`
     );
     fileSocket.onmessage = (e: MessageEvent) => {
-        if (typeof e.data == "string") {
+        if (typeof e.data === "string") {
             try {
                 let msg = JSON.parse(e.data);
                 if (msg.finished) {
@@ -84,7 +81,7 @@
         } else {
             currentSlices += 1;
             binData.push(e.data);
-            if (currentSlices == maxSlices) {
+            if (currentSlices === maxSlices) {
                 binURL = URL.createObjectURL(new Blob(binData));
                 maxSlices = 0;
                 currentSlices = 0;
@@ -96,9 +93,9 @@
     // Skip first array element (empty string)
     $: pathArray = currentPath.split("/").slice(1);
     // Set innerHTML manually to avoid issues with highlighting
-    $: fileDiv != undefined &&
+    $: fileDiv !== undefined &&
         (fileDiv.innerHTML = (
-            fileData[fileData.length - 1] == "\n" ? fileData + " " : fileData
+            fileData[fileData.length - 1] === "\n" ? fileData + " " : fileData
         )
             .replace(new RegExp("&", "g"), "&amp;")
             .replace(new RegExp("<", "g"), "&lt;")),
@@ -109,7 +106,7 @@
         });
 
     function sendCmd(path: string, cmd: string) {
-        if (cmd == "rm" || cmd == "rmdir" || cmd == "cd") {
+        if (cmd === "rm" || cmd === "rmdir" || cmd === "cd") {
             selPath = {
                 name: "",
                 path: "",
@@ -156,16 +153,14 @@
     }
 
     function checkTab(event: KeyboardEvent) {
-        if (event.key == "Tab") {
+        if (event.key === "Tab") {
             event.preventDefault();
 
             let startPos = fileText.selectionStart;
             let endPos = fileText.selectionEnd;
 
             let tabAdded =
-                fileData.substring(0, startPos) +
-                "\t" +
-                fileData.substring(endPos);
+                fileData.substring(0, startPos) + "\t" + fileData.substring(endPos);
 
             fileText.value = tabAdded;
             fileData = tabAdded;
@@ -184,7 +179,7 @@
             case "audio":
                 return faFileAudio;
             case "archive":
-                if (subtype == "pdf") {
+                if (subtype === "pdf") {
                     return faFilePdf;
                 }
                 return faFileArchive;
@@ -197,16 +192,16 @@
         }
     }
 
-    function validateInput(name: string) {
+    function validateInput(name: string | null) {
         if (name) {
             for (let element of socketData.contents) {
-                if (element.name == name) {
+                if (element.name === name) {
                     if (
                         confirm(
                             `This will overwrite the ${
-                                element.maintype == "dir" ? "directory" : "file"
+                                element.maintype === "dir" ? "directory" : "file"
                             } ${name}${
-                                element.maintype == "dir"
+                                element.maintype === "dir"
                                     ? " and delete everything in it"
                                     : ""
                             }. Are you sure you want to continue?`
@@ -214,7 +209,7 @@
                     ) {
                         sendCmd(
                             `${currentPath}/${name}`,
-                            `rm${element.maintype == "dir" ? "dir" : ""}`
+                            `rm${element.maintype === "dir" ? "dir" : ""}`
                         );
                         return true;
                     } else {
@@ -250,8 +245,8 @@
                     }}>/</button
                 >
                 {#each pathArray as path}
-                    {path != pathArray[0] ? " /" : ""}
-                    {#if path == pathArray[pathArray.length - 1]}
+                    {path !== pathArray[0] ? " /" : ""}
+                    {#if path === pathArray[pathArray.length - 1]}
                         <div class="inline-block cursor-default">
                             {path}
                         </div>
@@ -262,7 +257,7 @@
                                 let fullPath = "";
                                 for (let element of pathArray) {
                                     fullPath += "/" + element;
-                                    if (element == path) {
+                                    if (element === path) {
                                         break;
                                     }
                                 }
@@ -294,9 +289,7 @@
                             saved = false;
                             if (fileText) {
                                 fileText.style.height = "auto";
-                                fileText.style.height = `${
-                                    fileText.scrollHeight + 10
-                                }px`;
+                                fileText.style.height = `${fileText.scrollHeight + 10}px`;
                                 fileDiv.style.height = "auto";
                             }
                         }}
@@ -313,27 +306,25 @@
                     />
                 </div>
             {:else if downloading}
-                {#if binURL != ""}
+                {#if binURL !== ""}
                     <a
                         href={binURL}
                         target="_blank"
-                        download={selPath.maintype == "dir"
+                        download={selPath.maintype === "dir"
                             ? `${selPath.name}.zip`
                             : selPath.name}>Click to Download</a
                     >
-                {:else if maxSlices == 0}
+                {:else if maxSlices === 0}
                     <h2>
-                        {selPath.maintype == "dir"
+                        {selPath.maintype === "dir"
                             ? "Zipping directory"
                             : "Reading file"}...
                     </h2>
                 {:else}
                     <h2>Receiving {currentSlices}MB out of {maxSlices}MB</h2>
                 {/if}
-            {:else if socketData.contents != undefined}
-                <table
-                    class="w-full bg-white table-fixed dark:bg-black min-w-50"
-                >
+            {:else if socketData.contents !== undefined}
+                <table class="w-full bg-white table-fixed dark:bg-black min-w-50">
                     <tr>
                         <th class="px-2">Name</th>
                         <th class="px-2">Kind</th>
@@ -345,8 +336,7 @@
                             contents.path
                                 ? ' !bg-dplime-dark'
                                 : ''}"
-                            class:hidden={!showHidden &&
-                                contents.name[0] == "."}
+                            class:hidden={!showHidden && contents.name[0] === "."}
                             on:dblclick={() => {
                                 switch (contents.maintype) {
                                     case "dir":
@@ -360,11 +350,7 @@
                                                     "Can't view files above 2MB, would you like to download instead?"
                                                 )
                                             ) {
-                                                fileSend(
-                                                    selPath.path,
-                                                    "dl",
-                                                    ""
-                                                );
+                                                fileSend(selPath.path, "dl", "");
                                                 downloading = true;
                                             } else {
                                                 break;
@@ -393,18 +379,13 @@
                         >
                             <td class="px-2"
                                 ><Fa
-                                    icon={getIcon(
-                                        contents.maintype,
-                                        contents.subtype
-                                    )}
+                                    icon={getIcon(contents.maintype, contents.subtype)}
                                     class="mr-2"
-                                /><span class="break-words"
-                                    >{contents.name}</span
-                                ></td
+                                /><span class="break-words">{contents.name}</span></td
                             >
                             <td class="px-2">{contents.prettytype}</td>
                             <td class="px-2"
-                                >{contents.maintype == "dir"
+                                >{contents.maintype === "dir"
                                     ? "-"
                                     : prettyBytes(contents.size)}</td
                             >
@@ -434,7 +415,7 @@
                         fileSend(currentPath, "save", fileData), (saved = true);
                     }}><Fa icon={faSave} size="lg" /></span
                 >
-            {:else if socketData.contents != undefined}
+            {:else if socketData.contents !== undefined}
                 <span
                     class="cursor-pointer"
                     title="Refresh"
@@ -446,13 +427,9 @@
                     title="{showHidden ? 'Hide' : 'Show'} Hidden Files"
                     on:click={() => {
                         showHidden = !showHidden;
-                    }}
-                    ><Fa
-                        icon={showHidden ? faEye : faEyeSlash}
-                        size="lg"
-                    /></span
+                    }}><Fa icon={showHidden ? faEye : faEyeSlash} size="lg" /></span
                 >
-                {#if currentPath != "/"}
+                {#if currentPath !== "/"}
                     <span
                         class="cursor-pointer"
                         title="New Directory"
@@ -469,9 +446,7 @@
                         class="cursor-pointer"
                         title="New File"
                         on:click={() => {
-                            let name = prompt(
-                                "Please enter the name of the new file"
-                            );
+                            let name = prompt("Please enter the name of the new file");
                             if (validateInput(name)) {
                                 sendCmd(`${currentPath}/${name}`, "mkfile");
                             }
@@ -488,30 +463,29 @@
                             class="hidden"
                             bind:this={fileDialog}
                             on:input={() => {
-                                let size = Math.ceil(
-                                    fileDialog.files[0].size / (1000 * 1000)
-                                );
-                                fileSend(
-                                    `${currentPath}/${fileDialog.files[0].name}`,
-                                    "up",
-                                    `${size}`
-                                );
-                                for (
-                                    let i = 0;
-                                    i < fileDialog.files[0].size;
-                                    i += 1000 * 1000
-                                ) {
-                                    fileSocket.send(
-                                        fileDialog.files[0].slice(
-                                            i,
-                                            i + 1000 * 1000
-                                        )
+                                if (fileDialog.files !== null) {
+                                    let size = Math.ceil(
+                                        fileDialog.files[0].size / (1000 * 1000)
                                     );
+                                    fileSend(
+                                        `${currentPath}/${fileDialog.files[0].name}`,
+                                        "up",
+                                        `${size}`
+                                    );
+                                    for (
+                                        let i = 0;
+                                        i < fileDialog.files[0].size;
+                                        i += 1000 * 1000
+                                    ) {
+                                        fileSocket.send(
+                                            fileDialog.files[0].slice(i, i + 1000 * 1000)
+                                        );
+                                    }
                                 }
                             }}
                         /><Fa icon={faFileUpload} size="lg" /></span
                     >
-                    {#if selPath.path != "" && selPath.maintype != "notafile"}
+                    {#if selPath.path !== "" && selPath.maintype !== "notafile"}
                         <span
                             class="cursor-pointer"
                             title="Rename"
@@ -520,14 +494,11 @@
                                     "Please enter the new name of the file"
                                 );
                                 if (validateInput(name)) {
-                                    rename(
-                                        selPath.path,
-                                        `${currentPath}/${name}`
-                                    );
+                                    rename(selPath.path, `${currentPath}/${name}`);
                                 }
                             }}><Fa icon={faICursor} size="lg" /></span
                         >
-                        {#if selPath.maintype != "dir"}
+                        {#if selPath.maintype !== "dir"}
                             <span
                                 class="cursor-pointer"
                                 title="Copy"
@@ -542,11 +513,11 @@
                                 if (
                                     confirm(
                                         `Are you sure you want to delete the ${
-                                            selPath.maintype == "dir"
+                                            selPath.maintype === "dir"
                                                 ? "directory"
                                                 : "file"
                                         } ${selPath.name}?${
-                                            selPath.maintype == "dir"
+                                            selPath.maintype === "dir"
                                                 ? " This will delete everything in it!"
                                                 : ""
                                         }`
@@ -554,11 +525,7 @@
                                 ) {
                                     sendCmd(
                                         selPath.path,
-                                        `rm${
-                                            selPath.maintype == "dir"
-                                                ? "dir"
-                                                : ""
-                                        }`
+                                        `rm${selPath.maintype === "dir" ? "dir" : ""}`
                                     );
                                 }
                             }}><Fa icon={faTrash} size="lg" /></span
