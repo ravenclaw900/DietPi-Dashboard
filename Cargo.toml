@@ -38,6 +38,9 @@ hex = "0.4.3"
 vite-embed = { git = "https://github.com/ravenclaw900/vite-embed", version = "0.1.0", features = ["prod"], optional = true }
 mime_guess = { version = "2.0.4", default-features = false }
 
+[dev-dependencies]
+tempfile = "3.3.0"
+
 [features]
 default = ["frontend"]
 frontend = ["dep:vite-embed"]
