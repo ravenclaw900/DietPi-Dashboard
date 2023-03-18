@@ -21,7 +21,7 @@ specifiers:
   svelte-preprocess: ^5.0.1
   svelte-routing: ^1.6.0
   tslib: ^2.5.0
-  typescript: ^4.9.4
+  typescript: ^5.0.0
   uplot: ^1.6.24
   vite: ^4.0.4
   vite-plugin-replace: ^0.1.1
@@ -55,10 +55,10 @@ devDependencies:
   svelte-check: 3.0.3_pehl75e5jsy22vp33udjja4soi
   svelte-fa: 3.0.3
   svelte-language-server: 0.15.3_postcss@8.4.21
-  svelte-preprocess: 5.0.1_oifjsu5oar4lzyaoppb2hxramu
-  svelte-routing: 1.6.0_atrrhq7vg4ekua4nnyrpuardle
+  svelte-preprocess: 5.0.1_bxwa277ck6v74jqrstnmaix52m
+  svelte-routing: 1.6.0_l6gh7invo235md22ird7wlz7xq
   tslib: 2.5.0
-  typescript: 4.9.4
+  typescript: 5.0.2
   vite: 4.0.4
   vite-plugin-replace: 0.1.1_vite@4.0.4
   vite-plugin-windicss: 1.8.10_vite@4.0.4
@@ -1019,9 +1019,9 @@ packages:
       prettier: 2.8.1
       prettier-plugin-svelte: 2.9.0_4h247imu46srxjbpsfob5j3nnq
       svelte: 3.55.1
-      svelte-preprocess: 5.0.1_oifjsu5oar4lzyaoppb2hxramu
-      svelte2tsx: 0.6.0_atrrhq7vg4ekua4nnyrpuardle
-      typescript: 4.9.4
+      svelte-preprocess: 5.0.1_bxwa277ck6v74jqrstnmaix52m
+      svelte2tsx: 0.6.0_l6gh7invo235md22ird7wlz7xq
+      typescript: 5.0.2
       vscode-css-languageservice: 6.2.3
       vscode-html-languageservice: 5.0.4
       vscode-languageserver: 8.0.2
@@ -1038,6 +1038,55 @@ packages:
       - sass
       - stylus
       - sugarss
+    dev: true
+
+  /svelte-preprocess/5.0.1_bxwa277ck6v74jqrstnmaix52m:
+    resolution: {integrity: sha512-0HXyhCoc9rsW4zGOgtInylC6qj259E1hpFnJMJWTf+aIfeqh4O/QHT31KT2hvPEqQfdjmqBR/kO2JDkkciBLrQ==}
+    engines: {node: '>= 14.10.0'}
+    requiresBuild: true
+    peerDependencies:
+      '@babel/core': ^7.10.2
+      coffeescript: ^2.5.1
+      less: ^3.11.3 || ^4.0.0
+      postcss: ^7 || ^8
+      postcss-load-config: ^2.1.0 || ^3.0.0 || ^4.0.0
+      pug: ^3.0.0
+      sass: ^1.26.8
+      stylus: ^0.55.0
+      sugarss: ^2.0.0 || ^3.0.0 || ^4.0.0
+      svelte: ^3.23.0
+      typescript: ^3.9.5 || ^4.0.0
+    peerDependenciesMeta:
+      '@babel/core':
+        optional: true
+      coffeescript:
+        optional: true
+      less:
+        optional: true
+      postcss:
+        optional: true
+      postcss-load-config:
+        optional: true
+      pug:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      sugarss:
+        optional: true
+      typescript:
+        optional: true
+    dependencies:
+      '@types/pug': 2.0.6
+      '@types/sass': 1.43.1
+      detect-indent: 6.1.0
+      magic-string: 0.27.0
+      postcss: 8.4.21
+      sorcery: 0.11.0
+      strip-indent: 3.0.0
+      svelte: 3.55.1
+      typescript: 5.0.2
     dev: true
 
   /svelte-preprocess/5.0.1_oifjsu5oar4lzyaoppb2hxramu:
@@ -1089,13 +1138,13 @@ packages:
       typescript: 4.9.4
     dev: true
 
-  /svelte-routing/1.6.0_atrrhq7vg4ekua4nnyrpuardle:
+  /svelte-routing/1.6.0_l6gh7invo235md22ird7wlz7xq:
     resolution: {integrity: sha512-+DbrSGttLA6lan7oWFz1MjyGabdn3tPRqn8Osyc471ut2UgCrzM5x1qViNMc2gahOP6fKbKK1aNtZMJEQP2vHQ==}
     peerDependencies:
       svelte: ^3.20.x
     dependencies:
       svelte: 3.55.1
-      svelte2tsx: 0.1.193_atrrhq7vg4ekua4nnyrpuardle
+      svelte2tsx: 0.1.193_l6gh7invo235md22ird7wlz7xq
     transitivePeerDependencies:
       - typescript
     dev: true
@@ -1105,7 +1154,7 @@ packages:
     engines: {node: '>= 8'}
     dev: true
 
-  /svelte2tsx/0.1.193_atrrhq7vg4ekua4nnyrpuardle:
+  /svelte2tsx/0.1.193_l6gh7invo235md22ird7wlz7xq:
     resolution: {integrity: sha512-vzy4YQNYDnoqp2iZPnJy7kpPAY6y121L0HKrSBjU/IWW7DQ6T7RMJed2VVHFmVYm0zAGYMDl9urPc6R4DDUyhg==}
     peerDependencies:
       svelte: ^3.24
@@ -1114,10 +1163,10 @@ packages:
       dedent-js: 1.0.1
       pascal-case: 3.1.2
       svelte: 3.55.1
-      typescript: 4.9.4
+      typescript: 5.0.2
     dev: true
 
-  /svelte2tsx/0.6.0_atrrhq7vg4ekua4nnyrpuardle:
+  /svelte2tsx/0.6.0_l6gh7invo235md22ird7wlz7xq:
     resolution: {integrity: sha512-TrxfQkO7CKi8Pu2eC/FyteDCdk3OOeQV5u6z7OjYAsOhsd0ClzAKqxJdvp6xxNQLrbFzf/XvCi9Fy8MQ1MleFA==}
     peerDependencies:
       svelte: ^3.55
@@ -1126,7 +1175,7 @@ packages:
       dedent-js: 1.0.1
       pascal-case: 3.1.2
       svelte: 3.55.1
-      typescript: 4.9.4
+      typescript: 5.0.2
     dev: true
 
   /to-regex-range/5.0.1:
@@ -1143,6 +1192,12 @@ packages:
   /typescript/4.9.4:
     resolution: {integrity: sha512-Uz+dTXYzxXXbsFpM86Wh3dKCxrQqUcVMxwU54orwlJjOpO3ao8L7j5lH+dWfTwgCwIuM9GQ2kvVotzYJMXTBZg==}
     engines: {node: '>=4.2.0'}
+    hasBin: true
+    dev: true
+
+  /typescript/5.0.2:
+    resolution: {integrity: sha512-wVORMBGO/FAs/++blGNeAVdbNKtIh1rbBL2EyQ1+J9lClJ93KiiKe8PmFIVdXhHcyv44SL9oglmfeSsndo0jRw==}
+    engines: {node: '>=12.20'}
     hasBin: true
     dev: true
 
