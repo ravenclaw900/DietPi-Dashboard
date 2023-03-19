@@ -8,7 +8,6 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [svelte(), windi({}), replace({
       '__PACKAGE_VERSION__': process.env.npm_package_version,
-      '5252': process.env.NODE_ENV === 'production' ? "window.location.port" : "5252",
     })],
     build: {
       manifest: true,
