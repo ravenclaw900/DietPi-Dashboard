@@ -1,5 +1,5 @@
-import "virtual:windi.css"
-import 'virtual:windi-devtools'
+import "uno.css"
+import "@unocss/reset/tailwind.css"
 import 'vite/modulepreload-polyfill'
 
 import App from './App.svelte'
