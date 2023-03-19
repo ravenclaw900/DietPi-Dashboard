@@ -51,7 +51,7 @@
     let navPage = "";
     let token = "";
     let password = "";
-    let frontendVersion = "__PACKAGE_VERSION__";
+    let frontendVersion = __PACKAGE_VERSION__;
     let backendVersion = "";
     let updateAvailable = "";
     let node = `${window.location.hostname}:${window.location.port}`;
