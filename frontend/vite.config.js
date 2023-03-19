@@ -1,22 +1,14 @@
 import { defineConfig } from 'vite'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
-import { replaceCodePlugin } from "vite-plugin-replace";
+import replace from '@rollup/plugin-replace';
 import windi from 'vite-plugin-windicss'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   return {
-    plugins: [svelte(), windi({}), replaceCodePlugin({
-      replacements: [
-        {
-          from: /__PACKAGE_VERSION__/g,
-          to: process.env.npm_package_version,
-        },
-        {
-          from: /5252/g,
-          to: process.env.NODE_ENV === 'production' ? "window.location.port" : "5252",
-        },
-      ]
+    plugins: [svelte(), windi({}), replace({
+      '__PACKAGE_VERSION__': process.env.npm_package_version,
+      '5252': process.env.NODE_ENV === 'production' ? "window.location.port" : "5252",
     })],
     build: {
       manifest: true,

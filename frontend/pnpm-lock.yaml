@@ -2,6 +2,7 @@ lockfileVersion: 5.4
 
 specifiers:
   '@fortawesome/free-solid-svg-icons': ^6.3.0
+  '@rollup/plugin-replace': ^5.0.2
   '@sveltejs/vite-plugin-svelte': ^2.0.3
   '@tsconfig/svelte': ^3.0.0
   '@types/autosize': ^4.0.1
@@ -24,7 +25,6 @@ specifiers:
   typescript: ^5.0.2
   uplot: ^1.6.24
   vite: ^4.2.0
-  vite-plugin-replace: ^0.1.1
   vite-plugin-windicss: ^1.8.10
   windicss: ^3.5.6
   xterm: ^5.1.0
@@ -43,6 +43,7 @@ dependencies:
 
 devDependencies:
   '@fortawesome/free-solid-svg-icons': 6.3.0
+  '@rollup/plugin-replace': 5.0.2
   '@sveltejs/vite-plugin-svelte': 2.0.3_svelte@3.57.0+vite@4.2.0
   '@tsconfig/svelte': 3.0.0
   '@types/autosize': 4.0.1
@@ -60,7 +61,6 @@ devDependencies:
   tslib: 2.5.0
   typescript: 5.0.2
   vite: 4.2.0
-  vite-plugin-replace: 0.1.1_vite@4.2.0
   vite-plugin-windicss: 1.8.10_vite@4.2.0
   windicss: 3.5.6
 
@@ -335,6 +335,33 @@ packages:
       fastq: 1.15.0
     dev: true
 
+  /@rollup/plugin-replace/5.0.2:
+    resolution: {integrity: sha512-M9YXNekv/C/iHHK+cvORzfRYfPbq0RDD8r0G+bMiTXjNGKulPnCT9O3Ss46WfhI6ZOCgApOP7xAdmCQJ+U2LAA==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      rollup: ^1.20.0||^2.0.0||^3.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+    dependencies:
+      '@rollup/pluginutils': 5.0.2
+      magic-string: 0.27.0
+    dev: true
+
+  /@rollup/pluginutils/5.0.2:
+    resolution: {integrity: sha512-pTd9rIsP92h+B6wWwFbW8RkZv4hiR/xKsqre4SIuAOaOEQRxi0lqLke9k2/7WegC85GgUs9pjmOjCUi3In4vwA==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      rollup: ^1.20.0||^2.0.0||^3.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+    dependencies:
+      '@types/estree': 1.0.0
+      estree-walker: 2.0.2
+      picomatch: 2.3.1
+    dev: true
+
   /@sveltejs/vite-plugin-svelte/2.0.3_svelte@3.57.0+vite@4.2.0:
     resolution: {integrity: sha512-o+cguBFdwIGtRbNkYOyqTM7KvRUffxh5bfK4oJsWKG2obu+v/cbpT03tJrGl58C7tRXo/aEC0/axN5FVHBj0nA==}
     engines: {node: ^14.18.0 || >= 16}
@@ -360,6 +387,10 @@ packages:
 
   /@types/autosize/4.0.1:
     resolution: {integrity: sha512-iPJT/FCaSO79G6j+9n6gmFc5nhxZ1gDrA2UAvb5FslJ6FJQZnDfbBU0qp5vpp0Cbjj7+gOyjuWZ7RrXvRuETaA==}
+    dev: true
+
+  /@types/estree/1.0.0:
+    resolution: {integrity: sha512-WulqXMDUTYAXCjZnk6JtIHPigp55cVtDgDrO2gHRwhyJto21+1zbVCtOYB2L1F9w4qCQ0rOGWBnBe0FNTiEJIQ==}
     dev: true
 
   /@types/microlight/0.0.0:
@@ -1199,14 +1230,6 @@ packages:
   /uplot/1.6.24:
     resolution: {integrity: sha512-WpH2BsrFrqxkMu+4XBvc0eCDsRBhzoq9crttYeSI0bfxpzR5YoSVzZXOKFVWcVC7sp/aDXrdDPbDZGCtck2PVg==}
     dev: false
-
-  /vite-plugin-replace/0.1.1_vite@4.2.0:
-    resolution: {integrity: sha512-v+okl3JNt2pf1jDYijw+WPVt6h9FWa/atTi+qnSFBqmKThLTDhlesx0r3bh+oFPmxRJmis5tNx9HtN6lGFoqWg==}
-    peerDependencies:
-      vite: ^2
-    dependencies:
-      vite: 4.2.0
-    dev: true
 
   /vite-plugin-windicss/1.8.10_vite@4.2.0:
     resolution: {integrity: sha512-scywsuzo46lcTBohspmF0WiwhWEte6p+OUVrX4yr7VMRvLHMHVfLtJReyD5pppjijG7YOwVsZn7XBWWZtF658Q==}
