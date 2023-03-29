@@ -6,24 +6,7 @@
     import Process from "./pages/Process.svelte";
     import Software from "./pages/Software.svelte";
     import Terminal from "./pages/Terminal.svelte";
-    import NavbarLink from "./components/NavbarLink.svelte";
-    import Fa from "svelte-fa";
-    import FaLayers from "svelte-fa/src/fa-layers.svelte";
-    import {
-        faTachometerAlt,
-        faMicrochip,
-        faDatabase,
-        faTerminal,
-        faUser,
-        faBars,
-        faList,
-        faFolder,
-        faSun,
-        faMoon,
-        faEnvelope,
-        faCog,
-        faCircle,
-    } from "@fortawesome/free-solid-svg-icons";
+    import SidebarMenu from "./components/SidebarMenu.svelte";
     import Management from "./pages/Management.svelte";
     import FileBrowser from "./pages/FileBrowser.svelte";
     import Service from "./pages/Service.svelte";
@@ -231,9 +214,9 @@
 </script>
 
 <main
-    class="min-h-screen flex{menu ? ' <sm:overflow-x-hidden' : ''}{darkMode
-        ? ' dark'
-        : ''}"
+    class="min-h-screen flex"
+    class:lt-sm:overflow-x-hidden={menu}
+    class:dark={darkMode}
 >
     {#if loginDialog}
         <div
@@ -265,44 +248,13 @@
             </div>
         </div>
     {/if}
-    <div
-        class="bg-gray-900 dark:bg-black flex-grow{menu
-            ? ''
-            : ' shrink'} w-1/6 2xl:w-10rem"
-        id="sidebarMenu"
-    >
-        <div
-            class="hidden justify-center items-center h-12 text-2xl whitespace-nowrap lg:flex bg-dplime-dark"
-        >
-            DietPi Dashboard
-        </div>
-        <span on:click={() => changePage("/")}
-            ><NavbarLink icon={faTachometerAlt}>Statistics</NavbarLink></span
-        >
-        <span on:click={() => changePage("/process")}
-            ><NavbarLink icon={faMicrochip}>Processes</NavbarLink></span
-        >
-        <span on:click={() => changePage("/service")}
-            ><NavbarLink icon={faList}>Services</NavbarLink></span
-        >
-        <span on:click={() => changePage("/software")}
-            ><NavbarLink icon={faDatabase}>Software</NavbarLink></span
-        >
-        <span on:click={() => navigate("/terminal")}>
-            <NavbarLink icon={faTerminal}>Terminal</NavbarLink>
-        </span>
-        <span on:click={() => changePage("/management")}
-            ><NavbarLink icon={faUser}>Management</NavbarLink></span
-        >
-        <span on:click={() => changePage("/browser")}
-            ><NavbarLink icon={faFolder}>File Browser</NavbarLink></span
-        >
-    </div>
+    <SidebarMenu {menu} {changePage} />
     <div class="flex flex-col flex-grow w-5/6 min-h-full">
         <header class="grid grid-cols-3 items-center h-12 bg-dplime">
-            <span on:click={() => (menu = !menu)} class="justify-self-start"
-                ><Fa icon={faBars} class="p-1 ml-1 btn" size="3x" /></span
-            >
+            <button
+                on:click={() => (menu = !menu)}
+                class="justify-self-start p-1 ml-1 btn i-fa6-solid-bars text-4xl"
+            />
             <a href="https://dietpi.com" class="justify-self-center" target="_blank"
                 ><img src={logo} alt="DietPi logo" class="h-10" /></a
             >
@@ -319,42 +271,36 @@
                             </option>
                         {/each}
                     </select>
-                {/if}
-                <div>
-                    <span
-                        class="cursor-pointer"
-                        on:click={() => (notificationsShown = !notificationsShown)}
-                        >{#if notify}
-                            <FaLayers size="lg">
-                                <Fa icon={faEnvelope} />
-                                <Fa
-                                    icon={faCircle}
-                                    scale={0.5}
-                                    translateX={0.25}
-                                    translateY={0.25}
-                                    color="tomato"
-                                    class="animate-pulse"
-                                />
-                            </FaLayers>
-                        {:else}
-                            <Fa icon={faEnvelope} size="lg" />
-                        {/if}
-                    </span>
-                </div>
-                {#if nodes.length !== 0}
-                    <span
-                        class="cursor-pointer md:hidden"
+                    <button
+                        class="md:hidden i-fa6-solid-gear text-2xl flex-shrink-0"
                         on:click={() => (settingsShown = !settingsShown)}
-                        ><Fa icon={faCog} size="lg" />
-                    </span>
+                    />
                 {/if}
-                <span
-                    class="cursor-pointer"
+                {#if !notify}
+                    <button
+                        on:click={() => (notificationsShown = !notificationsShown)}
+                        class="flex"
+                    >
+                        <div class="i-fa6-solid-envelope text-2xl" />
+                        <div
+                            class="i-svg-spinners-pulse-multiple text-red-600 -ml-2 place-self-end"
+                        />
+                    </button>
+                {:else}
+                    <button
+                        on:click={() => (notificationsShown = !notificationsShown)}
+                        class="i-fa6-solid-envelope text-2xl flex-shrink-0"
+                    />
+                {/if}
+                <button
+                    class="text-2xl flex-shrink-0 {darkMode
+                        ? 'i-fa6-solid-moon'
+                        : 'i-fa6-solid-sun'}"
                     on:click={() => (
                         (darkMode = !darkMode),
                         localStorage.setItem("darkMode", darkMode.toString())
-                    )}><Fa icon={darkMode ? faMoon : faSun} size="lg" /></span
-                >
+                    )}
+                />
             </div>
         </header>
         {#if notificationsShown}
@@ -404,9 +350,8 @@
             </div>
         {/if}
         <div
-            class="dark:bg-gray-900 bg-gray-100 flex-grow p-4 md:p-6 dark:text-white{blur
-                ? ' children:blur-2 children:filter'
-                : ''}"
+            class="dark:bg-gray-900 bg-gray-100 flex-grow p-4 md:p-6 dark:text-white"
+            class:blur-2={blur}
         >
             {#if shown && socketData !== undefined}
                 <Router>
@@ -478,16 +423,5 @@
     </div>
 </main>
 
-<style global>
-    #sidebarMenu {
-        min-width: 10rem;
-        max-width: 16.666667%;
-        transition: width 1.5s, max-width 1.5s, min-width 1.5s;
-    }
-
-    #sidebarMenu.shrink {
-        width: 0px;
-        max-width: 0px;
-        min-width: 0px;
-    }
+<style uno:preflights>
 </style>

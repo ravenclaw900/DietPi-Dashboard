@@ -1,7 +1,4 @@
 <script lang="ts">
-    import { faSquare, faPlay, faRedoAlt } from "@fortawesome/free-solid-svg-icons";
-    import Fa from "svelte-fa";
-
     import type { servicesPage } from "../types";
 
     export let socketSend: (cmd: string, args: string[]) => void;
@@ -36,33 +33,21 @@
                 <td class="p-2">{service.start}</td>
                 <td class="p-2 space-x-2">
                     {#if service.status === "inactive" || service.status === "failed"}
-                        <span
+                        <button
                             on:click={() => socketSend("start", [service.name])}
                             title="Start"
-                            ><Fa
-                                icon={faPlay}
-                                class="btn rounded-sm p-0.5"
-                                size="lg"
-                            /></span
-                        >
+                            class="btn rounded-sm p-0.5 i-fa6-solid-play text-2xl"
+                        />
                     {:else}
-                        <span
+                        <button
                             on:click={() => socketSend("stop", [service.name])}
                             title="Stop"
-                            ><Fa
-                                icon={faSquare}
-                                class="btn p-0.5 rounded-sm p-0.5"
-                                size="lg"
-                            /></span
-                        ><span
+                            class="btn rounded-sm p-0.5 i-fa6-solid-square text-2xl"
+                        /><button
                             on:click={() => socketSend("restart", [service.name])}
                             title="Restart"
-                            ><Fa
-                                icon={faRedoAlt}
-                                class="btn p-0.5 rounded-sm p-0.5"
-                                size="lg"
-                            /></span
-                        >
+                            class="btn rounded-sm p-0.5 i-fa6-solid-rotate-left text-2xl"
+                        />
                     {/if}</td
                 >
             </tr>

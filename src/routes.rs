@@ -60,7 +60,7 @@ fn main_route() -> Response<Body> {
         header::REFERRER_POLICY,
         header::HeaderValue::from_static("no-referrer"),
     );
-    headers.insert("Content-Security-Policy", header::HeaderValue::from_static("default-src 'self'; style-src 'unsafe-inline' 'self'; connect-src * ws:; object-src 'none';"));
+    headers.insert("Content-Security-Policy", header::HeaderValue::from_static("default-src 'self'; style-src 'unsafe-inline' 'self'; connect-src * ws:; object-src 'none'; img-src 'self' data:;"));
     headers.insert(
         header::CONTENT_TYPE,
         header::HeaderValue::from_static("text/html"),
