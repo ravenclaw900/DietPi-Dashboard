@@ -2,6 +2,7 @@
     import { Terminal } from "xterm";
     import { AttachAddon } from "xterm-addon-attach";
     import { FitAddon, type ITerminalDimensions } from "xterm-addon-fit";
+    import "xterm/css/xterm.css";
 
     import { onDestroy } from "svelte";
 
@@ -53,7 +54,3 @@
 </script>
 
 <div bind:this={termDiv} class="h-full" />
-
-<style>
-    @import "xterm/css/xterm.css";
-</style>

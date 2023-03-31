@@ -118,7 +118,7 @@ interface temp {
     fahrenheit: number;
 }
 
-// 'browserItem' required for selected path in file browser
+// 'browserItem' required for selected path in file browser, 'processItem' required for sorting
 export type {
     socketData,
     statisticsPage,
@@ -129,4 +129,5 @@ export type {
     managementPage,
     globalSettings,
     browserItem,
+    processItem
 };

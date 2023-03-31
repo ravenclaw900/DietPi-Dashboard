@@ -1,6 +1,4 @@
 <script lang="ts">
-    import Fa from "svelte-fa";
-    import { faCircleNotch } from "@fortawesome/free-solid-svg-icons";
     import type { softwarePage } from "../types";
 
     export let socketData: softwarePage;
@@ -147,7 +145,7 @@
             disabled={installArray.length === 0 || running}
         >
             {#if running}
-                <Fa icon={faCircleNotch} spin />
+                <div class="i-svg-spinners-270-ring inline-block" />
             {/if}
             {installTable ? "Uni" : "I"}nstall{nameList}
         </button>

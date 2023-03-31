@@ -10,7 +10,8 @@
     "check": "svelte-check"
   },
   "devDependencies": {
-    "@fortawesome/free-solid-svg-icons": "^6.3.0",
+    "@iconify-json/fa6-solid": "^1.1.12",
+    "@iconify-json/svg-spinners": "^1.1.1",
     "@sveltejs/vite-plugin-svelte": "^2.0.3",
     "@tsconfig/svelte": "^3.0.0",
     "@types/autosize": "^4.0.1",
@@ -21,17 +22,16 @@
     "prettier-plugin-svelte": "^2.9.0",
     "svelte": "^3.57.0",
     "svelte-check": "^3.1.4",
-    "svelte-fa": "^3.0.3",
     "svelte-language-server": "^0.15.8",
     "svelte-preprocess": "^5.0.3",
     "svelte-routing": "^1.6.0",
     "tslib": "^2.5.0",
     "typescript": "^5.0.2",
-    "vite": "^4.2.0",
-    "vite-plugin-windicss": "^1.8.10",
-    "windicss": "^3.5.6"
+    "unocss": "^0.50.6",
+    "vite": "^4.2.0"
   },
   "dependencies": {
+    "@unocss/reset": "^0.50.6",
     "microlight": "^0.0.7",
     "pretty-bytes": "^6.1.0",
     "pretty-ms": "^8.0.0",
