@@ -3,6 +3,7 @@
     import { tweened } from "svelte/motion";
     import prettyBytes from "pretty-bytes";
     import uPlot from "uplot";
+    import "uplot/dist/uPlot.min.css";
     import { onMount, onDestroy } from "svelte";
 
     import type { statisticsPage } from "../types";
@@ -70,15 +71,17 @@
 
     function getTempClass(temp: number) {
         if (temp >= 70) {
-            return "font-semibold text-red-500";
+            return "really-hot";
         } else if (temp >= 60) {
-            return "text-red-500";
+            return "hot";
         } else if (temp >= 50) {
-            return "text-yellow-500";
+            return "warm";
         } else if (temp >= 40) {
-            return "text-green-500";
+            return "normal";
+        } else if (temp >= 30) {
+            return "cold";
         } else {
-            return "text-blue-500";
+            return "really-cold";
         }
     }
 
@@ -290,5 +293,28 @@
 </main>
 
 <style>
-    @import "uplot/dist/uPlot.min.css";
+    /* This is slightly annoying, but global safelist doesn't seem to work, so we'll have to live with this */
+    .really-hot {
+        @apply text-red-500 font-semibold;
+    }
+
+    .hot {
+        @apply text-red-500;
+    }
+
+    .warm {
+        @apply text-yellow-500;
+    }
+
+    .normal {
+        @apply text-green-500;
+    }
+
+    .cold {
+        @apply text-blue-500;
+    }
+
+    .really-cold {
+        @apply text-blue-500 font-semibold;
+    }
 </style>

@@ -15,7 +15,8 @@
     "allowJs": true,
     "checkJs": true,
     "noImplicitAny": true,
-    "strict": true
+    "strict": true,
+    "ignoreDeprecations": "5.0"
   },
   "include": [
     "src/**/*.d.ts",

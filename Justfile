@@ -7,6 +7,7 @@ frontend:
     pnpm build
 
 backend target="x86_64-unknown-linux-gnu": frontend
+    rm -f ./target/{{target}}/debug/deps/dietpi_dashboard-*
     cargo build --target {{target}}
 
 backend-release target="x86_64-unknown-linux-gnu": frontend

@@ -1,29 +1,5 @@
 <script lang="ts">
     import microlight from "microlight";
-    import {
-        faFile,
-        faFileAlt,
-        faFileArchive,
-        faFileImage,
-        faFileAudio,
-        faFileVideo,
-        faFilePdf,
-        faFolder,
-        faCopy,
-        faSave,
-        faTrash,
-        faFolderPlus,
-        faFileMedical,
-        faICursor,
-        faSyncAlt,
-        faHighlighter,
-        faEyeSlash,
-        faEye,
-        faFileDownload,
-        faFileUpload,
-        faCube,
-    } from "@fortawesome/free-solid-svg-icons";
-    import Fa from "svelte-fa";
     import prettyBytes from "pretty-bytes";
 
     import type { browserPage, browserItem } from "../types";
@@ -171,24 +147,24 @@
     function getIcon(maintype: string, subtype: string) {
         switch (maintype) {
             case "dir":
-                return faFolder;
+                return "i-fa6-solid-folder";
             case "image":
-                return faFileImage;
+                return "i-fa6-solid-file-image";
             case "video":
-                return faFileVideo;
+                return "i-fa6-solid-file-video";
             case "audio":
-                return faFileAudio;
+                return "i-fa6-solid-file-audio";
             case "archive":
                 if (subtype === "pdf") {
-                    return faFilePdf;
+                    return "i-fa6-solid-file-pdf";
                 }
-                return faFileArchive;
+                return "i-fa6-solid-file-archive";
             case "text":
-                return faFileAlt;
+                return "i-fa6-solid-file-lines";
             case "notafile":
-                return faCube;
+                return "i-fa6-solid-cube";
             default:
-                return faFile;
+                return "i-fa6-solid-file";
         }
     }
 
@@ -332,10 +308,8 @@
                     </tr>
                     {#each socketData.contents as contents}
                         <tr
-                            class="select-none even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800{selPath.path ==
-                            contents.path
-                                ? ' !bg-dplime-dark'
-                                : ''}"
+                            class="select-none even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800"
+                            class:!bg-dplime-dark={selPath.path == contents.path}
                             class:hidden={!showHidden && contents.name[0] === "."}
                             on:dblclick={() => {
                                 switch (contents.maintype) {
@@ -378,10 +352,13 @@
                             on:click={() => (selPath = contents)}
                         >
                             <td class="px-2"
-                                ><Fa
-                                    icon={getIcon(contents.maintype, contents.subtype)}
-                                    class="mr-2"
-                                /><span class="break-words">{contents.name}</span></td
+                                ><div
+                                    class="mr-2 inline-block ${getIcon(
+                                        contents.maintype,
+                                        contents.subtype
+                                    )}"
+                                />
+                                <span class="break-words">{contents.name}</span></td
                             >
                             <td class="px-2">{contents.prettytype}</td>
                             <td class="px-2"
@@ -395,43 +372,42 @@
             {/if}
         </div>
         <div
-            class="flex sticky top-10 flex-col gap-2 justify-center items-center p-4 ml-4 bg-gray-300 min-w-16 dark:bg-gray-800 h-min"
+            class="flex sticky top-10 flex-col gap-2 justify-center items-center p-4 ml-4 bg-gray-300 min-w-16 dark:bg-gray-800 h-min text-2xl children:pointer-events-auto"
         >
             {#if fileDataSet}
-                <span
+                <button
                     title="Syntax Highlighting"
                     on:click={() => {
                         highlighting = !highlighting;
                     }}
-                    ><Fa
-                        icon={faHighlighter}
-                        class={highlighting ? "" : "opacity-50"}
-                        size="lg"
-                    /></span
-                >
-                <span
-                    class="cursor-pointer"
+                    class="i-fa6-solid-highlighter"
+                    class:opacity-50={!highlighting}
+                />
+                <button
+                    class="i-fa6-solid-floppy-disk"
                     on:click={() => {
                         fileSend(currentPath, "save", fileData), (saved = true);
-                    }}><Fa icon={faSave} size="lg" /></span
-                >
+                    }}
+                />
             {:else if socketData.contents !== undefined}
-                <span
-                    class="cursor-pointer"
+                <button
+                    class="i-fa6-solid-rotate"
                     title="Refresh"
                     on:click={() => {
                         sendCmd(`${currentPath}`, "cd");
-                    }}><Fa icon={faSyncAlt} size="lg" /></span
-                >
-                <span
+                    }}
+                />
+                <button
                     title="{showHidden ? 'Hide' : 'Show'} Hidden Files"
+                    class:i-fa6-solid-eye={showHidden}
+                    class:i-fa6-solid-eye-slash={!showHidden}
                     on:click={() => {
                         showHidden = !showHidden;
-                    }}><Fa icon={showHidden ? faEye : faEyeSlash} size="lg" /></span
-                >
+                    }}
+                />
                 {#if currentPath !== "/"}
-                    <span
-                        class="cursor-pointer"
+                    <button
+                        class="i-fa6-solid-folder-plus text-2xl"
                         title="New Directory"
                         on:click={() => {
                             let name = prompt(
@@ -440,20 +416,20 @@
                             if (validateInput(name)) {
                                 sendCmd(`${currentPath}/${name}`, "mkdir");
                             }
-                        }}><Fa icon={faFolderPlus} size="lg" /></span
-                    >
-                    <span
-                        class="cursor-pointer"
+                        }}
+                    />
+                    <button
+                        class="i-fa6-solid-file-medical"
                         title="New File"
                         on:click={() => {
                             let name = prompt("Please enter the name of the new file");
                             if (validateInput(name)) {
                                 sendCmd(`${currentPath}/${name}`, "mkfile");
                             }
-                        }}><Fa icon={faFileMedical} size="lg" /></span
-                    >
-                    <span
-                        class="cursor-pointer"
+                        }}
+                    />
+                    <button
+                        class="i-fa6-solid-file-arrow-up"
                         title="Upload File"
                         on:click={() => {
                             fileDialog.click();
@@ -483,11 +459,11 @@
                                     }
                                 }
                             }}
-                        /><Fa icon={faFileUpload} size="lg" /></span
+                        /></button
                     >
                     {#if selPath.path !== "" && selPath.maintype !== "notafile"}
-                        <span
-                            class="cursor-pointer"
+                        <button
+                            class="i-fa6-solid-i-cursor"
                             title="Rename"
                             on:click={() => {
                                 let name = prompt(
@@ -496,18 +472,17 @@
                                 if (validateInput(name)) {
                                     rename(selPath.path, `${currentPath}/${name}`);
                                 }
-                            }}><Fa icon={faICursor} size="lg" /></span
-                        >
+                            }}
+                        />
                         {#if selPath.maintype !== "dir"}
-                            <span
-                                class="cursor-pointer"
+                            <button
+                                class="i-fa6-solid-copy"
                                 title="Copy"
                                 on:click={() => sendCmd(selPath.path, "copy")}
-                                ><Fa icon={faCopy} size="lg" /></span
-                            >
+                            />
                         {/if}
-                        <span
-                            class="cursor-pointer"
+                        <button
+                            class="i-fa6-solid-trash"
                             title="Delete"
                             on:click={() => {
                                 if (
@@ -528,17 +503,17 @@
                                         `rm${selPath.maintype === "dir" ? "dir" : ""}`
                                     );
                                 }
-                            }}><Fa icon={faTrash} size="lg" /></span
-                        >
-                        <span
-                            class="cursor-pointer"
+                            }}
+                        />
+                        <button
+                            class="i-fa6-solid-file-arrow-down"
                             title="Download"
                             on:click={() => {
                                 fileSend(selPath.path, "dl", "");
                                 currentPath = selPath.path;
                                 downloading = true;
-                            }}><Fa icon={faFileDownload} size="lg" /></span
-                        >
+                            }}
+                        />
                     {/if}
                 {/if}
             {/if}
