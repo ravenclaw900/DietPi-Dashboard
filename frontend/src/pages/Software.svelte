@@ -147,7 +147,7 @@
             {installTable ? "Uni" : "I"}nstall{nameList}
         </button>
     </div>
-    {#if $softwareStore.response !== ""}
+    {#if $softwareStore.response}
         <textarea
             class="w-full bg-gray-200 h-72 rounded dark:bg-gray-800"
             value={$softwareStore.response}

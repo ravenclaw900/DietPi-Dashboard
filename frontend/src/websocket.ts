@@ -139,8 +139,6 @@ export const softwareStore = createStore<softwarePage>({
     dataKind: "SOFTWARE",
     installed: [],
     uninstalled: [],
-    // TODO: make response optional
-    response: "",
 });
 
 export const managementStore = createStore<managementPage>({
