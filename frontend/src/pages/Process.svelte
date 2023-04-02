@@ -3,8 +3,9 @@
 
     import { processStore } from "../websocket";
 
-    import type { processPage, processItem } from "../types";
+    import type { processItem } from "../types";
 
+    $: processes = $processStore.processes;
     // Sorts when $processStore, sortBy, or reverse updates
     $: $processStore.processes, sortBy, reverse, sortTable(sortBy);
 
@@ -14,7 +15,7 @@
     $: console.log(reverse);
 
     function sortTable(sortValue: keyof processItem) {
-        $processStore.processes.sort((a, b) => {
+        processes.sort((a, b) => {
             if (a[sortValue] > b[sortValue]) {
                 return reverse ? -1 : 1;
             } else if (a[sortValue] < b[sortValue]) {
@@ -22,7 +23,7 @@
             }
             return 0;
         });
-        $processStore.processes = $processStore.processes;
+        processes = processes;
     }
 
     function resortTable(sortValue: keyof processItem) {
@@ -107,7 +108,7 @@
             </th>
             <th>Actions</th>
         </tr>
-        {#each $processStore.processes as process}
+        {#each processes as process}
             <tr
                 class="mt-32 even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800  dark:border-gray-600 border-t-2 border-gray-300 border-opacity-50"
             >
