@@ -2,6 +2,8 @@
     import microlight from "microlight";
     import prettyBytes from "pretty-bytes";
 
+    import { socket } from "../websocket";
+
     import type { browserPage, browserItem } from "../types";
 
     let selPath: browserItem = {
@@ -13,8 +15,8 @@
         size: 0,
     };
 
-    export let socketSend: (cmd: string, args: string[]) => void;
-    export let socketData: browserPage;
+    $: socketData = $socket as browserPage;
+
     export let node: string;
     export let login: boolean;
     export let token: string;
@@ -92,7 +94,7 @@
                 size: 0,
             };
         }
-        socketSend(cmd, [path]);
+        socket.send({ cmd, args: [path] });
         fileDataSet = false;
         if (downloading) {
             downloading = false;
@@ -120,7 +122,7 @@
             prettytype: "",
             size: 0,
         };
-        socketSend("rename", [oldname, newname]);
+        socket.send({ cmd: "rename", args: [oldname, newname] });
     }
 
     function syncScroll() {

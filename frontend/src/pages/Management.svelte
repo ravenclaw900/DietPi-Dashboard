@@ -3,10 +3,11 @@
     import prettyMilliseconds from "pretty-ms";
     import { fade } from "svelte/transition";
 
+    import { socket } from "../websocket";
+
     import type { managementPage } from "../types";
 
-    export let socketSend: (cmd: string, args: string[]) => void;
-    export let socketData: managementPage;
+    $: socketData = $socket as managementPage;
 
     let uptime: string;
     let dialog = false;
@@ -18,7 +19,7 @@
         (dialog = false);
 
     function sendData(data: string) {
-        socketSend(data, []);
+        socket.send({ cmd: data, args: [] });
         // Give backend an extra second to loop again
         setTimeout(() => {
             dialog = true;

@@ -1,8 +1,9 @@
 <script lang="ts">
     import type { softwarePage } from "../types";
 
-    export let socketData: softwarePage;
-    export let socketSend: (cmd: string, args: string[]) => void;
+    import { socket } from "../websocket";
+
+    $: socketData = $socket as softwarePage;
 
     let installTemp: boolean[] = [];
     let installArray: number[] = [];
@@ -65,12 +66,12 @@
     }
 
     function sendSoftware() {
-        socketSend(
-            installTable ? "uninstall" : "install",
-            installArray.map(val => {
+        socket.send({
+            cmd: installTable ? "uninstall" : "install",
+            args: installArray.map(val => {
                 return val.toString();
-            })
-        );
+            }),
+        });
         running = true;
     }
 </script>

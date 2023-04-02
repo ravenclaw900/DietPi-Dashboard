@@ -1,10 +1,11 @@
 <script lang="ts">
     import prettyBytes from "pretty-bytes";
 
+    import { socket } from "../websocket";
+
     import type { processPage, processItem } from "../types";
 
-    export let socketData: processPage;
-    export let socketSend: (cmd: string, args: string[]) => void;
+    $: socketData = $socket as processPage;
 
     // Sorts when socketData, sortBy, or reverse updates
     $: socketData.processes, sortBy, reverse, sortTable(sortBy);
@@ -127,26 +128,39 @@
                         <button
                             class="rounded-sm p-0.5 btn i-fa6-solid-ban text-2xl"
                             on:click={() =>
-                                socketSend("terminate", [process.pid.toString()])}
+                                socket.send({
+                                    cmd: "terminate",
+                                    args: [process.pid.toString()],
+                                })}
                             title="Terminate"
                         />
                         <button
                             class="rounded-sm p-0.5 btn i-fa6-solid-skull text-2xl"
-                            on:click={() => socketSend("kill", [process.pid.toString()])}
+                            on:click={() =>
+                                socket.send({
+                                    cmd: "kill",
+                                    args: [process.pid.toString()],
+                                })}
                             title="Kill"
                         />
                         {#if process.status != "stopped"}
                             <button
                                 class="rounded-sm p-0.5 btn i-fa6-solid-pause text-2xl"
                                 on:click={() =>
-                                    socketSend("suspend", [process.pid.toString()])}
+                                    socket.send({
+                                        cmd: "suspend",
+                                        args: [process.pid.toString()],
+                                    })}
                                 title="Suspend"
                             />
                         {:else}
                             <button
                                 class="rounded-sm p-0.5 btn i-fa6-solid-play text-2xl"
                                 on:click={() =>
-                                    socketSend("resume", [process.pid.toString()])}
+                                    socket.send({
+                                        cmd: "resume",
+                                        args: [process.pid.toString()],
+                                    })}
                                 title="Resume"
                             />
                         {/if}

@@ -6,9 +6,14 @@
     import "uplot/dist/uPlot.min.css";
     import { onMount, onDestroy } from "svelte";
 
+    import { socket } from "../websocket";
+
     import type { statisticsPage } from "../types";
 
-    export let socketData: statisticsPage;
+    $: console.debug($socket);
+    $: $socket.dataKind == "STATISTIC" && (socketData = $socket as statisticsPage);
+
+    let socketData: statisticsPage;
     export let darkMode: boolean;
     export let tempUnit: "fahrenheit" | "celsius";
 
