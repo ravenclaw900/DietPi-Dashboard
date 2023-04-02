@@ -66,7 +66,6 @@ interface globalSettings {
 
 interface reauthenticate {
     dataKind: "REAUTH";
-    reauth: true;
 }
 
 interface softwareItem {

@@ -92,7 +92,7 @@ pub enum BackendData {
     Service(ServiceList),
     Global(GlobalData),
     Browser(BrowserList),
-    Reauth { reauth: bool },
+    Reauth,
 }
 
 #[derive(Serialize, Default)]
