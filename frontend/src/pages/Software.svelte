@@ -1,9 +1,5 @@
 <script lang="ts">
-    import type { softwarePage } from "../types";
-
-    import { socket } from "../websocket";
-
-    $: socketData = $socket as softwarePage;
+    import { softwareStore } from "../websocket";
 
     let installTemp: boolean[] = [];
     let installArray: number[] = [];
@@ -13,24 +9,24 @@
     let nameList = "";
 
     // Runs once data is received or table is changed
-    $: socketData.uninstalled && installTempCreate();
-    $: socketData.uninstalled &&
+    $: $softwareStore.uninstalled && installTempCreate();
+    $: $softwareStore.uninstalled &&
         installTable !== undefined &&
         ((needInstallTemp = true), installTempCreate());
 
     // Runs every time installTemp array is changed
-    $: socketData.uninstalled && installTemp && (checkButton(), getNameList());
+    $: $softwareStore.uninstalled && installTemp && (checkButton(), getNameList());
 
     const installTempCreate = () => {
         if (needInstallTemp) {
             installTemp = [];
             for (
                 let i = 0;
-                i < socketData[installTable ? "installed" : "uninstalled"].length;
+                i < $softwareStore[installTable ? "installed" : "uninstalled"].length;
                 i++
             ) {
                 installTemp[
-                    socketData[installTable ? "installed" : "uninstalled"][i].id
+                    $softwareStore[installTable ? "installed" : "uninstalled"][i].id
                 ] = false;
             }
         }
@@ -40,7 +36,7 @@
 
     function checkButton() {
         installArray = [];
-        for (const i of socketData[installTable ? "installed" : "uninstalled"]) {
+        for (const i of $softwareStore[installTable ? "installed" : "uninstalled"]) {
             if (installTemp[i.id] === true) {
                 installArray = [...installArray, i.id];
             }
@@ -56,7 +52,7 @@
                 nameList += ", ";
             }
             nameList +=
-                socketData[installTable ? "installed" : "uninstalled"].find(
+                $softwareStore[installTable ? "installed" : "uninstalled"].find(
                     o => o.id === installArray[i]
                 )?.name ?? "";
             if (i === installArray.length - 1) {
@@ -66,7 +62,7 @@
     }
 
     function sendSoftware() {
-        socket.send({
+        softwareStore.send({
             cmd: installTable ? "uninstall" : "install",
             args: installArray.map(val => {
                 return val.toString();
@@ -102,7 +98,7 @@
             <th>Dependencies</th>
             <th>Documentation link</th>
         </tr>
-        {#each socketData[installTable ? "installed" : "uninstalled"] as software}
+        {#each $softwareStore[installTable ? "installed" : "uninstalled"] as software}
             {#if software.id !== -1}
                 <tr
                     class="mt-32 even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800  dark:border-gray-600 border-t-2 border-gray-300 border-opacity-50"
@@ -151,10 +147,10 @@
             {installTable ? "Uni" : "I"}nstall{nameList}
         </button>
     </div>
-    {#if socketData.response !== ""}
+    {#if $softwareStore.response !== ""}
         <textarea
             class="w-full bg-gray-200 h-72 rounded dark:bg-gray-800"
-            value={socketData.response}
+            value={$softwareStore.response}
             disabled
         />
     {/if}

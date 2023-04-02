@@ -2,9 +2,9 @@
     import microlight from "microlight";
     import prettyBytes from "pretty-bytes";
 
-    import { socket } from "../websocket";
+    import { browserStore } from "../websocket";
 
-    import type { browserPage, browserItem } from "../types";
+    import type { browserItem } from "../types";
 
     let selPath: browserItem = {
         name: "",
@@ -14,8 +14,6 @@
         prettytype: "",
         size: 0,
     };
-
-    $: socketData = $socket as browserPage;
 
     export let node: string;
     export let login: boolean;
@@ -78,8 +76,8 @@
             .replace(new RegExp("&", "g"), "&amp;")
             .replace(new RegExp("<", "g"), "&lt;")),
         microlight.reset();
-    $: socketData.contents &&
-        socketData.contents.sort((a, b) => {
+    $: $browserStore.contents &&
+        $browserStore.contents.sort((a, b) => {
             return a.name < b.name ? -1 : 1;
         });
 
@@ -94,7 +92,7 @@
                 size: 0,
             };
         }
-        socket.send({ cmd, args: [path] });
+        browserStore.send({ cmd, args: [path] });
         fileDataSet = false;
         if (downloading) {
             downloading = false;
@@ -122,7 +120,7 @@
             prettytype: "",
             size: 0,
         };
-        socket.send({ cmd: "rename", args: [oldname, newname] });
+        browserStore.send({ cmd: "rename", args: [oldname, newname] });
     }
 
     function syncScroll() {
@@ -172,7 +170,7 @@
 
     function validateInput(name: string | null) {
         if (name) {
-            for (let element of socketData.contents) {
+            for (let element of $browserStore.contents) {
                 if (element.name === name) {
                     if (
                         confirm(
@@ -301,14 +299,14 @@
                 {:else}
                     <h2>Receiving {currentSlices}MB out of {maxSlices}MB</h2>
                 {/if}
-            {:else if socketData.contents !== undefined}
+            {:else if $browserStore.contents !== undefined}
                 <table class="w-full bg-white table-fixed dark:bg-black min-w-50">
                     <tr>
                         <th class="px-2">Name</th>
                         <th class="px-2">Kind</th>
                         <th class="px-2">Size</th>
                     </tr>
-                    {#each socketData.contents as contents}
+                    {#each $browserStore.contents as contents}
                         <tr
                             class="select-none even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800"
                             class:!bg-dplime-dark={selPath.path == contents.path}
@@ -391,7 +389,7 @@
                         fileSend(currentPath, "save", fileData), (saved = true);
                     }}
                 />
-            {:else if socketData.contents !== undefined}
+            {:else if $browserStore.contents !== undefined}
                 <button
                     class="i-fa6-solid-rotate"
                     title="Refresh"

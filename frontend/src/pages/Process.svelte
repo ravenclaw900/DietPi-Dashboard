@@ -1,14 +1,12 @@
 <script lang="ts">
     import prettyBytes from "pretty-bytes";
 
-    import { socket } from "../websocket";
+    import { processStore } from "../websocket";
 
     import type { processPage, processItem } from "../types";
 
-    $: socketData = $socket as processPage;
-
-    // Sorts when socketData, sortBy, or reverse updates
-    $: socketData.processes, sortBy, reverse, sortTable(sortBy);
+    // Sorts when $processStore, sortBy, or reverse updates
+    $: $processStore.processes, sortBy, reverse, sortTable(sortBy);
 
     let sortBy: keyof processItem = "pid";
     let reverse = false;
@@ -16,7 +14,7 @@
     $: console.log(reverse);
 
     function sortTable(sortValue: keyof processItem) {
-        socketData.processes.sort((a, b) => {
+        $processStore.processes.sort((a, b) => {
             if (a[sortValue] > b[sortValue]) {
                 return reverse ? -1 : 1;
             } else if (a[sortValue] < b[sortValue]) {
@@ -24,7 +22,7 @@
             }
             return 0;
         });
-        socketData.processes = socketData.processes;
+        $processStore.processes = $processStore.processes;
     }
 
     function resortTable(sortValue: keyof processItem) {
@@ -109,7 +107,7 @@
             </th>
             <th>Actions</th>
         </tr>
-        {#each socketData.processes as process}
+        {#each $processStore.processes as process}
             <tr
                 class="mt-32 even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800  dark:border-gray-600 border-t-2 border-gray-300 border-opacity-50"
             >
@@ -128,7 +126,7 @@
                         <button
                             class="rounded-sm p-0.5 btn i-fa6-solid-ban text-2xl"
                             on:click={() =>
-                                socket.send({
+                                processStore.send({
                                     cmd: "terminate",
                                     args: [process.pid.toString()],
                                 })}
@@ -137,7 +135,7 @@
                         <button
                             class="rounded-sm p-0.5 btn i-fa6-solid-skull text-2xl"
                             on:click={() =>
-                                socket.send({
+                                processStore.send({
                                     cmd: "kill",
                                     args: [process.pid.toString()],
                                 })}
@@ -147,7 +145,7 @@
                             <button
                                 class="rounded-sm p-0.5 btn i-fa6-solid-pause text-2xl"
                                 on:click={() =>
-                                    socket.send({
+                                    processStore.send({
                                         cmd: "suspend",
                                         args: [process.pid.toString()],
                                     })}
@@ -157,7 +155,7 @@
                             <button
                                 class="rounded-sm p-0.5 btn i-fa6-solid-play text-2xl"
                                 on:click={() =>
-                                    socket.send({
+                                    processStore.send({
                                         cmd: "resume",
                                         args: [process.pid.toString()],
                                     })}

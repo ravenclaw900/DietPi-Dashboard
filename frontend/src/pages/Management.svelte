@@ -3,23 +3,19 @@
     import prettyMilliseconds from "pretty-ms";
     import { fade } from "svelte/transition";
 
-    import { socket } from "../websocket";
-
-    import type { managementPage } from "../types";
-
-    $: socketData = $socket as managementPage;
+    import { managementStore } from "../websocket";
 
     let uptime: string;
     let dialog = false;
     let msg = "";
 
-    $: (uptime = prettyMilliseconds(socketData.uptime * 60000, {
+    $: (uptime = prettyMilliseconds($managementStore.uptime * 60000, {
         verbose: true,
     })),
         (dialog = false);
 
     function sendData(data: string) {
-        socket.send({ cmd: data, args: [] });
+        managementStore.send({ cmd: data, args: [] });
         // Give backend an extra second to loop again
         setTimeout(() => {
             dialog = true;
@@ -51,19 +47,19 @@
                 class="even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800"
             >
                 <td class="p-1 font-semibold">Hostname:</td>
-                <td class="p-1">{socketData.hostname}</td>
+                <td class="p-1">{$managementStore.hostname}</td>
             </tr>
             <tr
                 class="even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800"
             >
                 <td class="p-1 font-semibold">Network Interface:</td>
-                <td class="p-1">{socketData.nic}</td>
+                <td class="p-1">{$managementStore.nic}</td>
             </tr>
             <tr
                 class="even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800"
             >
                 <td class="p-1 font-semibold">IP Address:</td>
-                <td class="p-1">{socketData.ip}</td>
+                <td class="p-1">{$managementStore.ip}</td>
             </tr>
             <tr
                 class="even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800"
@@ -75,27 +71,27 @@
                 class="even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800"
             >
                 <td class="p-1 font-semibold">Kernel:</td>
-                <td class="p-1">{socketData.kernel}</td>
+                <td class="p-1">{$managementStore.kernel}</td>
             </tr>
             <tr
                 class="even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800"
             >
                 <td class="p-1 font-semibold">Architecture:</td>
-                <td class="p-1">{socketData.arch}</td>
+                <td class="p-1">{$managementStore.arch}</td>
             </tr>
             <tr
                 class="even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800"
             >
                 <td class="p-1 font-semibold">Version:</td>
-                <td class="p-1">{socketData.dp_version}</td>
+                <td class="p-1">{$managementStore.dp_version}</td>
             </tr>
             <tr
                 class="even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800"
             >
                 <td class="p-1 font-semibold">Installed Packages:</td>
                 <td class="p-1"
-                    >{socketData.packages}
-                    {#if socketData.upgrades !== 0}({socketData.upgrades} upgradable){/if}
+                    >{$managementStore.packages}
+                    {#if $managementStore.upgrades !== 0}({$managementStore.upgrades} upgradable){/if}
                 </td>
             </tr>
         </table>
