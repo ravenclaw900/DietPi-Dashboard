@@ -41,5 +41,5 @@
     "xterm-addon-attach": "^0.8.0",
     "xterm-addon-fit": "^0.7.0"
   },
-  "packageManager": "pnpm@8.2.0"
+  "packageManager": "pnpm@8.3.0"
 }
