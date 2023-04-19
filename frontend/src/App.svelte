@@ -34,12 +34,13 @@
     let frontendVersion = __PACKAGE_VERSION__;
     let backendVersion = "";
     let updateAvailable = "";
-    let node = `${window.location.host}`;
+    let node = window.location.host;
     let tokens: Record<string, string> = JSON.parse(
         localStorage.getItem("tokens") ?? "{}"
     );
 
     $: $socket && (onSocketMessage(), (shown = true));
+    $: node !== window.location.host && socket.reopen(node);
     $: notify =
         dpUpdate !== "" ||
         cmp(frontendVersion, backendVersion) !== 0 ||
@@ -97,7 +98,7 @@
                 tempUnit = $socket.temp_unit;
                 // Get token
                 if (login) {
-                    if (tokens[node] === null) {
+                    if (tokens[node] === undefined) {
                         // Login
                         loginDialog = true;
                     } else {
@@ -151,7 +152,7 @@
             method: "POST",
             body: password,
         };
-        fetch(`${window.location.protocol}//${node}/login/`, options).then(response => {
+        fetch(`${window.location.protocol}//${node}/login`, options).then(response => {
             password = "";
             if (response.status === 401) {
                 passwordMessage = true;
@@ -310,29 +311,15 @@
             class="dark:bg-gray-900 bg-gray-100 flex-grow p-4 md:p-6 dark:text-white"
             class:blur-2={blur}
         >
-            {#if shown}
+            {#if shown && $socket !== null}
                 <Router>
-                    {#if $socket.dataKind === "PROCESS"}
                         <Route path="process"><Process /></Route>
-                    {/if}
-                    {#if $socket.dataKind === "STATISTIC"}
                         <Route path="/"><Home {darkMode} {tempUnit} /></Route>
-                    {/if}
-                    {#if $socket.dataKind === "SOFTWARE"}
                         <Route path="software"><Software /></Route>
-                    {/if}
                     <Route path="terminal"><Terminal {node} {token} /></Route>
-                    {#if $socket.dataKind === "MANAGEMENT"}
                         <Route path="management"><Management /></Route>
-                    {/if}
-                    {#if $socket.dataKind === "BROWSER"}
-                        <Route path="browser"
-                            ><FileBrowser {node} {login} {token} /></Route
-                        >
-                    {/if}
-                    {#if $socket.dataKind === "SERVICE"}
+                    <Route path="browser"><FileBrowser {node} {login} {token} /></Route>
                         <Route path="service"><Service /></Route>
-                    {/if}
                     <Route path=""><h3>Page not found</h3></Route>
                 </Router>
             {:else}

@@ -14,16 +14,13 @@ type request = { page: string } | { cmd: string; args?: string[] } | { token: st
 // Inspired by the svelte-websocket-store package
 function createWebsocketStore(host: string) {
     let socket: WebSocket | undefined;
-    const subscribers: Set<(value: socketData | { dataKind: "NOTCONNECTED" }) => void> =
-        new Set();
+    const subscribers: Set<(value: socketData | null) => void> = new Set();
     let reopenTimeout: ReturnType<typeof setTimeout> | undefined;
     let retryCount = 0;
     let proto = window.location.protocol === "http:" ? "ws" : "wss";
     let lastValue: socketData | undefined;
 
-    function subscribe(
-        callback: (value: socketData | { dataKind: "NOTCONNECTED" }) => void
-    ): () => void {
+    function subscribe(callback: (value: socketData | null) => void): () => void {
         subscribers.add(callback);
         if (lastValue) {
             callback(lastValue);
@@ -104,7 +101,7 @@ export const socket = createWebsocketStore(window.location.host);
 function createStore<T extends socketData>(defaultValue: T) {
     const store = derived(socket, $socket => {
         let lastValue = defaultValue;
-        if ($socket.dataKind == defaultValue.dataKind) {
+        if ($socket && $socket.dataKind == defaultValue.dataKind) {
             lastValue = $socket as T;
         }
         return lastValue;

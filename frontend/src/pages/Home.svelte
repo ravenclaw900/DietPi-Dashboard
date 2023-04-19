@@ -88,16 +88,18 @@
     }
 
     function resizeUplot(uplot: uPlot, entry: Element) {
-        uplot.setSize({
-            width: Math.min(
-                entry.clientWidth - 10,
-                (window.innerWidth / 100) * (portrait ? 70 : 50)
-            ),
-            height: Math.min(
-                entry.clientHeight - 20,
-                (window.innerHeight / 100) * (portrait ? 50 : 70)
-            ),
-        });
+        if (uplot !== null) {
+            uplot.setSize({
+                width: Math.min(
+                    entry.clientWidth - 10,
+                    (window.innerWidth / 100) * (portrait ? 70 : 50)
+                ),
+                height: Math.min(
+                    entry.clientHeight - 20,
+                    (window.innerHeight / 100) * (portrait ? 50 : 70)
+                ),
+            });
+        }
     }
 
     let uplot: uPlot | null;
