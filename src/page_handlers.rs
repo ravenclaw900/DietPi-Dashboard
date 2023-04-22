@@ -147,7 +147,7 @@ pub async fn software_handler_helper(
     Ok(shared::DPSoftwareList {
         uninstalled: software.0,
         installed: software.1,
-        response: out,
+        response: Some(out),
     })
 }
 
@@ -158,7 +158,7 @@ pub async fn software_handler(socket_send: &mut SocketSend, data_recv: &mut Recv
         .send(shared::BackendData::Software(shared::DPSoftwareList {
             uninstalled: software.0,
             installed: software.1,
-            response: String::new(),
+            response: None,
         }))
         .await
         .is_err()
