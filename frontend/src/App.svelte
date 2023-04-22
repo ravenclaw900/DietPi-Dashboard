@@ -13,10 +13,8 @@
 
     import logo from "./assets/dietpi.png";
     import github from "./assets/github-mark.svg";
-    import type { socketData } from "./types";
+    import { socket } from "./websocket";
 
-    let socket: WebSocket;
-    let socketData: socketData;
     let nodes: string[] = [];
     let shown = false;
     let darkMode = false;
@@ -27,7 +25,6 @@
     let settingsShown = false;
     let passwordMessage = false;
     let notify = false;
-    let reopenSocket = true;
     let menu = window.innerWidth > 768;
     let dpUpdate = "";
     let tempUnit: "fahrenheit" | "celsius";
@@ -37,12 +34,13 @@
     let frontendVersion = __PACKAGE_VERSION__;
     let backendVersion = "";
     let updateAvailable = "";
-    let node = `${window.location.hostname}:${window.location.port}`;
+    let node = window.location.host;
     let tokens: Record<string, string> = JSON.parse(
         localStorage.getItem("tokens") ?? "{}"
     );
 
-    $: node && (((shown = false), (reopenSocket = false)), connectSocket(node));
+    $: $socket && (onSocketMessage(), (shown = true));
+    $: node !== window.location.host && socket.reopen(node);
     $: notify =
         dpUpdate !== "" ||
         cmp(frontendVersion, backendVersion) !== 0 ||
@@ -88,72 +86,56 @@
         }
     };
 
-    const socketMessageListener = (e: MessageEvent) => {
-        socketData = JSON.parse(e.data);
-        if (socketData.dataKind === "GLOBAL") {
-            dpUpdate = socketData.update;
-            login = socketData.login;
-            if (socketData.nodes) {
-                nodes = socketData.nodes;
-            }
-            backendVersion = socketData.version;
-            tempUnit = socketData.temp_unit;
-            // Get token
-            if (login) {
-                if (tokens[node] === null) {
-                    // Login
-                    loginDialog = true;
+    function onSocketMessage() {
+        if ($socket) {
+            if ($socket.dataKind === "GLOBAL") {
+                dpUpdate = $socket.update;
+                login = $socket.login;
+                if ($socket.nodes) {
+                    nodes = $socket.nodes;
+                }
+                backendVersion = $socket.version;
+                tempUnit = $socket.temp_unit;
+                // Get token
+                if (login) {
+                    if (tokens[node] === undefined) {
+                        // Login
+                        loginDialog = true;
+                    } else {
+                        // Or use stored token
+                        token = tokens[node];
+                        socket.send({ token });
+                        loginDialog = false;
+                        pollServer(window.location.pathname);
+                    }
                 } else {
-                    // Or use stored token
-                    token = tokens[node];
-                    socket.send(JSON.stringify({ token }));
+                    // Remove legacy "token" setting
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("tokens");
+                    token = "";
                     pollServer(window.location.pathname);
                 }
-            } else {
-                // Remove legacy "token" setting
-                localStorage.removeItem("token");
-                localStorage.removeItem("tokens");
-                token = "";
-                pollServer(window.location.pathname);
+                if ($socket.update_check) {
+                    updateCheck();
+                }
             }
-            if (socketData.update_check) {
-                updateCheck();
+            if ($socket.dataKind === "REAUTH") {
+                loginDialog = true;
+            }
+            if (navPage) {
+                blur = false;
+                navigate(navPage);
+                navPage = "";
             }
         }
-        if (socketData.dataKind === "REAUTH") {
-            loginDialog = true;
-        }
-        if (navPage) {
-            blur = false;
-            navigate(navPage);
-            navPage = "";
-        }
-    };
-    const socketOpenListener = () => {
-        console.info("Connected");
-        shown = true;
-        loginDialog = false;
-    };
-    const socketErrorListener = (e: Event) => {
-        console.error(e);
-    };
-    const socketCloseListener = (e: CloseEvent) => {
-        console.info("Disconnected, reconnecting:", reopenSocket);
-        if (reopenSocket) {
-            setTimeout(() => connectSocket(node), 1000);
-        } else {
-            reopenSocket = true;
-        }
-    };
+    }
 
     function pollServer(page: string) {
         if (page !== "/terminal") {
             // Terminal doesn't work if sent
-            socket.send(
-                JSON.stringify({
-                    page,
-                })
-            );
+            socket.send({
+                page,
+            });
         }
     }
 
@@ -171,7 +153,7 @@
             method: "POST",
             body: password,
         };
-        fetch(`${window.location.protocol}//${node}/login/`, options).then(response => {
+        fetch(`${window.location.protocol}//${node}/login`, options).then(response => {
             password = "";
             if (response.status === 401) {
                 passwordMessage = true;
@@ -183,33 +165,10 @@
                 tokens[node] = body;
                 localStorage.setItem("tokens", JSON.stringify(tokens));
                 loginDialog = false;
-                socket.send(JSON.stringify({ token }));
+                socket.send({ token });
                 pollServer(window.location.pathname);
             });
         });
-    }
-
-    function socketSend(cmd: string, args: string[]) {
-        socket.send(
-            JSON.stringify({
-                cmd,
-                args,
-            })
-        );
-    }
-
-    function connectSocket(url: string) {
-        if (socket) {
-            socket.close();
-        } else {
-            reopenSocket = true;
-        }
-        let proto = window.location.protocol === "https:" ? "wss" : "ws";
-        socket = new WebSocket(`${proto}://${url}/ws`);
-        socket.onopen = socketOpenListener;
-        socket.onmessage = socketMessageListener;
-        socket.onclose = socketCloseListener;
-        socket.onerror = socketErrorListener;
     }
 </script>
 
@@ -276,7 +235,7 @@
                         on:click={() => (settingsShown = !settingsShown)}
                     />
                 {/if}
-                {#if !notify}
+                {#if notify}
                     <button
                         on:click={() => (notificationsShown = !notificationsShown)}
                         class="flex"
@@ -353,42 +312,15 @@
             class="dark:bg-gray-900 bg-gray-100 flex-grow p-4 md:p-6 dark:text-white"
             class:blur-2={blur}
         >
-            {#if shown && socketData !== undefined}
+            {#if shown && $socket !== null}
                 <Router>
-                    {#if socketData.dataKind === "PROCESS"}
-                        <Route path="process"><Process {socketData} {socketSend} /></Route
-                        >
-                    {/if}
-                    {#if socketData.dataKind === "STATISTIC"}
-                        <Route path="/"><Home {socketData} {darkMode} {tempUnit} /></Route
-                        >
-                    {/if}
-                    {#if socketData.dataKind === "SOFTWARE"}
-                        <Route path="software"
-                            ><Software {socketData} {socketSend} /></Route
-                        >
-                    {/if}
+                    <Route path="process"><Process /></Route>
+                    <Route path="/"><Home {darkMode} {tempUnit} /></Route>
+                    <Route path="software"><Software /></Route>
                     <Route path="terminal"><Terminal {node} {token} /></Route>
-                    {#if socketData.dataKind === "MANAGEMENT"}
-                        <Route path="management"
-                            ><Management {socketSend} {socketData} /></Route
-                        >
-                    {/if}
-                    {#if socketData.dataKind === "BROWSER"}
-                        <Route path="browser"
-                            ><FileBrowser
-                                {socketSend}
-                                {socketData}
-                                {node}
-                                {login}
-                                {token}
-                            /></Route
-                        >
-                    {/if}
-                    {#if socketData.dataKind === "SERVICE"}
-                        <Route path="service"><Service {socketSend} {socketData} /></Route
-                        >
-                    {/if}
+                    <Route path="management"><Management /></Route>
+                    <Route path="browser"><FileBrowser {node} {login} {token} /></Route>
+                    <Route path="service"><Service /></Route>
                     <Route path=""><h3>Page not found</h3></Route>
                 </Router>
             {:else}

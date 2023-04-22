@@ -263,9 +263,14 @@ where
 pub async fn router(req: Request<Body>, span: tracing::Span) -> anyhow::Result<Response<Body>> {
     let mut response = Response::new(Body::empty());
 
+    let mut path = req.uri().path();
+    if path != "/" {
+        path = path.trim_end_matches('/');
+    }
+
     match (
         req.method(),
-        req.uri().path(),
+        path,
         // Make a String to avoid lifetime errors
         req.uri().query().map(str::to_string),
     ) {

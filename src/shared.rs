@@ -92,7 +92,7 @@ pub enum BackendData {
     Service(ServiceList),
     Global(GlobalData),
     Browser(BrowserList),
-    Reauth { reauth: bool },
+    Reauth,
 }
 
 #[derive(Serialize, Default)]
@@ -160,7 +160,8 @@ pub struct DPSoftwareData {
 pub struct DPSoftwareList {
     pub installed: Vec<DPSoftwareData>,
     pub uninstalled: Vec<DPSoftwareData>,
-    pub response: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub response: Option<String>,
 }
 
 #[derive(Serialize, Default)]

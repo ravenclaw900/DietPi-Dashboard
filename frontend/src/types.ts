@@ -22,7 +22,7 @@ interface softwarePage {
     dataKind: "SOFTWARE";
     uninstalled: softwareItem[];
     installed: softwareItem[];
-    response: string;
+    response?: string;
 }
 
 interface processPage {
@@ -66,7 +66,6 @@ interface globalSettings {
 
 interface reauthenticate {
     dataKind: "REAUTH";
-    reauth: true;
 }
 
 interface softwareItem {
@@ -129,5 +128,5 @@ export type {
     managementPage,
     globalSettings,
     browserItem,
-    processItem
+    processItem,
 };

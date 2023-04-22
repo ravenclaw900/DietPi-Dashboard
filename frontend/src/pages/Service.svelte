@@ -1,8 +1,5 @@
 <script lang="ts">
-    import type { servicesPage } from "../types";
-
-    export let socketSend: (cmd: string, args: string[]) => void;
-    export let socketData: servicesPage;
+    import { serviceStore } from "../websocket";
 </script>
 
 <main>
@@ -16,7 +13,7 @@
             <th>Start Time</th>
             <th>Actions</th>
         </tr>
-        {#each socketData.services as service}
+        {#each $serviceStore.services as service}
             <tr
                 class="mt-32 even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800  dark:border-gray-600 border-t-2 border-gray-300 border-opacity-50"
             >
@@ -34,17 +31,23 @@
                 <td class="p-2 space-x-2">
                     {#if service.status === "inactive" || service.status === "failed"}
                         <button
-                            on:click={() => socketSend("start", [service.name])}
+                            on:click={() =>
+                                serviceStore.send({ cmd: "start", args: [service.name] })}
                             title="Start"
                             class="btn rounded-sm p-0.5 i-fa6-solid-play text-2xl"
                         />
                     {:else}
                         <button
-                            on:click={() => socketSend("stop", [service.name])}
+                            on:click={() =>
+                                serviceStore.send({ cmd: "stop", args: [service.name] })}
                             title="Stop"
                             class="btn rounded-sm p-0.5 i-fa6-solid-square text-2xl"
                         /><button
-                            on:click={() => socketSend("restart", [service.name])}
+                            on:click={() =>
+                                serviceStore.send({
+                                    cmd: "restart",
+                                    args: [service.name],
+                                })}
                             title="Restart"
                             class="btn rounded-sm p-0.5 i-fa6-solid-rotate-left text-2xl"
                         />
