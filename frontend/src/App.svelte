@@ -99,12 +99,14 @@
                 // Get token
                 if (login) {
                     if (tokens[node] === undefined) {
+                        console.debug("tokens[node]");
                         // Login
                         loginDialog = true;
                     } else {
                         // Or use stored token
                         token = tokens[node];
                         socket.send({ token });
+                        loginDialog = false;
                         pollServer(window.location.pathname);
                     }
                 } else {
@@ -313,13 +315,13 @@
         >
             {#if shown && $socket !== null}
                 <Router>
-                        <Route path="process"><Process /></Route>
-                        <Route path="/"><Home {darkMode} {tempUnit} /></Route>
-                        <Route path="software"><Software /></Route>
+                    <Route path="process"><Process /></Route>
+                    <Route path="/"><Home {darkMode} {tempUnit} /></Route>
+                    <Route path="software"><Software /></Route>
                     <Route path="terminal"><Terminal {node} {token} /></Route>
-                        <Route path="management"><Management /></Route>
+                    <Route path="management"><Management /></Route>
                     <Route path="browser"><FileBrowser {node} {login} {token} /></Route>
-                        <Route path="service"><Service /></Route>
+                    <Route path="service"><Service /></Route>
                     <Route path=""><h3>Page not found</h3></Route>
                 </Router>
             {:else}
