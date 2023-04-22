@@ -155,11 +155,7 @@ pub async fn socket_handler(
                 "/login" => {
                     tracing::debug!("Sending login message");
                     // Internal poll, see other thread
-                    if socket_send
-                        .send(shared::BackendData::Reauth)
-                        .await
-                        .is_err()
-                    {
+                    if socket_send.send(shared::BackendData::Reauth).await.is_err() {
                         break;
                     }
                     false
