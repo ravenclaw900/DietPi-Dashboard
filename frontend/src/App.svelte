@@ -99,7 +99,6 @@
                 // Get token
                 if (login) {
                     if (tokens[node] === undefined) {
-                        console.debug("tokens[node]");
                         // Login
                         loginDialog = true;
                     } else {

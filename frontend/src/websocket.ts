@@ -51,6 +51,7 @@ function createWebsocketStore(host: string) {
         if (socket) {
             socket.removeEventListener("open", onOpen);
             socket.removeEventListener("close", onClose);
+            socket.removeEventListener("error", onClose);
             socket.removeEventListener("message", onMessage);
             socket.close();
         }
@@ -65,6 +66,7 @@ function createWebsocketStore(host: string) {
 
         socket.addEventListener("open", onOpen);
         socket.addEventListener("close", onClose);
+        socket.addEventListener("error", onClose);
         socket.addEventListener("message", onMessage);
     }
 
