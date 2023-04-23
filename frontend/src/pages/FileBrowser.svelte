@@ -147,24 +147,24 @@
     function getIcon(maintype: string, subtype: string) {
         switch (maintype) {
             case "dir":
-                return "i-fa6-solid-folder";
+                return "dir-icon";
             case "image":
-                return "i-fa6-solid-file-image";
+                return "img-icon";
             case "video":
-                return "i-fa6-solid-file-video";
+                return "vid-icon";
             case "audio":
-                return "i-fa6-solid-file-audio";
+                return "aud-icon";
             case "archive":
                 if (subtype === "pdf") {
-                    return "i-fa6-solid-file-pdf";
+                    return "pdf-icon";
                 }
-                return "i-fa6-solid-file-archive";
+                return "arc-icon";
             case "text":
-                return "i-fa6-solid-file-lines";
+                return "txt-icon";
             case "notafile":
-                return "i-fa6-solid-cube";
+                return "blk-icon";
             default:
-                return "i-fa6-solid-file";
+                return "bin-icon";
         }
     }
 
@@ -353,7 +353,7 @@
                         >
                             <td class="px-2"
                                 ><div
-                                    class="mr-2 inline-block ${getIcon(
+                                    class="mr-2 inline-block {getIcon(
                                         contents.maintype,
                                         contents.subtype
                                     )}"
@@ -520,3 +520,41 @@
         </div>
     </div>
 </main>
+
+<style>
+    .dir-icon {
+        @apply i-fa6-solid-folder;
+    }
+
+    .img-icon {
+        @apply i-fa6-solid-file-image;
+    }
+
+    .vid-icon {
+        @apply i-fa6-solid-file-video;
+    }
+
+    .aud-icon {
+        @apply i-fa6-solid-file-audio;
+    }
+
+    .pdf-icon {
+        @apply i-fa6-solid-file-pdf;
+    }
+
+    .arc-icon {
+        @apply i-fa6-solid-file-zipper;
+    }
+
+    .txt-icon {
+        @apply i-fa6-solid-file-lines;
+    }
+
+    .blk-icon {
+        @apply i-fa6-solid-cube;
+    }
+
+    .bin-icon {
+        @apply i-fa6-solid-file;
+    }
+</style>
