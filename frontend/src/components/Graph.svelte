@@ -11,18 +11,23 @@
     // When new data comes in, add it to the graph and set data to itself for reactivity
     $: $statisticsStore, updateData(), (data = data);
 
+    // Values on a log graph can't equal zero, so set them to 1
+    function zeroToOne(value: number) {
+        return value == 0 ? 1 : value;
+    }
+
     function updateData() {
-        let pushData = data as (number | null)[][];
+        let pushData = data as number[][];
         pushData[0].push(Math.round(Date.now() / 1000));
         pushData[1].push($statisticsStore.cpu);
-        pushData[2].push($statisticsStore.ram.used);
-        pushData[3].push($statisticsStore.swap.used);
-        pushData[4].push($statisticsStore.network.sent);
-        pushData[5].push($statisticsStore.network.received);
+        pushData[2].push(zeroToOne($statisticsStore.ram.used));
+        pushData[3].push(zeroToOne($statisticsStore.swap.used));
+        pushData[4].push(zeroToOne($statisticsStore.network.sent));
+        pushData[5].push(zeroToOne($statisticsStore.network.received));
         if ($statisticsStore.temp.available) {
             pushData[6].push($statisticsStore.temp.temp);
         } else {
-            pushData[6].push(null);
+            pushData[6].push(0);
         }
     }
 
@@ -44,7 +49,6 @@
 
     let series = [
         {
-            spanGaps: false,
             label: "CPU",
             stroke: "#10b981",
             width: 3,
@@ -53,7 +57,6 @@
                 (val ?? $statisticsStore.cpu).toFixed(2) + "%",
         },
         {
-            spanGaps: false,
             label: "RAM",
             stroke: "#ef4444",
             width: 3,
@@ -63,7 +66,6 @@
         },
         {
             show: true,
-            spanGaps: false,
             label: "Swap",
             stroke: "#3b82f6",
             width: 3,
@@ -72,7 +74,6 @@
                 prettyBytes(val ?? $statisticsStore.swap.used, { binary: true }),
         },
         {
-            spanGaps: false,
             label: "Network (sent)",
             stroke: "#a855f7",
             width: 3,
@@ -81,7 +82,6 @@
                 prettyBytes(val ?? $statisticsStore.network.sent),
         },
         {
-            spanGaps: false,
             label: "Network (received)",
             stroke: "#ec4899",
             width: 3,
@@ -168,7 +168,6 @@
                 // Can't set these in creation method because websocket data might not have been sent yet
                 if (graph.series[6] === undefined && $statisticsStore.temp.available) {
                     graph.addSeries({
-                        spanGaps: false,
                         label: "CPU Temperature",
                         stroke: "#94A3B8",
                         width: 3,
