@@ -448,7 +448,7 @@ pub fn temp() -> shared::CPUTemp {
             let temp = temp.current();
             let temp = match shared::CONFIG.temp_unit {
                 shared::TempUnit::Celsius => temp.celsius(),
-                shared::TempUnit::Fahrenheit => temp.fahrenheit()
+                shared::TempUnit::Fahrenheit => temp.fahrenheit(),
             };
 
             shared::CPUTemp {
