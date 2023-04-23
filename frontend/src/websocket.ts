@@ -47,6 +47,7 @@ function createWebsocketStore(host: string) {
 
     function reopen(newHost?: string): void {
         clearTimeout(reopenTimeout);
+        reopenTimeout = undefined;
 
         if (socket) {
             socket.removeEventListener("open", onOpen);
