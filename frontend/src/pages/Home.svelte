@@ -12,44 +12,6 @@
 
     let portrait = window.innerHeight > window.innerWidth;
 
-    const cpuAnimate = tweened(0, {
-        duration: 200,
-    });
-
-    const ramAnimate = tweened(0, {
-        duration: 200,
-    });
-
-    const swapAnimate = tweened(0, {
-        duration: 200,
-    });
-
-    const diskAnimate = tweened(0, {
-        duration: 200,
-    });
-
-    let ramData: (string | number)[],
-        swapData: (string | number)[],
-        diskData: (string | number)[];
-
-    $: cpuAnimate.set($statisticsStore.cpu);
-    $: ramAnimate.set($statisticsStore.ram.percent);
-    $: swapAnimate.set($statisticsStore.swap.percent);
-    $: diskAnimate.set($statisticsStore.disk.percent);
-
-    $: ramData = [
-        prettyBytes($statisticsStore.ram.used, { binary: true }),
-        prettyBytes($statisticsStore.ram.total, { binary: true }),
-    ];
-    $: swapData = [
-        prettyBytes($statisticsStore.swap.used, { binary: true }),
-        prettyBytes($statisticsStore.swap.total, { binary: true }),
-    ];
-    $: diskData = [
-        prettyBytes($statisticsStore.disk.used),
-        prettyBytes($statisticsStore.disk.total),
-    ];
-
     function getTempMsg(temp: number) {
         if (
             (tempUnit === "celsius" && temp >= 70) ||
@@ -133,19 +95,45 @@
             </div>
             CPU:<span class="float-right">{$statisticsStore.cpu}/100%</span>
             <div class="bg-gray-200 dark:bg-gray-800 w-full h-3 my-1">
-                <div class="bg-green-500 h-3" style="width:{$cpuAnimate}%" />
+                <div
+                    class="bg-green-500 h-3 transition-width-200"
+                    style="width:{$statisticsStore.cpu}%"
+                />
             </div>
-            RAM:<span class="float-right">{ramData[0]}/{ramData[1]}</span>
+            RAM:<span class="float-right"
+                >{prettyBytes($statisticsStore.ram.used, { binary: true })}/{prettyBytes(
+                    $statisticsStore.ram.total,
+                    { binary: true }
+                )}</span
+            >
             <div class="bg-gray-200 dark:bg-gray-800 w-full h-3 my-1">
-                <div class="bg-red-500 h-3" style="width:{$ramAnimate}%" />
+                <div
+                    class="bg-red-500 h-3 transition-width-200"
+                    style="width:{$statisticsStore.ram.percent}%"
+                />
             </div>
-            Swap:<span class="float-right">{swapData[0]}/{swapData[1]}</span>
+            Swap:<span class="float-right"
+                >{prettyBytes($statisticsStore.swap.used, { binary: true })}/{prettyBytes(
+                    $statisticsStore.swap.total,
+                    { binary: true }
+                )}</span
+            >
             <div class="bg-gray-200 dark:bg-gray-800 w-full h-3 my-1">
-                <div class="bg-blue-500 h-3" style="width:{$swapAnimate}%" />
+                <div
+                    class="bg-blue-500 h-3 transition-width-200"
+                    style="width:{$statisticsStore.swap.percent}%"
+                />
             </div>
-            Disk:<span class="float-right">{diskData[0]}/{diskData[1]}</span>
+            Disk:<span class="float-right"
+                >{prettyBytes($statisticsStore.disk.used)}/{prettyBytes(
+                    $statisticsStore.disk.total
+                )}</span
+            >
             <div class="bg-gray-200 dark:bg-gray-800 w-full h-3 my-1">
-                <div class="bg-yellow-500 h-3" style="width:{$diskAnimate}%" />
+                <div
+                    class="bg-yellow-500 h-3 transition-width-200"
+                    style="width:{$statisticsStore.disk.percent}%"
+                />
             </div>
         {/if}
     </Card>
