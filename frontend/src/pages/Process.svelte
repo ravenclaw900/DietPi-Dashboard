@@ -12,8 +12,6 @@
     let sortBy: keyof processItem = "pid";
     let reverse = false;
 
-    $: console.log(reverse);
-
     function sortTable(sortValue: keyof processItem) {
         processes.sort((a, b) => {
             if (a[sortValue] > b[sortValue]) {

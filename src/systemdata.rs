@@ -446,16 +446,19 @@ pub fn temp() -> shared::CPUTemp {
     ) {
         Some(Ok(temp)) => {
             let temp = temp.current();
+            let temp = match shared::CONFIG.temp_unit {
+                shared::TempUnit::Celsius => temp.celsius(),
+                shared::TempUnit::Fahrenheit => temp.fahrenheit()
+            };
+
             shared::CPUTemp {
                 available: true,
-                celsius: temp.celsius().round() as i16,
-                fahrenheit: temp.fahrenheit().round() as i16,
+                temp: temp.round() as i16,
             }
         }
         _ => shared::CPUTemp {
             available: false,
-            celsius: 0,
-            fahrenheit: 0,
+            temp: 0,
         },
     }
 }
