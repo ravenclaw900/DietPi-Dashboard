@@ -27,7 +27,7 @@ serde = { version = "1.0.160", features = ["derive"] }
 anyhow = "1.0.70"
 once_cell = "1.17.1"
 serde_json = "1.0.96"
-tracing = { version = "0.1.37", features = ["release_max_level_debug"] }
+tracing = { version = "0.1.38", features = ["release_max_level_debug"] }
 tracing-subscriber = "0.3.17"
 hyper = { version = "0.14.26", features = ["server", "http1", "tcp"] }
 tokio-tungstenite = "0.18.0"
