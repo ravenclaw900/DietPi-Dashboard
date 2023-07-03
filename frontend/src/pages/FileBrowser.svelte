@@ -147,24 +147,24 @@
     function getIcon(maintype: string, subtype: string) {
         switch (maintype) {
             case "dir":
-                return "i-fa6-solid-folder";
+                return "i-fa-folder";
             case "image":
-                return "i-fa6-solid-file-image";
+                return "i-fa-file-image";
             case "video":
-                return "i-fa6-solid-file-video";
+                return "i-fa-file-video";
             case "audio":
-                return "i-fa6-solid-file-audio";
+                return "i-fa-file-audio";
             case "archive":
                 if (subtype === "pdf") {
-                    return "i-fa6-solid-file-pdf";
+                    return "i-fa-file-pdf";
                 }
-                return "i-fa6-solid-file-archive";
+                return "i-fa-file-archive";
             case "text":
-                return "i-fa6-solid-file-lines";
+                return "i-fa-file-lines";
             case "notafile":
-                return "i-fa6-solid-cube";
+                return "i-fa-cube";
             default:
-                return "i-fa6-solid-file";
+                return "i-fa-file";
         }
     }
 
@@ -353,7 +353,7 @@
                         >
                             <td class="px-2"
                                 ><div
-                                    class="mr-2 inline-block ${getIcon(
+                                    class="mr-2 inline-block {getIcon(
                                         contents.maintype,
                                         contents.subtype
                                     )}"
@@ -380,18 +380,18 @@
                     on:click={() => {
                         highlighting = !highlighting;
                     }}
-                    class="i-fa6-solid-highlighter"
+                    class="i-fa-highlighter"
                     class:opacity-50={!highlighting}
                 />
                 <button
-                    class="i-fa6-solid-floppy-disk"
+                    class="i-fa-floppy-disk"
                     on:click={() => {
                         fileSend(currentPath, "save", fileData), (saved = true);
                     }}
                 />
             {:else if $browserStore.contents !== undefined}
                 <button
-                    class="i-fa6-solid-rotate"
+                    class="i-fa-rotate"
                     title="Refresh"
                     on:click={() => {
                         sendCmd(`${currentPath}`, "cd");
@@ -399,15 +399,15 @@
                 />
                 <button
                     title="{showHidden ? 'Hide' : 'Show'} Hidden Files"
-                    class:i-fa6-solid-eye={showHidden}
-                    class:i-fa6-solid-eye-slash={!showHidden}
+                    class:i-fa-eye={showHidden}
+                    class:i-fa-eye-slash={!showHidden}
                     on:click={() => {
                         showHidden = !showHidden;
                     }}
                 />
                 {#if currentPath !== "/"}
                     <button
-                        class="i-fa6-solid-folder-plus text-2xl"
+                        class="i-fa-folder-plus text-2xl"
                         title="New Directory"
                         on:click={() => {
                             let name = prompt(
@@ -419,7 +419,7 @@
                         }}
                     />
                     <button
-                        class="i-fa6-solid-file-medical"
+                        class="i-fa-file-medical"
                         title="New File"
                         on:click={() => {
                             let name = prompt("Please enter the name of the new file");
@@ -429,7 +429,7 @@
                         }}
                     />
                     <button
-                        class="i-fa6-solid-file-arrow-up"
+                        class="i-fa-file-arrow-up"
                         title="Upload File"
                         on:click={() => {
                             fileDialog.click();
@@ -463,7 +463,7 @@
                     >
                     {#if selPath.path !== "" && selPath.maintype !== "notafile"}
                         <button
-                            class="i-fa6-solid-i-cursor"
+                            class="i-fa-i-cursor"
                             title="Rename"
                             on:click={() => {
                                 let name = prompt(
@@ -476,13 +476,13 @@
                         />
                         {#if selPath.maintype !== "dir"}
                             <button
-                                class="i-fa6-solid-copy"
+                                class="i-fa-copy"
                                 title="Copy"
                                 on:click={() => sendCmd(selPath.path, "copy")}
                             />
                         {/if}
                         <button
-                            class="i-fa6-solid-trash"
+                            class="i-fa-trash"
                             title="Delete"
                             on:click={() => {
                                 if (
@@ -506,7 +506,7 @@
                             }}
                         />
                         <button
-                            class="i-fa6-solid-file-arrow-down"
+                            class="i-fa-file-arrow-down"
                             title="Download"
                             on:click={() => {
                                 fileSend(selPath.path, "dl", "");

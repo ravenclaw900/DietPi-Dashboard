@@ -212,7 +212,7 @@
         <header class="grid grid-cols-3 items-center h-12 bg-dplime">
             <button
                 on:click={() => (menu = !menu)}
-                class="justify-self-start p-1 ml-1 btn i-fa6-solid-bars text-4xl"
+                class="justify-self-start p-1 ml-1 btn i-fa-bars text-4xl"
             />
             <a href="https://dietpi.com" class="justify-self-center" target="_blank"
                 ><img src={logo} alt="DietPi logo" class="h-10" /></a
@@ -231,7 +231,7 @@
                         {/each}
                     </select>
                     <button
-                        class="md:hidden i-fa6-solid-gear text-2xl flex-shrink-0"
+                        class="md:hidden i-fa-gear text-2xl flex-shrink-0"
                         on:click={() => (settingsShown = !settingsShown)}
                     />
                 {/if}
@@ -240,7 +240,7 @@
                         on:click={() => (notificationsShown = !notificationsShown)}
                         class="flex"
                     >
-                        <div class="i-fa6-solid-envelope text-2xl" />
+                        <div class="i-fa-envelope text-2xl" />
                         <div
                             class="i-svg-spinners-pulse-multiple text-red-600 -ml-2 place-self-end"
                         />
@@ -248,13 +248,11 @@
                 {:else}
                     <button
                         on:click={() => (notificationsShown = !notificationsShown)}
-                        class="i-fa6-solid-envelope text-2xl flex-shrink-0"
+                        class="i-fa-envelope text-2xl flex-shrink-0"
                     />
                 {/if}
                 <button
-                    class="text-2xl flex-shrink-0 {darkMode
-                        ? 'i-fa6-solid-moon'
-                        : 'i-fa6-solid-sun'}"
+                    class="text-2xl flex-shrink-0 {darkMode ? 'i-fa-moon' : 'i-fa-sun'}"
                     on:click={() => (
                         (darkMode = !darkMode),
                         localStorage.setItem("darkMode", darkMode.toString())
@@ -354,6 +352,3 @@
         </footer>
     </div>
 </main>
-
-<style uno:preflights>
-</style>

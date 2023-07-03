@@ -55,6 +55,9 @@ devDependencies:
   '@types/semver-compare-multi':
     specifier: ^1.0.0
     version: 1.0.0
+  '@unocss/extractor-svelte':
+    specifier: ^0.53.4
+    version: 0.53.4
   postcss:
     specifier: ^8.4.21
     version: 8.4.21
@@ -517,6 +520,10 @@ packages:
     resolution: {integrity: sha512-f1v2E5PherulTAdrsXXb5Knaz4Viu2dM71WalNYhb+j9QqwGngagLrMzRzeIRLOEI2c0D0l7HBQtew+QFWsXcg==}
     dependencies:
       '@unocss/core': 0.53.0
+    dev: true
+
+  /@unocss/extractor-svelte@0.53.4:
+    resolution: {integrity: sha512-ssueqPxHiT9iGNqsAzKruK8mz5dYoj//mBuMFPNGfhSpYQpCpjOlyS9n8BEeyoNMtFqLsf3vVm0t79l40Jir6A==}
     dev: true
 
   /@unocss/inspector@0.53.0:

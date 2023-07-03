@@ -34,14 +34,14 @@
                             on:click={() =>
                                 serviceStore.send({ cmd: "start", args: [service.name] })}
                             title="Start"
-                            class="btn rounded-sm p-0.5 i-fa6-solid-play text-2xl"
+                            class="btn rounded-sm p-0.5 i-fa-play text-2xl"
                         />
                     {:else}
                         <button
                             on:click={() =>
                                 serviceStore.send({ cmd: "stop", args: [service.name] })}
                             title="Stop"
-                            class="btn rounded-sm p-0.5 i-fa6-solid-square text-2xl"
+                            class="btn rounded-sm p-0.5 i-fa-square text-2xl"
                         /><button
                             on:click={() =>
                                 serviceStore.send({
@@ -49,7 +49,7 @@
                                     args: [service.name],
                                 })}
                             title="Restart"
-                            class="btn rounded-sm p-0.5 i-fa6-solid-rotate-left text-2xl"
+                            class="btn rounded-sm p-0.5 i-fa-rotate-left text-2xl"
                         />
                     {/if}</td
                 >

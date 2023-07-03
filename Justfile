@@ -31,6 +31,6 @@ dev:
     pnpm install
     pnpm dev &
     cd ..
-    cargo run --quiet --features dev &
+    cargo run --features dev &
     trap 'kill $(jobs -pr)' EXIT
     wait
