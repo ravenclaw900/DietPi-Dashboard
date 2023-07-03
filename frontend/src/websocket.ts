@@ -121,7 +121,7 @@ export const statisticsStore = createStore<statisticsPage>({
   swap: { used: 0, total: 0, percent: 0 },
   // TODO: modify so that { available: false } and { available: true, temp: 0 }
   // is possible, there shouldn't have to be values if it isn't available
-  temp: { temp: 0, available: false },
+  temp: { temp: null },
 });
 
 export const processStore = createStore<processPage>({

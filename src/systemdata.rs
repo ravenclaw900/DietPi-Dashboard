@@ -455,8 +455,6 @@ pub fn temp() -> shared::CPUTemp {
                 temp: Some(temp.round() as i16),
             }
         }
-        _ => shared::CPUTemp {
-            temp: None,
-        },
+        _ => shared::CPUTemp { temp: None },
     }
 }
