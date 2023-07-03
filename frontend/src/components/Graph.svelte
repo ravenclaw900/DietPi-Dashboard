@@ -24,7 +24,7 @@
         pushData[3].push(zeroToOne($statisticsStore.swap.used));
         pushData[4].push(zeroToOne($statisticsStore.network.sent));
         pushData[5].push(zeroToOne($statisticsStore.network.received));
-        if ($statisticsStore.temp.available) {
+        if ($statisticsStore.temp.temp !== null) {
             pushData[6].push($statisticsStore.temp.temp);
         } else {
             pushData[6].push(0);
@@ -125,6 +125,7 @@
                     vals.map((v: number) => v.toFixed(2) + "%"),
                 grid: { show: false },
                 stroke: "#10b981",
+                size: 75,
             },
             {
                 side: 1,
@@ -166,7 +167,10 @@
         return {
             update(newParams: { data: uPlot.AlignedData }) {
                 // Can't set these in creation method because websocket data might not have been sent yet
-                if (graph.series[6] === undefined && $statisticsStore.temp.available) {
+                if (
+                    graph.series[6] === undefined &&
+                    $statisticsStore.temp.temp !== null
+                ) {
                     graph.addSeries({
                         label: "CPU Temperature",
                         stroke: "#94A3B8",

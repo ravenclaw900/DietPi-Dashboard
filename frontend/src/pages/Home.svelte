@@ -1,7 +1,6 @@
 <script lang="ts">
     import Card from "../components/Card.svelte";
     import Graph from "../components/Graph.svelte";
-    import { tweened } from "svelte/motion";
     import prettyBytes from "pretty-bytes";
     import "uplot/dist/uPlot.min.css";
 
