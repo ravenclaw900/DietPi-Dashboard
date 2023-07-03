@@ -251,8 +251,7 @@ pub struct JWTClaims {
 
 #[derive(Serialize, Default)]
 pub struct CPUTemp {
-    pub available: bool,
-    pub temp: i16,
+    pub temp: Option<i16>,
 }
 
 #[derive(Deserialize, Serialize, Clone)]

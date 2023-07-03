@@ -452,13 +452,11 @@ pub fn temp() -> shared::CPUTemp {
             };
 
             shared::CPUTemp {
-                available: true,
-                temp: temp.round() as i16,
+                temp: Some(temp.round() as i16),
             }
         }
         _ => shared::CPUTemp {
-            available: false,
-            temp: 0,
+            temp: None,
         },
     }
 }

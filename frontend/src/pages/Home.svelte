@@ -85,7 +85,7 @@
         <Graph {darkMode} {tempUnit} {portrait} />
     </Card>
     <Card header="System Stats">
-        {#if $statisticsStore.temp.available}
+        {#if $statisticsStore.temp.temp !== null}
             <div class="text-center">
                 <span class={getTempClass($statisticsStore.temp.temp)}>
                     {$statisticsStore.temp.temp}{tempUnit === "celsius"

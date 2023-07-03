@@ -112,8 +112,7 @@ interface net {
 }
 
 interface temp {
-  available: boolean;
-  temp: number;
+  temp: number | null;
 }
 
 // 'browserItem' required for selected path in file browser, 'processItem' required for sorting
