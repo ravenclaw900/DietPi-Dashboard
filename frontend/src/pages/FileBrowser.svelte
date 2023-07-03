@@ -147,24 +147,24 @@
     function getIcon(maintype: string, subtype: string) {
         switch (maintype) {
             case "dir":
-                return "dir-icon";
+                return "i-fa-folder";
             case "image":
-                return "img-icon";
+                return "i-fa-file-image";
             case "video":
-                return "vid-icon";
+                return "i-fa-file-video";
             case "audio":
-                return "aud-icon";
+                return "i-fa-file-audio";
             case "archive":
                 if (subtype === "pdf") {
-                    return "pdf-icon";
+                    return "i-fa-file-pdf";
                 }
-                return "arc-icon";
+                return "i-fa-file-archive";
             case "text":
-                return "txt-icon";
+                return "i-fa-file-lines";
             case "notafile":
-                return "blk-icon";
+                return "i-fa-cube";
             default:
-                return "bin-icon";
+                return "i-fa-file";
         }
     }
 
@@ -380,18 +380,18 @@
                     on:click={() => {
                         highlighting = !highlighting;
                     }}
-                    class="i-fa6-solid-highlighter"
+                    class="i-fa-highlighter"
                     class:opacity-50={!highlighting}
                 />
                 <button
-                    class="i-fa6-solid-floppy-disk"
+                    class="i-fa-floppy-disk"
                     on:click={() => {
                         fileSend(currentPath, "save", fileData), (saved = true);
                     }}
                 />
             {:else if $browserStore.contents !== undefined}
                 <button
-                    class="i-fa6-solid-rotate"
+                    class="i-fa-rotate"
                     title="Refresh"
                     on:click={() => {
                         sendCmd(`${currentPath}`, "cd");
@@ -399,15 +399,15 @@
                 />
                 <button
                     title="{showHidden ? 'Hide' : 'Show'} Hidden Files"
-                    class:i-fa6-solid-eye={showHidden}
-                    class:i-fa6-solid-eye-slash={!showHidden}
+                    class:i-fa-eye={showHidden}
+                    class:i-fa-eye-slash={!showHidden}
                     on:click={() => {
                         showHidden = !showHidden;
                     }}
                 />
                 {#if currentPath !== "/"}
                     <button
-                        class="i-fa6-solid-folder-plus text-2xl"
+                        class="i-fa-folder-plus text-2xl"
                         title="New Directory"
                         on:click={() => {
                             let name = prompt(
@@ -419,7 +419,7 @@
                         }}
                     />
                     <button
-                        class="i-fa6-solid-file-medical"
+                        class="i-fa-file-medical"
                         title="New File"
                         on:click={() => {
                             let name = prompt("Please enter the name of the new file");
@@ -429,7 +429,7 @@
                         }}
                     />
                     <button
-                        class="i-fa6-solid-file-arrow-up"
+                        class="i-fa-file-arrow-up"
                         title="Upload File"
                         on:click={() => {
                             fileDialog.click();
@@ -463,7 +463,7 @@
                     >
                     {#if selPath.path !== "" && selPath.maintype !== "notafile"}
                         <button
-                            class="i-fa6-solid-i-cursor"
+                            class="i-fa-i-cursor"
                             title="Rename"
                             on:click={() => {
                                 let name = prompt(
@@ -476,13 +476,13 @@
                         />
                         {#if selPath.maintype !== "dir"}
                             <button
-                                class="i-fa6-solid-copy"
+                                class="i-fa-copy"
                                 title="Copy"
                                 on:click={() => sendCmd(selPath.path, "copy")}
                             />
                         {/if}
                         <button
-                            class="i-fa6-solid-trash"
+                            class="i-fa-trash"
                             title="Delete"
                             on:click={() => {
                                 if (
@@ -506,7 +506,7 @@
                             }}
                         />
                         <button
-                            class="i-fa6-solid-file-arrow-down"
+                            class="i-fa-file-arrow-down"
                             title="Download"
                             on:click={() => {
                                 fileSend(selPath.path, "dl", "");
@@ -520,41 +520,3 @@
         </div>
     </div>
 </main>
-
-<style>
-    .dir-icon {
-        @apply i-fa6-solid-folder;
-    }
-
-    .img-icon {
-        @apply i-fa6-solid-file-image;
-    }
-
-    .vid-icon {
-        @apply i-fa6-solid-file-video;
-    }
-
-    .aud-icon {
-        @apply i-fa6-solid-file-audio;
-    }
-
-    .pdf-icon {
-        @apply i-fa6-solid-file-pdf;
-    }
-
-    .arc-icon {
-        @apply i-fa6-solid-file-zipper;
-    }
-
-    .txt-icon {
-        @apply i-fa6-solid-file-lines;
-    }
-
-    .blk-icon {
-        @apply i-fa6-solid-cube;
-    }
-
-    .bin-icon {
-        @apply i-fa6-solid-file;
-    }
-</style>

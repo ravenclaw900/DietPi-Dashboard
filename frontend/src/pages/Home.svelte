@@ -48,29 +48,29 @@
             (tempUnit === "celsius" && temp >= 70) ||
             (tempUnit === "fahrenheit" && temp >= 158)
         ) {
-            return "really-hot";
+            return "text-red-500 font-semibold";
         } else if (
             (tempUnit === "celsius" && temp >= 60) ||
             (tempUnit === "fahrenheit" && temp >= 140)
         ) {
-            return "hot";
+            return "text-red-500";
         } else if (
             (tempUnit === "celsius" && temp >= 50) ||
             (tempUnit === "fahrenheit" && temp >= 122)
         ) {
-            return "warm";
+            return "text-yellow-500";
         } else if (
             (tempUnit === "celsius" && temp >= 40) ||
             (tempUnit === "fahrenheit" && temp >= 104)
         ) {
-            return "normal";
+            return "text-green-500";
         } else if (
             (tempUnit === "celsius" && temp >= 30) ||
             (tempUnit === "fahrenheit" && temp >= 86)
         ) {
-            return "cold";
+            return "text-blue-500";
         } else {
-            return "really-cold";
+            return "text-blue-500 font-semibold";
         }
     }
 </script>
@@ -138,30 +138,3 @@
         {/if}
     </Card>
 </main>
-
-<style>
-    /* This is slightly annoying, but global safelist doesn't seem to work, so we'll have to live with this */
-    .really-hot {
-        @apply text-red-500 font-semibold;
-    }
-
-    .hot {
-        @apply text-red-500;
-    }
-
-    .warm {
-        @apply text-yellow-500;
-    }
-
-    .normal {
-        @apply text-green-500;
-    }
-
-    .cold {
-        @apply text-blue-500;
-    }
-
-    .really-cold {
-        @apply text-blue-500 font-semibold;
-    }
-</style>

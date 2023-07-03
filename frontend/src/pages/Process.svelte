@@ -46,9 +46,7 @@
                 >PID
                 {#if sortBy == "pid"}
                     <div
-                        class="inline-block {reverse
-                            ? 'i-fa6-solid-sort-down'
-                            : 'i-fa6-solid-sort-up'}"
+                        class="inline-block {reverse ? 'i-fa-sort-down' : 'i-fa-sort-up'}"
                     />
                 {/if}
             </th>
@@ -59,9 +57,7 @@
                 >Name
                 {#if sortBy == "name"}
                     <div
-                        class="inline-block {reverse
-                            ? 'i-fa6-solid-sort-down'
-                            : 'i-fa6-solid-sort-up'}"
+                        class="inline-block {reverse ? 'i-fa-sort-down' : 'i-fa-sort-up'}"
                     />
                 {/if}
             </th>
@@ -72,9 +68,7 @@
                 >Status
                 {#if sortBy == "status"}
                     <div
-                        class="inline-block {reverse
-                            ? 'i-fa6-solid-sort-down'
-                            : 'i-fa6-solid-sort-up'}"
+                        class="inline-block {reverse ? 'i-fa-sort-down' : 'i-fa-sort-up'}"
                     />
                 {/if}
             </th>
@@ -85,9 +79,7 @@
                 >CPU Usage
                 {#if sortBy == "cpu"}
                     <div
-                        class="inline-block {reverse
-                            ? 'i-fa6-solid-sort-down'
-                            : 'i-fa6-solid-sort-up'}"
+                        class="inline-block {reverse ? 'i-fa-sort-down' : 'i-fa-sort-up'}"
                     />
                 {/if}
             </th>
@@ -98,9 +90,7 @@
                 >RAM Usage
                 {#if sortBy == "ram"}
                     <div
-                        class="inline-block {reverse
-                            ? 'i-fa6-solid-sort-down'
-                            : 'i-fa6-solid-sort-up'}"
+                        class="inline-block {reverse ? 'i-fa-sort-down' : 'i-fa-sort-up'}"
                     />
                 {/if}
             </th>
@@ -108,7 +98,7 @@
         </tr>
         {#each processes as process}
             <tr
-                class="mt-32 even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800  dark:border-gray-600 border-t-2 border-gray-300 border-opacity-50"
+                class="mt-32 even:bg-white odd:bg-gray-200 dark:even:bg-black dark:odd:bg-gray-800 dark:border-gray-600 border-t-2 border-gray-300 border-opacity-50"
             >
                 <td class="p-2">{process.pid}</td>
                 <td class="p-2">{process.name}</td>
@@ -123,7 +113,7 @@
                 <td class="p-2 space-x-2">
                     {#if process.name != "dietpi-dashboar"}
                         <button
-                            class="rounded-sm p-0.5 btn i-fa6-solid-ban text-2xl"
+                            class="rounded-sm p-0.5 btn i-fa-ban text-2xl"
                             on:click={() =>
                                 processStore.send({
                                     cmd: "terminate",
@@ -132,7 +122,7 @@
                             title="Terminate"
                         />
                         <button
-                            class="rounded-sm p-0.5 btn i-fa6-solid-skull text-2xl"
+                            class="rounded-sm p-0.5 btn i-fa-skull text-2xl"
                             on:click={() =>
                                 processStore.send({
                                     cmd: "kill",
@@ -142,7 +132,7 @@
                         />
                         {#if process.status != "stopped"}
                             <button
-                                class="rounded-sm p-0.5 btn i-fa6-solid-pause text-2xl"
+                                class="rounded-sm p-0.5 btn i-fa-pause text-2xl"
                                 on:click={() =>
                                     processStore.send({
                                         cmd: "suspend",
@@ -152,7 +142,7 @@
                             />
                         {:else}
                             <button
-                                class="rounded-sm p-0.5 btn i-fa6-solid-play text-2xl"
+                                class="rounded-sm p-0.5 btn i-fa-play text-2xl"
                                 on:click={() =>
                                     processStore.send({
                                         cmd: "resume",
