@@ -119,8 +119,6 @@ export const statisticsStore = createStore<statisticsPage>({
   ram: { used: 0, total: 0, percent: 0 },
   network: { sent: 0, received: 0 },
   swap: { used: 0, total: 0, percent: 0 },
-  // TODO: modify so that { available: false } and { available: true, temp: 0 }
-  // is possible, there shouldn't have to be values if it isn't available
   temp: { temp: null },
 });
 
