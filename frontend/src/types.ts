@@ -112,9 +112,7 @@ interface net {
 }
 
 interface temp {
-  available: boolean;
-  celsius: number;
-  fahrenheit: number;
+  temp: number | null;
 }
 
 // 'browserItem' required for selected path in file browser, 'processItem' required for sorting
