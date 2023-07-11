@@ -2,7 +2,7 @@
     import { navigate, Route, Router } from "svelte-routing";
     import { fade, slide } from "svelte/transition";
     import { cmp } from "semver-compare-multi";
-    import Home from "./pages/Home.svelte";
+    import Home from "./pages/home/Main.svelte";
     import Process from "./pages/Process.svelte";
     import Software from "./pages/Software.svelte";
     import Terminal from "./pages/Terminal.svelte";
