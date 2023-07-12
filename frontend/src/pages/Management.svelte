@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Card from "../components/Card.svelte";
+    import Card from "../shared-components/Card.svelte";
     import prettyMilliseconds from "pretty-ms";
     import { fade } from "svelte/transition";
 

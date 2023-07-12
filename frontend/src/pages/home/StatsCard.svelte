@@ -1,7 +1,7 @@
 <script lang="ts">
     import prettyBytes from "pretty-bytes";
 
-    import Card from "../../components/Card.svelte";
+    import Card from "../../shared-components/Card.svelte";
     import StatsRow from "./StatsRow.svelte";
 
     import { statisticsStore } from "../../websocket";

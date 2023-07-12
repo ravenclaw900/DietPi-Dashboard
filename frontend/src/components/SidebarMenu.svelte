@@ -16,26 +16,26 @@
     >
         DietPi Dashboard
     </div>
-    <button on:click={() => changePage("/")} class="w-full"
-        ><NavbarLink class="i-fa-gauge-high">Statistics</NavbarLink></button
+    <NavbarLink icon="i-fa-gauge-high" navFunction={() => changePage("/")}
+        >Statistics</NavbarLink
     >
-    <button on:click={() => changePage("/process")} class="w-full"
-        ><NavbarLink class="i-fa-microchip">Processes</NavbarLink></button
+    <NavbarLink icon="i-fa-microchip" navFunction={() => changePage("/process")}
+        >Processes</NavbarLink
     >
-    <button on:click={() => changePage("/service")} class="w-full"
-        ><NavbarLink class="i-fa-list">Services</NavbarLink></button
+    <NavbarLink icon="i-fa-list" navFunction={() => changePage("/service")}
+        >Services</NavbarLink
     >
-    <button on:click={() => changePage("/software")} class="w-full"
-        ><NavbarLink class="i-fa-database">Software</NavbarLink></button
+    <NavbarLink icon="i-fa-database" navFunction={() => changePage("/software")}
+        >Software</NavbarLink
     >
-    <button on:click={() => navigate("/terminal")} class="w-full">
-        <NavbarLink class="i-fa-terminal">Terminal</NavbarLink>
-    </button>
-    <button on:click={() => changePage("/management")} class="w-full"
-        ><NavbarLink class="i-fa-user">Management</NavbarLink></button
+    <NavbarLink icon="i-fa-terminal" navFunction={() => navigate("/terminal")}
+        >Terminal</NavbarLink
     >
-    <button on:click={() => changePage("/browser")} class="w-full"
-        ><NavbarLink class="i-fa-folder">File Browser</NavbarLink></button
+    <NavbarLink icon="i-fa-user" navFunction={() => changePage("/management")}
+        >Management</NavbarLink
+    >
+    <NavbarLink icon="i-fa-folder" navFunction={() => changePage("/browser")}
+        >File Browser</NavbarLink
     >
 </div>
 

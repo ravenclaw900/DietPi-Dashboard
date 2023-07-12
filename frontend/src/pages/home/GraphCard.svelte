@@ -3,7 +3,7 @@
     import "uplot/dist/uPlot.min.css";
     import prettyBytes from "pretty-bytes";
 
-    import Card from "../../components/Card.svelte";
+    import Card from "../../shared-components/Card.svelte";
 
     import { statisticsStore } from "../../websocket";
 
