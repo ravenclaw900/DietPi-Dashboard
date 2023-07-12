@@ -1,8 +1,11 @@
 <script lang="ts">
     import uPlot from "uplot";
+    import "uplot/dist/uPlot.min.css";
     import prettyBytes from "pretty-bytes";
 
-    import { statisticsStore } from "../websocket";
+    import Card from "../../shared-components/Card.svelte";
+
+    import { statisticsStore } from "../../websocket";
 
     export let darkMode: boolean;
     export let portrait: boolean;
@@ -196,4 +199,6 @@
     }
 </script>
 
-<div use:createGraph={{ data, darkMode }} />
+<Card header="Statisics Graph">
+    <div use:createGraph={{ data, darkMode }} />
+</Card>
