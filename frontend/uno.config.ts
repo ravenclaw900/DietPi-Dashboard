@@ -7,6 +7,9 @@ export default defineConfig({
       collections: {
         // Load icons on-demand
         fa: () => import("@iconify-json/fa6-solid/icons.json").then(i => i.default),
+        "svg-spinners": () =>
+          import("@iconify-json/svg-spinners/icons.json").then(i => i.default),
+        cib: () => import("@iconify-json/cib/icons.json").then(i => i.default),
       },
     }),
     presetWind(),

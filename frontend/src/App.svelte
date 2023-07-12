@@ -12,7 +12,6 @@
     import Service from "./pages/Service.svelte";
 
     import logo from "./assets/dietpi.png";
-    import github from "./assets/github-mark.svg";
     import { socket } from "./websocket";
 
     let nodes: string[] = [];
@@ -341,14 +340,12 @@
                     target="_blank">More Info</a
                 >
             </div>
-            <a href="https://github.com/ravenclaw900/DietPi-Dashboard" target="_blank"
-                ><img
-                    src={github}
-                    width="30px"
-                    class="hover:opacity-75 dark:hover:opacity-60"
-                    alt="GitHub icon"
-                /></a
-            >
+            <a
+                href="https://github.com/ravenclaw900/DietPi-Dashboard"
+                target="_blank"
+                class="i-cib-github text-3xl hover:opacity-75 dark:hover:opacity-60"
+                aria-label="GitHub link"
+            />
         </footer>
     </div>
 </main>

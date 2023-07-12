@@ -34,6 +34,9 @@ dependencies:
     version: 0.7.0(xterm@5.1.0)
 
 devDependencies:
+  '@iconify-json/cib':
+    specifier: ^1.1.4
+    version: 1.1.4
   '@iconify-json/fa6-solid':
     specifier: ^1.1.12
     version: 1.1.12
@@ -329,6 +332,12 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
+
+  /@iconify-json/cib@1.1.4:
+    resolution: {integrity: sha512-jbZDo/5UMqu08J+2Ov3uCubO2zVgiLNb+ufo/+9r9gIVigd4dTCAXA15KkEZRdP5mIFZIjZ7k7A1LlDU7nuifA==}
+    dependencies:
+      '@iconify/types': 2.0.0
+    dev: true
 
   /@iconify-json/fa6-solid@1.1.12:
     resolution: {integrity: sha512-5aiVsfDgFtNGoiA/iWhQ/SleJj7RUDzSjacWmB1fPOrh5o2yKmJxO7Tv9R/KutZoIhkNLmdyQJkt5WeJHbeVxA==}
