@@ -60,9 +60,14 @@ async fn main() -> anyhow::Result<()> {
             &CONFIG.cert,
             &CONFIG.key,
             flexible_hyper_server_tls::tlsconfig::HttpProtocol::Http1,
-        ).context("Couldn't get TLS config")?;
+        )
+        .context("Couldn't get TLS config")?;
 
-        flexible_hyper_server_tls::HyperHttpOrHttpsAcceptor::new_https(tcp, tls_acceptor, std::time::Duration::from_secs(10))
+        flexible_hyper_server_tls::HyperHttpOrHttpsAcceptor::new_https(
+            tcp,
+            tls_acceptor,
+            std::time::Duration::from_secs(10),
+        )
     } else {
         flexible_hyper_server_tls::HyperHttpOrHttpsAcceptor::new_http(tcp)
     };
@@ -71,12 +76,9 @@ async fn main() -> anyhow::Result<()> {
 
     // Ignore result, because it will never be an error
     loop {
-        let _res = (&mut server)
-            .await
-            .context("Server error")
-            .or_else(|e| {
-                tracing::warn!("{:?}", e);
-                anyhow::Ok(())
-            });
+        let _res = (&mut server).await.context("Server error").or_else(|e| {
+            tracing::warn!("{:?}", e);
+            anyhow::Ok(())
+        });
     }
 }
