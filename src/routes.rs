@@ -40,18 +40,17 @@ pub fn assets_route(req: Request<Body>) -> anyhow::Result<Response<Body>> {
                 "js" => HeaderValue::from_static("text/javascript"),
                 "svg" => HeaderValue::from_static("image/svg+xml"),
                 "png" => HeaderValue::from_static("image/png"),
-                _ => HeaderValue::from_str(&format!("text/{}", ext))?,
+                _ => HeaderValue::from_str(&format!("text/{ext}"))?,
             },
         )
         .body(
-            match DIR.get_file(path) {
-                Some(file) => file.contents(),
-                None => {
-                    tracing::warn!("Couldn't get asset {}", path);
-                    return Ok(Response::builder()
-                        .status(StatusCode::NOT_FOUND)
-                        .body("Asset not found".into())?);
-                }
+            if let Some(file) = DIR.get_file(path) {
+                file.contents()
+            } else {
+                tracing::warn!("Couldn't get asset {}", path);
+                return Ok(Response::builder()
+                    .status(StatusCode::NOT_FOUND)
+                    .body("Asset not found".into())?);
             }
             .into(),
         )?;
@@ -212,9 +211,7 @@ where
         .get(header::SEC_WEBSOCKET_KEY)
         .context("Failed to read key from headers")?;
 
-    let cookie = if let Ok(cookie) = crate::shared::get_fingerprint(&req) {
-        cookie
-    } else {
+    let Ok(cookie) = crate::shared::get_fingerprint(&req) else {
         return Ok(Response::builder()
             .status(StatusCode::BAD_REQUEST)
             .body(Body::empty())?);
@@ -259,7 +256,7 @@ where
                 .await;
                 func(ws, cookie, token).instrument(span).await;
             }
-            Err(e) => eprintln!("upgrade error: {}", e),
+            Err(e) => eprintln!("upgrade error: {e}"),
         }
     });
     Ok(resp?)

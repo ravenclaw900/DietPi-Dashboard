@@ -113,9 +113,7 @@ pub async fn processes() -> anyhow::Result<Vec<shared::ProcessData>> {
     sleep(Duration::from_millis(500)).await;
     for mut element in processes.into_iter().flatten() {
         // Errors shouldn't return, just skip the process
-        let process = if let Ok(process) = get_process_data(&mut element) {
-            process
-        } else {
+        let Ok(process) = get_process_data(&mut element) else {
             continue;
         };
 
@@ -174,7 +172,7 @@ pub async fn dpsoftware(
                     }
                     software.id = el1
                         .parse::<i16>()
-                        .with_context(|| format!("Invalid software ID {}", el1))?;
+                        .with_context(|| format!("Invalid software ID {el1}"))?;
                 }
                 1 => {
                     installed = el1.parse::<i8>().with_context(|| {
@@ -289,14 +287,13 @@ pub async fn services() -> anyhow::Result<Vec<shared::ServiceData>> {
                             .to_string();
                     }
                     // Every line after 9 (before is data that's useless to us) should be service error log, format with HTML breaks
-                    9.. => service.log.push_str(format!("{}<br>", el1).as_str()),
+                    9.. => service.log.push_str(format!("{el1}<br>").as_str()),
                     _ => (),
                 }
             }
         } else {
-            let (el1, el2) = match element.split_once('\t') {
-                Some(els) => els,
-                None => continue,
+            let Some((el1, el2)) = element.split_once('\t') else {
+                continue
             };
             service.name = el1.trim().to_string();
             match el2.split_once(" since ") {
