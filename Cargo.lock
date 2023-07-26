@@ -249,9 +249,9 @@ dependencies = [
 
 [[package]]
 name = "flexible-hyper-server-tls"
-version = "0.1.0"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "18b6fa124441767f43f762a2e36ce4f11032efd42d799b10acd70ac80553042b"
+checksum = "87651e5b8ed9cb4a20c04296bfae1a4d10cf2546f0e057328ccb742c55fbc91e"
 dependencies = [
  "futures-util",
  "hyper",
