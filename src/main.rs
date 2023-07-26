@@ -16,7 +16,6 @@ mod routes;
 mod shared;
 mod socket_handlers;
 mod systemdata;
-mod tls;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> anyhow::Result<()> {
@@ -37,7 +36,7 @@ async fn main() -> anyhow::Result<()> {
         .await
         .with_context(|| format!("Couldn't bind to {}", &addr))?;
 
-    let make_svc = make_service_fn(|conn: &tls::TlsOrTcpConnection| {
+    let make_svc = make_service_fn(|conn: &flexible_hyper_server_tls::HttpOrHttpsConnection| {
         let remote_addr = conn.remote_addr();
         async move {
             Ok::<_, std::convert::Infallible>(service_fn(move |req| async move {
@@ -56,51 +55,30 @@ async fn main() -> anyhow::Result<()> {
         }
     });
 
-    let mut acceptor = if CONFIG.tls {
-        let tls_cfg = {
-            let certs = rustls_pemfile::certs(&mut std::io::BufReader::new(
-                std::fs::File::open(&CONFIG.cert).context("Couldn't open cert file")?,
-            ))
-            .context("Couldn't read certs")?
-            .into_iter()
-            .map(tokio_rustls::rustls::Certificate)
-            .collect();
+    let acceptor = if CONFIG.tls {
+        let tls_acceptor = flexible_hyper_server_tls::tlsconfig::get_tlsacceptor_from_files(
+            &CONFIG.cert,
+            &CONFIG.key,
+            flexible_hyper_server_tls::tlsconfig::HttpProtocol::Http1,
+        )
+        .context("Couldn't get TLS config")?;
 
-            let key = match rustls_pemfile::read_one(&mut std::io::BufReader::new(
-                std::fs::File::open(&CONFIG.key).context("Couldn't open cert file")?,
-            ))
-            .context("Couldn't read key")?
-            .context("No private key")?
-            {
-                rustls_pemfile::Item::PKCS8Key(vec) | rustls_pemfile::Item::RSAKey(vec) => {
-                    tokio_rustls::rustls::PrivateKey(vec)
-                }
-                _ => anyhow::bail!("No PKCS8 or RSA formatted private key"),
-            };
-
-            let mut cfg = tokio_rustls::rustls::ServerConfig::builder()
-                .with_safe_defaults()
-                .with_no_client_auth()
-                .with_single_cert(certs, key)
-                .context("Couldn't build TLS config")?;
-            cfg.alpn_protocols = vec![b"http/1.1".to_vec()];
-            std::sync::Arc::new(cfg)
-        };
-
-        tls::HyperTlsOrTcpAcceptor::new(tcp, Some(tokio_rustls::TlsAcceptor::from(tls_cfg)))
+        flexible_hyper_server_tls::HyperHttpOrHttpsAcceptor::new_https(
+            tcp,
+            tls_acceptor,
+            std::time::Duration::from_secs(10),
+        )
     } else {
-        tls::HyperTlsOrTcpAcceptor::new(tcp, None)
+        flexible_hyper_server_tls::HyperHttpOrHttpsAcceptor::new_http(tcp)
     };
+
+    let mut server = hyper::server::Server::builder(acceptor).serve(make_svc);
 
     // Ignore result, because it will never be an error
     loop {
-        let _res = hyper::server::Server::builder(&mut acceptor)
-            .serve(make_svc)
-            .await
-            .context("Server error")
-            .or_else(|e| {
-                tracing::warn!("{:?}", e);
-                anyhow::Ok(())
-            });
+        let _res = (&mut server).await.context("Server error").or_else(|e| {
+            tracing::warn!("{:?}", e);
+            anyhow::Ok(())
+        });
     }
 }
