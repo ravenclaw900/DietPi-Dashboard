@@ -1,7 +1,7 @@
 use crate::handle_error;
 use crate::shared::CONFIG;
 use anyhow::Context;
-use futures::Future;
+use futures_util::Future;
 use hyper::http::{header, HeaderValue};
 use hyper::{Body, Method, Request, Response, StatusCode};
 use ring::digest;

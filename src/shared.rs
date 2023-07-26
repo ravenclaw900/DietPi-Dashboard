@@ -1,5 +1,5 @@
 use anyhow::Context;
-use futures::SinkExt;
+use futures_util::SinkExt;
 use serde::{Deserialize, Serialize};
 
 pub static CONFIG: once_cell::sync::Lazy<crate::config::Config> =
@@ -64,7 +64,7 @@ pub fn get_fingerprint(req: &hyper::Request<hyper::Body>) -> anyhow::Result<Opti
 }
 
 pub struct SocketSend(
-    pub  futures::stream::SplitSink<
+    pub  futures_util::stream::SplitSink<
         tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>,
         tokio_tungstenite::tungstenite::Message,
     >,

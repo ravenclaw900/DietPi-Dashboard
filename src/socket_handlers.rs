@@ -1,5 +1,5 @@
 use anyhow::Context;
-use futures::{SinkExt, StreamExt};
+use futures_util::{StreamExt, SinkExt};
 use std::io::Write;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::sync::mpsc;
