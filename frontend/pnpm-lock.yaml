@@ -80,8 +80,8 @@ devDependencies:
     specifier: ^5.0.4
     version: 5.0.4(postcss@8.4.21)(svelte@4.0.0)(typescript@5.0.2)
   svelte-routing:
-    specifier: ^1.11.0
-    version: 1.11.0
+    specifier: ^2.0.0
+    version: 2.0.0
   tslib:
     specifier: ^2.5.0
     version: 2.5.0
@@ -1737,8 +1737,8 @@ packages:
       typescript: 5.1.6
     dev: true
 
-  /svelte-routing@1.11.0:
-    resolution: {integrity: sha512-/JlBAB6KxgM+Xl+4J/vOy4i4uYAJpWWbjh7vtRwsuu0MPl5B+ml+N/jCRkfjRa9ulODcS/G6PL8opyhczmrV8Q==}
+  /svelte-routing@2.0.0:
+    resolution: {integrity: sha512-wkAzhBbXZko0vt1P/NOqJ00EP1Gz0Od6Ep1BXRwNhJl+xR+VWWlm0u/AyWt/tSwE1dwINkMeh/MhFY+b9N1obQ==}
     dev: true
 
   /svelte2tsx@0.6.10(svelte@3.57.0)(typescript@5.0.2):
