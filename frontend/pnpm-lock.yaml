@@ -56,8 +56,8 @@ devDependencies:
     specifier: ^1.0.0
     version: 1.0.0
   '@unocss/extractor-svelte':
-    specifier: ^0.53.4
-    version: 0.53.4
+    specifier: ^0.54.0
+    version: 0.54.0
   postcss:
     specifier: ^8.4.21
     version: 8.4.21
@@ -550,8 +550,8 @@ packages:
       '@unocss/core': 0.53.0
     dev: true
 
-  /@unocss/extractor-svelte@0.53.4:
-    resolution: {integrity: sha512-ssueqPxHiT9iGNqsAzKruK8mz5dYoj//mBuMFPNGfhSpYQpCpjOlyS9n8BEeyoNMtFqLsf3vVm0t79l40Jir6A==}
+  /@unocss/extractor-svelte@0.54.0:
+    resolution: {integrity: sha512-VwBEP32U8GwWTaaUwi2Y3tta5CTYeqXYJe01R06Xnnm05x6PSEGNemq5a9oU13PIg6srCKsz5EHsUExMkv0kiw==}
     dev: true
 
   /@unocss/inspector@0.53.0:
