@@ -28,7 +28,7 @@
     "svelte-routing": "^2.0.0",
     "tslib": "^2.5.0",
     "typescript": "^5.0.2",
-    "unocss": "^0.53.0",
+    "unocss": "^0.54.0",
     "vite": "^4.2.0"
   },
   "dependencies": {
