@@ -14,7 +14,7 @@ tokio = { version = "1", features = [
     "fs",
     "process",
 ] }
-pty-process = { version = "0.3.0", features = ["async"] }
+pty-process = { version = "0.4.0", features = ["async"] }
 psutil = "3.2.2"
 ring = "0.16.20"
 figment = { version = "0.10", features = ["toml", "env"] }
