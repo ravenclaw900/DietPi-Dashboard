@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@unocss/reset':
-    specifier: ^0.54.0
-    version: 0.54.0
+    specifier: ^0.55.0
+    version: 0.55.0
   microlight:
     specifier: ^0.0.7
     version: 0.0.7
@@ -638,13 +638,8 @@ packages:
       '@unocss/preset-mini': 0.55.0
     dev: true
 
-  /@unocss/reset@0.54.0:
-    resolution: {integrity: sha512-zxvr96hVsmvJtxCLatLSCc67RBEgqvVDhEtkIFxIz5oCJzxvipJTGdKxM4F6Akyzx1A+q7zM8dimqvmC6D5Idw==}
-    dev: false
-
   /@unocss/reset@0.55.0:
     resolution: {integrity: sha512-TzpcOCIr16IbFxQ4vrSfEV+A8k0N4mJkhl7J3SZfAxBpNDBKAWDB6VBW9iEQY5aBYDLN3wRx1LskgEoubqBCPQ==}
-    dev: true
 
   /@unocss/scope@0.55.0:
     resolution: {integrity: sha512-44xgHoklh2BWWuOkA0ZL1qgr4t/DGnynj3UI8K8YP+PClFFMZ/T+kfhsLBDOrS2a4ytzgh17cTGhjAc3cTwiEA==}
