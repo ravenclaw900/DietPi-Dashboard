@@ -12,7 +12,7 @@ jobs:
   fmt_clippy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Setup pnpm
@@ -39,7 +39,7 @@ jobs:
           - { target: armv7-unknown-linux-musleabihf, pretty: armv7l-backend, backend: true }
           - { target: aarch64-unknown-linux-musl, pretty: aarch64-backend, backend: true }
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Install Rust toolchain
