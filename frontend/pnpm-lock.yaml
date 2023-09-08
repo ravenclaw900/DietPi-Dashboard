@@ -27,11 +27,11 @@ dependencies:
     specifier: ^5.1.0
     version: 5.1.0
   xterm-addon-attach:
+    specifier: ^0.9.0
+    version: 0.9.0(xterm@5.1.0)
+  xterm-addon-fit:
     specifier: ^0.8.0
     version: 0.8.0(xterm@5.1.0)
-  xterm-addon-fit:
-    specifier: ^0.7.0
-    version: 0.7.0(xterm@5.1.0)
 
 devDependencies:
   '@iconify-json/fa6-solid':
@@ -2018,16 +2018,16 @@ packages:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
     dev: true
 
-  /xterm-addon-attach@0.8.0(xterm@5.1.0):
-    resolution: {integrity: sha512-k8N5boSYn6rMJTTNCgFpiSTZ26qnYJf3v/nJJYexNO2sdAHDN3m1ivVQWVZ8CHJKKnZQw1rc44YP2NtgalWHfQ==}
+  /xterm-addon-attach@0.9.0(xterm@5.1.0):
+    resolution: {integrity: sha512-NykWWOsobVZPPK3P9eFkItrnBK9Lw0f94uey5zhqIVB1bhswdVBfl+uziEzSOhe2h0rT9wD0wOeAYsdSXeavPw==}
     peerDependencies:
       xterm: ^5.0.0
     dependencies:
       xterm: 5.1.0
     dev: false
 
-  /xterm-addon-fit@0.7.0(xterm@5.1.0):
-    resolution: {integrity: sha512-tQgHGoHqRTgeROPnvmtEJywLKoC/V9eNs4bLLz7iyJr1aW/QFzRwfd3MGiJ6odJd9xEfxcW36/xRU47JkD5NKQ==}
+  /xterm-addon-fit@0.8.0(xterm@5.1.0):
+    resolution: {integrity: sha512-yj3Np7XlvxxhYF/EJ7p3KHaMt6OdwQ+HDu573Vx1lRXsVxOcnVJs51RgjZOouIZOczTsskaS+CpXspK81/DLqw==}
     peerDependencies:
       xterm: ^5.0.0
     dependencies:
