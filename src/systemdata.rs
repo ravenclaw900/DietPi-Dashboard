@@ -285,7 +285,9 @@ pub async fn services() -> anyhow::Result<Vec<shared::ServiceData>> {
                 }
             }
         } else {
-            let Some(els) = element.split_once('\t') else { continue };
+            let Some(els) = element.split_once('\t') else {
+                continue;
+            };
             service.name = els.0.trim().to_string();
             match els.1.split_once(" since ") {
                 Some(statusdate) => {
