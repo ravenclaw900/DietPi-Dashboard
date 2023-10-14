@@ -29,7 +29,7 @@
     "tslib": "^2.5.0",
     "typescript": "^5.0.2",
     "unocss": "^0.56.0",
-    "vite": "^4.2.0"
+    "vite": "^4.2.3"
   },
   "dependencies": {
     "@unocss/reset": "^0.56.0",
