@@ -50,8 +50,8 @@ devDependencies:
     specifier: ^4.0.1
     version: 4.0.1
   '@types/microlight':
-    specifier: ^0.0.0
-    version: 0.0.0
+    specifier: ^0.0.1
+    version: 0.0.1
   '@types/semver-compare-multi':
     specifier: ^1.0.0
     version: 1.0.0
@@ -487,8 +487,8 @@ packages:
     resolution: {integrity: sha512-WulqXMDUTYAXCjZnk6JtIHPigp55cVtDgDrO2gHRwhyJto21+1zbVCtOYB2L1F9w4qCQ0rOGWBnBe0FNTiEJIQ==}
     dev: true
 
-  /@types/microlight@0.0.0:
-    resolution: {integrity: sha512-PhPnbZkunal+hvIwXKct4KimoQIwiYvBx9yQRBR+kC302420pGRYGZEnLtY1seR/bjlV7bUUs7na4Z5tu3060w==}
+  /@types/microlight@0.0.1:
+    resolution: {integrity: sha512-Xaj3K0DWwUeVdPicpROxj9BEexzxxDnXOUT3REAV42nBjdPjqzmRHhnP/gk9TgWo/8uwb3JtDpfY8AMmf7sZIA==}
     dev: true
 
   /@types/pug@2.0.6:
