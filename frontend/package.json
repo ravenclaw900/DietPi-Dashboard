@@ -15,7 +15,7 @@
     "@sveltejs/vite-plugin-svelte": "^2.4.1",
     "@tsconfig/svelte": "^5.0.0",
     "@types/autosize": "^4.0.1",
-    "@types/microlight": "^0.0.0",
+    "@types/microlight": "^0.0.1",
     "@types/semver-compare-multi": "^1.0.0",
     "@unocss/extractor-svelte": "^0.56.0",
     "postcss": "^8.4.31",
