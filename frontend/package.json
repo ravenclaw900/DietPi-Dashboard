@@ -23,7 +23,7 @@
     "prettier-plugin-svelte": "^3.0.0",
     "svelte": "^4.0.0",
     "svelte-check": "^3.4.4",
-    "svelte-language-server": "^0.15.8",
+    "svelte-language-server": "^0.16.0",
     "svelte-preprocess": "^5.0.4",
     "svelte-routing": "^2.0.0",
     "tslib": "^2.5.0",
