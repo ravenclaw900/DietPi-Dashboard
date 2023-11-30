@@ -210,7 +210,7 @@ dependencies = [
  "once_cell",
  "psutil",
  "pty-process",
- "ring 0.17.5",
+ "ring 0.17.6",
  "serde",
  "serde_json",
  "tokio",
@@ -506,7 +506,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "155c4d7e39ad04c172c5e3a99c434ea3b4a7ba7960b38ecd562b270b097cce09"
 dependencies = [
  "base64 0.21.0",
- "ring 0.17.5",
+ "ring 0.17.6",
  "serde",
  "serde_json",
 ]
@@ -823,9 +823,9 @@ dependencies = [
 
 [[package]]
 name = "ring"
-version = "0.17.5"
+version = "0.17.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fb0205304757e5d899b9c2e448b867ffd03ae7f988002e47cd24954391394d0b"
+checksum = "684d5e6e18f669ccebf64a92236bb7db9a34f07be010e3627368182027180866"
 dependencies = [
  "cc",
  "getrandom",
