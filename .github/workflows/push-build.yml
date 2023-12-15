@@ -74,7 +74,7 @@ jobs:
         run: |
           just ci ${{ matrix.job.target }} ${{ matrix.job.backend }}
       - name: Upload binary
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dietpi-dashboard-${{ matrix.job.pretty }}
           path: target/${{ matrix.job.target }}/release/dietpi-dashboard
