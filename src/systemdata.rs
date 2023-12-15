@@ -102,8 +102,7 @@ fn get_process_data(process: &mut psutil::process::Process) -> anyhow::Result<Un
 // Processes may have changed, so don't return on error, just skip that process
 pub async fn processes() -> anyhow::Result<Vec<shared::ProcessData>> {
     let mut processes = process::processes().context("Couldn't get list of processes")?;
-    let mut process_list = Vec::new();
-    process_list.reserve(processes.len());
+    let mut process_list = Vec::with_capacity(processes.len());
     for process in processes.iter_mut().flatten() {
         // Required to get cpu times before actual measurement
         if process.cpu_percent().is_err() {
@@ -158,8 +157,7 @@ pub async fn dpsoftware(
         .lines()
         .collect::<Vec<&str>>();
     let mut installed_list = Vec::new();
-    let mut uninstalled_list = Vec::new();
-    uninstalled_list.reserve(out_list.len());
+    let mut uninstalled_list = Vec::with_capacity(out_list.len());
     // First 4 skipped lines are the database messages
     'software: for element in out_list {
         let mut software = shared::DPSoftwareData::default();
