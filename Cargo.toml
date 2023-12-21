@@ -34,7 +34,7 @@ getrandom = "0.2.11"
 hex = "0.4.3"
 vite-embed = { git = "https://github.com/ravenclaw900/vite-embed", version = "0.1.0", features = ["prod"], optional = true }
 mime_guess = { version = "2.0.4", default-features = false }
-flexible-hyper-server-tls = "0.1.1"
+flexible-hyper-server-tls = "0.1.2"
 futures-util = { version = "0.3.29", default-features = false }
 
 [features]
