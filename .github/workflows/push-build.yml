@@ -34,10 +34,12 @@ jobs:
           - { target: arm-unknown-linux-musleabihf, pretty: armv6l, backend: false }
           - { target: armv7-unknown-linux-musleabihf, pretty: armv7l, backend: false }
           - { target: aarch64-unknown-linux-musl, pretty: aarch64, backend: false }
+          - { target: riscv64gc-unknown-linux-gnu, pretty: riscv64, backend: false }
           - { target: x86_64-unknown-linux-musl, pretty: x86_64-backend, backend: true }
           - { target: arm-unknown-linux-musleabihf, pretty: armv6l-backend, backend: true }
           - { target: armv7-unknown-linux-musleabihf, pretty: armv7l-backend, backend: true }
           - { target: aarch64-unknown-linux-musl, pretty: aarch64-backend, backend: true }
+          - { target: riscv64gc-unknown-linux-gnu, pretty: riscv64-backend, backend: true }
     steps:
       - uses: actions/checkout@v4
         with:
