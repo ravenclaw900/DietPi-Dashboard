@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => {
       svelte(),
     ],
     build: {
-      manifest: true,
+      manifest: "manifest.json",
       rollupOptions: {
         input: "src/main.ts",
         output: {
