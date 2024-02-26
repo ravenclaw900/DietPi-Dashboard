@@ -36,7 +36,7 @@ dependencies:
 devDependencies:
   '@iconify-json/fa6-solid':
     specifier: ^1.1.12
-    version: 1.1.12
+    version: 1.1.20
   '@iconify-json/svg-spinners':
     specifier: ^1.1.1
     version: 1.1.1
@@ -643,8 +643,8 @@ packages:
     dev: true
     optional: true
 
-  /@iconify-json/fa6-solid@1.1.12:
-    resolution: {integrity: sha512-5aiVsfDgFtNGoiA/iWhQ/SleJj7RUDzSjacWmB1fPOrh5o2yKmJxO7Tv9R/KutZoIhkNLmdyQJkt5WeJHbeVxA==}
+  /@iconify-json/fa6-solid@1.1.20:
+    resolution: {integrity: sha512-99P9zOacNS56MNNT7Mzih2Loe3jzwNFKFBOiVh+kF+4D+AHW5zyksyvMizIgGu2cizFz6npaATlCtl3E5Zfjbw==}
     dependencies:
       '@iconify/types': 2.0.0
     dev: true
