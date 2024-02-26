@@ -45,7 +45,7 @@ devDependencies:
     version: 3.0.1(svelte@4.0.0)(vite@4.5.2)
   '@tsconfig/svelte':
     specifier: ^5.0.0
-    version: 5.0.0
+    version: 5.0.2
   '@types/autosize':
     specifier: ^4.0.1
     version: 4.0.1
@@ -781,8 +781,8 @@ packages:
       - supports-color
     dev: true
 
-  /@tsconfig/svelte@5.0.0:
-    resolution: {integrity: sha512-iu5BqFjU0+OcLTNQp7fHe6Bf6zdNeJ9IZjLZMqWLuGzVFm/xx+lm//Tf6koPyRmxo55/Snm6RRQ990n89cRKFw==}
+  /@tsconfig/svelte@5.0.2:
+    resolution: {integrity: sha512-BRbo1fOtyVbhfLyuCWw6wAWp+U8UQle+ZXu84MYYWzYSEB28dyfnRBIE99eoG+qdAC0po6L2ScIEivcT07UaMA==}
     dev: true
 
   /@types/autosize@4.0.1:
