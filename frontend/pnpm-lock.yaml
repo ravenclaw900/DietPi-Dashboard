@@ -48,7 +48,7 @@ devDependencies:
     version: 5.0.2
   '@types/autosize':
     specifier: ^4.0.1
-    version: 4.0.1
+    version: 4.0.3
   '@types/microlight':
     specifier: ^0.0.2
     version: 0.0.2
@@ -785,8 +785,8 @@ packages:
     resolution: {integrity: sha512-BRbo1fOtyVbhfLyuCWw6wAWp+U8UQle+ZXu84MYYWzYSEB28dyfnRBIE99eoG+qdAC0po6L2ScIEivcT07UaMA==}
     dev: true
 
-  /@types/autosize@4.0.1:
-    resolution: {integrity: sha512-iPJT/FCaSO79G6j+9n6gmFc5nhxZ1gDrA2UAvb5FslJ6FJQZnDfbBU0qp5vpp0Cbjj7+gOyjuWZ7RrXvRuETaA==}
+  /@types/autosize@4.0.3:
+    resolution: {integrity: sha512-o0ZyU3ePp3+KRbhHsY4ogjc+ZQWgVN5h6j8BHW5RII4cFKi6PEKK9QPAcphJVkD0dGpyFnD3VRR0WMvHVjCv9w==}
     dev: true
 
   /@types/estree@1.0.0:
