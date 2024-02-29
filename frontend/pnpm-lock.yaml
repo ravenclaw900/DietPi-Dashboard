@@ -22,7 +22,7 @@ dependencies:
     version: 1.0.3
   uplot:
     specifier: ^1.6.24
-    version: 1.6.24
+    version: 1.6.30
   xterm:
     specifier: ^5.1.0
     version: 5.1.0
@@ -2411,8 +2411,8 @@ packages:
       picocolors: 1.0.0
     dev: true
 
-  /uplot@1.6.24:
-    resolution: {integrity: sha512-WpH2BsrFrqxkMu+4XBvc0eCDsRBhzoq9crttYeSI0bfxpzR5YoSVzZXOKFVWcVC7sp/aDXrdDPbDZGCtck2PVg==}
+  /uplot@1.6.30:
+    resolution: {integrity: sha512-48oVVRALM/128ttW19F2a2xobc2WfGdJ0VJFX00099CfqbCTuML7L2OrTKxNzeFP34eo1+yJbqFSoFAp2u28/Q==}
     dev: false
 
   /vite@4.5.2:
