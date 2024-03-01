@@ -63,10 +63,10 @@ devDependencies:
     version: 8.4.35
   prettier:
     specifier: ^3.0.0
-    version: 3.0.0
+    version: 3.2.5
   prettier-plugin-svelte:
     specifier: ^3.0.0
-    version: 3.0.0(prettier@3.0.0)(svelte@4.0.0)
+    version: 3.0.0(prettier@3.2.5)(svelte@4.0.0)
   svelte:
     specifier: ^4.0.0
     version: 4.0.0
@@ -1866,13 +1866,13 @@ packages:
       source-map-js: 1.0.2
     dev: true
 
-  /prettier-plugin-svelte@3.0.0(prettier@3.0.0)(svelte@4.0.0):
+  /prettier-plugin-svelte@3.0.0(prettier@3.2.5)(svelte@4.0.0):
     resolution: {integrity: sha512-l3RQcPty2UBCoRh3yb9c5XCAmxkrc4BptAnbd5acO1gmSJtChOWkiEjnOvh7hvmtT4V80S8gXCOKAq8RNeIzSw==}
     peerDependencies:
       prettier: ^3.0.0
       svelte: ^3.2.0 || ^4.0.0-next.0
     dependencies:
-      prettier: 3.0.0
+      prettier: 3.2.5
       svelte: 4.0.0
     dev: true
 
@@ -1884,12 +1884,6 @@ packages:
     dependencies:
       prettier: 3.2.5
       svelte: 3.59.2
-    dev: true
-
-  /prettier@3.0.0:
-    resolution: {integrity: sha512-zBf5eHpwHOGPC47h0zrPyNn+eAEIdEzfywMoYn2XPi0P44Zp0tSq64rq0xAREh4auw2cJZHo9QUob+NqCQky4g==}
-    engines: {node: '>=14'}
-    hasBin: true
     dev: true
 
   /prettier@3.2.5:
