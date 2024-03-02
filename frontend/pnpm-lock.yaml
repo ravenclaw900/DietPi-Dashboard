@@ -81,7 +81,7 @@ devDependencies:
     version: 5.0.4(@babel/core@7.24.0)(postcss@8.4.35)(svelte@4.2.12)(typescript@5.0.2)
   svelte-routing:
     specifier: ^2.0.0
-    version: 2.0.0
+    version: 2.12.0
   tslib:
     specifier: ^2.5.0
     version: 2.5.0
@@ -2191,8 +2191,8 @@ packages:
       typescript: 5.3.3
     dev: true
 
-  /svelte-routing@2.0.0:
-    resolution: {integrity: sha512-wkAzhBbXZko0vt1P/NOqJ00EP1Gz0Od6Ep1BXRwNhJl+xR+VWWlm0u/AyWt/tSwE1dwINkMeh/MhFY+b9N1obQ==}
+  /svelte-routing@2.12.0:
+    resolution: {integrity: sha512-6i4Mncy4P2b7gD7+BOT9JzQvrfGfGXqFra8VXYU5//bpn6AzJ0PLEhH1E/KwY2AxleOiS/8Nm37MGuic2kn15A==}
     dev: true
 
   /svelte2tsx@0.7.3(svelte@3.59.2)(typescript@5.3.3):
