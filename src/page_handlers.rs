@@ -98,7 +98,7 @@ pub async fn process_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
         tokio::select! {
             biased;
             data = data_recv.recv() => match data {
-                Some(Some(RequestTypes::Cmd { cmd, args: Some(args) })) => handle_error!(process_handler_helper(&cmd, args.get(0).map(String::as_str))),
+                Some(Some(RequestTypes::Cmd { cmd, args: Some(args) })) => handle_error!(process_handler_helper(&cmd, args.first().map(String::as_str))),
                 Some(Some(_)) => {}
                 _ => return false,
             },
@@ -232,7 +232,7 @@ pub async fn service_handler(socket_send: &mut SocketSend, data_recv: &mut RecvC
             args: Some(args),
         } = data
         {
-            if let Some(arg) = args.get(0) {
+            if let Some(arg) = args.first() {
                 handle_error!(Command::new("systemctl")
                     .args([&cmd, arg])
                     .spawn()
@@ -270,7 +270,7 @@ async fn browser_handler_helper(cmd: &str, args: &[String]) -> anyhow::Result<sh
 
     tracing::debug!("Command is {}", cmd);
 
-    if let Some(arg) = args.get(0) {
+    if let Some(arg) = args.first() {
         match cmd {
             "cd" => {
                 return Ok(shared::BrowserList {
