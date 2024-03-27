@@ -48,6 +48,7 @@ fn validate_token(token: &str, fingerprint: Option<&str>) -> TokenState {
 }
 
 #[instrument(skip_all)]
+#[allow(clippy::no_effect_underscore_binding)]
 pub async fn socket_handler(
     socket: tokio_tungstenite::WebSocketStream<hyper::upgrade::Upgraded>,
     fingerprint: Option<String>,
