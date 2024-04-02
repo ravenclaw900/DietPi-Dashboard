@@ -75,7 +75,7 @@ devDependencies:
     version: 3.6.8(@babel/core@7.24.3)(postcss@8.4.38)(svelte@4.2.12)
   svelte-language-server:
     specifier: ^0.16.0
-    version: 0.16.6(@babel/core@7.24.3)(postcss@8.4.38)
+    version: 0.16.7(@babel/core@7.24.3)(postcss@8.4.38)
   svelte-preprocess:
     specifier: ^5.0.4
     version: 5.1.3(@babel/core@7.24.3)(postcss@8.4.38)(svelte@4.2.12)(typescript@5.4.3)
@@ -2005,8 +2005,8 @@ packages:
       svelte: 4.2.12
     dev: true
 
-  /svelte-language-server@0.16.6(@babel/core@7.24.3)(postcss@8.4.38):
-    resolution: {integrity: sha512-ND0ZhX78F00oyadndiTkMZf+pPq1DGr3xHkqsjDmR5hDCdEDYXeE886G1vw3XzjT6PY3+TM+iwtAMJTGzlFWCg==}
+  /svelte-language-server@0.16.7(@babel/core@7.24.3)(postcss@8.4.38):
+    resolution: {integrity: sha512-5XfkeRltdt+Hs/KnOpZt741fyTBoXfjeqDi7RYmWy3cX4E3fI8uvRhnmtynMynUv9fNWAJYAmKwgmKnVSpmPqA==}
     engines: {node: '>= 12.0.0'}
     hasBin: true
     dependencies:
@@ -2020,10 +2020,10 @@ packages:
       prettier-plugin-svelte: 3.2.2(prettier@3.2.5)(svelte@3.59.2)
       svelte: 3.59.2
       svelte-preprocess: 5.1.3(@babel/core@7.24.3)(postcss@8.4.38)(svelte@3.59.2)(typescript@5.3.3)
-      svelte2tsx: 0.7.5(svelte@3.59.2)(typescript@5.3.3)
+      svelte2tsx: 0.7.6(svelte@3.59.2)(typescript@5.3.3)
       typescript: 5.3.3
       typescript-auto-import-cache: 0.3.2
-      vscode-css-languageservice: 6.2.12
+      vscode-css-languageservice: 6.2.13
       vscode-html-languageservice: 5.1.2
       vscode-languageserver: 8.0.2
       vscode-languageserver-protocol: 3.17.2
@@ -2143,8 +2143,8 @@ packages:
     resolution: {integrity: sha512-6i4Mncy4P2b7gD7+BOT9JzQvrfGfGXqFra8VXYU5//bpn6AzJ0PLEhH1E/KwY2AxleOiS/8Nm37MGuic2kn15A==}
     dev: true
 
-  /svelte2tsx@0.7.5(svelte@3.59.2)(typescript@5.3.3):
-    resolution: {integrity: sha512-+y8z4YLGsCYN8yjkqPXrqg6yKa73IZfU2WC3MVxiM0YU2/HbGZ1Tiq1ceKCOhMQVBFWjOgC/C465wN/ux6FsDQ==}
+  /svelte2tsx@0.7.6(svelte@3.59.2)(typescript@5.3.3):
+    resolution: {integrity: sha512-awHvYsakyiGjRqqSOhb2F+qJ6lUT9klQe0UQofAcdHNaKKeDHA8kEZ8zYKGG3BiDPurKYMGvH5/lZ+jeIoG7yQ==}
     peerDependencies:
       svelte: ^3.55 || ^4.0.0-next.0 || ^4.0 || ^5.0.0-next.0
       typescript: ^4.9.4 || ^5.0.0
@@ -2332,8 +2332,8 @@ packages:
       vite: 4.5.3
     dev: true
 
-  /vscode-css-languageservice@6.2.12:
-    resolution: {integrity: sha512-PS9r7HgNjqzRl3v91sXpCyZPc8UDotNo6gntFNtGCKPhGA9Frk7g/VjX1Mbv3F00pn56D+rxrFzR9ep4cawOgA==}
+  /vscode-css-languageservice@6.2.13:
+    resolution: {integrity: sha512-2rKWXfH++Kxd9Z4QuEgd1IF7WmblWWU7DScuyf1YumoGLkY9DW6wF/OTlhOyO2rN63sWHX2dehIpKBbho4ZwvA==}
     dependencies:
       '@vscode/l10n': 0.0.18
       vscode-languageserver-textdocument: 1.0.11
