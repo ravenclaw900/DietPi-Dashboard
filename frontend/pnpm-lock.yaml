@@ -78,7 +78,7 @@ devDependencies:
     version: 0.16.7(@babel/core@7.24.4)(postcss@8.4.38)
   svelte-preprocess:
     specifier: ^5.0.4
-    version: 5.1.3(@babel/core@7.24.4)(postcss@8.4.38)(svelte@4.2.14)(typescript@5.4.5)
+    version: 5.1.4(@babel/core@7.24.4)(postcss@8.4.38)(svelte@4.2.14)(typescript@5.4.5)
   svelte-routing:
     specifier: ^2.0.0
     version: 2.12.0
@@ -1557,13 +1557,6 @@ packages:
       yallist: 4.0.0
     dev: true
 
-  /magic-string@0.30.7:
-    resolution: {integrity: sha512-8vBuFF/I/+OSLRmdf2wwFCJCz+nSn0m6DPvGH1fS/KiQoSaR+sETbov0eIk9KhEKy8CYqIkIAnbohxT/4H0kuA==}
-    engines: {node: '>=12'}
-    dependencies:
-      '@jridgewell/sourcemap-codec': 1.4.15
-    dev: true
-
   /magic-string@0.30.9:
     resolution: {integrity: sha512-S1+hd+dIrC8EZqKyT9DstTH/0Z+f76kmmvZnkfQVmOpDEF9iVgdYif3Q/pIWHmCoo59bQVGW0kVL3e2nl+9+Sw==}
     engines: {node: '>=12'}
@@ -1975,7 +1968,7 @@ packages:
       picocolors: 1.0.0
       sade: 1.8.1
       svelte: 4.2.14
-      svelte-preprocess: 5.1.3(@babel/core@7.24.4)(postcss@8.4.38)(svelte@4.2.14)(typescript@5.4.5)
+      svelte-preprocess: 5.1.4(@babel/core@7.24.4)(postcss@8.4.38)(svelte@4.2.14)(typescript@5.4.5)
       typescript: 5.4.5
     transitivePeerDependencies:
       - '@babel/core'
@@ -2012,7 +2005,7 @@ packages:
       prettier: 3.2.5
       prettier-plugin-svelte: 3.2.3(prettier@3.2.5)(svelte@3.59.2)
       svelte: 3.59.2
-      svelte-preprocess: 5.1.3(@babel/core@7.24.4)(postcss@8.4.38)(svelte@3.59.2)(typescript@5.3.3)
+      svelte-preprocess: 5.1.4(@babel/core@7.24.4)(postcss@8.4.38)(svelte@3.59.2)(typescript@5.3.3)
       svelte2tsx: 0.7.6(svelte@3.59.2)(typescript@5.3.3)
       typescript: 5.3.3
       typescript-auto-import-cache: 0.3.2
@@ -2034,9 +2027,9 @@ packages:
       - sugarss
     dev: true
 
-  /svelte-preprocess@5.1.3(@babel/core@7.24.4)(postcss@8.4.38)(svelte@3.59.2)(typescript@5.3.3):
-    resolution: {integrity: sha512-xxAkmxGHT+J/GourS5mVJeOXZzne1FR5ljeOUAMXUkfEhkLEllRreXpbl3dIYJlcJRfL1LO1uIAPpBpBfiqGPw==}
-    engines: {node: '>= 16.0.0', pnpm: ^8.0.0}
+  /svelte-preprocess@5.1.4(@babel/core@7.24.4)(postcss@8.4.38)(svelte@3.59.2)(typescript@5.3.3):
+    resolution: {integrity: sha512-IvnbQ6D6Ao3Gg6ftiM5tdbR6aAETwjhHV+UKGf5bHGYR69RQvF1ho0JKPcbUON4vy4R7zom13jPjgdOWCQ5hDA==}
+    engines: {node: '>= 16.0.0'}
     requiresBuild: true
     peerDependencies:
       '@babel/core': ^7.10.2
@@ -2075,7 +2068,7 @@ packages:
       '@babel/core': 7.24.4
       '@types/pug': 2.0.10
       detect-indent: 6.1.0
-      magic-string: 0.30.7
+      magic-string: 0.30.9
       postcss: 8.4.38
       sorcery: 0.11.0
       strip-indent: 3.0.0
@@ -2083,9 +2076,9 @@ packages:
       typescript: 5.3.3
     dev: true
 
-  /svelte-preprocess@5.1.3(@babel/core@7.24.4)(postcss@8.4.38)(svelte@4.2.14)(typescript@5.4.5):
-    resolution: {integrity: sha512-xxAkmxGHT+J/GourS5mVJeOXZzne1FR5ljeOUAMXUkfEhkLEllRreXpbl3dIYJlcJRfL1LO1uIAPpBpBfiqGPw==}
-    engines: {node: '>= 16.0.0', pnpm: ^8.0.0}
+  /svelte-preprocess@5.1.4(@babel/core@7.24.4)(postcss@8.4.38)(svelte@4.2.14)(typescript@5.4.5):
+    resolution: {integrity: sha512-IvnbQ6D6Ao3Gg6ftiM5tdbR6aAETwjhHV+UKGf5bHGYR69RQvF1ho0JKPcbUON4vy4R7zom13jPjgdOWCQ5hDA==}
+    engines: {node: '>= 16.0.0'}
     requiresBuild: true
     peerDependencies:
       '@babel/core': ^7.10.2
@@ -2124,7 +2117,7 @@ packages:
       '@babel/core': 7.24.4
       '@types/pug': 2.0.10
       detect-indent: 6.1.0
-      magic-string: 0.30.7
+      magic-string: 0.30.9
       postcss: 8.4.38
       sorcery: 0.11.0
       strip-indent: 3.0.0
