@@ -75,7 +75,7 @@ devDependencies:
     version: 3.7.0(@babel/core@7.24.4)(postcss@8.4.38)(svelte@4.2.15)
   svelte-language-server:
     specifier: ^0.16.0
-    version: 0.16.8(@babel/core@7.24.4)(postcss@8.4.38)
+    version: 0.16.9(@babel/core@7.24.4)(postcss@8.4.38)
   svelte-preprocess:
     specifier: ^5.0.4
     version: 5.1.4(@babel/core@7.24.4)(postcss@8.4.38)(svelte@4.2.15)(typescript@5.4.5)
@@ -1997,8 +1997,8 @@ packages:
       svelte: 4.2.15
     dev: true
 
-  /svelte-language-server@0.16.8(@babel/core@7.24.4)(postcss@8.4.38):
-    resolution: {integrity: sha512-gGtWwQStHrVnQrMQGgUPVw7djoR1ezXW2oWSZwR7BdCD/9QVse7BY6+WlNKO4oqu5FqbfOCq/hWKqMlkXkSvwQ==}
+  /svelte-language-server@0.16.9(@babel/core@7.24.4)(postcss@8.4.38):
+    resolution: {integrity: sha512-v5FLUW583+GJHMDxLwxJa6fURYHqwbEYLCZl3V1e3lR2IAMVui+dRLyoH1h4/t4blEiQ6upMAsaULFW0H+5u2Q==}
     engines: {node: '>= 12.0.0'}
     hasBin: true
     dependencies:
@@ -2012,7 +2012,7 @@ packages:
       prettier-plugin-svelte: 3.2.3(prettier@3.2.5)(svelte@3.59.2)
       svelte: 3.59.2
       svelte-preprocess: 5.1.4(@babel/core@7.24.4)(postcss@8.4.38)(svelte@3.59.2)(typescript@5.4.5)
-      svelte2tsx: 0.7.7(svelte@3.59.2)(typescript@5.4.5)
+      svelte2tsx: 0.7.8(svelte@3.59.2)(typescript@5.4.5)
       typescript: 5.4.5
       typescript-auto-import-cache: 0.3.2
       vscode-css-languageservice: 6.2.14
@@ -2135,8 +2135,8 @@ packages:
     resolution: {integrity: sha512-6i4Mncy4P2b7gD7+BOT9JzQvrfGfGXqFra8VXYU5//bpn6AzJ0PLEhH1E/KwY2AxleOiS/8Nm37MGuic2kn15A==}
     dev: true
 
-  /svelte2tsx@0.7.7(svelte@3.59.2)(typescript@5.4.5):
-    resolution: {integrity: sha512-HAIxtk5TUHXvCRKApKfxoh1BGT85S/17lS3DvbfxRKFd+Ghr5YScqBvd+sU+p7vJFw48LNkzdFk+ooNVk3e4kA==}
+  /svelte2tsx@0.7.8(svelte@3.59.2)(typescript@5.4.5):
+    resolution: {integrity: sha512-ABK3RDFcy59AqAiU1N5Kxu1RnKrb1GDMrQjLgNgJfE8Q+coCKpjCAPtUVKQM2HnmuqeNWcT3NqfXbE+ZmN5Pow==}
     peerDependencies:
       svelte: ^3.55 || ^4.0.0-next.0 || ^4.0 || ^5.0.0-next.0
       typescript: ^4.9.4 || ^5.0.0
