@@ -19,7 +19,7 @@ psutil = "3.3.0"
 ring = "0.17.8"
 figment = { version = "0.10.18", features = ["toml", "env"] }
 if-addrs = "0.12.0"
-zip = { version = "0.6.6", default-features = false, features = ["time"] }
+zip = { version = "1.0.0", default-features = false, features = ["time"] }
 walkdir = "2.5.0"
 jsonwebtoken = { version = "9.3.0", default-features = false }
 serde = { version = "1.0.200", features = ["derive"] }
