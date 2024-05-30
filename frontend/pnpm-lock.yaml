@@ -75,7 +75,7 @@ devDependencies:
     version: 3.7.1(@babel/core@7.24.5)(postcss@8.4.38)(svelte@4.2.17)
   svelte-language-server:
     specifier: ^0.16.0
-    version: 0.16.9(@babel/core@7.24.5)(postcss@8.4.38)
+    version: 0.16.10(@babel/core@7.24.5)(postcss@8.4.38)
   svelte-preprocess:
     specifier: ^5.0.4
     version: 5.1.4(@babel/core@7.24.5)(postcss@8.4.38)(svelte@4.2.17)(typescript@5.4.5)
@@ -1550,13 +1550,6 @@ packages:
       yallist: 3.1.1
     dev: true
 
-  /lru-cache@6.0.0:
-    resolution: {integrity: sha512-Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA==}
-    engines: {node: '>=10'}
-    dependencies:
-      yallist: 4.0.0
-    dev: true
-
   /magic-string@0.30.10:
     resolution: {integrity: sha512-iIRwTIf0QKV3UAnYK4PU8uiEc4SRh5jX0mwpIwETPpHdhVM4f53RSwS/vXvN1JhGX+Cs7B8qIq3d6AH49O5fAQ==}
     dependencies:
@@ -1898,12 +1891,10 @@ packages:
     hasBin: true
     dev: true
 
-  /semver@7.6.0:
-    resolution: {integrity: sha512-EnwXhrlwXMk9gKu5/flx5sv/an57AkRplG3hTK68W7FRDN+k+OWBj65M7719OkA82XLBxrcX0KSHj+X5COhOVg==}
+  /semver@7.6.2:
+    resolution: {integrity: sha512-FNAIBWCx9qcRhoHcgcJ0gvU7SN1lYU2ZXuSfl04bSC5OpvDHFyJCjdNHomPXxjQlCBU67YW64PzY7/VIEH7F2w==}
     engines: {node: '>=10'}
     hasBin: true
-    dependencies:
-      lru-cache: 6.0.0
     dev: true
 
   /shebang-command@2.0.0:
@@ -2001,8 +1992,8 @@ packages:
       svelte: 4.2.17
     dev: true
 
-  /svelte-language-server@0.16.9(@babel/core@7.24.5)(postcss@8.4.38):
-    resolution: {integrity: sha512-v5FLUW583+GJHMDxLwxJa6fURYHqwbEYLCZl3V1e3lR2IAMVui+dRLyoH1h4/t4blEiQ6upMAsaULFW0H+5u2Q==}
+  /svelte-language-server@0.16.10(@babel/core@7.24.5)(postcss@8.4.38):
+    resolution: {integrity: sha512-+198ryDKOU20qeGOdHN/tHeSK4d3pT0hywjMlBzLqnEGlmk6ojuhJTN/uq16OMokMkxaX1xA6VdZdmldkLWgbA==}
     engines: {node: '>= 12.0.0'}
     hasBin: true
     dependencies:
@@ -2016,7 +2007,7 @@ packages:
       prettier-plugin-svelte: 3.2.3(prettier@3.2.5)(svelte@3.59.2)
       svelte: 3.59.2
       svelte-preprocess: 5.1.4(@babel/core@7.24.5)(postcss@8.4.38)(svelte@3.59.2)(typescript@5.4.5)
-      svelte2tsx: 0.7.8(svelte@3.59.2)(typescript@5.4.5)
+      svelte2tsx: 0.7.9(svelte@3.59.2)(typescript@5.4.5)
       typescript: 5.4.5
       typescript-auto-import-cache: 0.3.2
       vscode-css-languageservice: 6.2.14
@@ -2139,8 +2130,8 @@ packages:
     resolution: {integrity: sha512-/NTxqTwLc7Dq306hARJrH2HLXOBtKd7hu8nxgoFDlK0AC4SOKnzisiX/9m8Uksei1QAWtlAEdF91YphNM8iDMg==}
     dev: true
 
-  /svelte2tsx@0.7.8(svelte@3.59.2)(typescript@5.4.5):
-    resolution: {integrity: sha512-ABK3RDFcy59AqAiU1N5Kxu1RnKrb1GDMrQjLgNgJfE8Q+coCKpjCAPtUVKQM2HnmuqeNWcT3NqfXbE+ZmN5Pow==}
+  /svelte2tsx@0.7.9(svelte@3.59.2)(typescript@5.4.5):
+    resolution: {integrity: sha512-Rm+0LAwg9wT4H2IsR8EaM9EWErTzi9LmuZKxkH5b1ua94XjQmwHstBP4VabLgA9AE6XmwBg+xK7Cjzwfm6ustQ==}
     peerDependencies:
       svelte: ^3.55 || ^4.0.0-next.0 || ^4.0 || ^5.0.0-next.0
       typescript: ^4.9.4 || ^5.0.0
@@ -2200,7 +2191,7 @@ packages:
   /typescript-auto-import-cache@0.3.2:
     resolution: {integrity: sha512-+laqe5SFL1vN62FPOOJSUDTZxtgsoOXjneYOXIpx5rQ4UMiN89NAtJLpqLqyebv9fgQ/IMeeTX+mQyRnwvJzvg==}
     dependencies:
-      semver: 7.6.0
+      semver: 7.6.2
     dev: true
 
   /typescript@5.4.5:
@@ -2416,10 +2407,6 @@ packages:
 
   /yallist@3.1.1:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
-    dev: true
-
-  /yallist@4.0.0:
-    resolution: {integrity: sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==}
     dev: true
 
   /yocto-queue@0.1.0:
