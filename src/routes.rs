@@ -1,9 +1,11 @@
 use crate::handle_error;
 use crate::shared::CONFIG;
 use anyhow::Context;
+use bytes::Bytes;
 use futures_util::Future;
-use hyper::http::{header, HeaderValue};
-use hyper::{Body, Method, Request, Response, StatusCode};
+use http_body_util::{combinators::BoxBody, BodyExt, Empty, Full};
+use hyper::header;
+use hyper::{body::Incoming, Error, Method, Request, Response, StatusCode};
 use ring::digest;
 use tracing::Instrument;
 
@@ -11,16 +13,16 @@ use tracing::Instrument;
 vite_embed::generate_vite_html_dev!("$CARGO_MANIFEST_DIR/frontend/index.html", "src/main.ts");
 
 #[cfg(feature = "dev")]
-async fn frontend_proxy(path: &str) -> anyhow::Result<Response<Body>> {
+async fn frontend_proxy(path: &str) -> anyhow::Result<Response<BoxBody<Bytes, Error>>> {
     let path = path.to_string();
     let vite_resp = tokio::task::spawn_blocking(move || (vite_embed::vite_proxy_dev(&path), path))
         .await
         .expect("Failed to spawn blocking call to frontend");
 
     match vite_resp {
-        (Ok(body), _) => Ok(Response::new(body.into())),
+        (Ok(body), _) => Ok(Response::new(full(body))),
         (Err(vite_embed::RequestError::Status(code, _)), _) => {
-            Ok(Response::builder().status(code).body(Body::empty())?)
+            Ok(Response::builder().status(code).body(empty())?)
         }
         (_, path) => Err(anyhow::anyhow!(
             "Failed to connect to dev server while getting {}",
@@ -37,10 +39,10 @@ vite_embed::generate_vite_prod!(
 );
 
 #[cfg(all(feature = "frontend", not(feature = "dev")))]
-fn main_route() -> Response<Body> {
+fn main_route() -> Response<BoxBody<Bytes, Error>> {
     // index.html is guaranteed to exist, compilation would fail if it didn't
     #[allow(clippy::unwrap_used)]
-    let mut reply = Response::new(vite_prod("/index.html").unwrap().0.into());
+    let mut reply = Response::new(full(vite_prod("/index.html").unwrap().0));
     let headers = reply.headers_mut();
 
     headers.insert(
@@ -74,11 +76,11 @@ fn main_route() -> Response<Body> {
 }
 
 #[cfg(all(feature = "frontend", not(feature = "dev")))]
-fn asset_route(path: &str) -> Response<Body> {
-    let mut reply = Response::new(Body::empty());
+fn asset_route(path: &str) -> Response<BoxBody<Bytes, Error>> {
+    let mut reply = Response::new(empty());
     let Some((data, compressed)) = vite_prod(path) else {
         *reply.status_mut() = StatusCode::NOT_FOUND;
-        *reply.body_mut() = "Asset not found".into();
+        *reply.body_mut() = full("Asset not found");
         return reply;
     };
 
@@ -90,37 +92,34 @@ fn asset_route(path: &str) -> Response<Body> {
     }
 
     let mime_type = match path.rsplit_once('.').unwrap_or(("plain", "plain")).1 {
-        "js" => HeaderValue::from_static("text/javascript"),
-        "svg" => HeaderValue::from_static("image/svg+xml"),
-        "png" => HeaderValue::from_static("image/png"),
-        "css" => HeaderValue::from_static("text/css"),
+        "js" => header::HeaderValue::from_static("text/javascript"),
+        "svg" => header::HeaderValue::from_static("image/svg+xml"),
+        "png" => header::HeaderValue::from_static("image/png"),
+        "css" => header::HeaderValue::from_static("text/css"),
         // There should be no other file types
         _ => unreachable!(),
     };
 
     reply.headers_mut().insert(header::CONTENT_TYPE, mime_type);
 
-    *reply.body_mut() = data.into();
+    *reply.body_mut() = full(data);
 
     reply
 }
 
 #[tracing::instrument(skip_all)]
-pub async fn login_route(mut req: Request<Body>) -> anyhow::Result<Response<Body>> {
+pub async fn login_route(
+    req: Request<Incoming>,
+) -> anyhow::Result<Response<BoxBody<Bytes, Error>>> {
     let token: String;
-    let mut response = Response::new(Body::empty());
+    let mut response = Response::new(empty());
     response.headers_mut().insert(
         header::ACCESS_CONTROL_ALLOW_ORIGIN,
-        HeaderValue::from_static("*"),
+        header::HeaderValue::from_static("*"),
     );
     if CONFIG.pass {
-        let shasum = hex::encode(
-            digest::digest(
-                &digest::SHA512,
-                &hyper::body::to_bytes(req.body_mut()).await?,
-            )
-            .as_ref(),
-        );
+        let shasum =
+            hex::encode(digest::digest(&digest::SHA512, &req.collect().await?.to_bytes()).as_ref());
         if shasum == CONFIG.hash {
             let timestamp = jsonwebtoken::get_current_timestamp();
 
@@ -129,7 +128,7 @@ pub async fn login_route(mut req: Request<Body>) -> anyhow::Result<Response<Body
                 Err(err) => {
                     tracing::warn!("{:#}", err);
                     *response.status_mut() = StatusCode::BAD_REQUEST;
-                    *response.body_mut() = "Invalid fingerprint token".into();
+                    *response.body_mut() = full("Invalid fingerprint token");
                     return Ok(response);
                 }
                 Ok(None) => {
@@ -139,11 +138,11 @@ pub async fn login_route(mut req: Request<Body>) -> anyhow::Result<Response<Body
                             .context("Couldn't generate random fingerprint token"),
                         return Ok(Response::builder()
                             .status(StatusCode::BAD_REQUEST)
-                            .body("Couldn't generate random fingerprint token".into())?)
+                            .body(full("Couldn't generate random fingerprint token"))?)
                     );
                     response.headers_mut().insert(
-                        hyper::header::SET_COOKIE,
-                        hyper::header::HeaderValue::from_str(&format!(
+                        header::SET_COOKIE,
+                        header::HeaderValue::from_str(&format!(
                             "FINGERPRINT={}; Path=/; HttpOnly",
                             hex::encode(&buf)
                         ))
@@ -169,30 +168,30 @@ pub async fn login_route(mut req: Request<Body>) -> anyhow::Result<Response<Body
                 .context("Error creating login token"),
                 return Ok({
                     *response.status_mut() = StatusCode::INTERNAL_SERVER_ERROR;
-                    *response.body_mut() = "Couldn't create login token".into();
+                    *response.body_mut() = full("Couldn't create login token");
                     response
                 })
             );
 
-            *response.body_mut() = token.into();
+            *response.body_mut() = full(token);
 
             return Ok(response);
         }
         *response.status_mut() = StatusCode::UNAUTHORIZED;
-        *response.body_mut() = "Invalid password".into();
+        *response.body_mut() = full("Invalid password");
         return Ok(response);
     }
     *response.status_mut() = StatusCode::NO_CONTENT;
-    *response.body_mut() = "No login needed".into();
+    *response.body_mut() = full("No login needed");
     Ok(response)
 }
 
 pub fn websocket<F, O>(
-    mut req: Request<Body>,
+    mut req: Request<Incoming>,
     func: F,
     span: tracing::Span,
     token: String,
-) -> anyhow::Result<Response<Body>>
+) -> anyhow::Result<Response<BoxBody<Bytes, Error>>>
 where
     O: Future<Output = ()> + std::marker::Send,
     F: Fn(
@@ -212,7 +211,7 @@ where
     let Ok(cookie) = crate::shared::get_fingerprint(&req) else {
         return Ok(Response::builder()
             .status(StatusCode::BAD_REQUEST)
-            .body(Body::empty())?);
+            .body(empty())?);
     };
 
     if !(req
@@ -226,11 +225,11 @@ where
             .and_then(|x| x.to_str().ok())
             .map_or(false, |x| x.contains("websocket"))
         && req.headers().get(header::SEC_WEBSOCKET_VERSION)
-            == Some(&HeaderValue::from_static("13")))
+            == Some(&header::HeaderValue::from_static("13")))
     {
         return Ok(Response::builder()
             .status(StatusCode::BAD_REQUEST)
-            .body(Body::empty())?);
+            .body(empty())?);
     }
 
     let resp = Response::builder()
@@ -241,7 +240,7 @@ where
             "Sec-WebSocket-Accept",
             &tokio_tungstenite::tungstenite::handshake::derive_accept_key(key.as_bytes()),
         )
-        .body(Body::from("switching to websocket protocol"));
+        .body(full("switching to websocket protocol"));
 
     tokio::spawn(async move {
         match hyper::upgrade::on(&mut req).await {
@@ -260,8 +259,11 @@ where
     Ok(resp?)
 }
 
-pub async fn router(req: Request<Body>, span: tracing::Span) -> anyhow::Result<Response<Body>> {
-    let mut response = Response::new(Body::empty());
+pub async fn router(
+    req: Request<Incoming>,
+    span: tracing::Span,
+) -> anyhow::Result<Response<BoxBody<Bytes, Error>>> {
+    let mut response = Response::new(empty());
 
     let mut path = req.uri().path();
     if path != "/" {
@@ -303,7 +305,7 @@ pub async fn router(req: Request<Body>, span: tracing::Span) -> anyhow::Result<R
                 )?;
             } else {
                 *response.status_mut() = StatusCode::UNAUTHORIZED;
-                *response.body_mut() = "No token".into();
+                *response.body_mut() = full("No token");
                 return Ok(response);
             }
         }
@@ -318,7 +320,7 @@ pub async fn router(req: Request<Body>, span: tracing::Span) -> anyhow::Result<R
                 )?;
             } else {
                 *response.status_mut() = StatusCode::UNAUTHORIZED;
-                *response.body_mut() = "No token".into();
+                *response.body_mut() = full("No token");
                 return Ok(response);
             }
         }
@@ -344,7 +346,7 @@ pub async fn router(req: Request<Body>, span: tracing::Span) -> anyhow::Result<R
         #[cfg(feature = "dev")]
         (&Method::GET, "/", _) => {
             let _guard = span.enter();
-            response = Response::new(vite_html_dev().into());
+            response = Response::new(full(vite_html_dev()));
         }
         #[cfg(feature = "dev")]
         (&Method::GET | &Method::POST, _, _) => {
@@ -358,9 +360,21 @@ pub async fn router(req: Request<Body>, span: tracing::Span) -> anyhow::Result<R
         }
         _ => {
             *response.status_mut() = StatusCode::METHOD_NOT_ALLOWED;
-            *response.body_mut() = "Method not allowed".into();
+            *response.body_mut() = full("Method not allowed");
         }
     }
 
     Ok(response)
+}
+
+fn empty() -> BoxBody<Bytes, Error> {
+    Empty::<Bytes>::new()
+        .map_err(|never| match never {})
+        .boxed()
+}
+
+fn full<T: Into<Bytes>>(chunk: T) -> BoxBody<Bytes, Error> {
+    Full::new(chunk.into())
+        .map_err(|never| match never {})
+        .boxed()
 }

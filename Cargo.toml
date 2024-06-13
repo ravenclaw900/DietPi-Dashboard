@@ -36,6 +36,8 @@ vite-embed = { git = "https://github.com/ravenclaw900/vite-embed", version = "0.
 mime_guess = { version = "2.0.4", default-features = false }
 flexible-hyper-server-tls = "0.3.0"
 futures-util = { version = "0.3.30", default-features = false }
+http-body-util = "0.1.2"
+bytes = "1.6.0"
 
 [features]
 default = ["frontend"]
