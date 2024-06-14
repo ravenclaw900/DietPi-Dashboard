@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { Terminal } from "xterm";
-    import { AttachAddon } from "xterm-addon-attach";
-    import { FitAddon, type ITerminalDimensions } from "xterm-addon-fit";
-    import "xterm/css/xterm.css";
+    import { Terminal } from "@xterm/xterm";
+    import { AttachAddon } from "@xterm/addon-attach";
+    import { FitAddon, type ITerminalDimensions } from "@xterm/addon-fit";
+    import "@xterm/xterm/css/xterm.css";
 
     import { onDestroy } from "svelte";
 
