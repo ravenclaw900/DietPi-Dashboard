@@ -19,7 +19,7 @@ export default defineConfig(({ mode }) => {
         input: "src/main.ts",
         output: {
           manualChunks: {
-            xterm: ["xterm", "xterm-addon-attach", "xterm-addon-fit"],
+            xterm: ["@xterm/xterm", "@xterm/addon-attach", "@xterm/addon-fit"],
           },
         },
       },
