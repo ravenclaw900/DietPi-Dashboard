@@ -13,7 +13,8 @@ export default defineConfig(({ mode }) => {
       svelte(),
     ],
     build: {
-      manifest: true,
+      // https://github.com/vitejs/vite/commit/74fa024
+      manifest: "manifest.json",
       rollupOptions: {
         input: "src/main.ts",
         output: {
