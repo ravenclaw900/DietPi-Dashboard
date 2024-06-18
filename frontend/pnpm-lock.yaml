@@ -77,7 +77,7 @@ importers:
         version: 3.8.1(@babel/core@7.24.7)(postcss@8.4.38)(svelte@4.2.18)
       svelte-language-server:
         specifier: ^0.16.0
-        version: 0.16.10(@babel/core@7.24.7)(postcss@8.4.38)
+        version: 0.16.11(@babel/core@7.24.7)(postcss@8.4.38)
       svelte-preprocess:
         specifier: ^6.0.0
         version: 6.0.1(@babel/core@7.24.7)(postcss@8.4.38)(svelte@4.2.18)(typescript@5.4.5)
@@ -1236,8 +1236,8 @@ packages:
     peerDependencies:
       svelte: ^3.19.0 || ^4.0.0
 
-  svelte-language-server@0.16.10:
-    resolution: {integrity: sha512-+198ryDKOU20qeGOdHN/tHeSK4d3pT0hywjMlBzLqnEGlmk6ojuhJTN/uq16OMokMkxaX1xA6VdZdmldkLWgbA==}
+  svelte-language-server@0.16.11:
+    resolution: {integrity: sha512-BtmIzGVlu8dr4xgccaTUczdPMAqjfbTjjeLf0Zyc0rx7b1RqyVyEtPKjtDrGR73hksUAwKfSRGp/ma/YKPA8iQ==}
     engines: {node: '>= 12.0.0'}
     hasBin: true
 
@@ -1318,8 +1318,8 @@ packages:
   svelte-routing@2.13.0:
     resolution: {integrity: sha512-/NTxqTwLc7Dq306hARJrH2HLXOBtKd7hu8nxgoFDlK0AC4SOKnzisiX/9m8Uksei1QAWtlAEdF91YphNM8iDMg==}
 
-  svelte2tsx@0.7.9:
-    resolution: {integrity: sha512-Rm+0LAwg9wT4H2IsR8EaM9EWErTzi9LmuZKxkH5b1ua94XjQmwHstBP4VabLgA9AE6XmwBg+xK7Cjzwfm6ustQ==}
+  svelte2tsx@0.7.10:
+    resolution: {integrity: sha512-POOXaTncPGjwXMj6NVSRvdNj8KFqqLabFtXsQal3WyPy4X5raGsiDST2+ELhceKwfHk79/hR3qGUeU7KxYo4vQ==}
     peerDependencies:
       svelte: ^3.55 || ^4.0.0-next.0 || ^4.0 || ^5.0.0-next.0
       typescript: ^4.9.4 || ^5.0.0
@@ -2673,7 +2673,7 @@ snapshots:
     dependencies:
       svelte: 4.2.18
 
-  svelte-language-server@0.16.10(@babel/core@7.24.7)(postcss@8.4.38):
+  svelte-language-server@0.16.11(@babel/core@7.24.7)(postcss@8.4.38):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       '@vscode/emmet-helper': 2.8.4
@@ -2685,7 +2685,7 @@ snapshots:
       prettier-plugin-svelte: 3.2.4(prettier@3.2.5)(svelte@3.59.2)
       svelte: 3.59.2
       svelte-preprocess: 5.1.4(@babel/core@7.24.7)(postcss@8.4.38)(svelte@3.59.2)(typescript@5.4.5)
-      svelte2tsx: 0.7.9(svelte@3.59.2)(typescript@5.4.5)
+      svelte2tsx: 0.7.10(svelte@3.59.2)(typescript@5.4.5)
       typescript: 5.4.5
       typescript-auto-import-cache: 0.3.2
       vscode-css-languageservice: 6.2.14
@@ -2743,7 +2743,7 @@ snapshots:
 
   svelte-routing@2.13.0: {}
 
-  svelte2tsx@0.7.9(svelte@3.59.2)(typescript@5.4.5):
+  svelte2tsx@0.7.10(svelte@3.59.2)(typescript@5.4.5):
     dependencies:
       dedent-js: 1.0.1
       pascal-case: 3.1.2
