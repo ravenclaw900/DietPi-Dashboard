@@ -7,7 +7,7 @@
 #![allow(clippy::too_many_lines)]
 use crate::shared::CONFIG;
 use anyhow::Context;
-use hyper::service::{make_service_fn, service_fn};
+use hyper::{body::Incoming, service::service_fn, Error, Request, Response};
 use std::{net::IpAddr, str::FromStr};
 
 mod config;
@@ -16,6 +16,24 @@ mod routes;
 mod shared;
 mod socket_handlers;
 mod systemdata;
+
+async fn svc(
+    req: Request<Incoming>,
+) -> anyhow::Result<Response<http_body_util::combinators::BoxBody<bytes::Bytes, Error>>> {
+    // ToDo: How to get client addr, or can we skip it?
+    let remote_addr = "127.0.0.1";
+    let span = tracing::info_span!("request", %remote_addr);
+    span.in_scope(|| {
+        tracing::info!("Request to {}", req.uri().path());
+        tracing::debug!(
+            "using {:?}",
+            req.headers()
+                .get(hyper::header::USER_AGENT)
+                .map_or("unknown", |x| x.to_str().unwrap_or("unknown"))
+        );
+    });
+    routes::router(req, span).await
+}
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> anyhow::Result<()> {
@@ -32,53 +50,26 @@ async fn main() -> anyhow::Result<()> {
 
     let addr = std::net::SocketAddr::from((IpAddr::from([0; 8]), CONFIG.port));
 
-    let tcp = tokio::net::TcpListener::bind(&addr)
+    let listener = tokio::net::TcpListener::bind(&addr)
         .await
         .with_context(|| format!("Couldn't bind to {}", &addr))?;
 
-    let make_svc = make_service_fn(|conn: &flexible_hyper_server_tls::HttpOrHttpsConnection| {
-        let remote_addr = conn.remote_addr();
-        async move {
-            Ok::<_, std::convert::Infallible>(service_fn(move |req| async move {
-                let span = tracing::info_span!("request", %remote_addr);
-                span.in_scope(|| {
-                    tracing::info!("Request to {}", req.uri().path());
-                    tracing::debug!(
-                        "using {:?}",
-                        req.headers()
-                            .get(hyper::header::USER_AGENT)
-                            .map_or("unknown", |x| x.to_str().unwrap_or("unknown"))
-                    );
-                });
-                routes::router(req, span).await
-            }))
-        }
-    });
+    let builder = flexible_hyper_server_tls::AcceptorBuilder::new(listener);
 
-    let acceptor = if CONFIG.tls {
-        let tls_acceptor = flexible_hyper_server_tls::tlsconfig::get_tlsacceptor_from_files(
+    let mut acceptor = if CONFIG.tls {
+        let tls_acceptor = flexible_hyper_server_tls::rustls_helpers::get_tlsacceptor_from_files(
             &CONFIG.cert,
             &CONFIG.key,
-            flexible_hyper_server_tls::tlsconfig::HttpProtocol::Http1,
         )
         .context("Couldn't get TLS config")?;
 
-        flexible_hyper_server_tls::HyperHttpOrHttpsAcceptor::new_https(
-            tcp,
-            tls_acceptor,
-            std::time::Duration::from_secs(10),
-        )
+        builder.https(tls_acceptor).build()
     } else {
-        flexible_hyper_server_tls::HyperHttpOrHttpsAcceptor::new_http(tcp)
+        builder.build()
     };
-
-    let mut server = hyper::server::Server::builder(acceptor).serve(make_svc);
 
     // Ignore result, because it will never be an error
     loop {
-        let _res = (&mut server).await.context("Server error").or_else(|e| {
-            tracing::warn!("{:?}", e);
-            anyhow::Ok(())
-        });
+        acceptor.accept(service_fn(svc)).await;
     }
 }

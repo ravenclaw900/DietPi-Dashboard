@@ -45,7 +45,9 @@ pub fn get_token_from_list<'a>(
     None
 }
 
-pub fn get_fingerprint(req: &hyper::Request<hyper::Body>) -> anyhow::Result<Option<String>> {
+pub fn get_fingerprint(
+    req: &hyper::Request<hyper::body::Incoming>,
+) -> anyhow::Result<Option<String>> {
     let cookie = if let Some(cookie) = req.headers().get(hyper::header::COOKIE) {
         cookie.to_str().context("Invalid cookie list")?
     } else {
