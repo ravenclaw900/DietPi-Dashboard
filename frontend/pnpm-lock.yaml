@@ -38,7 +38,7 @@ importers:
     devDependencies:
       '@iconify-json/fa6-solid':
         specifier: ^1.1.12
-        version: 1.1.22
+        version: 1.1.23
       '@iconify-json/svg-spinners':
         specifier: ^1.1.1
         version: 1.1.2
@@ -405,8 +405,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@iconify-json/fa6-solid@1.1.22':
-    resolution: {integrity: sha512-iHc4hE/BVPwQ84/1z31kfuPauhfrOgLTaba5dmpfYuLsvh67gByUK0yfNyQuo/Y6NAPOx/6s6guj0f0qjzoxbg==}
+  '@iconify-json/fa6-solid@1.1.23':
+    resolution: {integrity: sha512-wiQqnNBm8FlwmPK2KK6d+W7u2fKcqQR1kfILTR817WjNzI/pjRJqqI9kAx/uys2u1L79/Myg4trdCIy0gInObg==}
 
   '@iconify-json/svg-spinners@1.1.2':
     resolution: {integrity: sha512-Aab6SqkORaTJ1W+ooufn6C8BsBitrn3uk8iRQLPA6pjhyvQAhkKCGMctyXIL5ZjrycnoFVsZ4mx7KnwEMra8qg==}
@@ -1784,7 +1784,7 @@ snapshots:
   '@esbuild/win32-x64@0.21.5':
     optional: true
 
-  '@iconify-json/fa6-solid@1.1.22':
+  '@iconify-json/fa6-solid@1.1.23':
     dependencies:
       '@iconify/types': 2.0.0
 
