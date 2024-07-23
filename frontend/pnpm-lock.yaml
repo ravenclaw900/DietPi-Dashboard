@@ -80,7 +80,7 @@ importers:
         version: 0.16.13(@babel/core@7.24.9)(postcss@8.4.39)
       svelte-preprocess:
         specifier: ^6.0.0
-        version: 6.0.2(@babel/core@7.24.9)(postcss@8.4.39)(svelte@4.2.18)(typescript@5.5.3)
+        version: 6.0.2(@babel/core@7.24.9)(postcss@8.4.39)(svelte@4.2.18)(typescript@5.5.4)
       svelte-routing:
         specifier: ^2.0.0
         version: 2.13.0
@@ -89,7 +89,7 @@ importers:
         version: 2.6.3
       typescript:
         specifier: ^5.0.2
-        version: 5.5.3
+        version: 5.5.4
       unocss:
         specifier: ^0.61.0
         version: 0.61.5(postcss@8.4.39)(rollup@4.18.1)(vite@5.3.4)
@@ -1336,8 +1336,8 @@ packages:
   typescript-auto-import-cache@0.3.3:
     resolution: {integrity: sha512-ojEC7+Ci1ij9eE6hp8Jl9VUNnsEKzztktP5gtYNRMrTmfXVwA1PITYYAkpxCvvupdSYa/Re51B6KMcv1CTZEUA==}
 
-  typescript@5.5.3:
-    resolution: {integrity: sha512-/hreyEujaB0w76zKo6717l3L0o/qEUtRgdvUBvlkhoWeOVMjMuHNHk0BRBzikzuGDqNmPQbg5ifMEqsHLiIUcQ==}
+  typescript@5.5.4:
+    resolution: {integrity: sha512-Mtq29sKDAEYP7aljRgtPOpTvOfbwRWlS6dPRzwjdE+C0R4brX/GUyhHSecbHMFLNBLcJIPt9nl9yG5TZ1weH+Q==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -2627,8 +2627,8 @@ snapshots:
       picocolors: 1.0.1
       sade: 1.8.1
       svelte: 4.2.18
-      svelte-preprocess: 5.1.4(@babel/core@7.24.9)(postcss@8.4.39)(svelte@4.2.18)(typescript@5.5.3)
-      typescript: 5.5.3
+      svelte-preprocess: 5.1.4(@babel/core@7.24.9)(postcss@8.4.39)(svelte@4.2.18)(typescript@5.5.4)
+      typescript: 5.5.4
     transitivePeerDependencies:
       - '@babel/core'
       - coffeescript
@@ -2655,9 +2655,9 @@ snapshots:
       prettier: 3.2.5
       prettier-plugin-svelte: 3.2.6(prettier@3.2.5)(svelte@3.59.2)
       svelte: 3.59.2
-      svelte-preprocess: 5.1.4(@babel/core@7.24.9)(postcss@8.4.39)(svelte@3.59.2)(typescript@5.5.3)
-      svelte2tsx: 0.7.13(svelte@3.59.2)(typescript@5.5.3)
-      typescript: 5.5.3
+      svelte-preprocess: 5.1.4(@babel/core@7.24.9)(postcss@8.4.39)(svelte@3.59.2)(typescript@5.5.4)
+      svelte2tsx: 0.7.13(svelte@3.59.2)(typescript@5.5.4)
+      typescript: 5.5.4
       typescript-auto-import-cache: 0.3.3
       vscode-css-languageservice: 6.2.14
       vscode-html-languageservice: 5.1.2
@@ -2676,7 +2676,7 @@ snapshots:
       - stylus
       - sugarss
 
-  svelte-preprocess@5.1.4(@babel/core@7.24.9)(postcss@8.4.39)(svelte@3.59.2)(typescript@5.5.3):
+  svelte-preprocess@5.1.4(@babel/core@7.24.9)(postcss@8.4.39)(svelte@3.59.2)(typescript@5.5.4):
     dependencies:
       '@types/pug': 2.0.10
       detect-indent: 6.1.0
@@ -2687,9 +2687,9 @@ snapshots:
     optionalDependencies:
       '@babel/core': 7.24.9
       postcss: 8.4.39
-      typescript: 5.5.3
+      typescript: 5.5.4
 
-  svelte-preprocess@5.1.4(@babel/core@7.24.9)(postcss@8.4.39)(svelte@4.2.18)(typescript@5.5.3):
+  svelte-preprocess@5.1.4(@babel/core@7.24.9)(postcss@8.4.39)(svelte@4.2.18)(typescript@5.5.4):
     dependencies:
       '@types/pug': 2.0.10
       detect-indent: 6.1.0
@@ -2700,24 +2700,24 @@ snapshots:
     optionalDependencies:
       '@babel/core': 7.24.9
       postcss: 8.4.39
-      typescript: 5.5.3
+      typescript: 5.5.4
 
-  svelte-preprocess@6.0.2(@babel/core@7.24.9)(postcss@8.4.39)(svelte@4.2.18)(typescript@5.5.3):
+  svelte-preprocess@6.0.2(@babel/core@7.24.9)(postcss@8.4.39)(svelte@4.2.18)(typescript@5.5.4):
     dependencies:
       svelte: 4.2.18
     optionalDependencies:
       '@babel/core': 7.24.9
       postcss: 8.4.39
-      typescript: 5.5.3
+      typescript: 5.5.4
 
   svelte-routing@2.13.0: {}
 
-  svelte2tsx@0.7.13(svelte@3.59.2)(typescript@5.5.3):
+  svelte2tsx@0.7.13(svelte@3.59.2)(typescript@5.5.4):
     dependencies:
       dedent-js: 1.0.1
       pascal-case: 3.1.2
       svelte: 3.59.2
-      typescript: 5.5.3
+      typescript: 5.5.4
 
   svelte@3.59.2: {}
 
@@ -2752,7 +2752,7 @@ snapshots:
     dependencies:
       semver: 7.6.2
 
-  typescript@5.5.3: {}
+  typescript@5.5.4: {}
 
   ufo@1.5.4: {}
 
