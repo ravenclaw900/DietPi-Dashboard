@@ -19,7 +19,7 @@ importers:
         version: 6.1.1
       pretty-ms:
         specifier: ^9.0.0
-        version: 9.0.0
+        version: 9.1.0
       semver-compare-multi:
         specifier: ^1.0.3
         version: 1.0.3
@@ -1128,8 +1128,8 @@ packages:
     resolution: {integrity: sha512-mQUvGU6aUFQ+rNvTIAcZuWGRT9a6f6Yrg9bHs4ImKF+HZCEK+plBvnAZYSIQztknZF2qnzNtr6F8s0+IuptdlQ==}
     engines: {node: ^14.13.1 || >=16.0.0}
 
-  pretty-ms@9.0.0:
-    resolution: {integrity: sha512-E9e9HJ9R9NasGOgPaPE8VMeiPKAyWR5jcFpNnwIejslIhWqdqOrb2wShBsncMPUb+BcCd2OPYfh7p2W6oemTng==}
+  pretty-ms@9.1.0:
+    resolution: {integrity: sha512-o1piW0n3tgKIKCwk2vpM/vOV13zjJzvP37Ioze54YlTHE06m4tjEbzg9WsKkvTuyYln2DHjo5pY4qrZGI0otpw==}
     engines: {node: '>=18'}
 
   queue-microtask@1.2.3:
@@ -2528,7 +2528,7 @@ snapshots:
 
   pretty-bytes@6.1.1: {}
 
-  pretty-ms@9.0.0:
+  pretty-ms@9.1.0:
     dependencies:
       parse-ms: 4.0.0
 
