@@ -77,7 +77,7 @@ importers:
         version: 3.8.5(@babel/core@7.25.2)(postcss@8.4.40)(svelte@4.2.18)
       svelte-language-server:
         specifier: ^0.16.0
-        version: 0.16.13(@babel/core@7.25.2)(postcss@8.4.40)
+        version: 0.16.14(@babel/core@7.25.2)(postcss@8.4.40)
       svelte-preprocess:
         specifier: ^6.0.0
         version: 6.0.2(@babel/core@7.25.2)(postcss@8.4.40)(svelte@4.2.18)(typescript@5.5.4)
@@ -1380,8 +1380,8 @@ packages:
     peerDependencies:
       svelte: ^3.19.0 || ^4.0.0
 
-  svelte-language-server@0.16.13:
-    resolution: {integrity: sha512-Fpl6NSjdcg9kLh1NmsaX4mFmaPMjQZZaNvGxTODfvogs3Y2wwpzH/N3Eixqmpv4O1FenDTgmv87Hle4GUGPcfg==}
+  svelte-language-server@0.16.14:
+    resolution: {integrity: sha512-OEzdJ8fmwVDfsCluf4LIO8CGqAkmHN+Bl+n/fq3LADDjt1knujdKT9fdPEs5gcydgU/ZK/RrJ+qkMwEerv6vBA==}
     engines: {node: '>= 12.0.0'}
     hasBin: true
 
@@ -1462,8 +1462,8 @@ packages:
   svelte-routing@2.13.0:
     resolution: {integrity: sha512-/NTxqTwLc7Dq306hARJrH2HLXOBtKd7hu8nxgoFDlK0AC4SOKnzisiX/9m8Uksei1QAWtlAEdF91YphNM8iDMg==}
 
-  svelte2tsx@0.7.13:
-    resolution: {integrity: sha512-aObZ93/kGAiLXA/I/kP+x9FriZM+GboB/ReOIGmLNbVGEd2xC+aTCppm3mk1cc9I/z60VQf7b2QDxC3jOXu3yw==}
+  svelte2tsx@0.7.15:
+    resolution: {integrity: sha512-91RbLJI448FR1UEZqXSS3ucVMERuWo8ACOhxfkBPK1CL2ocGMOC5bwc8tzFvb/Ji8NqZ7wmSGfvRebcUsiauKA==}
     peerDependencies:
       svelte: ^3.55 || ^4.0.0-next.0 || ^4.0 || ^5.0.0-next.0
       typescript: ^4.9.4 || ^5.0.0
@@ -1567,11 +1567,11 @@ packages:
       vite:
         optional: true
 
-  vscode-css-languageservice@6.2.14:
-    resolution: {integrity: sha512-5UPQ9Y1sUTnuMyaMBpO7LrBkqjhEJb5eAwdUlDp+Uez8lry+Tspnk3+3p2qWS4LlNsr4p3v9WkZxUf1ltgFpgw==}
+  vscode-css-languageservice@6.3.0:
+    resolution: {integrity: sha512-nU92imtkgzpCL0xikrIb8WvedV553F2BENzgz23wFuok/HLN5BeQmroMy26pUwFxV2eV8oNRmYCUv8iO7kSMhw==}
 
-  vscode-html-languageservice@5.1.2:
-    resolution: {integrity: sha512-wkWfEx/IIR3s2P5yD4aTGHiOb8IAzFxgkSt1uSC3itJ4oDAm23yG7o0L29JljUdnXDDgLafPAvhv8A2I/8riHw==}
+  vscode-html-languageservice@5.3.0:
+    resolution: {integrity: sha512-C4Z3KsP5Ih+fjHpiBc5jxmvCl+4iEwvXegIrzu2F5pktbWvQaBT3YkVPk8N+QlSSMk8oCG6PKtZ/Sq2YHb5e8g==}
 
   vscode-jsonrpc@8.0.2:
     resolution: {integrity: sha512-RY7HwI/ydoC1Wwg4gJ3y6LpU9FJRZAUnTYMXthqhFXXu77ErDd/xkREpGuk4MyYkk4a+XDWAMqe0S3KkelYQEQ==}
@@ -2922,7 +2922,7 @@ snapshots:
     dependencies:
       svelte: 4.2.18
 
-  svelte-language-server@0.16.13(@babel/core@7.25.2)(postcss@8.4.40):
+  svelte-language-server@0.16.14(@babel/core@7.25.2)(postcss@8.4.40):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       '@vscode/emmet-helper': 2.8.4
@@ -2934,11 +2934,11 @@ snapshots:
       prettier-plugin-svelte: 3.2.6(prettier@3.2.5)(svelte@3.59.2)
       svelte: 3.59.2
       svelte-preprocess: 5.1.4(@babel/core@7.25.2)(postcss@8.4.40)(svelte@3.59.2)(typescript@5.5.4)
-      svelte2tsx: 0.7.13(svelte@3.59.2)(typescript@5.5.4)
+      svelte2tsx: 0.7.15(svelte@3.59.2)(typescript@5.5.4)
       typescript: 5.5.4
       typescript-auto-import-cache: 0.3.3
-      vscode-css-languageservice: 6.2.14
-      vscode-html-languageservice: 5.1.2
+      vscode-css-languageservice: 6.3.0
+      vscode-html-languageservice: 5.3.0
       vscode-languageserver: 8.0.2
       vscode-languageserver-protocol: 3.17.2
       vscode-languageserver-types: 3.17.2
@@ -2990,7 +2990,7 @@ snapshots:
 
   svelte-routing@2.13.0: {}
 
-  svelte2tsx@0.7.13(svelte@3.59.2)(typescript@5.5.4):
+  svelte2tsx@0.7.15(svelte@3.59.2)(typescript@5.5.4):
     dependencies:
       dedent-js: 1.0.1
       pascal-case: 3.1.2
@@ -3098,14 +3098,14 @@ snapshots:
     optionalDependencies:
       vite: 5.3.5
 
-  vscode-css-languageservice@6.2.14:
+  vscode-css-languageservice@6.3.0:
     dependencies:
       '@vscode/l10n': 0.0.18
       vscode-languageserver-textdocument: 1.0.11
       vscode-languageserver-types: 3.17.5
       vscode-uri: 3.0.8
 
-  vscode-html-languageservice@5.1.2:
+  vscode-html-languageservice@5.3.0:
     dependencies:
       '@vscode/l10n': 0.0.18
       vscode-languageserver-textdocument: 1.0.11
