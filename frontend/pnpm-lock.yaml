@@ -62,7 +62,7 @@ importers:
         version: 0.62.3
       postcss:
         specifier: ^8.4.31
-        version: 8.4.43
+        version: 8.4.44
       prettier:
         specifier: ^3.0.0
         version: 3.3.3
@@ -74,13 +74,13 @@ importers:
         version: 4.2.19
       svelte-check:
         specifier: ^3.4.4
-        version: 3.8.6(@babel/core@7.25.2)(postcss@8.4.43)(svelte@4.2.19)
+        version: 3.8.6(@babel/core@7.25.2)(postcss@8.4.44)(svelte@4.2.19)
       svelte-language-server:
         specifier: ^0.16.0
-        version: 0.16.14(@babel/core@7.25.2)(postcss@8.4.43)
+        version: 0.16.14(@babel/core@7.25.2)(postcss@8.4.44)
       svelte-preprocess:
         specifier: ^6.0.0
-        version: 6.0.2(@babel/core@7.25.2)(postcss@8.4.43)(svelte@4.2.19)(typescript@5.5.4)
+        version: 6.0.2(@babel/core@7.25.2)(postcss@8.4.44)(svelte@4.2.19)(typescript@5.5.4)
       svelte-routing:
         specifier: ^2.0.0
         version: 2.13.0
@@ -92,7 +92,7 @@ importers:
         version: 5.5.4
       unocss:
         specifier: ^0.62.0
-        version: 0.62.3(postcss@8.4.43)(rollup@4.21.0)(vite@5.4.2)
+        version: 0.62.3(postcss@8.4.44)(rollup@4.21.0)(vite@5.4.2)
       vite:
         specifier: ^5.0.0
         version: 5.4.2
@@ -1186,6 +1186,9 @@ packages:
   picocolors@1.0.1:
     resolution: {integrity: sha512-anP1Z8qwhkbmu7MFP5iTt+wQKXgwzf7zTyGlcdzabySa9vd0Xt392U0rVmz9poOaBj0uHJKyyo9/upk0HrEQew==}
 
+  picocolors@1.1.0:
+    resolution: {integrity: sha512-TQ92mBOW0l3LeMeyLV6mzy/kWr8lkd/hp3mTg7wYK7zJhuBStmGMBG0BdeDZS/dZx1IukaX6Bk11zcln25o1Aw==}
+
   picomatch@2.3.1:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
     engines: {node: '>=8.6'}
@@ -1197,8 +1200,8 @@ packages:
   pkg-types@1.2.0:
     resolution: {integrity: sha512-+ifYuSSqOQ8CqP4MbZA5hDpb97n3E8SVWdJe+Wms9kj745lmd3b7EZJiqvmLwAlmRfjrI7Hi5z3kdBJ93lFNPA==}
 
-  postcss@8.4.43:
-    resolution: {integrity: sha512-gJAQVYbh5R3gYm33FijzCZj7CHyQ3hWMgJMprLUlIYqCwTeZhBQ19wp0e9mA25BUbEvY5+EXuuaAjqQsrBxQBQ==}
+  postcss@8.4.44:
+    resolution: {integrity: sha512-Aweb9unOEpQ3ezu4Q00DPvvM2ZTUitJdNKeP/+uQgr1IBIqu574IaZoURId7BKtWMREwzKa9OgzPzezWGPWFQw==}
     engines: {node: ^10 || ^12 || >=14}
 
   prettier-plugin-svelte@3.2.6:
@@ -1574,7 +1577,7 @@ snapshots:
   '@babel/code-frame@7.24.7':
     dependencies:
       '@babel/highlight': 7.24.7
-      picocolors: 1.0.1
+      picocolors: 1.1.0
 
   '@babel/compat-data@7.25.4': {}
 
@@ -1699,7 +1702,7 @@ snapshots:
       '@babel/helper-validator-identifier': 7.24.7
       chalk: 2.4.2
       js-tokens: 4.0.0
-      picocolors: 1.0.1
+      picocolors: 1.1.0
 
   '@babel/parser@7.25.4':
     dependencies:
@@ -2117,14 +2120,14 @@ snapshots:
       gzip-size: 6.0.0
       sirv: 2.0.4
 
-  '@unocss/postcss@0.62.3(postcss@8.4.43)':
+  '@unocss/postcss@0.62.3(postcss@8.4.44)':
     dependencies:
       '@unocss/config': 0.62.3
       '@unocss/core': 0.62.3
       '@unocss/rule-utils': 0.62.3
       css-tree: 2.3.1
       magic-string: 0.30.11
-      postcss: 8.4.43
+      postcss: 8.4.44
       tinyglobby: 0.2.5
     transitivePeerDependencies:
       - supports-color
@@ -2634,6 +2637,8 @@ snapshots:
 
   picocolors@1.0.1: {}
 
+  picocolors@1.1.0: {}
+
   picomatch@2.3.1: {}
 
   picomatch@4.0.2: {}
@@ -2644,10 +2649,10 @@ snapshots:
       mlly: 1.7.1
       pathe: 1.1.2
 
-  postcss@8.4.43:
+  postcss@8.4.44:
     dependencies:
       nanoid: 3.3.7
-      picocolors: 1.0.1
+      picocolors: 1.1.0
       source-map-js: 1.2.0
 
   prettier-plugin-svelte@3.2.6(prettier@3.2.5)(svelte@3.59.2):
@@ -2750,14 +2755,14 @@ snapshots:
     dependencies:
       has-flag: 3.0.0
 
-  svelte-check@3.8.6(@babel/core@7.25.2)(postcss@8.4.43)(svelte@4.2.19):
+  svelte-check@3.8.6(@babel/core@7.25.2)(postcss@8.4.44)(svelte@4.2.19):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       chokidar: 3.6.0
       picocolors: 1.0.1
       sade: 1.8.1
       svelte: 4.2.19
-      svelte-preprocess: 5.1.4(@babel/core@7.25.2)(postcss@8.4.43)(svelte@4.2.19)(typescript@5.5.4)
+      svelte-preprocess: 5.1.4(@babel/core@7.25.2)(postcss@8.4.44)(svelte@4.2.19)(typescript@5.5.4)
       typescript: 5.5.4
     transitivePeerDependencies:
       - '@babel/core'
@@ -2774,7 +2779,7 @@ snapshots:
     dependencies:
       svelte: 4.2.19
 
-  svelte-language-server@0.16.14(@babel/core@7.25.2)(postcss@8.4.43):
+  svelte-language-server@0.16.14(@babel/core@7.25.2)(postcss@8.4.44):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       '@vscode/emmet-helper': 2.8.4
@@ -2785,7 +2790,7 @@ snapshots:
       prettier: 3.2.5
       prettier-plugin-svelte: 3.2.6(prettier@3.2.5)(svelte@3.59.2)
       svelte: 3.59.2
-      svelte-preprocess: 5.1.4(@babel/core@7.25.2)(postcss@8.4.43)(svelte@3.59.2)(typescript@5.5.4)
+      svelte-preprocess: 5.1.4(@babel/core@7.25.2)(postcss@8.4.44)(svelte@3.59.2)(typescript@5.5.4)
       svelte2tsx: 0.7.15(svelte@3.59.2)(typescript@5.5.4)
       typescript: 5.5.4
       typescript-auto-import-cache: 0.3.3
@@ -2806,7 +2811,7 @@ snapshots:
       - stylus
       - sugarss
 
-  svelte-preprocess@5.1.4(@babel/core@7.25.2)(postcss@8.4.43)(svelte@3.59.2)(typescript@5.5.4):
+  svelte-preprocess@5.1.4(@babel/core@7.25.2)(postcss@8.4.44)(svelte@3.59.2)(typescript@5.5.4):
     dependencies:
       '@types/pug': 2.0.10
       detect-indent: 6.1.0
@@ -2816,10 +2821,10 @@ snapshots:
       svelte: 3.59.2
     optionalDependencies:
       '@babel/core': 7.25.2
-      postcss: 8.4.43
+      postcss: 8.4.44
       typescript: 5.5.4
 
-  svelte-preprocess@5.1.4(@babel/core@7.25.2)(postcss@8.4.43)(svelte@4.2.19)(typescript@5.5.4):
+  svelte-preprocess@5.1.4(@babel/core@7.25.2)(postcss@8.4.44)(svelte@4.2.19)(typescript@5.5.4):
     dependencies:
       '@types/pug': 2.0.10
       detect-indent: 6.1.0
@@ -2829,15 +2834,15 @@ snapshots:
       svelte: 4.2.19
     optionalDependencies:
       '@babel/core': 7.25.2
-      postcss: 8.4.43
+      postcss: 8.4.44
       typescript: 5.5.4
 
-  svelte-preprocess@6.0.2(@babel/core@7.25.2)(postcss@8.4.43)(svelte@4.2.19)(typescript@5.5.4):
+  svelte-preprocess@6.0.2(@babel/core@7.25.2)(postcss@8.4.44)(svelte@4.2.19)(typescript@5.5.4):
     dependencies:
       svelte: 4.2.19
     optionalDependencies:
       '@babel/core': 7.25.2
-      postcss: 8.4.43
+      postcss: 8.4.44
       typescript: 5.5.4
 
   svelte-routing@2.13.0: {}
@@ -2908,13 +2913,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  unocss@0.62.3(postcss@8.4.43)(rollup@4.21.0)(vite@5.4.2):
+  unocss@0.62.3(postcss@8.4.44)(rollup@4.21.0)(vite@5.4.2):
     dependencies:
       '@unocss/astro': 0.62.3(rollup@4.21.0)(vite@5.4.2)
       '@unocss/cli': 0.62.3(rollup@4.21.0)
       '@unocss/core': 0.62.3
       '@unocss/extractor-arbitrary-variants': 0.62.3
-      '@unocss/postcss': 0.62.3(postcss@8.4.43)
+      '@unocss/postcss': 0.62.3(postcss@8.4.44)
       '@unocss/preset-attributify': 0.62.3
       '@unocss/preset-icons': 0.62.3
       '@unocss/preset-mini': 0.62.3
@@ -2941,14 +2946,14 @@ snapshots:
     dependencies:
       browserslist: 4.23.3
       escalade: 3.1.2
-      picocolors: 1.0.1
+      picocolors: 1.1.0
 
   uplot@1.6.30: {}
 
   vite@5.4.2:
     dependencies:
       esbuild: 0.21.5
-      postcss: 8.4.43
+      postcss: 8.4.44
       rollup: 4.21.0
     optionalDependencies:
       fsevents: 2.3.3
