@@ -77,7 +77,7 @@ importers:
         version: 3.8.6(@babel/core@7.25.2)(postcss@8.4.47)(svelte@4.2.19)
       svelte-language-server:
         specifier: ^0.17.0
-        version: 0.17.0(picomatch@4.0.2)
+        version: 0.17.1(picomatch@4.0.2)
       svelte-preprocess:
         specifier: ^6.0.0
         version: 6.0.2(@babel/core@7.25.2)(postcss@8.4.47)(svelte@4.2.19)(typescript@5.6.2)
@@ -749,8 +749,8 @@ packages:
     resolution: {integrity: sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==}
     engines: {node: '>=8'}
 
-  browserslist@4.23.3:
-    resolution: {integrity: sha512-btwCFJVjI4YWDNfau8RhZ+B1Q/VLoUITrm3RlP6y1tYGWIOa+InuYiRGXUBXo8nA1qKmHMyLB/iVQg5TT4eFoA==}
+  browserslist@4.24.0:
+    resolution: {integrity: sha512-Rmb62sR1Zpjql25eSanFGEhAxcFwfA1K0GuQcLoaJBAcENegrQut3hYdhXFF1obQfiDyqIW/cLM5HSJ/9k884A==}
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
 
@@ -768,8 +768,8 @@ packages:
     resolution: {integrity: sha512-b6Ilus+c3RrdDk+JhLKUAQfzzgLEPy6wcXqS7f/xe1EETvsDP6GORG7SFuOs6cID5YkqchW/LXZbX5bc8j7ZcQ==}
     engines: {node: '>=8'}
 
-  caniuse-lite@1.0.30001662:
-    resolution: {integrity: sha512-sgMUVwLmGseH8ZIrm1d51UbrhqMCH3jvS7gF/M6byuHOnKyLOBL7W8yz5V02OHwgLGA36o/AFhWzzh4uc5aqTA==}
+  caniuse-lite@1.0.30001664:
+    resolution: {integrity: sha512-AmE7k4dXiNKQipgn7a2xg558IRqPN3jMQY/rOsbxDhrd0tyChwbITBfiwtnqz8bi2M5mIWbxAYBvk7W7QBUS2g==}
 
   chalk@2.4.2:
     resolution: {integrity: sha512-Mti+f9lpJNcwF4tWV8/OrTTtF1gZi+f8FqlyAdouralcFWFQWF2+NgCHShjkCb+IFBLq9buZwE1xckQU4peSuQ==}
@@ -778,6 +778,10 @@ packages:
   chokidar@3.6.0:
     resolution: {integrity: sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==}
     engines: {node: '>= 8.10.0'}
+
+  chokidar@4.0.1:
+    resolution: {integrity: sha512-n8enUVCED/KVRQlab1hr3MVpcVMvxtZjmEa956u+4YijlmQED223XMSYj2tLuKvr4jcCTzNNMpQDUer72MMmzA==}
+    engines: {node: '>= 14.16.0'}
 
   code-red@1.0.4:
     resolution: {integrity: sha512-7qJWqItLA8/VPVlKJlFXU+NBlo/qyfs39aJcuMT/2ere32ZqvF5OSxgdM5xOfJJ7O429gg2HM47y8v9P+9wrNw==}
@@ -850,11 +854,11 @@ packages:
   duplexer@0.1.2:
     resolution: {integrity: sha512-jtD6YG370ZCIi/9GTaJKQxWTZD045+4R4hTk/x1UyoqadyJ9x9CgSi1RlVDQF8U2sxLLSnFkCaMihqljHIWgMg==}
 
-  electron-to-chromium@1.5.27:
-    resolution: {integrity: sha512-o37j1vZqCoEgBuWWXLHQgTN/KDKe7zwpiY5CPeq2RvUqOyJw9xnrULzZAEVQ5p4h+zjMk7hgtOoPdnLxr7m/jw==}
+  electron-to-chromium@1.5.29:
+    resolution: {integrity: sha512-PF8n2AlIhCKXQ+gTpiJi0VhcHDb69kYX4MtCiivctc2QD3XuNZ/XIOlbGzt7WAjjEev0TtaH6Cu3arZExm5DOw==}
 
-  emmet@2.4.7:
-    resolution: {integrity: sha512-O5O5QNqtdlnQM2bmKHtJgyChcrFMgQuulI+WdiOw2NArzprUqqxUW6bgYtKvzKgrsYpuLWalOkdhNP+1jluhCA==}
+  emmet@2.4.11:
+    resolution: {integrity: sha512-23QPJB3moh/U9sT4rQzGgeyyGIrcM+GH5uVYg2C6wZIxAIJq7Ng3QLT79tl8FUwDXhyq9SusfknOrofAKqvgyQ==}
 
   es6-promise@3.3.1:
     resolution: {integrity: sha512-SOp9Phqvqn7jtEUxPWdWfWoLmyt2VaJ6MpvP9Comy1MceMXqE6bxvaTu4iaxpYYPzhny28Lc+M87/c2cPK6lDg==}
@@ -882,14 +886,6 @@ packages:
 
   estree-walker@3.0.3:
     resolution: {integrity: sha512-7RUKfXgSMMkzt6ZuXmqapOurLGPPfgj6l9uRZ7lRGolvk0y2yocc35LdcxKC5PQZdn2DMqioAQ2NoWcrTKmm6g==}
-
-  fdir@6.2.0:
-    resolution: {integrity: sha512-9XaWcDl0riOX5j2kYfy0kKdg7skw3IY6kA4LFT8Tk2yF9UdrADUy8D6AJuBLtf7ISm/MksumwAHE3WVbMRyCLw==}
-    peerDependencies:
-      picomatch: ^3 || ^4
-    peerDependenciesMeta:
-      picomatch:
-        optional: true
 
   fdir@6.3.0:
     resolution: {integrity: sha512-QOnuT+BOtivR77wYvCWHfGt9s4Pz1VIMbD463vegT5MLqNXy8rYFT/lPVEqf/bhYeT6qmqrNHhsX+rWwe3rOCQ==}
@@ -1152,6 +1148,10 @@ packages:
     resolution: {integrity: sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==}
     engines: {node: '>=8.10.0'}
 
+  readdirp@4.0.1:
+    resolution: {integrity: sha512-GkMg9uOTpIWWKbSsgwb5fA4EavTR+SG/PMPoAY8hkhHfEEY0/vqljY+XHqtDf2cr2IJtoNRDbrrEpZUiZCkYRw==}
+    engines: {node: '>= 14.16.0'}
+
   resolve-pkg-maps@1.0.0:
     resolution: {integrity: sha512-seS2Tj26TBVOC2NIc2rOe2y2ZO7efxITtLZcGSOnHHNOQ7CkiUBfw0Iw2ck6xkIhPwLhKNLS8BO+hEpngQlqzw==}
 
@@ -1220,8 +1220,8 @@ packages:
     peerDependencies:
       svelte: ^3.19.0 || ^4.0.0
 
-  svelte-language-server@0.17.0:
-    resolution: {integrity: sha512-SIjDv2wiKN/zbEtzjoaKtE0T7Pv2iVDY6M/juBM3fCmIoOFTTlq6XYZgmYGP2+n+goLu+9aMPH5WvU+Sfmk/bA==}
+  svelte-language-server@0.17.1:
+    resolution: {integrity: sha512-bRGh6ypERbcmd4da/xBEQcrWg+S/h3BPswZgC7zIEKhbQxpxYv63MDnqiSqBDf4g1yQBVOBnTcKEtDB4jTF/RA==}
     engines: {node: '>= 18.0.0'}
     hasBin: true
 
@@ -1302,8 +1302,8 @@ packages:
   svelte-routing@2.13.0:
     resolution: {integrity: sha512-/NTxqTwLc7Dq306hARJrH2HLXOBtKd7hu8nxgoFDlK0AC4SOKnzisiX/9m8Uksei1QAWtlAEdF91YphNM8iDMg==}
 
-  svelte2tsx@0.7.15:
-    resolution: {integrity: sha512-91RbLJI448FR1UEZqXSS3ucVMERuWo8ACOhxfkBPK1CL2ocGMOC5bwc8tzFvb/Ji8NqZ7wmSGfvRebcUsiauKA==}
+  svelte2tsx@0.7.20:
+    resolution: {integrity: sha512-cGfCQa57nqbS1f4fTFGmnrWHdvUmDJTe6/D9Aiiwpz0BuOL4gLi/PrC0X8yUZ9hevXQdIaUd7ZqAmscgKzOmJg==}
     peerDependencies:
       svelte: ^3.55 || ^4.0.0-next.0 || ^4.0 || ^5.0.0-next.0
       typescript: ^4.9.4 || ^5.0.0
@@ -1413,11 +1413,11 @@ packages:
       vite:
         optional: true
 
-  vscode-css-languageservice@6.3.0:
-    resolution: {integrity: sha512-nU92imtkgzpCL0xikrIb8WvedV553F2BENzgz23wFuok/HLN5BeQmroMy26pUwFxV2eV8oNRmYCUv8iO7kSMhw==}
+  vscode-css-languageservice@6.3.1:
+    resolution: {integrity: sha512-1BzTBuJfwMc3A0uX4JBdJgoxp74cjj4q2mDJdp49yD/GuAq4X0k5WtK6fNcMYr+FfJ9nqgR6lpfCSZDkARJ5qQ==}
 
-  vscode-html-languageservice@5.3.0:
-    resolution: {integrity: sha512-C4Z3KsP5Ih+fjHpiBc5jxmvCl+4iEwvXegIrzu2F5pktbWvQaBT3YkVPk8N+QlSSMk8oCG6PKtZ/Sq2YHb5e8g==}
+  vscode-html-languageservice@5.3.1:
+    resolution: {integrity: sha512-ysUh4hFeW/WOWz/TO9gm08xigiSsV/FOAZ+DolgJfeLftna54YdmZ4A+lIn46RbdO3/Qv5QHTn1ZGqmrXQhZyA==}
 
   vscode-jsonrpc@8.2.0:
     resolution: {integrity: sha512-C+r0eKJUIfiDIfwJhria30+TYWPtuHJXHtI7J0YlOmKAo7ogxP20T0zxB7HZQIFhIyvoBPwWskjxrvAtfjyZfA==}
@@ -1426,8 +1426,8 @@ packages:
   vscode-languageserver-protocol@3.17.5:
     resolution: {integrity: sha512-mb1bvRJN8SVznADSGWM9u/b07H7Ecg0I3OgXDuLdn307rl/J3A9YD6/eYOssqhecL27hK1IPZAsaqh00i/Jljg==}
 
-  vscode-languageserver-textdocument@1.0.11:
-    resolution: {integrity: sha512-X+8T3GoiwTVlJbicx/sIAF+yuJAqz8VvwJyoMVhwEMoEKE/fkDmrqUgDMyBECcM2A2frVZIUj5HI/ErRXCfOeA==}
+  vscode-languageserver-textdocument@1.0.12:
+    resolution: {integrity: sha512-cxWNPesCnQCcMPeenjKKsOCKQZ/L6Tv19DTRIGuLWe32lyzWhihGVJ/rcckZXJxfdKCFvRLS3fpBIsV/ZGX4zA==}
 
   vscode-languageserver-types@3.17.5:
     resolution: {integrity: sha512-Ld1VelNuX9pdF39h2Hgaeb5hEZM2Z3jUrrMgWQAu82jMtZp7p3vJT3BzToKtZI7NgQssZje5o0zryOrhQvzQAg==}
@@ -1523,7 +1523,7 @@ snapshots:
     dependencies:
       '@babel/compat-data': 7.25.4
       '@babel/helper-validator-option': 7.24.8
-      browserslist: 4.23.3
+      browserslist: 4.24.0
       lru-cache: 5.1.1
       semver: 6.3.1
     optional: true
@@ -2043,9 +2043,9 @@ snapshots:
 
   '@vscode/emmet-helper@2.8.4':
     dependencies:
-      emmet: 2.4.7
+      emmet: 2.4.11
       jsonc-parser: 2.3.1
-      vscode-languageserver-textdocument: 1.0.11
+      vscode-languageserver-textdocument: 1.0.12
       vscode-languageserver-types: 3.17.5
       vscode-nls: 5.2.0
       vscode-uri: 2.1.2
@@ -2083,12 +2083,12 @@ snapshots:
     dependencies:
       fill-range: 7.1.1
 
-  browserslist@4.23.3:
+  browserslist@4.24.0:
     dependencies:
-      caniuse-lite: 1.0.30001662
-      electron-to-chromium: 1.5.27
+      caniuse-lite: 1.0.30001664
+      electron-to-chromium: 1.5.29
       node-releases: 2.0.18
-      update-browserslist-db: 1.1.0(browserslist@4.23.3)
+      update-browserslist-db: 1.1.0(browserslist@4.24.0)
     optional: true
 
   buffer-crc32@1.0.0: {}
@@ -2100,7 +2100,7 @@ snapshots:
 
   cac@6.7.14: {}
 
-  caniuse-lite@1.0.30001662:
+  caniuse-lite@1.0.30001664:
     optional: true
 
   chalk@2.4.2:
@@ -2121,6 +2121,10 @@ snapshots:
       readdirp: 3.6.0
     optionalDependencies:
       fsevents: 2.3.3
+
+  chokidar@4.0.1:
+    dependencies:
+      readdirp: 4.0.1
 
   code-red@1.0.4:
     dependencies:
@@ -2176,10 +2180,10 @@ snapshots:
 
   duplexer@0.1.2: {}
 
-  electron-to-chromium@1.5.27:
+  electron-to-chromium@1.5.29:
     optional: true
 
-  emmet@2.4.7:
+  emmet@2.4.11:
     dependencies:
       '@emmetio/abbreviation': 2.3.3
       '@emmetio/css-abbreviation': 2.1.8
@@ -2250,10 +2254,6 @@ snapshots:
   estree-walker@3.0.3:
     dependencies:
       '@types/estree': 1.0.5
-
-  fdir@6.2.0(picomatch@4.0.2):
-    optionalDependencies:
-      picomatch: 4.0.2
 
   fdir@6.3.0(picomatch@4.0.2):
     optionalDependencies:
@@ -2491,6 +2491,8 @@ snapshots:
     dependencies:
       picomatch: 2.3.1
 
+  readdirp@4.0.1: {}
+
   resolve-pkg-maps@1.0.0: {}
 
   rimraf@2.7.1:
@@ -2587,22 +2589,22 @@ snapshots:
     dependencies:
       svelte: 4.2.19
 
-  svelte-language-server@0.17.0(picomatch@4.0.2):
+  svelte-language-server@0.17.1(picomatch@4.0.2):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       '@vscode/emmet-helper': 2.8.4
-      chokidar: 3.6.0
+      chokidar: 4.0.1
       estree-walker: 2.0.2
-      fdir: 6.2.0(picomatch@4.0.2)
+      fdir: 6.3.0(picomatch@4.0.2)
       lodash: 4.17.21
       prettier: 3.3.3
       prettier-plugin-svelte: 3.2.6(prettier@3.3.3)(svelte@4.2.19)
       svelte: 4.2.19
-      svelte2tsx: 0.7.15(svelte@4.2.19)(typescript@5.6.2)
+      svelte2tsx: 0.7.20(svelte@4.2.19)(typescript@5.6.2)
       typescript: 5.6.2
       typescript-auto-import-cache: 0.3.3
-      vscode-css-languageservice: 6.3.0
-      vscode-html-languageservice: 5.3.0
+      vscode-css-languageservice: 6.3.1
+      vscode-html-languageservice: 5.3.1
       vscode-languageserver: 9.0.1
       vscode-languageserver-protocol: 3.17.5
       vscode-languageserver-types: 3.17.5
@@ -2633,7 +2635,7 @@ snapshots:
 
   svelte-routing@2.13.0: {}
 
-  svelte2tsx@0.7.15(svelte@4.2.19)(typescript@5.6.2):
+  svelte2tsx@0.7.20(svelte@4.2.19)(typescript@5.6.2):
     dependencies:
       dedent-js: 1.0.1
       pascal-case: 3.1.2
@@ -2724,9 +2726,9 @@ snapshots:
       - rollup
       - supports-color
 
-  update-browserslist-db@1.1.0(browserslist@4.23.3):
+  update-browserslist-db@1.1.0(browserslist@4.24.0):
     dependencies:
-      browserslist: 4.23.3
+      browserslist: 4.24.0
       escalade: 3.2.0
       picocolors: 1.1.0
     optional: true
@@ -2745,17 +2747,17 @@ snapshots:
     optionalDependencies:
       vite: 5.4.7
 
-  vscode-css-languageservice@6.3.0:
+  vscode-css-languageservice@6.3.1:
     dependencies:
       '@vscode/l10n': 0.0.18
-      vscode-languageserver-textdocument: 1.0.11
+      vscode-languageserver-textdocument: 1.0.12
       vscode-languageserver-types: 3.17.5
       vscode-uri: 3.0.8
 
-  vscode-html-languageservice@5.3.0:
+  vscode-html-languageservice@5.3.1:
     dependencies:
       '@vscode/l10n': 0.0.18
-      vscode-languageserver-textdocument: 1.0.11
+      vscode-languageserver-textdocument: 1.0.12
       vscode-languageserver-types: 3.17.5
       vscode-uri: 3.0.8
 
@@ -2766,7 +2768,7 @@ snapshots:
       vscode-jsonrpc: 8.2.0
       vscode-languageserver-types: 3.17.5
 
-  vscode-languageserver-textdocument@1.0.11: {}
+  vscode-languageserver-textdocument@1.0.12: {}
 
   vscode-languageserver-types@3.17.5: {}
 
