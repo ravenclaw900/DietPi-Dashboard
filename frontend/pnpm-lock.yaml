@@ -25,7 +25,7 @@ importers:
         version: 1.0.3
       uplot:
         specifier: ^1.6.24
-        version: 1.6.30
+        version: 1.6.31
       xterm:
         specifier: ^5.1.0
         version: 5.3.0
@@ -1371,8 +1371,8 @@ packages:
     peerDependencies:
       browserslist: '>= 4.21.0'
 
-  uplot@1.6.30:
-    resolution: {integrity: sha512-48oVVRALM/128ttW19F2a2xobc2WfGdJ0VJFX00099CfqbCTuML7L2OrTKxNzeFP34eo1+yJbqFSoFAp2u28/Q==}
+  uplot@1.6.31:
+    resolution: {integrity: sha512-sQZqSwVCbJGnFB4IQjQYopzj5CoTZJ4Br1fG/xdONimqgHmsacvCjNesdGDypNKFbrhLGIeshYhy89FxPF+H+w==}
 
   vite@5.4.7:
     resolution: {integrity: sha512-5l2zxqMEPVENgvzTuBpHer2awaetimj2BGkhBPdnwKbPNOlHsODU+oiazEZzLK7KhAnOrO+XGYJYn4ZlUhDtDQ==}
@@ -2733,7 +2733,7 @@ snapshots:
       picocolors: 1.1.0
     optional: true
 
-  uplot@1.6.30: {}
+  uplot@1.6.31: {}
 
   vite@5.4.7:
     dependencies:
