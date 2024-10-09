@@ -41,7 +41,7 @@ importers:
         version: 1.2.1
       '@iconify-json/svg-spinners':
         specifier: ^1.1.1
-        version: 1.2.0
+        version: 1.2.1
       '@sveltejs/vite-plugin-svelte':
         specifier: ^3.0.0
         version: 3.1.2(svelte@4.2.19)(vite@5.4.7)
@@ -474,8 +474,8 @@ packages:
   '@iconify-json/fa6-solid@1.2.1':
     resolution: {integrity: sha512-4H57tDC/xEhy4s7HPSRFuXQ/8gwtIEg33ak+iuiBoQc7kRh8DS6LXSCh4Uh3QNvTcNLDXnwqfQVhPwo0gpInMA==}
 
-  '@iconify-json/svg-spinners@1.2.0':
-    resolution: {integrity: sha512-0ov9JMKnqD4p/8aEzSTk+VKdmKZkRWHTqbzCEgKhL+yvpR8B1k3Ak8CO0bt6o+SBV/l8MOqUgFFgdt0xx8tLEw==}
+  '@iconify-json/svg-spinners@1.2.1':
+    resolution: {integrity: sha512-QZNA4YzFD2zqdC6nIBJM6WlAGakUCjvMt92Ks1R4XFxkd76Ps3rdiauYWESDRZvNYURAByp2b9cwZarFula65g==}
 
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
@@ -1783,7 +1783,7 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/svg-spinners@1.2.0':
+  '@iconify-json/svg-spinners@1.2.1':
     dependencies:
       '@iconify/types': 2.0.0
 
