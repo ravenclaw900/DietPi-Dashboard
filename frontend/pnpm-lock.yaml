@@ -38,7 +38,7 @@ importers:
     devDependencies:
       '@iconify-json/fa6-solid':
         specifier: ^1.1.12
-        version: 1.2.1
+        version: 1.2.2
       '@iconify-json/svg-spinners':
         specifier: ^1.1.1
         version: 1.2.1
@@ -417,8 +417,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@iconify-json/fa6-solid@1.2.1':
-    resolution: {integrity: sha512-4H57tDC/xEhy4s7HPSRFuXQ/8gwtIEg33ak+iuiBoQc7kRh8DS6LXSCh4Uh3QNvTcNLDXnwqfQVhPwo0gpInMA==}
+  '@iconify-json/fa6-solid@1.2.2':
+    resolution: {integrity: sha512-R419Oa+Tdq1AZjInDKylqfIWWIRykMwFCYr6xEEy/+mS583hV0mNYs95owMcb3GKeW92lpn9vGFckrioG1hqgQ==}
 
   '@iconify-json/svg-spinners@1.2.1':
     resolution: {integrity: sha512-QZNA4YzFD2zqdC6nIBJM6WlAGakUCjvMt92Ks1R4XFxkd76Ps3rdiauYWESDRZvNYURAByp2b9cwZarFula65g==}
@@ -942,6 +942,9 @@ packages:
 
   magic-string@0.30.12:
     resolution: {integrity: sha512-Ea8I3sQMVXr8JhN4z+H/d8zwo+tYDgHE9+5G4Wnrwhs0gaK9fXTKx0Tw5Xwsd/bCPTTZNRAdpyzvoeORe9LYpw==}
+
+  magic-string@0.30.13:
+    resolution: {integrity: sha512-8rYBO+MsWkgjDSOvLomYnzhdwEG51olQ4zL5KXnNJWV5MNmrb4rTZdrtkhxjnD/QyZUqR/Z/XDsUs/4ej2nx0g==}
 
   mdn-data@2.0.30:
     resolution: {integrity: sha512-GaqWWShW4kv/G9IEucWScBx9G1/vsFZZJUO+tD26M8J8z3Kw5RDQjaoZe03YAClgeS/SWPOcb4nkFBTEi5DUEA==}
@@ -1550,7 +1553,7 @@ snapshots:
   '@esbuild/win32-x64@0.23.1':
     optional: true
 
-  '@iconify-json/fa6-solid@1.2.1':
+  '@iconify-json/fa6-solid@1.2.2':
     dependencies:
       '@iconify/types': 2.0.0
 
@@ -1873,7 +1876,7 @@ snapshots:
       '@vue/compiler-ssr': 3.5.12
       '@vue/shared': 3.5.12
       estree-walker: 2.0.2
-      magic-string: 0.30.12
+      magic-string: 0.30.13
       postcss: 8.4.49
       source-map-js: 1.2.1
 
@@ -2166,6 +2169,10 @@ snapshots:
       tslib: 2.8.1
 
   magic-string@0.30.12:
+    dependencies:
+      '@jridgewell/sourcemap-codec': 1.5.0
+
+  magic-string@0.30.13:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.0
 
