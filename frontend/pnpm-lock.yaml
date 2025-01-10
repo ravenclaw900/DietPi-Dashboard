@@ -77,7 +77,7 @@ importers:
         version: 3.8.6(postcss@8.4.49)(svelte@4.2.19)
       svelte-language-server:
         specifier: ^0.17.0
-        version: 0.17.8(picomatch@4.0.2)
+        version: 0.17.10(picomatch@4.0.2)
       svelte-preprocess:
         specifier: ^6.0.0
         version: 6.0.3(postcss@8.4.49)(svelte@4.2.19)(typescript@5.7.2)
@@ -899,8 +899,8 @@ packages:
     resolution: {integrity: sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==}
     engines: {node: '>= 8.10.0'}
 
-  chokidar@4.0.2:
-    resolution: {integrity: sha512-/b57FK+bblSU+dfewfFe0rT1YjVDfOmeLQwCAuC+vwvgLkXboATqqmy+Ipux6JrF6L5joe5CBnFOw+gLWH6yKg==}
+  chokidar@4.0.3:
+    resolution: {integrity: sha512-Qgzu8kfBvo+cA4962jnP1KkS6Dop5NS6g7R5LFYJr4b8Ub94PPQXUksCw9PvXoeXPRRddRNC5C1JQUR2SMGtnA==}
     engines: {node: '>= 14.16.0'}
 
   code-red@1.0.4:
@@ -1297,8 +1297,8 @@ packages:
     peerDependencies:
       svelte: ^3.19.0 || ^4.0.0
 
-  svelte-language-server@0.17.8:
-    resolution: {integrity: sha512-V/UR0kEdlQwF4azfzhn47qimzfChsBHAPEGBMjFBfxWCv+Co9yv/Uv2za1OhdI+6vcAMpSRfGr+PauLrqgegew==}
+  svelte-language-server@0.17.10:
+    resolution: {integrity: sha512-cdLPCKBFUB1m2/4cscPaH9HQhIurpm8PECVVMo2JXISgATTGOr1hfWPpDI1W+scoumODFRPDaKrmuFCOa5hzVA==}
     engines: {node: '>= 18.0.0'}
     hasBin: true
 
@@ -1379,8 +1379,8 @@ packages:
   svelte-routing@2.13.0:
     resolution: {integrity: sha512-/NTxqTwLc7Dq306hARJrH2HLXOBtKd7hu8nxgoFDlK0AC4SOKnzisiX/9m8Uksei1QAWtlAEdF91YphNM8iDMg==}
 
-  svelte2tsx@0.7.31:
-    resolution: {integrity: sha512-exrN1o9mdCLAA7hTCudz731FIxomH/0SN9ZIX+WrY/XnlLuno/NNC1PF6JXPZVqp/4sMMDKteqyKoG44hliljQ==}
+  svelte2tsx@0.7.33:
+    resolution: {integrity: sha512-geogGkzfciwteiKvlbaDBnKOitWuh6e1n2f5KLBBXEfZgui9gy5yRlOBYtNEkdwciO4MC9fTM/EyltsiQrOPNQ==}
     peerDependencies:
       svelte: ^3.55 || ^4.0.0-next.0 || ^4.0 || ^5.0.0-next.0
       typescript: ^4.9.4 || ^5.0.0
@@ -1414,11 +1414,6 @@ packages:
 
   typescript-auto-import-cache@0.3.5:
     resolution: {integrity: sha512-fAIveQKsoYj55CozUiBoj4b/7WpN0i4o74wiGY5JVUEoD0XiqDk1tJqTEjgzL2/AizKQrXxyRosSebyDzBZKjw==}
-
-  typescript@5.6.3:
-    resolution: {integrity: sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw==}
-    engines: {node: '>=14.17'}
-    hasBin: true
 
   typescript@5.7.2:
     resolution: {integrity: sha512-i5t66RHxDvVN40HfDd1PsEThGNnlMCMT3jMUuoh9/0TaqWevNontacunWyN02LA9/fIbEWlcHZcgTKb9QoaLfg==}
@@ -2204,7 +2199,7 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  chokidar@4.0.2:
+  chokidar@4.0.3:
     dependencies:
       readdirp: 4.0.2
 
@@ -2662,11 +2657,11 @@ snapshots:
     dependencies:
       svelte: 4.2.19
 
-  svelte-language-server@0.17.8(picomatch@4.0.2):
+  svelte-language-server@0.17.10(picomatch@4.0.2):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       '@vscode/emmet-helper': 2.8.4
-      chokidar: 4.0.2
+      chokidar: 4.0.3
       estree-walker: 2.0.2
       fdir: 6.4.2(picomatch@4.0.2)
       globrex: 0.1.2
@@ -2674,8 +2669,8 @@ snapshots:
       prettier: 3.3.3
       prettier-plugin-svelte: 3.3.2(prettier@3.3.3)(svelte@4.2.19)
       svelte: 4.2.19
-      svelte2tsx: 0.7.31(svelte@4.2.19)(typescript@5.6.3)
-      typescript: 5.6.3
+      svelte2tsx: 0.7.33(svelte@4.2.19)(typescript@5.7.2)
+      typescript: 5.7.2
       typescript-auto-import-cache: 0.3.5
       vscode-css-languageservice: 6.3.2
       vscode-html-languageservice: 5.3.1
@@ -2707,12 +2702,12 @@ snapshots:
 
   svelte-routing@2.13.0: {}
 
-  svelte2tsx@0.7.31(svelte@4.2.19)(typescript@5.6.3):
+  svelte2tsx@0.7.33(svelte@4.2.19)(typescript@5.7.2):
     dependencies:
       dedent-js: 1.0.1
       pascal-case: 3.1.2
       svelte: 4.2.19
-      typescript: 5.6.3
+      typescript: 5.7.2
 
   svelte@4.2.19:
     dependencies:
@@ -2756,8 +2751,6 @@ snapshots:
   typescript-auto-import-cache@0.3.5:
     dependencies:
       semver: 7.6.3
-
-  typescript@5.6.3: {}
 
   typescript@5.7.2: {}
 
