@@ -25,7 +25,7 @@ importers:
         version: 1.0.3
       uplot:
         specifier: ^1.6.24
-        version: 1.6.31
+        version: 1.6.32
       xterm:
         specifier: ^5.1.0
         version: 5.3.0
@@ -1443,8 +1443,8 @@ packages:
       vite:
         optional: true
 
-  uplot@1.6.31:
-    resolution: {integrity: sha512-sQZqSwVCbJGnFB4IQjQYopzj5CoTZJ4Br1fG/xdONimqgHmsacvCjNesdGDypNKFbrhLGIeshYhy89FxPF+H+w==}
+  uplot@1.6.32:
+    resolution: {integrity: sha512-KIMVnG68zvu5XXUbC4LQEPnhwOxBuLyW1AHtpm6IKTXImkbLgkMy+jabjLgSLMasNuGGzQm/ep3tOkyTxpiQIw==}
 
   vite@5.4.14:
     resolution: {integrity: sha512-EK5cY7Q1D8JNhSaPKVK4pwBFvaTmZxEnoKXLG/U9gmdDcihQGNzFlgIvaxezFR4glP1LsuiedwMBqCXH3wZccA==}
@@ -2801,7 +2801,7 @@ snapshots:
       - supports-color
       - vue
 
-  uplot@1.6.31: {}
+  uplot@1.6.32: {}
 
   vite@5.4.14:
     dependencies:
