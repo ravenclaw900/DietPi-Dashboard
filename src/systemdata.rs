@@ -103,11 +103,9 @@ fn get_process_data(process: &mut psutil::process::Process) -> anyhow::Result<Un
 pub async fn processes() -> anyhow::Result<Vec<shared::ProcessData>> {
     let mut processes = process::processes().context("Couldn't get list of processes")?;
     let mut process_list = Vec::with_capacity(processes.len());
+    // cpu_percent() returns a CPU percent since the last time it was called, hence call once, wait 0.5s, then call again for measurement.
     for process in processes.iter_mut().flatten() {
-        // Required to get cpu times before actual measurement
-        if process.cpu_percent().is_err() {
-            continue;
-        }
+        let _ = process.cpu_percent();
     }
     sleep(Duration::from_millis(500)).await;
     for mut element in processes.into_iter().flatten() {
