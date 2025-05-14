@@ -2,8 +2,8 @@ use anyhow::Context;
 use futures_util::SinkExt;
 use serde::{Deserialize, Serialize};
 
-pub static CONFIG: once_cell::sync::Lazy<crate::config::Config> =
-    once_cell::sync::Lazy::new(crate::config::config);
+pub static CONFIG: std::sync::LazyLock<crate::config::Config> =
+    std::sync::LazyLock::new(crate::config::config);
 
 // Simple error handling macro, print out error and source (if available), and handle error if it exists
 #[macro_export]

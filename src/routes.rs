@@ -219,12 +219,12 @@ where
         .headers()
         .get(header::CONNECTION)
         .and_then(|x| x.to_str().ok())
-        .map_or(false, |x| x.contains("Upgrade"))
+        .is_some_and(|x| x.contains("Upgrade"))
         && req
             .headers()
             .get(header::UPGRADE)
             .and_then(|x| x.to_str().ok())
-            .map_or(false, |x| x.contains("websocket"))
+            .is_some_and(|x| x.contains("websocket"))
         && req.headers().get(header::SEC_WEBSOCKET_VERSION)
             == Some(&HeaderValue::from_static("13")))
     {
