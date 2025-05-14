@@ -219,7 +219,6 @@ dependencies = [
  "if-addrs",
  "jsonwebtoken",
  "mime_guess",
- "once_cell",
  "psutil",
  "pty-process",
  "ring",
