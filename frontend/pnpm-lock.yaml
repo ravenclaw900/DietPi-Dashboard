@@ -77,7 +77,7 @@ importers:
         version: 4.2.0(picomatch@4.0.2)(svelte@4.2.19)(typescript@5.8.2)
       svelte-language-server:
         specifier: ^0.17.0
-        version: 0.17.11(picomatch@4.0.2)
+        version: 0.17.14(picomatch@4.0.2)
       svelte-preprocess:
         specifier: ^6.0.0
         version: 6.0.3(postcss@8.5.3)(svelte@4.2.19)(typescript@5.8.2)
@@ -699,14 +699,6 @@ packages:
   exsolve@1.0.5:
     resolution: {integrity: sha512-pz5dvkYYKQ1AHVrgOzBKWeP4u4FRb3a6DNK2ucr0OoNwYIU4QWsJ+NM36LLzORT+z845MzKHHhpXiUF5nvQoJg==}
 
-  fdir@6.4.3:
-    resolution: {integrity: sha512-PMXmW2y1hDDfTSRc9gaXIuCCRpuoz3Kaz8cUelp3smouvfT632ozg2vrT6lJsHKKOF59YLbOGfAWGUcKEfRMQw==}
-    peerDependencies:
-      picomatch: ^3 || ^4
-    peerDependenciesMeta:
-      picomatch:
-        optional: true
-
   fdir@6.4.4:
     resolution: {integrity: sha512-1NZP+GK4GfuAv3PqKvxQRDMjdSRZjnkq7KfhlNrCNNlZ0ygQFpebfrnfnq/W7fpUnAv9aGWmY1zKx7FYL3gwhg==}
     peerDependencies:
@@ -881,6 +873,12 @@ packages:
       prettier: ^3.0.0
       svelte: ^3.2.0 || ^4.0.0-next.0 || ^5.0.0-next.0
 
+  prettier-plugin-svelte@3.4.0:
+    resolution: {integrity: sha512-pn1ra/0mPObzqoIQn/vUTR3ZZI6UuZ0sHqMK5x2jMLGrs53h0sXhkVuDcrlssHwIMk7FYrMjHBPoUSyyEEDlBQ==}
+    peerDependencies:
+      prettier: ^3.0.0
+      svelte: ^3.2.0 || ^4.0.0-next.0 || ^5.0.0-next.0
+
   prettier@3.3.3:
     resolution: {integrity: sha512-i2tDNA0O5IrMO757lfrdQZCc2jPNDVntV0m/+4whiDfWaTKfMNgR7Qz0NAeGz/nRqF4m5/6CLzbP4/liHt12Ew==}
     engines: {node: '>=14'}
@@ -922,8 +920,8 @@ packages:
   semver-compare-multi@1.0.3:
     resolution: {integrity: sha512-D6TUU36WXt52qOPXfWZj7Jlq+yTvpFu5+QL23czUiKxwpCIF+CSx3IyP8lWeLOOm17zkw/DQ8kjjAGns4bOxxg==}
 
-  semver@7.7.1:
-    resolution: {integrity: sha512-hlq8tAfn0m/61p4BVRcPzIGr6LKiMwo4VM6dGi6pt4qcRkmNzTcWq6eCEjEh+qXjkMDvPlOFFSGwQjoEa6gyMA==}
+  semver@7.7.2:
+    resolution: {integrity: sha512-RF0Fw+rO5AMf9MAyaRXI4AV0Ulj5lMHqVxxdSgiVbixSCXoEmmX/jk0CuJw4+3SqroYO9VoUh+HcuJivvtJemA==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -949,8 +947,8 @@ packages:
     peerDependencies:
       svelte: ^3.19.0 || ^4.0.0
 
-  svelte-language-server@0.17.11:
-    resolution: {integrity: sha512-OfUa/0jt0om1O6xWjML7I4C4ruvX7BrX5eSAk1DnjhJwYdvR8jHnmgio1HIkL6IcCsaxFFqfPVyIu42Sop+fMg==}
+  svelte-language-server@0.17.14:
+    resolution: {integrity: sha512-AkmeZsuq+0qYPNtc/FRAGnFytfa8WPshHQcImn7AphMNLPnXQ56/8gxBKsP+2MN5od/N2zRcHDnwPFch/7mF9Q==}
     engines: {node: '>= 18.0.0'}
     hasBin: true
 
@@ -994,8 +992,8 @@ packages:
   svelte-routing@2.13.0:
     resolution: {integrity: sha512-/NTxqTwLc7Dq306hARJrH2HLXOBtKd7hu8nxgoFDlK0AC4SOKnzisiX/9m8Uksei1QAWtlAEdF91YphNM8iDMg==}
 
-  svelte2tsx@0.7.35:
-    resolution: {integrity: sha512-z2lnOnrfb5nrlRfFQI8Qdz03xQqMHUfPj0j8l/fQuydrH89cCeN+v9jgDwK9GyMtdTRUkE7Neu9Gh+vfXJAfuQ==}
+  svelte2tsx@0.7.38:
+    resolution: {integrity: sha512-R+S2DwFUYByWXyAMcs8CRIeoIi+heXDFqLhYpqmYG+2/YbfWwMoiA7yctUptEP84Hcxl5sRjVJCARZVrLo9y4g==}
     peerDependencies:
       svelte: ^3.55 || ^4.0.0-next.0 || ^4.0 || ^5.0.0-next.0
       typescript: ^4.9.4 || ^5.0.0
@@ -1094,11 +1092,11 @@ packages:
       vite:
         optional: true
 
-  vscode-css-languageservice@6.3.2:
-    resolution: {integrity: sha512-GEpPxrUTAeXWdZWHev1OJU9lz2Q2/PPBxQ2TIRmLGvQiH3WZbqaNoute0n0ewxlgtjzTW3AKZT+NHySk5Rf4Eg==}
+  vscode-css-languageservice@6.3.5:
+    resolution: {integrity: sha512-ehEIMXYPYEz/5Svi2raL9OKLpBt5dSAdoCFoLpo0TVFKrVpDemyuQwS3c3D552z/qQCg3pMp8oOLMObY6M3ajQ==}
 
-  vscode-html-languageservice@5.3.2:
-    resolution: {integrity: sha512-3MgFQqVG+iQVNG7QI/slaoL7lJpne0nssX082kjUF1yn/YJa8BWCLeCJjM0YpTlp8A7JT1+J22mk4qSPx3NjSQ==}
+  vscode-html-languageservice@5.4.0:
+    resolution: {integrity: sha512-9/cbc90BSYCghmHI7/VbWettHZdC7WYpz2g5gBK6UDUI1MkZbM773Q12uAYJx9jzAiNHPpyo6KzcwmcnugncAQ==}
 
   vscode-jsonrpc@8.2.0:
     resolution: {integrity: sha512-C+r0eKJUIfiDIfwJhria30+TYWPtuHJXHtI7J0YlOmKAo7ogxP20T0zxB7HZQIFhIyvoBPwWskjxrvAtfjyZfA==}
@@ -1123,8 +1121,8 @@ packages:
   vscode-uri@2.1.2:
     resolution: {integrity: sha512-8TEXQxlldWAuIODdukIb+TR5s+9Ds40eSJrw+1iDDA9IFORPjMELarNQE3myz5XIkWWpdprmJjm1/SxMlWOC8A==}
 
-  vscode-uri@3.0.8:
-    resolution: {integrity: sha512-AyFQ0EVmsOZOlAnxoFOGOq1SQDWAB7C6aqMGS23svWAllfOaxbuFvcT8D1i8z3Gyn8fraVeZNNmN6e9bxxXkKw==}
+  vscode-uri@3.1.0:
+    resolution: {integrity: sha512-/BpdSx+yCQGnCvecbyXdxHDkuk55/G3xwnC0GqY4gmQ3j+A+g8kzzgB4Nk/SINjqn6+waqw3EgbVF2QKExkRxQ==}
 
   vue-flow-layout@0.1.1:
     resolution: {integrity: sha512-JdgRRUVrN0Y2GosA0M68DEbKlXMqJ7FQgsK8CjQD2vxvNSqAU6PZEpi4cfcTVtfM2GVOMjHo7GKKLbXxOBqDqA==}
@@ -1737,10 +1735,6 @@ snapshots:
 
   exsolve@1.0.5: {}
 
-  fdir@6.4.3(picomatch@4.0.2):
-    optionalDependencies:
-      picomatch: 4.0.2
-
   fdir@6.4.4(picomatch@4.0.2):
     optionalDependencies:
       picomatch: 4.0.2
@@ -1891,14 +1885,14 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
-  prettier-plugin-svelte@3.3.3(prettier@3.3.3)(svelte@4.2.19):
-    dependencies:
-      prettier: 3.3.3
-      svelte: 4.2.19
-
   prettier-plugin-svelte@3.3.3(prettier@3.5.3)(svelte@4.2.19):
     dependencies:
       prettier: 3.5.3
+      svelte: 4.2.19
+
+  prettier-plugin-svelte@3.4.0(prettier@3.3.3)(svelte@4.2.19):
+    dependencies:
+      prettier: 3.3.3
       svelte: 4.2.19
 
   prettier@3.3.3: {}
@@ -1951,7 +1945,7 @@ snapshots:
 
   semver-compare-multi@1.0.3: {}
 
-  semver@7.7.1: {}
+  semver@7.7.2: {}
 
   sirv@3.0.1:
     dependencies:
@@ -1977,27 +1971,27 @@ snapshots:
     dependencies:
       svelte: 4.2.19
 
-  svelte-language-server@0.17.11(picomatch@4.0.2):
+  svelte-language-server@0.17.14(picomatch@4.0.2):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       '@vscode/emmet-helper': 2.8.4
       chokidar: 4.0.3
       estree-walker: 2.0.2
-      fdir: 6.4.3(picomatch@4.0.2)
+      fdir: 6.4.4(picomatch@4.0.2)
       globrex: 0.1.2
       lodash: 4.17.21
       prettier: 3.3.3
-      prettier-plugin-svelte: 3.3.3(prettier@3.3.3)(svelte@4.2.19)
+      prettier-plugin-svelte: 3.4.0(prettier@3.3.3)(svelte@4.2.19)
       svelte: 4.2.19
-      svelte2tsx: 0.7.35(svelte@4.2.19)(typescript@5.8.2)
+      svelte2tsx: 0.7.38(svelte@4.2.19)(typescript@5.8.2)
       typescript: 5.8.2
       typescript-auto-import-cache: 0.3.5
-      vscode-css-languageservice: 6.3.2
-      vscode-html-languageservice: 5.3.2
+      vscode-css-languageservice: 6.3.5
+      vscode-html-languageservice: 5.4.0
       vscode-languageserver: 9.0.1
       vscode-languageserver-protocol: 3.17.5
       vscode-languageserver-types: 3.17.5
-      vscode-uri: 3.0.8
+      vscode-uri: 3.1.0
     transitivePeerDependencies:
       - picomatch
 
@@ -2010,7 +2004,7 @@ snapshots:
 
   svelte-routing@2.13.0: {}
 
-  svelte2tsx@0.7.35(svelte@4.2.19)(typescript@5.8.2):
+  svelte2tsx@0.7.38(svelte@4.2.19)(typescript@5.8.2):
     dependencies:
       dedent-js: 1.0.1
       pascal-case: 3.1.2
@@ -2051,7 +2045,7 @@ snapshots:
 
   typescript-auto-import-cache@0.3.5:
     dependencies:
-      semver: 7.7.1
+      semver: 7.7.2
 
   typescript@5.8.2: {}
 
@@ -2111,19 +2105,19 @@ snapshots:
     optionalDependencies:
       vite: 5.4.19
 
-  vscode-css-languageservice@6.3.2:
+  vscode-css-languageservice@6.3.5:
     dependencies:
       '@vscode/l10n': 0.0.18
       vscode-languageserver-textdocument: 1.0.12
       vscode-languageserver-types: 3.17.5
-      vscode-uri: 3.0.8
+      vscode-uri: 3.1.0
 
-  vscode-html-languageservice@5.3.2:
+  vscode-html-languageservice@5.4.0:
     dependencies:
       '@vscode/l10n': 0.0.18
       vscode-languageserver-textdocument: 1.0.12
       vscode-languageserver-types: 3.17.5
-      vscode-uri: 3.0.8
+      vscode-uri: 3.1.0
 
   vscode-jsonrpc@8.2.0: {}
 
@@ -2144,7 +2138,7 @@ snapshots:
 
   vscode-uri@2.1.2: {}
 
-  vscode-uri@3.0.8: {}
+  vscode-uri@3.1.0: {}
 
   vue-flow-layout@0.1.1(vue@3.5.12(typescript@5.8.2)):
     dependencies:
