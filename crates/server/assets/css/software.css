@@ -1,0 +1,35 @@
+.software-input {
+    padding: var(--size-2);
+
+    border-radius: var(--radius-md);
+    border: none;
+
+    cursor: pointer;
+
+    &[value="install"] {
+        background-color: var(--green-6);
+    }
+
+    &[value="uninstall"] {
+        background-color: var(--red-6);
+    }
+
+    &:disabled {
+        opacity: 70%;
+    }
+
+    >.spinner {
+        display: none;
+        animation: spin 1s linear infinite;
+    }
+
+    &:disabled>.spinner {
+        display: inline-block;
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(1turn)
+    }
+}
